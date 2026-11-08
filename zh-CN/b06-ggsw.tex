@@ -1,0 +1,27 @@
+GGSW 密文由一组 GLev 密文组成。在 GGSW 密码体制中，秘密密钥 $S$ 是由 $k$ 个多项式组成的列表，即 $S_0, S_1, ... \text{ } S_{k-1}$。GGSW 密文中的各个 GLev 密文（以 $i$ 索引）分别加密明文 $-S_0 \cdot M, -S_1 \cdot M, \ldots, -S_{k-1} \cdot M$，以及 $M$。\autoref{fig:ggsw} 直观展示了这一结构。
+
+
+\subsection{加密}
+\label{subsec:ggsw-enc}
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ggsw-enc}} GGSW 加密}}]
+$\textsf{GGSW}_{S, \sigma}^{\beta, l}(M) = \Bigl \{ \{ \textsf{GLev}_{S, \sigma}^{\beta, l}(-S_i \cdot M)  \}_{i=0}^{k-1}, \textsf{GLev}_{S, \sigma}^{\beta, l}(M) \Bigr \} \in \mathcal{R}_{\langle n, q \rangle }^{(k+1) \cdot l \cdot (k+1)}$
+\end{tcolorbox}
+
+\begin{figure}[h!]
+    \centering
+  \includegraphics[width=1.0\linewidth]{figures/TFHE-fig3.pdf}
+  \caption{GGSW 密文结构示意图。}
+  \label{fig:ggsw}
+\end{figure}
+
+
+\subsection{解密}
+
+为了恢复消息 $M$，只需使用秘密密钥 $S$ 解密最后一个 GLev 密文，即加密 $M$ 的那一个。解密其他行会得到 $-S_i \cdot M$，但只有当 $S_i$ 可逆，即满足 $S_i \neq 0$ 时，才能从这些行中恢复 $M$。
+
+
+
+\subsection{GSW 与 RGSW}
+
+GSW 是 $n=1$ 时的 GGSW，RGSW 是 $k=1$ 时的 GGSW。

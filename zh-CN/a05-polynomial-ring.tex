@@ -1,0 +1,256 @@
+\textbf{- 参考资料 1：}
+\href{https://en.wikipedia.org/wiki/Polynomial_ring}{多项式环（维基百科）}~\cite{polynomial-ring}
+
+\noindent \textbf{- 参考资料 2：}
+\href{https://math.libretexts.org/Bookshelves/Combinatorics_and_Discrete_Mathematics/Applied_Discrete_Structures_(Doerr_and_Levasseur)/16%3A_An_Introduction_to_Rings_and_Fields/16.03%3A_Polynomial_Rings}{多项式环（LibreTexts）}~\cite{polynomial-rings}
+
+\subsection{概述}
+\label{subsec:poly-ring-overview}
+
+\textbf{多项式环}是由多项式组成的集合，其中关于运算符 $(+, \cdot)$ 的多项式运算（例如 $f_1 + f_2$、$f_1 \cdot (f_2 - f_3)$、$f_1 + f_2 + f_4$）具有封闭性，并满足结合律、交换律和分配律。
+
+
+多项式环 ${\mathbb{Z}_p[x] / (x^n + 1)}$ 是满足以下性质的所有多项式 $f_i$ 的集合：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:poly-ring-overview}} 环}}]
+
+对于满足 $f = c_0 + c_1x^1 + \cdots + c_{n-1}x^{n-1}$ 的多项式 $f \in \mathbb{Z}_p[x] / (x^n + 1)$：
+
+\begin{itemize}
+\item \textbf{系数环：}每个系数均满足 $c_j \in \mathbb{Z}_p$。
+
+$ $
+
+\item \textbf{次数界：}任意 $f' \in \mathbb{Z}_p[x]$ 都可写成：
+
+$ $
+
+$f'=(x^n+1)f_q+f_r,\qquad \deg f_r < n,$
+
+$ $
+
+因此，在商环 $\mathbb{Z}_p[x]/(x^n+1)$ 中有 $f' \equiv f_r \pmod{x^n+1}$。$f_q$ 和 $f_r$ 分别称为 $f'$ 除以 $x^n + 1$ 所得到的商多项式和余式。
+
+$ $
+
+\item \textbf{多项式同余：}两个同余的多项式属于同一个等价类，因此在多项式环中的多项式运算（$+, \cdot$）中可以相互替换。例如，如果：
+
+$ $
+
+$f' \equiv f_{r1} \in \mathbb{Z}_p[x] / (x^n + 1)$
+
+$f{''} \equiv f_{r2} \in \mathbb{Z}_p[x] / (x^n + 1)$
+
+$f_{r1} + f_{r2} \equiv f_{r3} \in \mathbb{Z}_p[x] / (x^n + 1)$
+
+$ $
+
+则多项式运算 $f' + f''$ 的结果与下式属于同一个等价类：
+
+$f' + f'' \equiv f_{r1} + f_{r2} \equiv f_{r3} \in \mathbb{Z}_p[x] / (x^n + 1)$
+
+
+\end{itemize}
+
+为简化记号，将多项式环 $\mathbb{Z}_p[x] / (x^n + 1)$ 记为 $\mathcal{R}_{\langle n, p \rangle}$。
+\end{tcolorbox}
+
+回顾整数模环 $\mathbb{Z}_p$：任意 $b$ 都可以写成 $b = mp + r$，其中 $0\le r<p$，因此 $b \equiv r \pmod{p}$（商 $m$ 被消去）。类似地，在多项式环 $\mathcal{R}_{\langle n, p \rangle}$ 中，高次多项式 $f_{big}$ 可以除以多项式模数 $x^n + 1$，得到：
+
+$f_{big} = (x^n + 1)\cdot(f_q) + f_r \equiv f_r \in \mathcal{R}_{\langle n, p \rangle}$
+
+\noindent 其中，$f_q$ 是商多项式，$f_r$ 是余式。此时，$f_{big}$ 与 $f_r$ 同余，即属于同一个等价类。因此，可以消去 $f_q$，并在多项式环的多项式运算 $(+, \cdot)$ 中，用 $f_r$（即 $f_{big}$ 的简化形式）替代原多项式。
+多项式环中的多项式简化（即约减），通过在 $f_{big}$ 中使用关系 $x^n \equiv -1$ 进行代换来完成，因为在该多项式环中有 $x^n + 1 \equiv 0$（这与模 $p$ 的整数环中用 $0$ 替换 $p$ 来约减一个数的情形相同）。在 $f_{big}$ 中不断使用关系 $x^n \equiv -1$ 进行代换，即可将高次多项式 $f_{big}$ 逐步简化为次数小于 $n$ 的多项式。
+
+作为多项式模数，通常选择分圆多项式 $x^n + 1$ 作为除式，其中 $n$ 为 $2^p$，$p$ 为整数，因为这种选择有利于提高计算效率。
+
+\subsubsection{示例}
+\label{subsubsec:poly-ring-ex}
+给定 $f \in \mathbb{Z}_7[x] / (x^2 + 1)$，假设 $f = x^4 + 3x^3 + 11x^2 + 6x + 10$。则有：
+
+$ $
+
+$f = (x^2)\cdot(x^2) + 3x\cdot(x^2) + 11x^2 + 6x + 10$ 
+
+$ \equiv (-1)(-1) + 3x(-1) +  (11 \bmod 7)(-1) + 6x + (10 \bmod 7)$
+
+$ = 3x \in \mathbb{Z}_7[x] / (x^2 + 1)$
+
+$ $
+
+\noindent 因此，在多项式环 $\mathbb{Z}_7[x] / (x^2 + 1)$ 中，$f(x) = x^4 + 3x^3 + 11x^2 + 6x + 10$ 与 $3x$ 等价（$\equiv$）。
+
+
+\subsubsection{讨论}
+\label{subsubsec:polynomial-ring-discuss}
+
+\begin{table}[h]
+\centering
+\footnotesize
+%\noindent\adjustbox{max width=\columnwidth}{
+\begin{tabular}{|c||c|c|} % left align
+\hline
+&\textbf{整数模环} & \textbf{多项式环} \\
+\hline
+\hline
+\textbf{{集合元素}} & 数 & 多项式 \\
+\hline
+\textbf{{环的记号}} & $\mathbb{Z}_p = \{0, 1, \ldots, p - 1\}$ & $\mathbb{Z}_p[x] / (x^n + 1)$ \\
+\textbf{{及定义}} & $0$ 到 $p$ 之间的所有整数的集合 & 满足下式的所有多项式 $f$ 的集合：\\
+&& $f= c_0 + c_1x^1 + c_2x^2 \cdots + c_{n-1}x^{n-1}$ \\
+&& 其中每个系数满足 $c_i \in \mathbb{Z}_p$ \\
+&& 且 $f$ 的次数小于 $n$ \\
+\hline
+\textbf{{支持的}}&$(+, \cdot)$& $(+, \cdot)$ \\
+\textbf{{运算}}&（加法、乘法）&（加法、乘法）\\
+\hline
+\textbf{{（$+$）运算}} & 通常的数值加法 & $f_a = a_0 + a_1x^1 + a_2x^2 \cdots + a_{d_a-1}x^{d_a-1}$ \\
+ & & $f_b = b_0 + b_1x^1 + b_2x^2 \cdots + b_{d_b-1}x^{d_b-1}$ \\
+&& 则 $f_a + f_b$ 的计算方式为：\\
+ & & $f_c = \sum\limits_{i=0}^{\textsf{max}(d_a,d_b)}(a_i+b_i)x^i$ \\
+\hline
+\textbf{{（$\cdot$）运算}} & 通常的数值乘法 & $f_a = a_0 + a_1x^1 + a_2x^2 \cdots + a_{d_a-1}x^{d_a-1}$ \\
+ & & $f_b = b_0 + b_1x^1 + b_2x^2 \cdots + b_{d_b-1}x^{d_b-1}$ \\
+&& 则 $f_a \cdot f_b$ 的计算方式为：\\
+ & & $f_c = \sum\limits_{i=0}^{d_a+d_b}\sum\limits_{j=0}^{i}a_jb_{i-j}x^i$ \\
+\hline
+& 对于 $a, b \in \mathbb{Z}_p$ & 对于 $f_a, f_b \in \mathbb{Z}_p[x]/(x^n + 1)$，\\
+\textbf{{交换律}} & $ a + b = b + a$ & $f_a + f_b = f_b + f_a$\\
+\textbf{{结合律}} & $(a + b) + c = a + (b + c)$ & $(f_a + f_b) + f_c = f_a + (f_b + f_c)$\\
+\textbf{{分配律}} & $a \cdot (b + c) = a\cdot b + a\cdot c$ & $f_a \cdot (f_b + f_c) = f_a\cdot f_b + f_a\cdot f_c$\\
+\textbf{{封闭性}}& $a + b \equiv c \in \mathbb{Z}_p$，$a \cdot b \equiv d \in \mathbb{Z}_p$ & $f_a + f_b \equiv f_c \in \mathcal{R}_{\langle n, p \rangle}$，\\
+&&$f_a \cdot f_b \equiv f_d \in \mathcal{R}_{\langle n, p \rangle}$\\
+\hline
+\textbf{{同余（$\equiv$）}} & 两个数模 $p$ 同余，即 $a \equiv b$，若： & 两个多项式在 $\mathbb{Z}_p[x] / (x^n + 1)$ 中同余，即 $f_a \equiv f_b$，若：\\
+ & $(a \bmod p) = (b \bmod p)$   & $f'_a = f_a \bmod (x^n + 1) = \sum\limits_{i=0}^{d_a} a_ix^i$ \\
+ & & $f'_b = f_b \bmod (x^n + 1) = \sum\limits_{i=0}^{d_b} b_ix^i$, \\
+&& $d_a = d_b$ 且 $a_i \equiv b_i$，均在模 $p$ 下\\
+&&对所有 $0 \leq i \leq d_a$ 成立\\
+\hline
+\end{tabular}%}
+\centering
+\caption{整数模环与多项式环的比较。
+}
+\label{tab:ring-comparison}
+\end{table}
+
+\para{同余：}两个同余的数属于同一个\textit{同余类}；两个同余的多项式也是如此。如果两个数学表达式的计算结果属于同一个同余类，那么它们的计算会在相应的模数范围内循环约减。这一性质对于密码方案很有用，因为加密和解密运算需要将数值限制在有限位数的二进制表示范围内。同余还可用于简化计算。例如，可以利用同余规则，将一个大数或复杂多项式\textit{规范化}为更简单的数或多项式，从而降低计算开销。
+
+\para{多项式求值：}属于同一个同余类的两个数不一定相等。例如，在模 5 下有 $5 \equiv 10$，但这两个数并不相同。类似地，两个同余的多项式也不一定相同。在多项式环所支持的多项式运算（即 $(+, \cdot)$）中，例如 $f_1 + f_2$ 或 $f_1 \cdot (f_2 - f_3)$，两个同余的多项式可以相互替换；但是，将某个变量值 $x = a$ 代入它们求值时，结果不一定相同。例如，在 \autoref{subsubsec:poly-ring-ex} 的前一个例子中，两个多项式 $x^4 + 3x^3 + 11x^2 + 6x + 10$ 和 $3x$ 在多项式环 $\mathbb{Z}_7[x] / (x^2 + 1)$ 中同余。然而，在 $x = 0$ 处求值时，原多项式的结果为 10，而约减后（即简化后）的多项式结果为 0。这种求值差异源于同余的定义：若两个多项式 $M_1$ 和 $M_2$ 除以 $x^n + 1$ 后的余式相同（即对于某个多项式 $Q$，有 $M_1 = Q \cdot (x^n + 1) + M_2$），便称它们在 $x^n + 1$ 上同余（即 $M_1 \equiv M_2$）。因此，若在满足 $x^n = -1$ 的 $x$ 处求值，$x^n +1$ 项就为 0，此时 $M_1$ 和 $M_2$ 的求值结果都等于同一个多项式 $M_2$ 的求值结果。方程 $x^n = -1$ 的解称为 $n$ 次单位根，将在 \autoref{sec:roots} 和 \autoref{sec:cyclotomic-polynomial-integer-ring} 中介绍。归纳如下：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:polynomial-ring-discuss}} 多项式环中的多项式求值}}]
+
+假设多项式 $M_1$ 和 $M_2$ 在多项式环 $x^n + 1$ 中同余。这等价于存在某个多项式 $Q$，使得 $M_1 = Q \cdot (x^n + 1) + M_2$。如果 $X=x_i$ 是方程 $x^n + 1$ 的解（即 $X$ 是 $n$ 次单位根），则可以保证 $M_1(X)$ 与 $M_2(X)$ 的求值结果相同，即 $M_1(x_i) = M_2(x_i)$。
+
+\end{tcolorbox}
+
+\para{整数模环与多项式环：}这两种环具有许多共同特征，汇总于 \autoref{tab:ring-comparison}。
+
+
+\subsection{系数旋转}
+\label{subsec:coeff-rotation}
+
+系数旋转是在多项式环中，将一个多项式的全部系数向左或向右移动的过程。若要将全部系数向左旋转 $h$ 个位置，可以将该多项式乘以 $x^{-h}$。
+
+例如，假设有如下多项式：
+
+$ $
+
+$f(x) = c_0 + c_1x^1 + c_2x^2 + \cdots + c_hx^h + \cdots + c_{n-1}x^{n-1} \in \mathcal{R}_{\langle n, p \rangle}$
+
+$ $
+
+要将 $f$ 的所有系数向左移动 $h$ 个位置（即将 $f$ 的第 $h$ 个系数移至常数项），需要计算 $f \cdot x^{-h}$，如下所示：
+
+$ $
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:coeff-rotation}} 多项式旋转}}]
+
+给定如下 $(n-1)$ 次多项式：
+
+$ $
+
+$f(x) = c_0 + c_1x^1 + c_2x^2 + \cdots + c_hx^h + \cdots + c_{n-1}x^{n-1} \in \mathcal{R}_{\langle n, p \rangle}$
+
+$ $
+
+将 $f(x)$ 乘以 $x^{-h}$，即可把 $f(x)$ 的系数向左旋转 $h$ 个位置，具体如下：
+
+$ $
+
+$f(x) \cdot x^{-h} = c_0\cdot x^{-h} + c_1x^1 \cdot x^{-h} + c_2x^2 \cdot x^{-h} + \cdots + c_hx^h \cdot x^{-h} + \cdots + c_{n-1}x^{n-1} \cdot x^{-h}$
+$\equiv c_h + c_{h+1}x + c_{h+2}x^2 + \cdots + c_{n-1}x^{n-1-h} - c_0x^{n - h} - \cdots - c_{h-1}x^{n-1} \in \mathcal{R}_{\langle n, p \rangle}$
+\end{tcolorbox}
+
+$ $
+
+注意，将两个多项式 $f$ 与 $x^{-h}$ 相乘，会得到在 $\mathcal{R}_{\langle n, p \rangle}$ 中的一个同余多项式。因此，旋转后的多项式，即 $f \cdot x^{-h}$ 的结果，也会在 $\mathcal{R}_{\langle n, p \rangle}$ 中有一个同余多项式。
+
+由于计算在多项式环 $\mathbb{Z}_p[x] / (x^n + 1)$ 中进行，系数在旋转越过 $x^n (= -1)$ 的边界时，其符号会发生变化。
+
+
+
+
+\subsubsection{示例}
+\label{subsec:coeff-rotation-ex}
+
+假设有如下多项式 $f \in \mathbb{Z}_8[x] / (x^4 + 1)$：
+
+对 $\mathbb{Z}_8$ 使用中心化剩余表示，即 $\{-4,-3,-2,-1,0,1,2,3\}$。
+
+$f = 2 + 3x - 4x^2 -x^3$
+
+
+
+
+$ $
+
+多项式环 $\mathbb{Z}_8[x] / (x^4 + 1)$ 具有以下 4 个同余关系：
+
+{\boldmath{$x^4 \equiv -1$}}
+
+$x^4 \cdot x^{-1} \equiv -1 \cdot x^{-1}$
+
+{\boldmath{$x^3 \equiv -x^{-1}$}}
+
+$ $
+
+$x^4 \equiv -1$
+
+$x^4 \cdot x^{-3} \equiv -1 \cdot x^{-3}$
+
+{\boldmath{$x \equiv -x^{-3}$}}
+
+$ $
+
+$x^4 \equiv -1$
+
+$x^4 \cdot x^{-2} \equiv -1 \cdot x^{-2}$
+
+{\boldmath{$x^2 \equiv -x^{-2}$}}
+
+$ $
+
+
+
+根据总结~\ref*{subsec:coeff-rotation} 中的系数旋转方法，向左旋转 1 个位置等价于计算 $f \cdot x^{-1}$，如下所示：
+
+$f\cdot x^{-1} = 2\cdot(x^{-1}) + 3x\cdot(x^{-1}) - 4x^2\cdot(x^{-1}) - x^3\cdot(x^{-1})$
+
+$\equiv -2x^{3} + 3 - 4x^1 - x^2$
+
+$= 3 - 4x^1 - x^2 -2x^{3}$
+
+$ $
+
+类似地，向左旋转 3 个位置等价于计算 $f \cdot x^{-3}$，如下所示：
+
+$f\cdot x^{-3} = 2\cdot(x^{-3}) + 3x\cdot(x^{-3}) - 4x^2\cdot(x^{-3}) - x^3\cdot(x^{-3})$
+
+$\equiv -2x - 3x^2 + 4x^3 - 1$
+
+$= -1 - 2x - 3x^2 + 4x^3$
+
+$= -1 - 2x - 3x^2 + (4 \equiv -4 \bmod 8) x^3$
+
+$\equiv -1 - 2x - 3x^2 -4x^3$

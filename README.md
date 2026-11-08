@@ -1,3 +1,16 @@
+# 全同态加密入门教材 · 中文版
+
+本仓库在保留英文源码的基础上，提供对应的 **34 个章节中文初译**和独立中文 PDF 编译入口。
+
+- [中文编译与阅读说明](README.zh-CN.md)
+- [翻译范围、术语及原文待核对问题](TRANSLATION.md)
+- 中文入口：`00-main-zh.tex`；中文正文：`zh-CN/`
+- 快速编译：`python3 scripts/build.py zh`（需要 XeLaTeX 和 latexmk）
+- 英文入口仍为 `00-main.tex`；同时编译两版：`python3 scripts/build.py all`
+- GitHub Actions 的 **Textbook PDFs** 工作流提供两版 PDF 下载。
+
+---
+
 # The Beginner's Textbook for Fully Homomorphic Encryption
 
 #### ArXiv's PDF Link: [https://arxiv.org/abs/2503.05136](https://arxiv.org/abs/2503.05136)

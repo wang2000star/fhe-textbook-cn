@@ -1,0 +1,32 @@
+GLev 密文是由多个 GLWE 密文组成的列表，分别加密明文列表 $\dfrac{q}{\beta^1}M, \dfrac{q}{\beta^2}M, \ldots, \dfrac{q}{\beta^l}M$，其中 $M$ 是编码为多项式的明文。GLev 密文中的第 $i$ 个 GLWE 密文使用不同的明文尺度因子 $\Delta_i = \dfrac{q}{\beta^i}$。\autoref{fig:glev} 直观展示了 GLev 密文的结构。
+
+
+$\beta$ 应取 $t$ 与 $q$ 之间的某个值。具体而言，$t$ 应小于或等于 $\beta$，因为如果 $t$ 大于 $\beta$，计算 $\dfrac{q}{\beta^1}M$ 时，$M$ 的高位就会溢出模数 $q$ 的范围。
+
+
+\subsection{加密}
+\label{subsec:glev-enc}
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:glev-enc}} GLev 加密}}]
+
+
+$\textsf{GLev}_{S, \sigma}^{\beta, l}(M) = \Bigl \{\textsf{GLWE}_{S, \sigma}\left(\dfrac{q}{\beta^i} M + E_i\right)  \Bigr \}_{i=1}^{l} \in \mathcal{R}_{\langle n, q \rangle }^{(k+1) \cdot l}$
+\end{tcolorbox}
+
+\begin{figure}[h!]
+    \centering
+  \includegraphics[width=1.0\linewidth]{figures/TFHE-fig2.pdf}
+  \caption{GLev 密文结构示意图。}
+  \label{fig:glev}
+\end{figure}
+
+
+
+\subsection{解密}
+
+使用秘密密钥 $S$，按照尺度因子 $\Delta_1 = \dfrac{q}{\beta}$ 解密第一个 GLWE 密文，即 $i=1$ 对应的密文。虽然 GLev 密文包含 $l$ 份加密，但随着索引增大到 $i > 1$，尺度因子 $\Delta_i = q/\beta^i$ 逐渐减小。如果 $\Delta_i$ 小于噪声所需的阈值，这些分量就无法正确解密。
+
+\subsection{Lev 与 RLev}
+
+Lev 是 $n=1$ 时的 GLev，RLev 是 $k=1$ 时的 GLev。
+

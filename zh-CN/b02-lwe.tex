@@ -1,0 +1,192 @@
+
+\textbf{- 参考资料：}
+\href{https://www.zama.ai/post/tfhe-deep-dive-part-1}{TFHE 深入解析：第一部分 -- 密文类型}~\cite{tfhe-1}
+
+
+
+$ $
+
+
+
+
+\subsection{参数设置}
+设 $[0, t-1]$ 为明文范围，$[0, q-1]$ 为密文范围，其中 $t \ll q$，即 $t$ 远小于 $q$。随机选取长度为 $k$ 的向量 $\vec{s}$ 作为秘密密钥，其中包含 $k$ 个从 $\{-1, 0, 1\}$ 中采样的三元数，记为 $\vec{s} \xleftarrow{\$} \{-1, 0, 1\}^k$。令明文尺度因子为 $\Delta = \dfrac{q}{t}$。
+
+\subsection{加密}
+\label{subsec:lwe-enc}
+
+\begin{enumerate}
+\item 假设要加密明文 $m \in \mathbb{Z}_t$。\item 随机选取长度为 $k$ 的向量 $\vec{a} \in \mathbb{Z}_q^k$，作为一次性的公开随机掩码，记为 $\vec{a} \xleftarrow{\$} \mathbb{Z}_q^k$。
+\item 从高斯分布 $\chi_\sigma$ 中采样一个小的、一次性随机噪声 $e \in \mathbb{Z}_q$，记为 $e \xleftarrow{\chi_\sigma} \mathbb{Z}_q$。
+\item 将 $m$ 按 $\Delta$ 缩放，即计算 $\Delta \cdot m$。这将 $m \in \mathbb{Z}_t$ 转换为 $\Delta \cdot m \in \mathbb{Z}_q$。
+\item 计算 $b = \vec{a} \cdot \vec{s} + \Delta \cdot m + e \in \mathbb{Z}_q$。
+\end{enumerate}
+
+$ $
+
+LWE 加密公式汇总如下：
+
+$ $
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:lwe-enc}} LWE 加密}}]
+\textbf{\underline{初始设置}：}$\Delta = \dfrac{q}{t}$，$\vec{s} \xleftarrow{\$} \{-1, 0, 1\}^k$，其中 $t$ 整除 $q$。
+
+$ $
+
+$ $
+
+\textbf{\underline{加密输入}：}$m \in \mathbb{Z}_t$，$\vec{a} \xleftarrow{\$} \mathbb{Z}_q^k$，$e \xleftarrow{\chi_\sigma} \mathbb{Z}_q$
+
+$ $
+
+%\textbf{Encryption}
+
+\begin{enumerate}
+\item 向上缩放 $m \longrightarrow \Delta \cdot m \text{ } \in \mathbb{Z}_q$
+
+\item 计算 $b = \vec{a} \cdot \vec{s} + \Delta  m + e \pmod q$
+\item $\textsf{LWE}_{\vec{s},\sigma}(\Delta  m + e) = (\vec{a}, b) \text{ } \in \mathbb{Z}_q^{k + 1}$ 
+\end{enumerate}
+
+\end{tcolorbox}
+
+\subsection{解密}
+\label{subsec:lwe-dec} 
+
+\begin{enumerate}
+\item 给定密文 $(\vec{a}, b)$，其中 $b = \vec{a} \cdot \vec{s} + \Delta \cdot m + e \in \mathbb{Z}_q$，计算 $b - \vec{a} \cdot \vec{s}$，得到与 $\Delta \cdot m + e \in \mathbb{Z}_q$ 相同的值。
+\item 将 $\Delta \cdot m + e \in \mathbb{Z}_q$ 舍入到最接近的 $\Delta$ 的整数倍，即按基数 $\Delta$ 舍入，记为 $\lceil \Delta \cdot m + e \rfloor_{\Delta}$。只要 $e$ 足够小并满足 $e < \dfrac{\Delta}{2}$，舍入就能成功消去 $e$，得到 $\Delta m$。如果 $e \geq \dfrac{\Delta}{2}$，则噪声 $e$ 的部分高位会与明文 $m$ 重叠，无法被消去，从而破坏明文 $m$ 的部分低位。
+\item 计算 $\dfrac{\Delta m} {\Delta}$，这等价于将 $\lceil \Delta \cdot m + e \rfloor_{\Delta}$ 向右移动 $\text{log}_2 \Delta$ 位。这里假设 $\Delta$ 为 2 的幂；若 $\Delta$ 不是 2 的幂，则将 $m$ 按 $\Delta$ 向上或向下缩放，分别意味着将该数乘以或除以 $\Delta$。
+\end{enumerate}
+
+$ $
+
+LWE 解密公式汇总如下：
+
+$ $
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:lwe-dec}} LWE 解密}}]
+
+\textbf{\underline{解密输入}：}$\textsf{ct} = (\vec{a}, b) \text{ } \in \mathbb{Z}_q^{k+1}$
+
+$ $
+
+%\textbf{Decryption}
+\begin{enumerate}
+\item $\textsf{LWE}^{-1}_{S,\sigma}(\textsf{ct}) = b - \vec{a}\cdot \vec{s} = \Delta  m + e \pmod q$
+
+\item 向下缩放 $\Bigg\lceil\dfrac{ \Delta  m + e } {\Delta}\Bigg\rfloor \bmod t = m \text{ } \in \mathbb{Z}_t$
+\end{enumerate}
+
+为了正确解密，噪声 $e$ 应满足 $e < \dfrac{\Delta}{2}$。
+
+\end{tcolorbox}
+
+解密时，秘密密钥持有者可以利用秘密密钥 $\vec{s}$ 直接计算 $\vec{a} \cdot \vec{s}$，因此能够从 $b$ 中减去 $\vec{a} \cdot \vec{s}$。
+
+将明文 $m$ 按 $\Delta$ 缩放有两个目的：(i) 加密时，将 $m$ 左移 $\text{log}_2\Delta$ 位，与低位中的噪声 $e$ 分离；而噪声 $e$ 是使攻击者难以猜测 $m$ 或 $\vec{s}$ 的必要成分；(ii) 解密时，通过右移 $\text{log}_2\Delta$ 位消去低位噪声 $e$，同时保持高位的 $m$ 不受损。将明文 $m$ 右移（即缩放）$\text{log}_2\Delta$ 位，再加入噪声 $e$ 的过程如 \autoref{fig:scaling} 所示。
+
+\subsubsection{$t$ 不整除 $q$ 的情形}
+\label{subsubsec:lwe-noise-bound}
+
+在总结~\ref*{subsec:lwe-enc}（\autoref{subsec:lwe-enc}）中，假设 $t$ 整除 $q$。此时，明文 $m$ 的大小没有额外的上下界限制：其数值可以反复越过模 $t$ 的边界，而解密仍然正确。这是因为 $m$
+在模 $t$ 下的回绕，可以由解密时缩放后明文的模 $q$ 约减对应处理。
+
+另一方面，假设 $t$ 不整除 $q$。此时，将尺度因子设为 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$。
+只要 $q \gg t$，即使 $m$ 很大并越过模 $t$ 的边界，仍然可以正确解密。下面说明其原因。
+
+在本小节的分析中，选择 $t$ 为奇数（素数）。出于计算效率的考虑，这是全同态加密中常见的做法（见 \autoref{subsubsec:poly-vector-transformation-modulus}）。
+假设采用中心化剩余表示，明文域为 $\left[-\dfrac{t-1}{2}, \dfrac{t-1}{2}\right]$，密文域为 $\left[-\dfrac{q}{2}, \dfrac{q}{2} - 1\right]$。
+将明文 $m \bmod t$ 表示为 $m = m' + vt$，其中 $m' \in \mathbb{Z}_t$，整数 $v$ 表示 $m$ 越过模 $t$ 边界的次数。将明文尺度因子设为 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$，则按 $\Delta$ 缩放并加入噪声后的明文可以表示为：
+
+$\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m + e $
+
+$= \left\lfloor\dfrac{q}{t}\right\rfloor\cdot m' + \left\lfloor\dfrac{q}{t}\right\rfloor\cdot vt + e$ \textcolor{red}{ $\rhd$ 使用 $m = m' + vt$}
+
+$= \left\lfloor\dfrac{q}{t}\right\rfloor\cdot m' + \dfrac{q}{t}\cdot vt - \left(\dfrac{q}{t} - \left\lfloor\dfrac{q}{t}\right\rfloor\right)\cdot vt + e$  
+
+$= \left\lfloor\dfrac{q}{t}\right\rfloor\cdot m' + qv - \left(\dfrac{q}{t} - \left\lfloor\dfrac{q}{t}\right\rfloor\right)\cdot vt + e$
+
+$= \left\lfloor\dfrac{q}{t}\right\rfloor\cdot m' + qv - \epsilon \cdot vt + e$ \textcolor{red}{ $\rhd$ 其中 $\epsilon = \dfrac{q}{t} - \left\lfloor\dfrac{q}{t}\right\rfloor$，是 $[0, 1)$ 之间的小数}
+
+$ $
+
+回顾 LWE 的解密关系：$\dfrac{b - \vec{a}\cdot \vec{s} \bmod q}{\Delta} \bmod t = \dfrac{\Delta m + e \bmod q}{\Delta} \bmod t$。根据上述表达式，可以通过以下计算解密消息：
+
+
+
+$\left\lceil\dfrac{1}{\Delta} \cdot \left(b - \vec{a}\cdot\vec{s} \bmod q\right)\right\rfloor \bmod t$
+
+$= \left\lceil\dfrac{1}{\Delta} \cdot \left(\Delta m + e \bmod q\right)\right\rfloor \bmod t$
+
+$= \left\lceil\dfrac{1}{\left\lfloor\frac{q}{t}\right\rfloor} \cdot \left(\left\lfloor\dfrac{q}{t}\right\rfloor \cdot (m' + vt) + e \bmod q\right)\right\rfloor \bmod t$
+
+$= \left\lceil\dfrac{1}{\left\lfloor\frac{q}{t}\right\rfloor} \cdot \left(\left\lfloor\dfrac{q}{t}\right\rfloor \cdot m' + \left\lfloor\dfrac{q}{t}\right\rfloor\cdot vt + e \bmod q\right)\right\rfloor \bmod t$
+
+$= \left\lceil\dfrac{1}{\left\lfloor\frac{q}{t}\right\rfloor} \cdot \left(\left\lfloor\dfrac{q}{t}\right\rfloor \cdot m' + \left(\dfrac{q}{t} - \epsilon \right)\cdot vt + e \bmod q\right)\right\rfloor \bmod t$
+
+$= \left\lceil\dfrac{1}{\left\lfloor\frac{q}{t}\right\rfloor} \cdot \left(\left\lfloor\dfrac{q}{t}\right\rfloor \cdot m' + vq - \epsilon vt + e \bmod q\right)\right\rfloor \bmod t$
+
+
+$= \left\lceil\dfrac{1}{\left\lfloor\frac{q}{t}\right\rfloor} \cdot \left(\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e \bmod q \right)\right\rfloor \bmod t$ 
+
+$ $
+
+为了正确解密，希望能够省去内层的模 $q$ 约减。也就是说，在中心化剩余表示 $\left[-\dfrac{q}{2}, \dfrac{q}{2}-1\right]$ 下，希望满足 $-\dfrac{q}{2} \leq \left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e < \dfrac{q}{2}$，或者采用更严格的条件 $\left|\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e\right| < \dfrac{q}{2}$。
+
+$ $
+
+为保证这些条件成立，引入一个特殊假设：$|-\epsilon vt + e| < \dfrac{\Delta}{2}$。将这一假设用于上述表达式，可推导出：
+
+$\left|\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e\right| $
+
+$ \leq \left|\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'\right| + \left|- \epsilon vt + e\right|$
+
+$ \leq \left|\left\lfloor\dfrac{q}{t}\right\rfloor\cdot \dfrac{t-1}{2}\right| + \left|- \epsilon vt + e\right|$ \textcolor{red}{ $\rhd$ 假设 $t$ 为奇素数，这是全同态加密中的常见做法}
+
+$ \leq \left|\dfrac{q}{t}\cdot \dfrac{t-1}{2}\right| + \left|- \epsilon vt + e\right|$
+
+$ = \dfrac{q}{2} - \dfrac{q}{2t} + \left|- \epsilon vt + e\right|$
+
+$ < \dfrac{q}{2} - \dfrac{q}{2t} + \dfrac{\Delta}{2}$ \textcolor{red}{ $\rhd$ 使用特殊假设 $|-\epsilon vt + e| < \dfrac{\Delta}{2}$}
+
+$ = \dfrac{q}{2} + \dfrac{1}{2}\cdot \left(\Delta - \dfrac{q}{t}\right)$
+
+$< \dfrac{q}{2}$ \textcolor{red}{ $\rhd$ 因为 $\Delta < \dfrac{q}{t}$}
+
+
+$ $
+
+因此，若假设 $|-\epsilon vt + e| < \dfrac{\Delta}{2}$，便可将 $\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e \bmod q$ 简化为 $\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e$。继续推导：
+
+
+$\left\lceil\dfrac{1}{\left\lfloor\frac{q}{t}\right\rfloor} \cdot \left(\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e \bmod q \right)\right\rfloor \bmod t$ 
+
+$= \left\lceil\dfrac{1}{\left\lfloor\frac{q}{t}\right\rfloor} \cdot \left(\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e \right)\right\rfloor \bmod t$ 
+
+
+
+$= \left\lceil m' + \dfrac{-\epsilon  vt + e  }{\lfloor\frac{q}{t}\rfloor} \right\rfloor \bmod t$ 
+
+$= m' + \left\lceil \dfrac{-\epsilon vt + e }{\lfloor\frac{q}{t}\rfloor} \right\rfloor \bmod t$ \textcolor{red}{ $\rhd$ 因为 $\lceil m' \rfloor = m'$}
+
+$= m' \bmod t$ \textcolor{red}{ $\rhd$ 使用特殊假设 $|-\epsilon vt + e| < \dfrac{\Delta}{2} = \dfrac{\lfloor\frac{q}{t}\rfloor}{2}$}
+
+因此，当明文尺度因子设为 $\Delta=\left\lfloor\dfrac{q}{t}\right\rfloor$，且 $t$ 为奇数（素数）时，只要满足误差界条件 $|-\epsilon vt + e| < \dfrac{\Delta}{2} = \dfrac{\lfloor\frac{q}{t}\rfloor}{2}$，就能正确解密。以下情况会破坏这一条件并导致解密失败：(1) 噪声 $e$ 相对于 $q$ 过大；(2) 明文模数 $t$ 相对于 $q$ 过大；(3) 明文越过模 $t$ 边界的次数过多，即 $v$ 过大。满足这些误差界条件的一种通用方法，是将密文模数 $q$ 设得足够大。换言之，如果 $q \gg t$ 且 $q \gg e$，上述误差界就成立。
+
+可以将总结~\ref*{subsec:lwe-enc}（见 \autoref{subsec:lwe-enc}）中的明文尺度因子公式推广为 $\left\lfloor\dfrac{q}{t}\right\rfloor$，其中 $t$ 为奇数（素数）。
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:lwe-noise-bound}} 奇数明文模数 $\bm{t}$ 下的噪声预算}}]
+
+
+给定明文尺度因子 $\Delta=\left\lfloor\dfrac{q}{t}\right\rfloor$，且 $t$ 为奇数（素数），只要满足以下误差界条件，LWE 解密就能正确进行：
+
+$|-\epsilon vt + e| < \dfrac{\Delta}{2}$
+
+$ $
+
+其中，$\epsilon = \dfrac{q}{t} - \left\lfloor\dfrac{q}{t}\right\rfloor$ 是 $[0, 1)$ 之间的小数，$v$ 表示明文 $m$ 越过模 $t$ 边界的次数。
+
+\end{tcolorbox}
+

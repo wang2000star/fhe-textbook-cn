@@ -1,0 +1,161 @@
+分解是一种在保持数值不变的同时，以较小的底数（基数）表示一个数的数学技术。本节介绍数的分解与多项式分解。
+
+\subsection{数的分解}
+\label{subsec:number-decomp}
+固定模数 $q\ge 2$，并记 $\mathbb{Z}_q=\mathbb{Z}/q\mathbb{Z}$。设 $\gamma\in\mathbb{Z}_q$。数的分解将 $\gamma$ 表示为以 $\beta$ 为基数的多个数之和：
+
+$ $
+
+$\gamma = \gamma_1 \dfrac{q}{\beta^1} + \gamma_2 \dfrac{q}{\beta^2} + \cdots + \gamma_\ell \dfrac{q}{\beta^\ell}  $
+
+$ $
+
+\noindent 其中，$\beta\ge 2$ 是基数，$\ell\ge 1$ 是分解层数。假设 $\beta^\ell \mid q$，并令各位数字满足 $\gamma_i\in\{0,1,\ldots,\beta-1\}$；在这些条件下，分解是唯一的。\autoref{fig:decomp} 给出了直观示意。（若 $\beta^\ell\nmid q$，请参见 \autoref{subsec:approx-decomp}。）
+每个 $\gamma_i$ 都是 $\gamma$ 在基数 $\beta$ 下表示的一位数字，其中 $i=1$ 对应最高位。当 $q$ 为 2 的幂时，这对应于移动 $i\cdot \log_2\beta$ 个二进制位。
+
+\begin{figure}[h!]
+    \centering
+  \includegraphics[width=0.8\linewidth]{figures/decomp.pdf}
+  \caption{数的分解示意图。}
+  \label{fig:decomp}
+\end{figure}
+
+将数 $\gamma$ 按基数 $\beta$、层数 $\ell$ 进行分解，定义如下：
+
+
+$ $
+
+$\textsf{Decomp}^{\beta, \ell}(\gamma) = (\gamma_1, \gamma_2, \text{ } \cdots , \text{ } \gamma_\ell)$.
+ 
+$ $
+
+数的分解也称为基数分解，其中的底数 $\beta$ 称为基数。
+
+
+\subsubsection{示例}
+
+假设在 $\mathbb{Z}_{16}$ 中取 $\gamma=13$，希望以基数 $\beta = 2$、层数 $\ell = 4$ 分解 13。其分解如下：
+
+$ $
+
+$13 = 1 \cdot \dfrac{16}{2^1} + 1 \cdot \dfrac{16}{2^2} + 0 \cdot \dfrac{16}{2^3} + 1 \cdot \dfrac{16}{2^4}$
+
+$ $
+
+$\textsf{Decomp}^{2, 4}(13) = (1, 1, 0, 1)$
+
+
+\subsection{多项式分解}
+\label{subsec:poly-decomp}
+
+现在，假设在多项式环 ${\mathbb{Z}_q[x] / (x^n + 1)}$ 中有一个多项式 $f$。因此，$f$ 的每个系数 $c_i$ 都是模 $q$ 的整数。多项式分解将 $f$ 表示为以 $\beta$ 为基数、$\ell$ 为层数的多个多项式之和：
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:poly-decomp}} 多项式分解}}]
+
+给定 $f\in \mathbb{Z}_q[x]/(x^n+1)$，固定满足 $\beta^\ell\mid q$ 的 $\beta\ge 2$ 和 $\ell\ge 1$。写成
+
+$ $
+
+$
+f=\sum\limits_{i=1}^{\ell} f_i\,\dfrac{q}{\beta^i}, \qquad f_i\in \mathbb{Z}_q[x]/(x^n+1)
+$
+
+$ $
+
+其中，每个 $f_i$ 都通过将 $f$ 的每个系数按基数 $\beta$ 分解而得到。若 $f=\sum\limits_j c_j x^j$ 且 $c_j\in\mathbb{Z}_q$，则
+$c_j=\sum\limits_{i=1}^{\ell} c_{j,i}\,\dfrac{q}{\beta^i}$，其中 $c_{j,i}\in\{0,\ldots,\beta-1\}$，
+并且 $f_i=\sum_j c_{j,i} x^j$。
+将多项式 $f$ 按基数 $\beta$、层数 $\ell$ 分解，记为：
+
+$ $
+
+$\textsf{Decomp}^{\beta, \ell}(f) = (f_1, f_2, \text{ } \cdots , \text{ } f_\ell)$
+ $ $
+\end{tcolorbox}
+
+
+
+
+\subsubsection{示例}
+
+假设在多项式环 $\mathbb{Z}_{16}[x] / (x^4 + 1)$ 中有如下多项式：
+
+$ $
+
+$f = 6x^3 + 3x^2 + 14x + 7 \in \mathbb{Z}_{16}[x] / (x^4 + 1)$
+
+$ $
+
+希望按基数 $\beta = 4$、层数 $\ell = 2$ 分解上述多项式。则多项式 $f$ 的各次项系数分别分解如下：
+
+$ $
+
+${\bm{x}^{\bm{3}}}$: $6 = \color{blue}{1 \cdot \dfrac{16}{4^1}} \color{black}+ \color{red}{2 \cdot \dfrac{16}{4^2}}$
+
+${\bm{x}^{\bm{2}}}$: $3 = \color{blue}{0 \cdot \dfrac{16}{4^1}} \color{black}+ \color{red}{3 \cdot \dfrac{16}{4^2}}$
+
+${\bm{x}^{\bm{1}}}$: $14 = \color{blue}{3 \cdot \dfrac{16}{4^1}} \color{black}+ \color{red}{2 \cdot \dfrac{16}{4^2}}$
+
+${\bm{x}^{\bm{0}}}$: $7 = \color{blue}{1 \cdot \dfrac{16}{4^1}} \color{black}+ \color{red}{3 \cdot \dfrac{16}{4^2}}$
+
+$ $
+
+分解得到的多项式如下：
+
+$f = 6x^3 + 3x^2 + 14x + 7 = \color{blue}{(1x^3 + 0x^2 + 3x + 1) \cdot \dfrac{16}{4^1}} \color{black}+ \color{red}{(2x^3 + 3x^2 + 2x + 3) \cdot \dfrac{16}{4^2}} \color{black}$
+
+$ $
+
+$\textsf{Decomp}^{4, 2}(6x^3 + 3x^2 + 14x + 7) = (1x^3 + 0x^2 + 3x + 1, 2x^3 + 3x^2 + 2x + 3)$
+
+\subsubsection{讨论}
+
+分解之后，多项式的原始系数被拆成了更小的数。这一性质在全同态加密密文的多项式乘法中非常有用，可以降低噪声的增长速度。通常，密文的多项式系数较大，因为它们是均匀随机选取的数。减小这些较大的常数对于控制同态乘法中的噪声增长很重要。\autoref{subsec:tfhe-mult-cipher} 将进一步讨论这一点。
+
+
+\subsection{近似分解}
+\label{subsec:approx-decomp}
+
+\begin{figure}[h!]
+    \centering
+  \includegraphics[width=0.7\linewidth]{figures/decomp3.pdf}
+  \caption{近似分解示意图。}
+  \label{fig:decomp3}
+\end{figure}
+
+如果不存在满足 $\beta^\ell \mid q$ 的分解层数 $\ell$，则在分解时必须丢弃 $q$ 在基数 $\beta$ 表示下的部分低位数字，如 \autoref{fig:decomp3} 所示。在分解过程中，可通过舍入将这些低位处理为最接近的 $\dfrac{q}{\beta^\ell}$ 的整数倍。这种分解称为近似分解。
+形式化地，当 $\beta^\ell\nmid q$ 时，可以写成
+$$
+\gamma=\sum_{i=1}^{\ell}\gamma_i\,\frac{q}{\beta^{i}}+\varepsilon,\qquad
+\gamma_i\in\{0,\ldots,\beta-1\},\quad
+|\varepsilon|\le \frac{q}{2\beta^{\ell}}
+$$
+（采用最近整数舍入，并将 $\gamma$ 视为其整数代表。）多项式的情形与此类似，只需逐个系数进行处理。
+
+
+
+\subsection{Gadget 分解}
+\label{subsec:gadget-decomposition}
+
+Gadget 分解是数的分解（\autoref{subsec:number-decomp}）的一般化形式。在数的分解中，数 $\gamma$ 被分解如下：
+
+$\gamma = \gamma_1 \dfrac{q}{\beta^1} + \gamma_2 \dfrac{q}{\beta^2} + \cdots + \gamma_\ell \dfrac{q}{\beta^\ell} $
+
+$ $
+
+在 Gadget 分解中，按如下方式分解 $\gamma$：
+
+$\gamma = \gamma_1 g_1 + \gamma_2 g_2 + \cdots + \gamma_\ell g_\ell $
+
+$ $
+
+将 $\vec{g} = (g_1, g_2, \cdots, g_\ell)$ 称为 Gadget 向量，并记 $\textsf{Decomp}^{\vec{g}}(\gamma) = (\gamma_1, \gamma_2, \text{ } \cdots , \text{ } \gamma_\ell) $。
+
+$ $
+
+于是，$\gamma = \langle \textsf{Decomp}^{\vec{g}}(\gamma), \vec{g} \rangle $。
+
+$ $
+
+对于数的分解（\autoref{subsec:number-decomp}），其 Gadget 向量为 $\vec{g} = \Bigg(\dfrac{q}{\beta}, \dfrac{q}{\beta^2}, \cdots, \dfrac{q}{\beta^\ell}\Bigg)$。

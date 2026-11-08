@@ -1,0 +1,72 @@
+%\textbf{- First Read:} 
+%\href{https://e.math.cornell.edu/people/belk/numbertheory/CyclotomicPolynomials.pdf}{Fields and Cyclotomic Polynomials}
+
+\subsection{定义}
+\label{subsec:group-def}
+
+
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:group-def}} 群}}]
+\noindent \textbf{\underline{集合中的元素}}
+\begin{itemize}
+\item \textbf{集合（$\mathbb{S}$）：}由元素组成的无序整体：$\mathbb{S} = \{a, b, c, \ldots\}$
+\item \textbf{集合上的运算 $\bm{(+, \cdot)}$：}考虑定义在 $\mathbb{S}$ 上的两种二元运算：加法 $(+)$ 和乘法 $(\cdot)$。
+\item \textbf{加法单位元（$0_{(+)}$，通常记为 $0$）：}如果元素 $i \in \mathbb{S}$ 对所有 $a \in \mathbb{S}$ 都满足 $i + a = a = a + i$，则称它为加法单位元。
+\item \textbf{乘法单位元（$1_{(\cdot)}$，通常记为 $1$）：}如果元素 $i \in \mathbb{S}$ 对所有 $a \in \mathbb{S}$ 都满足 $i \cdot a = a = a \cdot i$，则称它为乘法单位元。
+\item \textbf{加法逆元（$a^{-1}_{(+)}$）：}对于每个 $a \in \mathbb{S}$，它的加法逆元 $a^{-1}_{(+)}$（通常记为 $-a$）定义为满足 $a + a^{-1}_{(+)} = 0_{(+)} = a^{-1}_{(+)} + a$（即加法单位元）的元素。
+\item \textbf{乘法逆元（$a^{-1}_{(\cdot)}$）：}对于每个关于 $(\cdot)$ 可逆的 $a \in \mathbb{S}$，它的乘法逆元 $a^{-1}_{(\cdot)}$（通常记为 $a^{-1}$）定义为满足 $a \cdot a^{-1}_{(\cdot)} = 1_{(\cdot)} = a^{-1}_{(\cdot)} \cdot a$（即乘法单位元）的元素。
+\end{itemize}
+
+$ $
+
+\noindent \textbf{\underline{元素运算的性质}}
+\begin{itemize}
+\item \textbf{封闭性：}如果对于任意 $a, b \in \mathbb{S}$ 都有 $a + b \in \mathbb{S}$，则称集合 $\mathbb{S}$ 对运算 $(+)$ 封闭。同样，如果对于任意 $a, b \in \mathbb{S}$ 都有 $a \cdot b \in \mathbb{S}$，则称集合 $\mathbb{S}$ 对运算 $(\cdot)$ 封闭。
+\item \textbf{结合律：}对于任意 $a,b,c \in \mathbb{S}$，有 $(a + b) + c = a + (b + c)$。
+\item \textbf{交换律：}对于任意 $a,b \in \mathbb{S}$，有 $a + b = b + a$。
+\item \textbf{分配律：}如果同时定义了 $(+)$ 和 $(\cdot)$（例如在环中），则有 $a \cdot (b + c) = (a \cdot b) + (a \cdot c)$，以及 $(a + b) \cdot c = a\cdot c + b\cdot c$。
+\end{itemize}
+
+
+$ $
+
+\noindent \textbf{\underline{群及相关代数结构}}
+\begin{itemize}
+\item \textbf{半群：}半群是对某一种运算（$+$ 或 $\cdot$）封闭且满足结合律的元素集合。
+\item \textbf{幺半群：}幺半群是具有单位元 $e$ 的半群；单位元与任意其他元素进行该运算时，都会保持该元素不变。
+
+（例如，$0$ 是运算 $+$ 的单位元，$1$ 是运算 $\cdot$ 的单位元。）
+\item \textbf{群：}群是每个元素都存在关于该运算的逆元的幺半群。
+\item \textbf{阿贝尔群：}阿贝尔群是运算还满足交换律的群。
+\end{itemize}
+\end{tcolorbox}
+
+\subsection{示例}
+\label{subsec:group-ex}
+
+$\mathbb{Z}$（即全体整数的集合）在加法（$+$）下构成阿贝尔群，因为：
+\begin{itemize}
+\item \textbf{封闭性：}对于任意整数 $a, b \in \mathbb{Z}$，$a + b = c$ 仍为整数（即 $a+b \in \mathbb{Z}$）。
+\item \textbf{结合律：}对于任意整数 $a, b, c \in \mathbb{Z}$，有 $(a + b) + c = a + (b + c)$。
+\item \textbf{单位元：}加法单位元为 0，因为对于任意 $a \in \mathbb{Z}$，有 $a + 0 = a$。
+\item \textbf{逆元：}对于每个 $a \in \mathbb{Z}$，它的加法逆元为 $-a$，因为 $a + (-a) = 0$。
+\item \textbf{交换律：}对于任意整数 $a, b \in \mathbb{Z}$，有 $a + b = b + a$。
+\end{itemize}
+
+$ $
+
+\noindent $\mathbb{Z}$ 在乘法（$\cdot$）下构成幺半群，因为：
+\begin{itemize}
+\item \textbf{封闭性：}对于任意整数 $a, b \in \mathbb{Z}$，$a \cdot b = c$ 仍为整数（即 $a\cdot b \in \mathbb{Z}$）。
+\item \textbf{结合律：}对于任意整数 $a, b, c \in \mathbb{Z}$，有 $(a \cdot b) \cdot c = a \cdot (b \cdot c)$。
+\item \textbf{单位元：}乘法单位元为 1，因为对于任意 $a \in \mathbb{Z}$，有 $a \cdot 1 = a$。
+\item \textbf{并非都有逆元：}对于整数 $a \in \mathbb{Z}$，它的乘法逆元为 $\dfrac{1}{a}$，但后者不一定是整数（$\notin \mathbb{Z}$）；因此，并非每个元素都有乘法逆元。所以，$(\mathbb{Z},\cdot)$ 不是群，尽管它是幺半群。
+\end{itemize}
+$ $
+
+\noindent $\mathbb{R}^\times$（即全体非零实数的集合）在乘法（$\cdot$）下构成阿贝尔群，因为：
+\begin{itemize}
+\item \textbf{封闭性：}对于任意实数 $a, b \in \mathbb{R}^\times$，$a \cdot b = c$ 仍为实数，且仍属于 $\mathbb{R}^\times$。
+\item \textbf{结合律：}对于任意实数 $a, b, c \in \mathbb{R}^\times$，有 $(a \cdot b) \cdot c = a \cdot (b \cdot c)$。
+\item \textbf{单位元：}乘法单位元为 1，因为对于任意实数 $a \in \mathbb{R}^\times$，有 $a \cdot 1 = a$。
+\item \textbf{逆元：}对于每个实数 $a \in \mathbb{R}^\times$，它的乘法逆元为 $\dfrac{1}{a}$，后者是非零实数（$\in \mathbb{R}^{\times}$）。
+\end{itemize}

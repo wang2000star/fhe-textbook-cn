@@ -1,0 +1,83 @@
+\textbf{- 参考资料：}
+\href{https://www.zama.ai/post/tfhe-deep-dive-part-2}{深入理解 TFHE（二）：编码与线性分层运算}~\cite{tfhe-2}
+
+
+$ $
+
+假设有两个 GLWE 密文，分别加密不同的明文 $M^{\langle 1 \rangle}, M^{\langle 2 \rangle}$：
+
+$\textsf{GLWE}_{S, \sigma}(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle}) = \textsf{ct}^{\langle 1 \rangle} = ( A_0^{\langle 1 \rangle}, A_1^{\langle 1 \rangle}, \ldots, A_{k-1}^{\langle 1 \rangle}, B^{\langle 1 \rangle}) \in \mathcal{R}_{\langle n,q \rangle}^{k + 1}$
+
+$\textsf{GLWE}_{S, \sigma}(\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle}) = \textsf{ct}^{\langle 2 \rangle} = ( A_0^{\langle 2 \rangle}, A_1^{\langle 2 \rangle}, \ldots, A_{k-1}^{\langle 2 \rangle}, B^{\langle 2 \rangle}) \in \mathcal{R}_{\langle n,q \rangle}^{k + 1}$
+
+$ $
+
+\noindent 定义如下密文加法运算：
+
+$\textsf{ct}^{\langle 1 \rangle} + \textsf{ct}^{\langle 2 \rangle} = ( A_0^{\langle 1 \rangle} + A_0^{\langle 2 \rangle}, \text{ } A_1^{\langle 1 \rangle} + A_1^{\langle 2 \rangle}, \ldots, A_{k-1}^{\langle 1 \rangle} + A_{k-1}^{\langle 2 \rangle}, \text{ } B^{\langle 1 \rangle} + B^{\langle 2 \rangle} )$
+
+$ $
+
+\noindent 则有以下结论：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{sec:glwe-add-cipher}} GLWE 同态加法}}]
+$\textsf{GLWE}_{S, \sigma}(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} ) + \textsf{GLWE}_{S, \sigma}(\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle}) $
+
+$ = ( \{A_i^{\langle 1 \rangle}\}_{i=0}^{k-1}, \text{ } B^{\langle 1 \rangle}) + (\{A_i^{\langle 2 \rangle}\}_{i=0}^{k-1}, \text{ } B^{\langle 2 \rangle}) $
+
+$ = ( \{A_i^{\langle 1 \rangle} + A_i^{\langle 2 \rangle}\}_{i=0}^{k-1}, \text{ } B^{\langle 1 \rangle} + B^{\langle 2 \rangle} ) $
+
+$= \textsf{GLWE}_{S, \sigma}(\Delta(M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) + E^{\langle 3 \rangle})$ \textcolor{red}{ $\rhd$ 其中 $E^{\langle 3 \rangle} = E^{\langle 1  \rangle} + E^{\langle 2 \rangle}$}
+\end{tcolorbox}
+
+
+这意味着，将分别加密 $M^{\langle 1 \rangle}$ 和 $M^{\langle 2 \rangle}$ 的两个 GLWE 密文相加，再解密所得密文，便得到 $M^{\langle 1 \rangle} + M^{\langle 2 \rangle}$。
+
+$ $
+
+%\noindent \textbf{\underline{Proof}}
+\begin{myproof}
+\begin{enumerate}
+\item 定义以下记号： \\
+$A_0^{\langle 3 \rangle} = A_0^{\langle 1 \rangle} + A_0^{\langle 2 \rangle}$ \\
+$A_1^{\langle 3 \rangle} = A_1^{\langle 1 \rangle} + A_1^{\langle 2 \rangle}$ \\
+$\vdots$ \\
+$A_{k-1}^{\langle 3 \rangle} = A_{k-1}^{\langle 1 \rangle} + A_{k-1}^{\langle 2 \rangle}$ \\
+$E^{\langle 3 \rangle} = E^{\langle 1 \rangle} + E^{\langle 2 \rangle}$ \\
+$B^{\langle 3 \rangle} = B^{\langle 1 \rangle} + B^{\langle 2 \rangle}$
+\item 可推导得： \\
+$B^{\langle 3 \rangle} = B^{\langle 1 \rangle} + B^{\langle 2 \rangle}$ \\
+$ = \sum\limits_{i=0}^{k-1}{(A_i^{\langle 1 \rangle} \cdot S_i)} + \Delta \cdot M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + \sum\limits_{i=0}^{k-1}{(A_i^{\langle 2 \rangle} \cdot S_i)} + \Delta \cdot M^{\langle 2 \rangle} + E^{\langle 2 \rangle}$ \\ 
+$= \sum\limits_{i=0}^{k-1}{((A_i^{\langle 1 \rangle} + A_i^{\langle 2 \rangle}) \cdot S_i)} + \Delta \cdot (M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) + (E^{\langle 1 \rangle} + E^{\langle 2 \rangle})$ \textcolor{red}{ $\rhd$ 由交换律与分配律} \\
+$= \sum\limits_{i=0}^{k-1}{(A_i^{\langle 3 \rangle} \cdot S_i)} + \Delta \cdot (M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) + E^{\langle 3 \rangle}$ \\
+\item 由于 $B^{\langle 3 \rangle} = \sum\limits_{i=0}^{k-1}{(A_i^{\langle 3 \rangle} \cdot S_i)} + \Delta \cdot (M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) + E^{\langle 3 \rangle}$，
+
+因此 $(A_0^{\langle 3 \rangle}, A_1^{\langle 3 \rangle}, A_2^{\langle 3 \rangle}, \ldots, A_{k-1}^{\langle 3 \rangle}, B^{\langle 3 \rangle})$ 构成密文 $\textsf{GLWE}_{S, \sigma}(\Delta \cdot (M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) + E^{\langle 3 \rangle})$。 \\
+\item 因此， \\
+$\textsf{GLWE}_{S, \sigma}(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle}) + \textsf{GLWE}_{S, \sigma}(\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle})$ \\
+$ = ( A_0^{\langle 1 \rangle} + A_0^{\langle 2 \rangle}, \text{ } A_1^{\langle 1 \rangle} + A_1^{\langle 2 \rangle},\ldots, A_{k-1}^{\langle 1 \rangle} + A_{k-1}^{\langle 2 \rangle}, \text{ } B^{\langle 1 \rangle} + B^{\langle 2 \rangle} )$ \\
+$ = ( A_0^{\langle 3 \rangle}, A_1^{\langle 3 \rangle}, A_2^{\langle 3 \rangle}, \ldots,  A_{k-1}^{\langle 3 \rangle}, B^{\langle 3 \rangle})$ \\
+$ = ( \{A_i^{\langle 3 \rangle}\}_{i=0}^{k-1}, B^{\langle 3 \rangle})$ \\
+$= \textsf{GLWE}_{S, \sigma}(\Delta (M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) + E^{\langle 3 \rangle})$
+
+%\begin{flushright}
+%\qedsymbol{} 
+%\end{flushright}
+
+\end{enumerate}
+\end{myproof}
+
+\subsection{讨论}
+\label{subsubsec:glwe-add-cipher-discuss} 
+
+\para{噪声消除：} 使用私钥 $S$ 解密 $\textsf{GLWE}_{S, \sigma}(\Delta(M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) + E^{\langle 3 \rangle})$，即可得到明文 $M^{\langle 1 \rangle} + M^{\langle 2 \rangle}$。与此同时，无论加密时随机采样的值为何，$A_1^{\langle 3 \rangle}, A_2^{\langle 3 \rangle}, \ldots,  A_{k-1}^{\langle 3 \rangle}, E^{\langle 3 \rangle}$ 都会在解密及舍入过程中被消去。
+
+$ $
+
+\para{噪声增长：} 注意，解密时原密文 $C$ 所含的噪声已由 $E^{\langle 1 \rangle}$ 和 $E^{\langle 2 \rangle}$ 增大为 $E^{\langle 3 \rangle} = E^{\langle 1 \rangle} + E^{\langle 2 \rangle}$。如果噪声来自均值为 $\mu = 0$ 的高斯分布，则噪声方差随加法次数线性增长，最终耗尽 $\Delta/2$ 的噪声预算。不过，这一增长速度远低于同态乘法；后者的噪声通常呈乘法增长。
+
+$ $
+
+\para{未对 $t$ 取模时明文值的硬性界限：} 在同态运算（例如加法或乘法）和解密过程中，关系式 $B = AS + \Delta M + E + vq$ 中的 $AS$ 与 $B$ 项可以在模 $q$ 下反复回绕。无论回绕多少次，最终解密步骤都会从 $B$ 中减去 $AS$，得到 $\Delta M + E + v'q = \Delta M + E \pmod q$，而 $v'q$ 项总能通过对 $q$ 取模而精确消去。随后计算 $\left\lceil \dfrac{\Delta M + E \bmod q}{\Delta}\right\rfloor$，即可消除噪声 $E$ 并正确恢复 $M$。但是，如总结~\ref*{subsubsec:lwe-noise-bound}（见 \autoref{subsubsec:lwe-noise-bound}）所述，若不再满足误差界 $|-\epsilon v t + e| < \dfrac{\Delta}{2}$（其中 $e$ 可以是 $E$ 的任意系数），则对 $q$ 取模会开始影响放大后的明文比特。当噪声 $e$ 在同态运算中增长过大，或者密文模数 $q$ 相对于明文模数 $t$ 不够大时，就会违反这一误差界。如果 $q \gg t$，方案便能容纳较大的 $vt$ 值，也就是说，明文值在多次同态运算中可以绕明文模数 $t$ 回绕多次。BFV 方案使用误差界约束 $\dfrac{vt + e}{\lfloor\frac{q}{t}\rfloor} < \dfrac{1}{2}$。 %原文关于 \autoref{sec:modulus-rescaling} 的补充注释未参与排版。
+
+ 

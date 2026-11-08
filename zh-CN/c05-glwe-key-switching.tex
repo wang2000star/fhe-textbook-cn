@@ -1,0 +1,135 @@
+\textbf{- 参考资料：}
+\href{https://www.zama.ai/post/tfhe-deep-dive-part-3}{深入理解 TFHE（三）：密钥切换与分层乘法}~\cite{tfhe-3}
+
+$ $
+
+密钥切换是在不解密密文的情况下，将 GLWE 密文所对应的私钥从 $S$ 改为新私钥 $S'$ 的过程。这等价于将密文 $\textsf{GLWE}_{S,\sigma}(\Delta M + E)$ 转换为新密文 $\textsf{GLWE}_{S',\sigma}(\Delta M + E - E')$。
+
+$ $
+
+\noindent 回顾 $\textsf{GLWE}_{S,\sigma}(\Delta M + E) = (A_0, A_1, \ldots , A_{k-1}, B) \in \mathcal{R}_{\langle n, q \rangle }^{k + 1}$
+
+其中 $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E$
+
+私钥 $S$ 是包含 $k$ 个多项式的列表：$S = (S_0, S_1, \ldots, S_{k-1})$
+
+$ $
+
+\noindent 同时回顾 GLev（\autoref{sec:glev}）的定义：
+
+$\textsf{GLev}_{S, \sigma}^{\beta, l}(M) = \Bigl \{\text{GLWE}_{S, \sigma}\Bigl (\dfrac{q}{\beta^i} \cdot M + E_i \Bigr ) \Bigr \}_{i=1}^{l} \in \mathcal{R}_{\langle n, q \rangle }^{(k+1) \cdot l}$
+
+$ $
+
+\noindent 现在，将 $k$ 个密钥切换密钥分别记为：
+
+$\mathit{KSK}_i = \textsf{GLev}_{S', \sigma}^{\beta, l}(S_i)$ \\
+$ = \left ( \textsf{GLWE}_{S', \sigma} \left ( 
+ \dfrac{q}{\beta^1}S_i + E_{i, 1}\right ), \textsf{GLWE}_{S', \sigma} \left ( 
+ \dfrac{q}{\beta^2}S_i + E_{i, 2}\right ), \ldots, \textsf{GLWE}_{S', \sigma} \left ( 
+ \dfrac{q}{\beta^l}S_i  + E_{i, l} \right) \right ) \in \mathcal{R}_{\langle n, q \rangle }^{(k' + 1) \cdot l}$
+
+$ $
+
+\noindent 它是使用 $S'$ 对私钥 $S$ 进行 GLWE 加密得到的列表；新私钥 $S'$ 则是包含 $k'$ 个多项式的列表 $(S'_0, S'_1, \ldots, S'_{k'-1})$。于是，可以按以下方式完成 GLWE 密文的密钥切换 $S \rightarrow S'$：
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{sec:glwe-key-switching}} GLWE 密钥切换}}]
+
+给定 $\textsf{GLWE}_{S,\sigma}(\Delta M + E) = (A, B)$，
+
+$\textsf{GLWE}_{S',\sigma}(\Delta M + E') = (\overbrace{0, 0, \ldots, 0}^{k'}, B) - \sum \limits_{i=0}^{k-1} A_i \cdot S_i$
+
+\text{ } \text{ } $ = (0, 0, \ldots, 0, B) - \sum \limits_{i=0}^{k-1} \langle \textsf{Decomp}^{\beta, l}(A_i), \mathit{KSK}_i \rangle$
+\end{tcolorbox}
+
+
+
+\begin{myproof}
+
+\begin{enumerate}
+\item 根据多项式分解原理（\autoref{subsec:poly-decomp}），给定多项式 $A_i \in \mathbb{Z}_q[x] / (x^n + 1)$，其分解如下：
+
+$ $
+
+$\textsf{Decomp}^{\beta, l}(A_i) = (A_{ i,1 }, A_{ i,2 }, \ldots, A_{ i,l })$，其中
+
+$ $
+
+$A_i = A_{ i, 1 } \dfrac{q}{\beta^1} + A _{ i, 2 }\dfrac{q}{\beta^2} + \cdots + A_{ i, l } \dfrac{q}{\beta^l}  $
+
+$ $
+
+\item $\langle \textsf{Decomp}^{\beta, l}(A_i), \mathit{KSK}_i \rangle $ \\
+$ =  A_{ i,1 } \cdot \textsf{GLWE}_{S', \sigma} \left ( 
+ \dfrac{q}{\beta^1}S_i + E_{i, 1} \right ) + A_{ i,2 } \cdot \textsf{GLWE}_{S', \sigma} \left ( 
+ \dfrac{q}{\beta^2}S_i  + E_{i, 2} \right ) + \cdots + A_{ i,l } \cdot \textsf{GLWE}_{S', \sigma} \left ( 
+ \dfrac{q}{\beta^l}S_i  + E_{i, l} \right ) $ 
+
+\textcolor{red}{ $\rhd$ 各个 \textsf{GLWE} 密文分别加密明文 $S_i\dfrac{q}{\beta}, S_i\dfrac{q}{\beta^2}, \cdots, S_i\dfrac{q}{\beta^l}$，明文尺度因子均为 1}
+
+$ $
+ 
+$= \textsf{GLWE}_{S', \sigma} \left ( 
+ \left ( A_{ i,1 } \dfrac{q}{\beta^1} + A_{ i,2 } \dfrac{q}{\beta^2} + \cdots + A_{ i,l } \dfrac{q}{\beta^l} \right ) \cdot S_i + E_i \right )$ \textcolor{red}{ $\rhd$ 其中 $E_i = \sum\limits_{j=1}^{l} A_{ i, j } E_{i, j}$}
+
+ 
+$= \textsf{GLWE}_{S', \sigma} \left ( 
+ \left ( A_i \right ) \cdot S_i + E_i \right ) = \textsf{GLWE}_{S', \sigma} ( 
+ A_i  S_i  + E_i) $ 
+
+$ $
+ 
+ \item $\sum \limits_{i=0}^{k-1} \langle \textsf{Decomp}^{\beta, l}(A_i), \mathit{KSK}_i \rangle = \sum \limits_{i=0}^{k-1} (\textsf{GLWE}_{S', \sigma} ( 
+ A_i  S_i  + E_i)) $ 
+ 
+ $= \textsf{GLWE}_{S', \sigma} \left ( \sum \limits_{i=0}^{k-1}  
+ A_i  S_i   + E_i \right ) $
+
+$ $
+ 
+\item $B$ 等价于在私钥 $S'$ 下的平凡 GLWE 加密，其中各个 $A_0, A_1, \ldots, A_{k'-1}$ 都为 0。也就是说，$\textsf{GLWE}_{S', \sigma}(B) = (\overbrace{0, 0, \ldots}^{k'}, B)$。注意，即使不知道 $S'$，也能构造 $\textsf{GLWE}_{S', \sigma}(B)$，因为所有 $A_iS_i$ 项均为 0。
+
+$ $
+ 
+ \item $\textsf{GLWE}_{S', \sigma}(B) - \textsf{GLWE}_{S', \sigma} \left( \sum \limits_{i=0}^{k-1} (A_i  S_i + E_i )\right) $
+ 
+ $= \textsf{GLWE}_{S', \sigma}(B - \sum \limits_{i=0}^{k-1} (A_i  S_i + E_i)) $
+ 
+$= \textsf{GLWE}_{S', \sigma}(\Delta M + E')$ \textcolor{red}{ $\rhd$ 其中 $E' = E - \sum\limits_{i=0}^{k-1}E_i$}
+
+$ $
+
+\item 将上述关系显式展开，可得：
+
+$\textsf{GLWE}_{S', \sigma}(B) - \textsf{GLWE}_{S', \sigma} \left(\sum \limits_{i=0}^{k-1} (A_i  S_i + E_i)\right)$
+
+$ = (\overbrace{0, 0, \ldots}^{k'}, B) - (\overbrace{A'_0, A'_1, \ldots, A'_{k'-1}}^{k'}, B')  $ \text { } \textcolor{red}{ $\rhd$ 其中 $B' = \sum\limits_{i=0}^{k'-1} A'_iS'_i + \sum\limits_{i=0}^{k-1} A_iS_i + \sum\limits_{i=0}^{k-1}E_i$}
+
+$(\overbrace{-A'_0, -A'_1, \ldots, -A'_{k'-1}}^{k'}, \text{ } B - B')$
+
+$ $
+
+对上述密文进行解密可得：
+
+$ \textsf{GLWE}_{S', \sigma}^{-1} \bm{\Big(} \text{ } (\overbrace{-A'_0, -A'_1, \ldots, -A'_{k'-1}}^{k'}, \text{ } B - B') \text{ } \bm{\Big)}$
+
+$ = B -  B' - \sum\limits_{i=0}^{k'-1} -A'_iS_i'$
+
+$= B - \sum\limits_{i=0}^{k'-1} A'_iS'_i - \sum\limits_{i=0}^{k-1} A_iS_i - \sum\limits_{i=0}^{k-1}E_i + \sum\limits_{i=0}^{k'-1} A'_iS_i'$
+
+$= B - \sum\limits_{i=0}^{k-1} A_iS_i - \sum\limits_{i=0}^{k-1}E_i$
+
+$= \Delta M + E - \sum\limits_{i=0}^{k-1}E_i $
+
+$= \Delta M + E' \approx \Delta M + E$ \textcolor{red}{ $\rhd$ 其中 $E' = E - \sum\limits_{i=0}^{k-1}E_i$}
+
+严格来说，$B - \sum\limits_{i=0}^{k-1} A_iS_i = \Delta M + E + Kq$，其中 $K$ 是一个多项式，以 $q$ 的倍数表示系数回绕的量。不过，上述所有运算均在模 $q$ 下进行，因此 $Kq$ 项会被消去。
+
+$ $
+
+\item 因此，$ (0, 0, \ldots , B) - \sum \limits_{i=0}^{k-1} \langle \textsf{Decomp}^{\beta, l}(A_i), \mathit{KSK}_i \rangle = \textsf{GLWE}_{S',\sigma}(\Delta M + E') \approx \textsf{GLWE}_{S',\sigma}(\Delta M + E) $
+
+$\textsf{GLWE}_{S',\sigma}(\Delta M + E')$ 是对明文 $\Delta M$ 的加密，其明文尺度因子为 1。不过，也可以将该密文重新解释为对明文 $M$ 的加密，其尺度因子为 $\Delta$。这样，无需任何额外计算，就能恢复密文原来的尺度因子 $\Delta$。
+\end{enumerate}
+\end{myproof}

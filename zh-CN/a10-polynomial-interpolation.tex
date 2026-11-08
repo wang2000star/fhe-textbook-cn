@@ -1,0 +1,72 @@
+假设给定 $n+1$ 个二维坐标点 $(x_0, y_0), (x_1, y_1), \cdots, (x_n, y_n)$，其中所有 $x$ 值互不相同，但 $y$ 值不一定互异。拉格朗日多项式插值是一种求出经过这 $n+1$ 个坐标点、次数至多为 $n$ 的唯一多项式的方法。给定的点 $(x_i,y_i)$ 可以位于 $\mathbb{C}^2$（包含实数的复平面），也可以位于某个素数 $p$ 所对应的 $\mathbb{Z}_p^2$ 中。
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{sec:polynomial-interpolation}} 拉格朗日多项式插值}}]
+
+假设给定 $n+1$ 个二维坐标点 $(x_0, y_0), (x_1, y_1), \cdots, (x_n, y_n)$，其中所有 $X$ 值互不相同，而 $Y$ 值可以重复。$(X, Y)$ 所在的域可以是 $(x_i, y_i) \in \mathbb{C}^2$（其中包含实数域），也可以是 $(x_i, y_i) \in \mathbb{Z}_p^2$（其中 $p$ 为素数）。则存在唯一的、次数至多为 $n$ 的多项式 $f(X)$ 经过这 $n+1$ 个坐标点。该多项式 $f(X)$ 的计算方式如下：
+
+$f(X) = \sum\limits_{j=0}^{n}\dfrac{(X-x_0)\cdot(X-x_1)\cdots(X-x_{j-1})\cdot(X-x_{j+1})\cdots(X-x_{n})}{(x_j-x_0)\cdot(x_j-x_1)\cdots(x_j-x_{j-1})\cdot(x_j-x_{j+1})\cdots(x_j-x_{n})}\cdot y_j$
+
+$\textcolor{white}{f(X) }= \sum\limits_{j=0}^{n} \left( \prod\limits_{\substack{0 \le k \le n\\ k \ne j}} \dfrac{X - x_k}{x_j - x_k} \cdot y_j\right)$
+
+\end{tcolorbox}
+
+\begin{myproof}
+\begin{enumerate}
+
+
+\item 首先，证明存在一个次数为 $n$ 或更低的多项式 $f(X)$，经过 $n+1$ 个互异坐标点 $(x_0, y_0), (x_1, y_1), \ldots, (x_n, y_n)$。构造多项式 $f(X)$ 如下：
+
+$f(X) = \sum\limits_{j=0}^{n}\dfrac{(X-x_0)\cdot(X-x_1)\cdots(X-x_{j-1})\cdot(X-x_{j+1})\cdots(X-x_{n})}{(x_j-x_0)\cdot(x_j-x_1)\cdots(x_j-x_{j-1})\cdot(x_j-x_{j+1})\cdots(x_j-x_{n})}\cdot y_j$
+
+$ \textcolor{white}{f(X) }= \sum\limits_{j=0}^{n} \left( \prod\limits_{\substack{0 \le k \le n\\ k \ne j}} \dfrac{X - x_k}{x_j - x_k} \cdot y_j\right)$
+
+$ \textcolor{white}{f(X) }= \sum\limits_{j=0}^{n} \ell_j(X) \cdot y_j$ \textcolor{red}{ $\rhd$ 其中 $\ell_j(X) =  \prod\limits_{\substack{0 \le k \le n\\ k \ne j}} \dfrac{X - x_k}{x_j - x_k}$}
+
+$ $
+
+将 $\{\ell_0(X), \ell_1(X), \ldots, \ell_{n}(X) \}$ 称为 $\leq n$ 次多项式的拉格朗日基。根据 $f(X)$ 的构造，对于每个 $(x_i, y_i) \in \{(x_0, y_0), (x_1, y_1), \ldots, (x_n, y_n)\}$，\text{ }当 $i' = i$ 时有 $\ell_i(x_{i'}) = 1$，当 $i' \neq i$ 时有 $\ell_i(x_{i'}) = 0$。因此，对于 $0 \leq i \leq n$，有 $f(x_i) = \sum\limits_{j=0}^{n} \ell_j(x_i) \cdot y_j = 1 \cdot y_i = y_i$。换言之，$f(X)$ 经过 $n+1$ 个互异坐标点 $\{(x_0, y_0), (x_1, y_1), \ldots, (x_n, y_n)\}$。当 $(X, Y$ 所在的域为 $(x_i, y_i) \in \mathbb{C}^2$（即实数和复数）或 $(x_i, y_i) \in \mathbb{Z}_p^2$（其中 $p$ 为素数）时，均可计算出满足要求的 $f(X)$。特别地，在 $\bmod \, p$ 中也可以计算出有效的 $f(X)$，因为由定理~\ref*{subsec:order-theorem}.4（\autoref{subsec:order-theorem}）中的费马小定理可知，$a^{p - 1} \equiv 1 \bmod p$ 当且仅当 $a$ 与 $p$ 互素。这意味着，当 $p$ 为素数时，对所有 $a \in \mathbb{Z}_p^{\times}$（即去掉 $\{0\}$ 后的 $\mathbb{Z}_p$），都有 $a^{p - 1} \equiv 1 \bmod p$。由于 $\mathbb{Z}_p^{\times}$ 中的每个元素都有逆元，
+所以在 $f(X) = \sum\limits_{j=0}^{n}\dfrac{(X-x_0)\cdot(X-x_1)\cdots(X-x_{j-1})\cdot(X-x_{j+1})\cdots(X-x_{n})}{(x_j-x_0)\cdot(x_j-x_1)\cdots(x_j-x_{j-1})\cdot(x_j-x_{j+1})\cdots(x_j-x_{n})}\cdot y_j$ 的公式中，每次除法都可以通过乘以相应分母的逆元来完成。
+ 
+\item 接下来，证明不可能有两个互不相同、次数为 $n$ 或更低的多项式 $f_1(X)$ 与 $f_2(X)$，同时经过相同的 $n+1$ 个互异 $(X, Y)$ 坐标点。假设存在这样的两个多项式 $f_1(X)$ 和 $f_2(X)$，则 $f_{1-2}(X) = f_1(X) - f_2(X)$ 是一个次数为 $n$ 或更低、经过 $(x_0, 0), (x_1, 0), \cdots, (x_n, 0)$ 的新多项式。这意味着 $f_{1-2}(X)$ 有 $n+1$ 个互异的根，换言之，$f_{1-2}(X)$ 的次数至少为 $n+1$。这与 $f_{1-2}(X)$ 的次数至多为 $n$ 的假设矛盾。因此，不存在两个这样的多项式 $f_1(X)$ 与 $f_2(X)$，同时经过相同的 $n+1$ 个互异 $(X, Y)$ 坐标点。
+
+\item 已经证明，存在一个次数为 $n$ 或更低的多项式 $f(X)$，经过 $n+1$ 个互异 $(X, Y)$ 坐标点，而且不存在两个或更多互异的多项式满足要求。因此，满足这一要求的多项式唯一。
+
+\end{enumerate}
+\end{myproof}
+
+
+
+\subsection{插值唯一性的域条件}
+\label{subsec:polynomial-interpolation-field-condition}
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:polynomial-interpolation-field-condition}} 插值唯一性的域条件}}]
+
+如果一个多项式定义在域 $\mathbb{F}$ 上
+（即它的 $x$、$y$
+坐标和系数均属于 $\mathbb{F}$），那么对于 $\mathbb{F}$ 中任意 $n+1$ 个互异的 $x$ 值和任意 $n+1$ 个可重复的 $y$ 值，都存在唯一一个次数至多为 $n$ 的多项式对它们进行插值。
+
+$ $
+
+这样的域包括 $\mathbb{R}$（实数域）、$\mathbb{C}$（复数域），以及任意有限域 $\mathbb{Z}_t$（其中 $t$ 为素数）。
+
+\end{tcolorbox}
+
+
+\begin{myproof}
+\begin{enumerate}
+
+\item 回顾定理~\ref*{sec:polynomial-interpolation}，拉格朗日多项式插值定义为：
+
+$f(X) = \sum\limits_{j=0}^{n} \left( \prod\limits_{\substack{0 \le k \le n\\ k \ne j}} \dfrac{X - x_k}{x_j - x_k} \cdot y_j\right)$
+
+$ $
+
+如果多项式 $f(X)$ 的所有 $x$、$y$ 值和系数都属于某个域，那么 $(x_j - x_k)^{-1}$ 一定存在且仍属于该域。这是因为域中的每个非零元素都有逆元，而 $(x_j - x_k)$ 不为零（因为 $x_j \neq x_k$）。这说明 $\prod\limits_{\substack{0 \le k \le n\\ k \ne j}} \dfrac{X - x_k}{x_j - x_k} \cdot y_j$ 也属于同一个域，因此保证了 $f(X)$ 存在且定义良好。$f(X)$ 的次数至多为 $n$，因为其可能出现的最高次项为 $X^{n}$。
+
+\item 对于 $f(X)$ 的唯一性，假设另一个次数至多为 $n$ 的多项式 $g(X)$ 也经过相同的 $n+1$ 个点。令 $h(X) = f(X) - g(X)$，则 $h(X)$ 的次数至多为 $n$，并且对于全部 $(n+1)$ 个互异节点 $x_0,\dots,x_{n}$，都有 $h(x_i) = 0$，因此 $h$ 有 $(n+1)$ 个互异的根。在域上，次数为 $d$ 的非零多项式至多有 $d$ 个根；次数至多为 $n$ 的非零多项式 $h(X)$ 至多有 $n$ 个根。由于 $h(X)$ 有 $(n+1)$ 个根，$h(X)$ 必须是零多项式，即 $f(X) = g(X)$。因此，$f(X)$ 是唯一的。
+
+
+\end{enumerate}
+\end{myproof}

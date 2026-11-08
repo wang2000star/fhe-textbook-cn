@@ -1,0 +1,660 @@
+% !TeX program = xelatex
+% Chinese edition; build from the repository root.
+\PassOptionsToPackage{colorlinks=true,linkcolor=blue,urlcolor=blue}{hyperref}
+
+
+
+\documentclass[11pt]{article}
+
+%\usepackage[top=1in, bottom=1in, left=1cm, right=1cm]{geometry}
+%\usepackage{lipsum}
+%\usepackage{background}
+%\backgroundsetup{
+%  position=current page.east,
+%  angle=-90,
+%  nodeanchor=east,
+%  vshift=-5mm,
+%  opacity=1,
+%  scale=3,
+%  contents=Confidential
+%}
+
+\usepackage{comment}
+\usepackage{amsmath,amssymb,amsthm,bm}   % TeX4ht relies on these
+\usepackage{mathtools}            % optional but harmless
+\usepackage{rotating}
+
+\usepackage[margin=1cm, paperwidth=8.5in, paperheight=11in]{geometry}
+\usepackage[
+  hypertexnames=false
+]{hyperref}
+\usepackage[UTF8,scheme=plain,fontset=fandol]{ctex}
+
+
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{amsthm}
+
+\usepackage{afterpage}
+\usepackage{adjustbox}
+\usepackage{placeins}
+
+\usepackage{supertabular} 
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{color}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{pgfplots}
+\usepackage{relsize}
+\let\labelindent\relax
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{alltt}
+\usepackage{soul}
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+%\usepackage[english,greek]{babel}
+%\usepackage{ucs} 
+%\usepackage[utf8x]{inputenc}
+%\usepackage[usenames,dvipsnames]{xcolor}
+%\usepackage{tikz}
+%\usepackage{tkz-tab}
+%\usepackage{caption}
+%\usepackage{latexsym}
+%\usepackage{amssymb}
+\usepackage[margin=0.1cm]{subcaption}
+\usepackage{multicol}
+\usepackage{refcount}
+
+% XeLaTeX uses native hyperref URL line breaking. % Break URL
+\usepackage{multirow}
+\usepackage[most]{tcolorbox}
+%\usepackage[breakable,skins]{tcolorbox}
+
+\tcbset{breakable}
+\usepackage{esvect}
+\usepackage{hyperref}
+\usepackage{mathdots}
+\usepackage{pifont} 
+\usepackage{booktabs}
+\usepackage{arydshln}
+\usepackage{xcolor}
+\def\UrlBreaks{\do\/\do-\do\_}
+\usepackage{mathtools}  
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{hyperref}
+\usepackage{mathtools, nccmath}
+%\usepackage[style=numeric,sorting=none]{biblatex}
+%\usepackage[lite]{mtpro2}
+\usepackage{titling}
+\renewcommand\maketitlehooka{\null\mbox{}\vfill}
+\renewcommand\maketitlehookd{\vfill\null}
+
+\DeclarePairedDelimiter{\nint}\lfloor\rceil
+
+\DeclarePairedDelimiter{\abs}\lvert\rvert
+\usepackage{tocloft}
+\usepackage{pdflscape}
+\usepackage[all=normal, floats, bibnotes, wordspacing, charwidths, indent]{savetrees}
+\makeatletter%
+\captionsetup{belowskip=0pt}
+
+\usepackage{enumitem}
+\setlist{nolistsep}
+%\setlist[itemize]{leftmargin=0.1}
+\setlist[itemize]{leftmargin=*}
+\setlist[enumerate]{leftmargin=*}
+
+% align figures to the top margin
+\makeatletter
+\setlength{\@fptop}{0pt}
+
+\newcommand\bunderline{}% check for being undefined
+\DeclareRobustCommand\bunderline[1]{\mathord{\mathpalette\b@underline{#1}}}
+\newcommand{\b@underline}[2]{%
+  \sbox\z@{$\m@th#1\underline{#2}$}%
+  \raisebox{-\dp\z@}{\scalebox{.5}[.25]{$\m@th#1[$}}%
+  \copy\z@
+  \raisebox{-\dp\z@}{\scalebox{.5}[.25]{$\m@th#1]$}}%
+}
+
+
+\makeatother
+
+%\renewcommand{\figureautorefname}{foo}
+%\renewcommand{\tableautorefname}{bar}
+
+%\usepackage[all=normal, floats, bibnotes, wordspacing, charwidths, indent, lists]
+
+%\captionsetup{belowskip=0pt}
+
+\usepackage{graphicx}
+\def\rotatecharone#1{\rotatebox[origin=c]{180}{#1}}
+
+\def\rotatechartwo#1{\reflectbox{#1}}
+\usepackage{hyperref}
+\skip\footins 0.5\baselineskip %8.1pt plus 4pt minus 2pt
+\floatsep 0.5\baselineskip
+\textfloatsep 0.5\baselineskip
+\intextsep 0.5\baselineskip 
+\dbltextfloatsep 0.5\baselineskip  
+\dblfloatsep 0.5\baselineskip 
+
+%\raggedbottom
+
+\belowcaptionskip 0pt
+
+% Let TeX choose natural paragraph line counts for Chinese text.
+
+\setlength{\abovecaptionskip}{0pt} % 
+
+\newenvironment{myproof}[1][\proofname]{%
+  \begin{proof}[#1]$ $\par\nobreak\ignorespaces
+}{%
+  \end{proof}
+}
+\makeatletter
+\renewcommand{\sectionautorefname}{\S\@gobble}
+\renewcommand{\subsectionautorefname}{\S\@gobble}
+\renewcommand{\subsubsectionautorefname}{\S\@gobble}
+\renewcommand{\appendixautorefname}{\S\@gobble}
+\renewcommand{\appendixautorefname}{\S\@gobble}
+
+\newcommand\mymathcolor[2]{{\color{#1}#2}}
+
+\makeatother
+\newcommand{\ignore}[1]{}
+
+% Add additional comma in the math mode
+%\DeclareMathSymbol{,}{\mathpunct}{letters}{"2C}
+%\newcommand{\comma}{\mathpunct{\mkern\thinmuskip}}
+%\mathcode`,=\string"8000
+%{\catcode`,=\active \gdef,{\comma}}
+
+
+\addtolength{\cftsecnumwidth}{15pt}
+\addtolength{\cftsubsecnumwidth}{10pt}
+\addtolength{\cftsubsubsecnumwidth}{12pt}
+
+\makeatletter%
+\usepackage{stackengine,xcolor}
+% The unused pdfTeX-only outline macros are omitted in this XeLaTeX entry.
+\usepackage{lmodern}
+\usepackage{lipsum}
+
+
+\makeatletter
+\DeclareRobustCommand{\ccong}{\mathrel{\mathpalette\@verequiv\sim}}
+\newcommand{\@verequiv}[2]{%
+  \lower.5\p@\vbox{
+    \lineskiplimit\maxdimen
+    \lineskip-.5\p@
+    \ialign{%
+      $\m@th#1\hfil##\hfil$\crcr
+      #2\crcr
+      \equiv\crcr
+    }%
+  }%
+}
+\renewcommand*\env@matrix[1][c]{\hskip -\arraycolsep
+  \let\@ifnextchar\new@ifnextchar
+  \array{*\c@MaxMatrixCols #1}}
+
+\newcommand{\hathat}{\tilde} 
+
+%\newcommand{\hathat}[1]{% 
+%\begingroup%
+%  \let\macc@kerna\z@%
+%  \let\macc@kernb\z@%
+%  \let\macc@nucleus\@empty%
+%  \hat{\raisebox{.2ex}{\vphantom{\ensuremath{#1}}}\smash{\hat{#1}}}%
+%\endgroup%
+%}
+
+\newcommand{\revise}[1]{{{\textcolor{black}{#1}}}}
+
+\makeatother
+
+% \title{**\vspace*{\fill}**The Beginner's Textbook for Fully Homomorphic Encryption}
+
+% \date{January 1, 2025}
+
+% \author{Ronny Ko**\vspace*{\fill}**}
+
+
+\hypersetup{breaklinks=true,unicode=true,pdftitle={全同态加密入门教材（中文译本）},pdfauthor={Ronny Ko},pdflang={zh-CN}}
+\renewcommand{\contentsname}{目录}
+\renewcommand{\refname}{参考文献}
+\renewcommand{\figurename}{图}
+\renewcommand{\tablename}{表}
+\renewcommand{\proofname}{证明}
+\renewcommand{\figureautorefname}{图}
+\renewcommand{\tableautorefname}{表}
+\renewcommand{\partautorefname}{部分}
+\setlength{\emergencystretch}{2em}
+\begin{document}
+\title{\Huge{\textbf{全同态加密入门教材}}\\[0.6em]\Large{中文译本}\\[0.4em]\large{The Beginner\textquotesingle s Textbook for Fully Homomorphic Encryption}}
+\author{
+        \textbf{Ronny Ko} \thanks{\large \textit{致谢：}\\
+        \textbf{Robin Geelen} (KU Leuven)\\  
+        \textbf{Tianjian Yang}（北京大学）\\ \textbf{Yongwoo Lee}（仁荷大学）\\ \textbf{Nolan Carouge} (Grenoble INP Ensimag) \\
+        \textbf{Navid Abapour}（萨里大学）
+        }
+        \\{LG Electronics Inc.}}%\\\texttt{\small{hajoon.ko@lge.com}}}
+\date{\small 中文初译对应英文源码版本：\texttt{2a901038078f}}
+
+
+
+\begin{titlingpage}
+\maketitle
+\end{titlingpage}
+
+
+\clearpage
+
+\section*{前言}
+全同态加密（Fully Homomorphic Encryption，FHE）是一类允许直接对加密数据进行计算的密码方案，操作方式如同处理明文数据。对加密数据完成全部计算后，解密即可得到结果；该结果与对明文数据执行相同计算所得到的结果一致。
+
+FHE 支持加密数值的加法、乘法等基本运算。基于这些基本运算，可以构造更复杂的计算，包括减法、除法、逻辑门（例如 AND、OR、XOR、NAND、MUX），以及 ReLU、sigmoid 和三角函数（例如 sin、cos）等更复杂的数学函数。根据计算效率与精度之间的取舍，这些函数可以用精确公式或近似公式实现。
+
+FHE 可以支持隐私保护机器学习，使服务器通过机器学习模型处理客户端的加密数据。服务器既不能获知输入特征的明文，也不能获知推理结果。只有客户端能够在服务协议结束后使用自己的私钥解密并读取结果。
+FHE 也可用于保密区块链服务，使智能合约中的敏感数据在保持加密和保密状态的同时，保留执行过程的透明性与完整性。
+FHE 的其他应用还包括安全外包数据分析、加密数据库查询、隐私保护搜索以及面向数字签名的高效多方计算等。
+
+本书旨在帮助读者从数学层面理解 FHE 的工作原理，共分为以下四个部分：
+
+$ $
+
+\begin{itemize}
+\item \textbf{\autoref{part:basic-math}：\nameref{part:basic-math}}介绍 FHE 所需的数学背景，包括群、域、阶、多项式环、分圆多项式、向量与矩阵、中国剩余定理、泰勒级数、多项式插值和快速傅里叶变换。
+
+\item \textbf{\autoref{part:pqc}：\nameref{part:pqc}}介绍常见的格密码体制，包括 LWE、RLWE、GLWE、GLev 和 GGSW。
+
+\item \textbf{\textbf{\autoref{part:generic-fhe}：\nameref{part:generic-fhe}}}介绍多种现有方案共同使用的 FHE 通用技术，例如同态加法、同态乘法、模数切换和密钥切换。
+
+
+\item \textbf{\textbf{\autoref{part:fhe-schemes}：\nameref{part:fhe-schemes}}}介绍四种广泛使用的 FHE 方案：TFHE、BFV、CKKS 和 BGV，以及它们的 RNS 变体。
+\end{itemize}
+
+$ $
+
+%These parts are designed in an incremental manner, and therefore understanding each part requires the understanding of its prior part(s). 
+
+%$ $
+
+本书英文原版提供\href{https://arxiv.org/abs/2503.05136}{\textbf{arXiv PDF}}和\href{https://fhetextbook.github.io}{\textbf{自动生成的动态网站}}（由\href{https://www.kodymirus.cz/overleaf-html-sample/main.html}{make4ht}生成）。作者还提供用于教学的 Python FHE 演示库，涵盖 TFHE、BFV、BGV 和 CKKS，可在\href{https://github.com/fhetextbook/fhe-textbook}{\texttt{https://github.com/fhetextbook/fhe-textbook}}获取。
+英文原稿中的问题可在上游\href{https://github.com/fhetextbook/fhe-textbook/issues}{\textbf{问题跟踪页面}}反馈。
+\paragraph*{中文译本说明} 本译本保留原书的章节结构、公式、交叉引用和参考文献。图中已嵌入的英文文字及代码标识保留原样。本版本为完整初译，尚未经过逐式学术审校；原文中已发现的待核对问题记录于仓库的 \texttt{TRANSLATION.md}，使用时请结合英文原文阅读。
+
+
+
+\subsubsection*{致谢}
+特别感谢以下研究者：Robin Geelen（KU Leuven，\href{mailto:robin.geelen@esat.kuleuven.be}{robin.geelen@esat.kuleuven.be}）提供细致而投入的反馈；Yongwoo Lee（仁荷大学，\href{mailto:yongwoo@inha.ac.kr}{yongwoo@inha.ac.kr}）提供总体建议；Tianjian Yang（北京大学，\href{mailto:2300012738@stu.pku.edu.cn}{2300012738@stu.pku.edu.cn}）纠正全文中的大量笔误和其他错误；Nolan Carouge（Grenoble INP Ensimag，\href{mailto:nolan.carouge.pro@gmail.com}{nolan.carouge.pro@gmail.com}）校对第一部分；Navid Abapour（萨里大学，\href{mailto:n.abapour@surrey.ac.uk}{n.abapour@surrey.ac.uk}）校对第三和第四部分。
+
+\thispagestyle{empty}
+
+\newpage
+
+\tableofcontents
+
+
+
+%\newcommand{\subparagraph}{} % /usepackage{titlesec}
+\titleformat*{\section}{\LARGE\bfseries}
+\titleformat*{\subsection}{\Large\bfseries}
+\titleformat*{\subsubsection}{\bfseries}
+\titleformat*{\paragraph}{\normalsize\bfseries}
+\titleformat*{\subparagraph}{\large\bfseries}
+
+% page header foot 
+%\usepackage{fancyhdr}
+%\pagestyle{fancy}
+%\lhead{Security and Privacy in Cyber-Physical Systems: Foundations and Applications}
+%\rfoot{Copyright \textcopyright 2016 by Wiley}
+% \thispagestyle{fancy}, after \maketitle
+\newcommand{\para}[1]{\vspace{0.05in}\noindent{\bf{#1}}}
+
+
+\newcommand{\white}[1]{{\textcolor{white}{#1}}} % phantom upgrade
+
+\newcommand{\gap}[1]{\text{ } \text{#1} \text{ }}
+
+\newcommand{\tboxlabel}[1]{$\bm{\langle}$总结~{#1}$\bm{\rangle}$}
+
+\newcommand{\tboxdef}[1]{$\bm{\langle}$定义~{#1}$\bm{\rangle}$}
+
+\newcommand{\tboxtheorem}[1]{$\bm{\langle}$定理~{#1}$\bm{\rangle}$}
+
+\newtheorem{proposition}{命题}
+
+
+
+\newtcolorbox[blend into=tables]{mytable}[2][]{float=htb, halign=center,  title={#2}, every float=\centering, #1}
+
+
+% $\hat Y = \frac{1}{1 + e^{-Z}}$.
+
+% $Z = {w_1 \cdot X_1 + w_2 \cdot X_2 + \dots + w_n \cdot X_n + b}$
+
+
+
+\clearpage
+
+%\section{Background}
+
+
+\part{数学基础}
+\label{part:basic-math}
+
+\renewcommand{\thesection}{A-\arabic{section}}
+\setcounter{section}{0}
+
+本部分介绍数论的基本数学概念：群、域、阶、单位根、分圆多项式、多项式环和分解。这些概念是后量子密码的重要基础。
+
+\clearpage
+
+\section{模算术}
+\label{sec:modulo}
+\input{zh-CN/a01-modulo}
+
+\clearpage
+
+\section{群}
+\label{sec:group}
+\input{zh-CN/a02-group}
+
+
+\clearpage
+
+\section{域}
+\label{sec:field}
+\input{zh-CN/a03-field}
+
+\clearpage
+
+\section{阶}
+\label{sec:order}
+\input{zh-CN/a04-order}
+
+
+
+\clearpage
+
+\section{多项式环}
+\label{sec:polynomial-ring}
+\input{zh-CN/a05-polynomial-ring}
+
+\clearpage
+
+\section{分解}
+\label{sec:decomp}
+\input{zh-CN/a06-decomp}
+
+
+\clearpage
+
+\section{单位根}
+\label{sec:roots}
+\input{zh-CN/a07-roots-of-unity}
+
+\clearpage
+
+\section{分圆多项式}
+\label{sec:cyclotomic}
+\input{zh-CN/a08-cyclotomic-polynomial}
+
+\clearpage
+
+\section{环上的单位根与分圆多项式}
+\label{sec:cyclotomic-polynomial-integer-ring}
+\input{zh-CN/a09-cyclotomic-polynomial-integer-ring}
+
+\clearpage
+
+\section{拉格朗日多项式插值}
+\label{sec:polynomial-interpolation}
+\input{zh-CN/a10-polynomial-interpolation}
+
+\clearpage
+
+\section{向量与矩阵}
+\label{sec:matrix}
+\input{zh-CN/a11-matrix}
+
+\clearpage
+
+\section{欧拉公式}
+\label{sec:euler}
+\input{zh-CN/a12-euler}
+
+\clearpage
+
+\section{模数重缩放}
+\label{sec:modulus-rescaling}
+\input{zh-CN/a13-modulus-rescaling}
+
+\clearpage
+
+\section{中国剩余定理}
+\label{sec:chinese-remainder}
+\input{zh-CN/a14-chinese-remainder}
+
+\clearpage
+
+\section{泰勒级数}
+\label{sec:taylor-series}
+\input{zh-CN/a15-taylor-series}
+
+\clearpage
+
+
+
+\section{利用 FFT 与 NTT 高效计算多项式乘法}
+\label{sec:ntt}
+\input{zh-CN/a16-ntt}
+
+\clearpage
+
+
+
+
+
+\part{后量子密码}
+\label{part:pqc}
+
+\renewcommand{\thesection}{B-\arabic{section}}
+\setcounter{section}{0}
+
+本部分介绍基于格的密码体制：LWE、RLWE、GLWE、GLev 和 GGSW。它们是构建 FHE 方案的重要基础。
+
+
+$ $
+
+\begin{tcolorbox}[
+    title = \textbf{所需背景知识},    % box title
+    colback = white,    % light background; tweak to taste
+    colframe = black,  % frame colour
+    boxrule = 0.8pt,     % line thickness
+    left = 1mm, right = 1mm, top = 1mm, bottom = 1mm % inner padding
+]
+
+
+
+\begin{itemize}
+\item \autoref{sec:group}: \nameref{sec:group}
+\item \autoref{sec:field}: \nameref{sec:field}
+\item \autoref{sec:polynomial-ring}: \nameref{sec:polynomial-ring}
+\end{itemize}
+
+\end{tcolorbox}
+
+$ $
+
+\clearpage
+
+\section{格密码}
+\label{sec:lattice}
+\input{zh-CN/b01-lattice}
+
+\clearpage
+
+\section{LWE 密码体制}
+\label{sec:lwe}
+\input{zh-CN/b02-lwe}
+
+\clearpage
+
+\section{RLWE 密码体制}
+\label{sec:rlwe}
+\input{zh-CN/b03-rlwe}
+
+\clearpage
+
+\section{GLWE 密码体制}
+\label{sec:glwe}
+\input{zh-CN/b04-glwe}
+
+\clearpage
+
+\section{GLev}
+\label{sec:glev}
+\input{zh-CN/b05-glev}
+
+\clearpage
+
+\section{GGSW}
+\label{sec:ggsw}
+\input{zh-CN/b06-ggsw}
+
+\clearpage
+
+
+\part{全同态加密的通用技术}
+\label{part:generic-fhe}
+
+\renewcommand{\thesection}{C-\arabic{section}}
+\setcounter{section}{0}
+
+本部分介绍 TFHE、CKKS、BGV 和 BFV 等多种 FHE 方案共同使用的同态计算技术。
+
+根据 \autoref{sec:glwe}，$\textsf{GLWE}_{S,\sigma}(\Delta M + E) = (A_0, A_1, \gap{$\cdots$} , A_{k-1}, B) \in \mathcal{R}_{\langle n, q \rangle }^{k + 1}$，其中 $\mathcal{R}_{\langle n,q \rangle} = \mathbb{Z}_q[x] / (x^n + 1)$，$B$ 按 $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E$ 计算。每个 $A_i$ 是作为公钥分量的 $(n-1)$ 次多项式，其各个系数在 $\mathcal{R}_{\langle n, q \rangle }$ 中均匀随机采样。$E$ 是作为噪声的 $(n-1)$ 次多项式，其各个系数依据高斯分布 $\chi_\sigma$ 从 $\mathcal{R}_{\langle n, q \rangle }$ 中采样。私钥 $S$ 是由 $k$ 个 $(n-1)$ 次多项式构成的列表，满足 $S = (S_0, S_1, \gap{$\cdots$} S_{k-1} ) \in \mathcal{R}_{\langle n, q \rangle }^k$；每个多项式 $S_i$ 的各个系数都是从 $\mathbb{Z}_2$（即 $\{0, 1\}$）中随机采样得到的二元数。
+
+基于这一 GLWE 设置，本部分介绍同态运算的通用构件，包括密文与密文加法、密文与明文加法、密文与明文乘法、模数切换和密钥切换。
+
+
+\clearpage
+
+
+\section{GLWE 密文与密文加法}
+\label{sec:glwe-add-cipher}
+\input{zh-CN/c01-glwe-add-cipher}
+
+\clearpage
+
+\section{GLWE 密文与明文加法}
+\label{sec:glwe-add-plain}
+\input{zh-CN/c02-glwe-add-plain}
+
+\clearpage
+
+\section{GLWE 密文与明文乘法}
+\label{sec:glwe-mult-plain}
+\input{zh-CN/c03-glwe-mult-plain}
+
+\clearpage
+
+\section{GLWE 模数切换}
+\label{sec:modulus-switching}
+\input{zh-CN/c04-glwe-modulus-switch}
+
+\clearpage
+
+
+\section{GLWE 密钥切换}
+\label{sec:glwe-key-switching}
+\input{zh-CN/c05-glwe-key-switching}
+
+
+
+\clearpage
+
+
+%\section{GLWE Input Vector Rotation}
+%\label{sec:glwe-input-rotation}
+%\input{zh-CN/c06-glwe-input-rotation}
+%\clearpage
+
+
+\part{全同态加密方案}
+\label{part:fhe-schemes}
+
+\renewcommand{\thesection}{D-\arabic{section}}
+\setcounter{section}{0}
+
+本部分介绍四种最常见的 FHE 方案：TFHE、CKKS、BGV 和 BFV，以及它们的 RNS 变体。
+
+\newpage
+
+\section{TFHE 方案}
+\label{sec:tfhe}
+\input{zh-CN/d01-tfhe}
+
+
+\newpage
+
+\section{BFV 方案}
+\label{sec:bfv}
+\input{zh-CN/d02-bfv}
+
+\newpage
+
+\section{CKKS 方案}
+\label{sec:ckks}
+\input{zh-CN/d03-ckks}
+
+
+\clearpage
+
+\section{BGV 方案}
+\label{sec:bgv}
+\input{zh-CN/d04-bgv}
+
+\clearpage
+
+
+\section{采用 RNS 的 FHE 方案}
+\label{sec:rns}
+\input{zh-CN/d05-rns}
+
+\clearpage
+
+\section{FHE 方案比较与总结}
+\input{zh-CN/d06-scheme-summary}
+
+
+\clearpage
+
+\section{Python FHE 演示库}
+\input{zh-CN/d07-python-demo-library}
+
+%\input{scratch}
+\clearpage
+
+\bibliographystyle{unsrt}
+\bibliography{z-bibfile}
+
+
+
+%\clearpage
+%\input{scratch-real}
+
+\end{document}
+
+
+%https://www.youtube.com/watch?v=vYKdh5oQ4Zw

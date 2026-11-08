@@ -1,5 +1,7 @@
-name: CI 
-on: [push] 
+name: English website
+on:
+  push:
+    branches: [main]
 permissions:               
   contents: write
 

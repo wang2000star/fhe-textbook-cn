@@ -1,0 +1,1938 @@
+CKKS 方案用于对包含虚部的复数进行同态加法和乘法。因此，与只能在整数上运算的 BFV、BGV 或 TFHE 不同，CKKS 可以处理机器学习等实际应用中的浮点运算。
+
+
+CKKS 方案的目标是同态地计算复数的加法和乘法。不过，虽然目标输入是复数，CKKS 的明文空间却定义为系数是有限精度实数的 $(n-1)$ 次多项式环，即 $\mathcal{R}_{\langle n \rangle} = \mathbb{R}[x] / (x^n + 1)$。因此，CKKS 设计了特有的编码方案，将输入复数转换为整数，并将这些整数用作 $\mathcal{R}_{\langle n \rangle}$ 中多项式的系数。
+
+
+$ $
+
+\noindent 总体而言，CKKS 的加密过程如下：
+
+\begin{enumerate}
+\item \underline{\textsf{编码\textsubscript{1}}：}将目标输入复数编码为实数
+\item \underline{\textsf{编码\textsubscript{2}}：}将实数编码为整数
+\item \underline{\textsf{加密}：}使用 RLWE 加密整数
+\end{enumerate}
+得到的 RLWE 密文支持同态加法和乘法。
+
+$ $
+
+\noindent 所有同态运算完成后，CKKS 的解密过程如下：
+
+\begin{enumerate}
+\item \underline{\textsf{解密}：}将 RLWE 密文解密为明文整数
+\item \underline{\textsf{解码\textsubscript{1}}：}将整数解码为实数
+\item \underline{\textsf{解码\textsubscript{2}}：}将实数解码为复数
+\end{enumerate}
+
+$ $
+
+
+回顾一下，BFV 是基于环的精确加密方案。而 CKKS 在编码过程中需要将欧拉公式中包含的平方根值舍入到最近的整数，从而引入偏移误差。因此，其解密结果与加密前的值并不完全相同。这种在加密和解密过程中产生的小误差，使 CKKS 成为一种\textit{近似}加密方案。
+
+在内部实现中，CKKS 的加密、解密、密文与明文相加、密文与密文相加以及密文与明文相乘，都采用与 BFV 相同的方法。与此同时，CKKS 在输入编码、输入向量（即输入向量槽位）旋转（此处假设 BFV 使用批量编码）、密文与密文相乘以及自举方面，采用的方法与 BFV 略有不同。其原因是 CKKS 对复数输入执行同态运算，而 BFV 对环上的输入执行同态运算。
+
+
+
+\begin{tcolorbox}[
+    title = \textbf{所需背景知识},    % box title
+    colback = white,    % light background; tweak to taste
+    colframe = black,  % frame colour
+    boxrule = 0.8pt,     % line thickness
+    left = 1mm, right = 1mm, top = 1mm, bottom = 1mm % inner padding
+]
+
+\begin{itemize}
+\item \autoref{sec:modulo}: \nameref{sec:modulo}
+\item \autoref{sec:group}: \nameref{sec:group}
+\item \autoref{sec:field}: \nameref{sec:field}
+\item \autoref{sec:order}: \nameref{sec:order}
+\item \autoref{sec:polynomial-ring}: \nameref{sec:polynomial-ring}
+\item \autoref{sec:decomp}: \nameref{sec:decomp}
+\item \autoref{sec:roots}: \nameref{sec:roots}
+\item \autoref{sec:cyclotomic}: \nameref{sec:cyclotomic}
+\item \autoref{sec:matrix}: \nameref{sec:matrix}
+\item \autoref{sec:euler}: \nameref{sec:euler}
+\item \autoref{sec:modulus-rescaling}: \nameref{sec:modulus-rescaling}
+\item \autoref{sec:chinese-remainder}: \nameref{sec:chinese-remainder}
+\item \autoref{sec:taylor-series}: \nameref{sec:taylor-series}
+\item \autoref{sec:polynomial-interpolation}: \nameref{sec:polynomial-interpolation}
+\item \autoref{sec:ntt}: \nameref{sec:ntt}
+\item \autoref{sec:lattice}: \nameref{sec:lattice}
+\item \autoref{sec:rlwe}: \nameref{sec:rlwe}
+\item \autoref{sec:glwe}: \nameref{sec:glwe}
+\item \autoref{sec:glev}: \nameref{sec:glev}
+\item \autoref{sec:glwe-add-cipher}: \nameref{sec:glwe-add-cipher}
+\item \autoref{sec:glwe-add-plain}: \nameref{sec:glwe-add-plain}
+\item \autoref{sec:glwe-mult-plain}: \nameref{sec:glwe-mult-plain}
+\item \autoref{subsec:modulus-switch-rlwe}: \nameref{subsec:modulus-switch-rlwe}
+\item \autoref{sec:glwe-key-switching}: \nameref{sec:glwe-key-switching}
+\item \autoref{sec:bfv}: \nameref{sec:bfv}
+\end{itemize}
+\end{tcolorbox}
+
+\clearpage
+
+
+\subsection{编码与解码}
+\label{subsec:ckks-encoding-decoding}
+
+
+CKKS 的编码与解码在本质上非常接近 BFV 的批量编码方案。BFV 基于更新后的 $\hathat W$ 和 $\hathat W^*$ 矩阵（\autoref{subsec:bfv-rotation} 中的总结~\ref*{subsubsec:bfv-rotation-summary}）设计批量编码方案（\autoref{subsec:bfv-enc-dec} 中的总结~\ref*{subsec:bfv-enc-dec}）。具体而言，BFV 在 $X^n+1$ 的各个根，即本原 $(\mu=2n)$ 次单位根处对多项式求值，从而将多项式解码为输入槽位向量（即 $\vec{v} = \hathat W^* \cdot \vec{m}$）；反过来，通过这一运算的逆运算将输入槽位向量编码为多项式（即 $\vec{m} = n^{-1} \cdot \hathat W \cdot I_n^R \cdot \vec{v}$）。这一编码与解码方案以总结~\ref*{subsec:poly-vector-transformation-complex}（\autoref{subsec:poly-vector-transformation-complex}）为基础，后者在环（有限域）上的 $n$ 槽位向量与 $(n-1)$ 次（或更低次）多项式之间构造了如下同构映射：
+
+$\sigma: f(x) \in \mathbb{Z}_t[X] / F(X) \text{ } \longrightarrow \text{ } (f(\omega^1), f(\omega^3)), \cdots, f(\omega^{2n-1})) \in \mathbb{Z}_t^n$
+
+其中，$\omega = g^{\frac{t - 1}{2n}}$ 是定义在模素数 $t$ 的环上的第 $(\mu=2n)$ 个分圆多项式 $X^n + 1$ 的根，即本原 $(\mu=2n)$ 次单位根。
+
+$ $
+
+CKKS 的批量编码方案采用完全相同的编码与解码公式（即 $\vec{v} = W^T \cdot \vec{m}$ 和 $\vec{m} = \dfrac{W \cdot I_n^R \cdot \vec{v}}{n}$），但 $n$ 维输入槽位向量的元素属于复数空间（即 $\mathbb{\hat C}^n$），而非整数模环（即 $\mathbb{Z}^n_p$）。在总结~\ref*{subsec:poly-vector-transformation-complex}（\autoref{subsec:poly-vector-transformation-complex}）中，我们也构造了复数域上多项式与向量之间的映射 $\sigma_c$：
+
+$\sigma_c: f(X) \in \mathbb{R}[X]/(X^n + 1) \longrightarrow (f(\omega),f(\omega^3),f(\omega^5), \cdots, f(\omega^{2n-1})) \in \mathbb{\hat{C}}^{n} \text{ } (\longrightarrow \mathbb{C}^{\frac{n}{2}})$
+
+
+其中，$\omega = e^{i\pi/n}$ 是定义在复数域上的第 $(\mu=2n)$ 个分圆多项式 $X^n + 1$ 的根，即本原 $(\mu=2n)$ 次单位根；$\mathbb{\hat{C}}^{n}$ 是一个特殊的 $n$ 维复向量空间，其后半部分元素是前半部分元素按逆序排列的共轭。$\mathbb{\hat{C}}^{n}$ 与 $\mathbb{{C}}^{\frac{n}{2}}$ 同构，因为 $\mathbb{\hat{C}}^{n}$ 的后半部分元素完全由前半部分元素确定。因此，映射 $\sigma_c$ 本质上是在 $\dfrac{n}{2}$ 槽位复向量 $\vec{v} \in \mathbb{C}^{\frac{n}{2}}$ 与 $(n-1)$ 次（或更低次）实系数多项式 $\mathbb{R}[X] / (X^n + 1)$ 之间的同构。所以，CKKS 的批量编码方案将一个 $\dfrac{n}{2}$ 槽位的复数输入向量编码为 $(n-1)$ 次（或更低次）的实系数多项式，而解码过程则与此相反。
+
+此外，回顾 BFV 中的做法：为了支持输入向量槽位的同态旋转，我们将 $W$ 和 $W^T$ 更新为 $\hathat W$ 和 $\hathat W^*$（见 \autoref{subsubsec:bfv-rotation-summary} 中的总结~\ref*{subsubsec:bfv-rotation-summary}）。同样，CKKS 批量编码方案使用 $\hathat W$ 和 $\hathat W^*$ 替代 $W$ 和 $W^T$，以支持同态旋转。因此，CKKS 批量编码方案中的同构映射更新为：
+
+
+$\sigma_c: f(X) \in \mathbb{R}[X]/(X^n + 1) \longrightarrow \bm ( f(\omega^{J(0)}),f(\omega^{J(1)}),f(\omega^{J(2)}), \cdots, f(\omega^{J(\frac{n}{2} - 1)}), $
+
+\textcolor{white}{$ f(X) \in \mathbb{R}[X]/(X^n + 1) \longrightarrow \bm ( $} $\cdots, f(\omega^{J_*(0)}),f(\omega^{J_*(1)}),f(\omega^{J_*(2)}), \cdots, f(\omega^{J_*(\frac{n}{2} - 1)}) \bm) \in \mathbb{\hat{C}}^{n} \text{ } (\longrightarrow \mathbb{C}^{\frac{n}{2}})$
+
+其中，$J(h) = 5^h \bmod 2n$ 是用于辅助旋转的公式。
+
+
+$ $
+
+BFV 与 CKKS 的编码方案具有以下区别：
+
+\begin{itemize}
+\item \textbf{输入槽位值的类型：}BFV 的输入槽位值是 ${n}$ 个模 $t$ 的整数，它们被编码为 $n$ 个多项式系数（即模 $t$ 的整数）。而 CKKS 的输入槽位值是 $\dfrac{n}{2}$ 个复数，它们被编码为 $n$ 个多项式系数（即实数）。
+
+\item \textbf{多项式系数的类型：}BFV 编码后的多项式系数是模整数，而 CKKS 编码后的多项式系数是实数。
+
+\item \textbf{尺度因子：}BFV 与 CKKS 都将编码后的多项式系数 $\vec{m}$ 乘以 $\Delta$，得到 $\lceil \Delta\cdot \vec{m} \rfloor$。BFV 推荐的尺度因子为 $\Delta = \lfloor\dfrac{q_0}{t}\rfloor$，而 CKKS 的尺度因子 $\Delta$ 没有固定的推荐公式，因为其多项式系数是没有模数界限的实数。因此，只要缩放后的系数不会超出 $[1, q_0 - 1]$（或 $\left[-\dfrac{q_0}{2}, \dfrac{q_0}{2}\right)$）这一范围的上下界，就可以选择相应的尺度因子。
+
+\item \textbf{编码精度：}对于 BFV，在解码过程中，将多项式系数缩小为 $\dfrac{ \Delta\cdot \vec{m} }{\Delta}$ 后能够保留输入值的精度
+%as far as $\Delta$ is sufficiently large enough to round off the scaling error (as explained in \autoref{subsubsec:bfv-enc-dec-decoding1})
+。而对于 CKKS，如果原始输入值的小数位数过多，尺度因子无法将所有小数位都左移到整数部分，那么缩小后的多项式系数就可能丢失精度。这意味着输入值的一些低位小数会被舍入，导致原始输入的精度损失。例如，设多项式系数为 $m_i = \dfrac{1}{3} = 0.33333\cdots$，尺度因子为 $\Delta = 100$。则缩放后的系数为 $\lceil \Delta m_i \rfloor = 33$，再缩小后得到 $\dfrac{33}{100} = 0.33$。由于 $0.33 \neq 0.33333\cdots$，CKKS 的编码与解码过程并不总能保证完全精确。正是由于这种编码误差，CKKS 被称为\textit{近似}加密方案。编码误差的影响可能随同态运算而增大，使误差幅度增加，解码结果逐渐偏离预期的精确值。减小 CKKS 编码误差的一种方式是增大 $\Delta$，使更多小数位左移到缩放后的整数部分。
+
+\end{itemize}
+
+$ $
+
+
+\para{\boldmath$\vec{v}_{'} \in \mathbb{\hat C}^n$ 的结构：}注意，总结~\ref*{subsec:poly-vector-transformation-complex}（\autoref{subsec:poly-vector-transformation-complex}）中给出的 $\vec{v}_{'}$ 的原始解码方案为：
+
+$\vec{v}_{'} = \bm{(} \text{ } M(\omega), \text{ } M(\omega^3), \text{ } M(\omega^5), \cdots, M(\omega^{2n-3}), \text{ } M(\omega^{2n-1}) \bm{)}$
+
+它解码得到一个厄米向量：
+
+$\vec{v}_{'} = (v_0, v_1, \cdots, v_{\frac{n}{2} - 1}, \overline v_{\frac{n}{2} - 1}, \cdots, \overline v_1, \overline v_0 )$
+
+其后半部分元素是前半部分元素按逆序排列的共轭。
+
+$ $
+
+不过，将 $W$ 和 $W^T$ 替换为 $\hathat W$ 和 $\hathat W^*$ 后，上述解码方案改为以下支持同态旋转的形式：
+
+
+$\vec{v}_{'} =  \bm{(} \text{ } 
+M(\omega^{J(0)}), \text{ } M(\omega^{J(1)}), \text{ } M(\omega^{J(2)}), \cdots,  M(\omega^{J(\frac{n}{2}-1)}), \text{ } M(\omega^{J_*(0)}), \text{ } M(\omega^{J_*(1)}), \cdots,  M(\omega^{J_*(\frac{n}{2}-1)}) \text{ } \bm{)}$
+
+$\textcolor{white}{\vec{v}_{'}} =  \bm{(} \text{ } 
+M(\omega^{J(0)}), \text{ } M(\omega^{J(1)}), \text{ } M(\omega^{J(2)}), \cdots,  M(\omega^{J(\frac{n}{2}-1)}), \text{ } M(\overline\omega^{J(0)}), \text{ } M(\overline\omega^{J(1)}), \cdots,  M(\overline\omega^{J(\frac{n}{2}-1)}) \text{ } \bm{)}$ 
+
+\textcolor{red}{ $\rhd$ 因为 $\omega^{-1} = (e^{\frac{i\pi}{n}})^{-1} = e^{\frac{-i\pi}{n}} = \overline\omega$，且给定 $J(h) = 5^h \bmod 2n$ 和 $J_*(h) = -5^h \bmod 2n$}
+
+它解码得到如下\textit{正序}（而非逆序）厄米向量：
+
+$\vec{v}_{'} = (v_0, v_1, \cdots, v_{\frac{n}{2} - 1}, \overline v_0, \overline v_1, \cdots, \overline v_{\frac{n}{2} - 1})$
+
+其后半部分元素是前半部分元素按相同顺序排列的共轭。执行同态旋转时（将在 \autoref{subsec:ckks-rotation} 中说明），与 BFV 的同态旋转一样，$\vec{v}_{'}$ 的前半部分和后半部分元素分别在各自的组内循环旋转。
+
+
+
+下面总结 CKKS 的编码与解码过程。它与 BFV 的编码与解码过程相似，后者见 \autoref{subsubsec:bfv-encoding-summary} 中的总结~\ref*{subsubsec:bfv-encoding-summary}：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ckks-encoding-decoding}} CKKS 的编码与解码}}]
+
+\textbf{\underline{输入}：}一个 $\dfrac{n}{2}$ 槽位的复向量 $\vec{v} = (v_0, v_1, \cdots, v_{\frac{n}{2}-1}) \in \mathbb{C}^{\frac{n}{2}}$
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{\underline{编码}：}
+
+$ $
+
+\begin{enumerate}
+\item 将 $\vec{v}$ 转换（即同构变换）为如下 $n$ 槽位的\textit{正序}厄米向量 $\vec{v}_{'}$：
+
+$\vec{v}_{'} = (v_0, v_1, \cdots, v_{\frac{n}{2}-1}, \overline v_0, \overline v_1, \cdots, \overline v_{\frac{n}{2}-1}) \in \mathbb{\hat C}^{n}$
+
+\item 应用变换 $\vec{m} = \dfrac{\hathat W \cdot I_n^R \cdot \vec{v}_{'}}{n}$，将 $\vec{v}_{'}$ 转换为实数向量 $\vec{m}$
+
+其中，$\hathat{W}$ 是按如下方式构造的 $n$ 维向量空间的一组基：
+
+$ $
+
+\noindent{\footnotesize{\noindent $\noindent\hathat W = \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1 & 1 & \cdots & 1\\
+(\omega^{J(\frac{n}{2} - 1)}) & (\omega^{J(\frac{n}{2} - 2)}) & \cdots & (\omega^{J(0)}) & (\omega^{J_*(\frac{n}{2} - 1)}) & (\omega^{J_*(\frac{n}{2} - 2)}) & \cdots & (\omega^{J_*(0)})\\
+(\omega^{J(\frac{n}{2} - 1)})^2 & (\omega^{J(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J(0)})^2 & (\omega^{J_*(\frac{n}{2} - 1)})^2 & (\omega^{J_*(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J_*(0)})^2 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \ddots & \vdots & \vdots \\
+(\omega^{J(\frac{n}{2} - 1)})^{n-1} & (\omega^{J(\frac{n}{2} - 2)})^{n-1} & \cdots & (\omega^{J(0)})^{n-1} & (\omega^{J_*(\frac{n}{2} - 1)})^{n-1} & (\omega^{J_*(\frac{n}{2} - 2)})^{n-1} & \vdots  & (\omega^{J_*(0)})^{n-1}
+\end{bmatrix}$}}
+
+\textcolor{red}{ $\rhd$ 其中 $\omega = e^{i\pi/n} = \cos \left(\dfrac{\pi}{n}\right) + i\sin \left(\dfrac{\pi}{n}\right)$、$J(h) = 5^h \bmod 2n$，且 $J_*(h) = -5^h \bmod 2n$}
+
+\small{\noindent $ = \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1 & 1 & \cdots & 1\\
+(\omega^{J(\frac{n}{2} - 1)}) & (\omega^{J(\frac{n}{2} - 2)}) & \cdots & (\omega^{J(0)}) & (\overline\omega^{J(\frac{n}{2} - 1)}) & (\overline\omega^{J(\frac{n}{2} - 2)}) & \cdots & (\overline\omega^{J(0)})\\
+(\omega^{J(\frac{n}{2} - 1)})^2 & (\omega^{J(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J(0)})^2 & (\overline\omega^{J(\frac{n}{2} - 1)})^2 & (\overline\omega^{J(\frac{n}{2} - 2)})^2 & \cdots & (\overline\omega^{J(0)})^2 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \ddots & \vdots & \vdots \\
+(\omega^{J(\frac{n}{2} - 1)})^{n-1} & (\omega^{J(\frac{n}{2} - 2)})^{n-1} & \cdots & (\omega^{J(0)})^{n-1} & (\overline\omega^{J(\frac{n}{2} - 1)})^{n-1} & (\overline\omega^{J(\frac{n}{2} - 2)})^{n-1} & \vdots  & (\overline\omega^{J(0)})^{n-1}
+\end{bmatrix}$}
+
+\textcolor{red}{ $\rhd$ 因为 $\omega^{-1} = e^{\frac{-i\pi}{n}} = \overline{e^{\frac{i\pi}{n}}} = \overline\omega$}
+
+$ $
+
+\item 将 $\vec{m}$ 转换为缩放后的整数向量 $\lceil \Delta\vec{m} \rfloor \approx \Delta \vec{m}$，其中 $\Delta$ 是大于 1 的尺度因子，使得 $\Delta m_i$ 在所有情形下，包括整个同态运算过程中，都不会超过 $q_0$ 对应范围的上下界（即满足 $0 \leq \Delta m_i < q_0$ 或 $-\dfrac{q_0}{2} \leq \Delta m_i < \dfrac{q_0}{2}$）。最终编码得到的明文多项式为 $\Delta M = \sum\limits_{i=0}^{n-1} \lceil \Delta m_i \rfloor X^i \text{ } \in \mathbb{Z}_q[X] / (X^n + 1)$。编码过程中的 $\lceil \Delta \vec{m} \rfloor$ 舍入会产生编码误差，因此 CKKS 是一种近似加密方案。
+
+\end{enumerate}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{\underline{解码}：}由明文多项式 $\Delta M = \sum\limits_{i=0}^{n-1}\Delta m_iX^i$ 恢复 $\vec{m} = \dfrac{\Delta \vec{m}}{\Delta}$。然后，
+计算 $\vec{v}_{'} = \hathat W^* \cdot \vec{m}$，其中：
+
+\noindent $\hathat{W}^* = \begin{bmatrix}
+1 & (\omega^{J(0)}) & (\omega^{J(0)})^2 & \cdots & (\omega^{J(0)})^{n-1}\\
+1 & (\omega^{J(1)}) & (\omega^{J(1)})^2 & \cdots & (\omega^{J(1)})^{n-1}\\
+1 & (\omega^{J(2)}) & (\omega^{J(2)})^2 & \cdots & (\omega^{J(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J(\frac{n}{2}-1)}) & (\omega^{J(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J(\frac{n}{2}-1)})^{n-1}\\
+1 & (\omega^{J_*(0)}) & (\omega^{J_*(0)})^2 & \cdots & (\omega^{J_*(0)})^{n-1}\\
+1 & (\omega^{J_*(1)}) & (\omega^{J_*(1)})^2 & \cdots & (\omega^{J_*(1)})^{n-1}\\
+1 & (\omega^{J_*(2)}) & (\omega^{J_*(2)})^2 & \cdots & (\omega^{J_*(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J_*(\frac{n}{2}-1)}) & (\omega^{J_*(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J_*(\frac{n}{2}-1)})^{n-1}\\
+\end{bmatrix}$
+
+$ $
+
+\noindent $ = \begin{bmatrix}
+1 & (\omega^{J(0)}) & (\omega^{J(0)})^2 & \cdots & (\omega^{J(0)})^{n-1}\\
+1 & (\omega^{J(1)}) & (\omega^{J(1)})^2 & \cdots & (\omega^{J(1)})^{n-1}\\
+1 & (\omega^{J(2)}) & (\omega^{J(2)})^2 & \cdots & (\omega^{J(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J(\frac{n}{2}-1)}) & (\omega^{J(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J(\frac{n}{2}-1)})^{n-1}\\
+1 & (\overline\omega^{J(0)}) & (\overline\omega^{J(0)})^2 & \cdots & (\overline\omega^{J(0)})^{n-1}\\
+1 & (\overline\omega^{J(1)}) & (\overline\omega^{J(1)})^2 & \cdots & (\overline\omega^{J(1)})^{n-1}\\
+1 & (\overline\omega^{J(2)}) & (\overline\omega^{J(2)})^2 & \cdots & (\overline\omega^{J(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\overline\omega^{J(\frac{n}{2}-1)}) & (\overline\omega^{J(\frac{n}{2}-1)})^2 & \cdots & (\overline\omega^{J(\frac{n}{2}-1)})^{n-1}\\
+\end{bmatrix}$
+
+$ $
+
+$ $
+
+最后，只提取\textit{正序}厄米向量 $\vec{v}_{'}$ 的前 $\dfrac{n}{2}$ 个元素，即可恢复输入向量 $\vec{v}$。
+
+\end{tcolorbox}
+
+\begin{comment}
+\begin{table}[h] %usepackage{array} 
+\centering
+\begin{tabular}{|>{\centering\arraybackslash}p{0.2\columnwidth}||>{\centering\arraybackslash}p{0.75\columnwidth}|}
+\hline \hline
+& \textbf{Encoded Polynomial $M(X) \in \mathcal{R}_{\langle n \rangle}$ over $X \in \mathbb{C}$ (complex numbers)} \\ \hline \hline
+\textbf{Range of Input Slot Value}& Depends on the range of $M(X)$'s coefficient\\ \hline
+\textbf{Range of $\bm{M(X)}$'s coefficients}&Any real number $m_i$ with the custom precision scaling factor $\Delta$ under the constraint: $0 \leq \Delta m_i \leq q-1$ (or $-\dfrac{q}{2} \leq \Delta m_i \leq \dfrac{q}{2} - 1$) \\\hline
+%\textbf{Range of $\bm Y$}& $\left[0, \text{ } (1+i)\cdot {t}\cdot 2^{ \lceil \frac{n+1}{2} \rceil}\right]$\\ 
+%& or $\left[-(1+i)\cdot \dfrac{t}{2}\cdot 2^{ \lceil \frac{n + 1}{2} \rceil}, \text{ } (1+i)\cdot \dfrac{t}{2}\cdot 2^{ \lceil \frac{n+1}{2} \rceil}\right]$ (a rough estimate)\\
+\hline
+\end{tabular}
+\caption{The encoding capacity of $M(X) \in \mathcal{R}_{\langle n, t \rangle}$.}
+\label{tab:polynomial-encoding-capacity-complex}
+\end{table}
+
+\para{CKKS's Encoding Range:} \autoref{tab:polynomial-encoding-capacity-complex} depicts the range of input values that can be encoded by the polynomials $M(X) \in \mathcal{R}_{\langle n \rangle}$ over $X \in \mathbb{C}$. As illustrated in \autoref{tab:polynomial-encoding-capacity-complex}, the encoding range of complex number inputs is determined by the size of the $n$ and $q$ parameters. Therefore, these two parameters should be chosen sufficiently large to encode all values that can be used by an application. 
+\end{comment}
+
+\para{CKKS 的近似性：}在编码过程中，执行变换 $\vec{v}_{'} \rightarrow \vec{m} \rightarrow \Delta\vec{m}$ 时，我们将 $\vec{v}_{'}$ 乘以 $\hathat{W}$。其中包含由欧拉公式得到的小数展开无限的复数（例如 $\sqrt{2}$），因此需要通过计算 $\lceil \Delta m \rfloor$ 将其舍入到最近的整数（为简洁起见，本节始终将其记为 $\Delta m$），从而损失部分精度。这意味着，之后若将 $\Delta\vec{m}$ 解码为 $\vec{v}_{'d}$，所得值会与原始输入向量 $\vec{v}_{'}$ 略有差异。由于 CKKS 编码方案存在这种小的舍入误差，解密结果并不完全等于原始输入向量。同态计算以近似编码的明文 $\lceil \Delta \vec{m} \rfloor$ 为基础，因此这些误差也会在同态计算中传播。由于误差来自舍弃无限长的小数部分，只有使用无限大的尺度因子 $\Delta$ 才能在解码时消除这种误差，但这是不可能的，因为 $\Delta m_i$ 不能超过最低乘法层级的密文模数 $q_0$。由于这一限制，CKKS 被视为\textit{近似}同态加密。
+
+
+\subsubsection{示例}
+\label{subsubsec:ckks-encoding-ex}
+
+
+设输入复向量的维数为 $\dfrac{n}{2} = 2$，界定多项式的次数为 $n$ = 4，尺度因子为 $\Delta = 1024$。
+
+所使用的 $n$ 维向量空间的基为
+
+$\hathat{W}= \begin{bmatrix}
+1 & 1 & 1 & 1\\
+\omega^{J(1)} & \omega^{J(0)} & \overline{\omega}^{J(1)} & \overline{\omega}^{J(0)}\\
+(\omega^{J(1)})^2 & ({\omega^{J(0)}})^2 & (\overline{\omega}^{J(1)})^2 & (\overline{\omega}^{J(0)})^2\\
+(\omega^{J(1)})^3 & (\omega^{J(0)})^3 & (\overline{\omega}^{J(1)})^3 & (\overline{\omega}^{J(0)})^3\\
+\end{bmatrix}$
+$= \begin{bmatrix}
+1 & 1 & 1 & 1\\
+\omega^5 & \omega & \overline{\omega}^5 & \overline{\omega}\\
+\omega^2 & \omega^2 & \overline{\omega^2} & \overline{\omega}^2\\
+\omega^7 & \omega^3 & \overline{\omega}^7 & \overline{\omega}^3\\
+\end{bmatrix}$
+
+其中 $\omega = e^{i\pi/n} = \cos \left(\dfrac{\pi}{n}\right) + i\sin \left(\dfrac{\pi}{n}\right)$
+
+$ $
+
+
+在上述设置下，假设需要编码的输入复向量为 $\vec{v} = (1.1 + 4.3i, \text{ } 3.5 - 1.4i)$。
+
+$ $
+
+首先，构造正序厄米向量 $\vec{v}_{'} = (1.1 + 4.3i, \text{ } 3.5 - 1.4i, \text{ } 1.1 - 4.3i, \text{ } 3.5 + 1.4i)$。
+
+$ $
+
+接下来，应用如下变换，将复向量 $\vec{v}_{'}$ 转换为实数向量 $\vec{m}$：
+
+
+$\vec{m} = \dfrac{\hathat{W} \cdot I_n^R \cdot \vec{v}_{'}}{n} = \dfrac{1}{4} \cdot \begin{bmatrix}
+1 & 1 & 1 & 1\\
+\omega^5 & \omega & \overline{\omega}^5 & \overline{\omega}\\
+\omega^2 & \omega^2 & \overline{\omega}^2 & \overline{\omega}^2\\
+\omega^7 & \omega^3 & \overline{\omega}^7 & \overline{\omega}^3\\
+\end{bmatrix} \cdot 
+\begin{bmatrix}
+0 & 0 & 0 & 1 \\
+0 & 0 & 1 & 0 \\
+0 & 1 & 0 & 0 \\
+1 & 0 & 0 & 0 
+\end{bmatrix}
+\cdot
+\begin{bmatrix} 1.1 + 4.3i\\3.5 - 1.4i\\1.1 - 4.3i\\3.5 + 1.4i \end{bmatrix}$
+
+$ $
+
+$= \dfrac{W \cdot I_n^R \cdot \vec{v}_{'}}{n} = \dfrac{1}{4} \cdot\begin{bmatrix}
+1 & 1 & 1 & 1\\
+\overline{\omega} & \overline{\omega}^5 & \omega  & \omega^5\\
+\overline{\omega}^2 & \overline{\omega}^2 & \omega^2 & \omega^2\\
+\overline{\omega}^3 & \overline{\omega}^7 & \omega^3 & \omega^7\\
+\end{bmatrix} 
+\cdot
+\begin{bmatrix} 1.1 + 4.3i\\3.5 - 1.4i\\1.1 - 4.3i\\3.5 + 1.4i \end{bmatrix}$
+
+$ $
+
+$= \dfrac{1}{4} \cdot
+\begin{bmatrix} 
+(1.1 + 4.3i) + (3.5 - 1.4i) + (1.1 - 4.3i) + (3.5 + 1.4i)\\
+(1.1 + 4.3i)\overline{\omega} + (3.5 - 1.4i)\overline{\omega}^5 + (1.1 - 4.3i)\omega+ (3.5 + 1.4i)\omega^5 \\
+(1.1 + 4.3i)\overline{\omega^2} + (3.5 - 1.4i)\overline{\omega^2} + (1.1 - 4.3i)\omega^2+ (3.5 + 1.4i)\omega^2 \\
+(1.1 + 4.3i)\overline{\omega}^3 + (3.5 - 1.4i)\overline{\omega}^7 + (1.1 - 4.3i)\omega^3 + (3.5 + 1.4i)\omega^7 \\
+\end{bmatrix}$
+
+$ $
+
+$= \dfrac{1}{4} \cdot
+\begin{bmatrix} 
+(1.1 + 4.3i) + (3.5 - 1.4i) + (1.1 - 4.3i) + (3.5 + 1.4i)\\
+(1.1 + 4.3i) + (3.5 - 1.4i)\overline{\omega}^5 + (1.1 - 4.3i)\omega+ (3.5 + 1.4i)\omega^5 \\
+(1.1 + 4.3i)\overline{\omega^2} + (3.5 - 1.4i)\overline{\omega^2} + (1.1 - 4.3i)\omega^2+ (3.5 + 1.4i)\omega^2 \\
+(1.1 + 4.3i)\overline{\omega}^3 + (3.5 - 1.4i)\overline{\omega}^7 + (1.1 - 4.3i)\omega^3 + (3.5 + 1.4i)\omega^7 \\
+\end{bmatrix}$
+
+$ $
+
+$= \dfrac{1}{4} \cdot
+\begin{bmatrix} 
+9.2\\
+1.1(\overline{\omega} + \omega) + 4.3i(\overline{\omega} - \omega) +
+3.5(\overline{\omega}^5 + \omega^5) - 1.4i(\overline{\omega}^5 - \omega^5)\\
+1.1(\overline{\omega}^2 + {\omega}^2) + 4.3i(\overline{\omega}^2 - {\omega}^2) +
+3.5(\overline{\omega}^2 + {\omega}^2) - 1.4i(\overline{\omega}^2 - {\omega}^2)\\
+1.1(\overline{\omega}^3 + {\omega}^3) + 4.3i(\overline{\omega}^3 - {\omega}^3) +
+3.5(\overline{\omega}^7 + {\omega}^7) - 1.4i(\overline{\omega}^7 - {\omega}^7)\\
+\end{bmatrix}$
+
+$ $
+
+$= \dfrac{1}{4} \cdot
+\begin{bmatrix} 
+9.2\\
+1.1\left(2\cos\dfrac{\pi}{4}\right) - 4.3i\left(2i\sin\dfrac{\pi}{4}\right) + 3.5\left(2\cos\dfrac{5\pi}{4}\right) + 1.4i\left(2i\sin\dfrac{5\pi}{4}\right)\\
+1.1\left(2\cos\dfrac{\pi}{2}\right) - 4.3i\left(2i\sin\dfrac{\pi}{2}\right) + 3.5\left(2\cos\dfrac{\pi}{2}\right) + 1.4i\left(2i\sin\dfrac{\pi}{2}\right)\\
+1.1\left(2\cos\dfrac{3\pi}{4}\right) - 4.3i\left(2i\sin\dfrac{3\pi}{4}\right) + 3.5 \left(2\cos\dfrac{7\pi}{4}\right) + 1.4i\left(2i\sin\dfrac{7\pi}{4}\right)\\
+\end{bmatrix}$
+
+$ $
+
+$= \dfrac{1}{4} \cdot
+\begin{bmatrix} 
+9.2\\
+1.1\left(2\dfrac{\sqrt{2}}{2}\right) + 4.3\left(2\dfrac{\sqrt{2}}{2}\right) + 3.5\left(-2\dfrac{\sqrt{2}}{2}\right) - 1.4\left(-2\dfrac{\sqrt{2}}{2}\right)\\
+1.1(2\cdot 0) + 4.3(2\cdot1) + 3.5(2\cdot 0) - 1.4(2\cdot 1)\\
+1.1\left(2-\dfrac{\sqrt{2}}{2}\right) + 4.3\left(2\dfrac{\sqrt{2}}{2}\right) + 3.5 \left(2\dfrac{\sqrt{2}}{2}\right) - 1.4\left(-2\dfrac{\sqrt{2}}{2}\right)\\
+\end{bmatrix}$
+
+$ $
+
+$= 0.25 \cdot
+\begin{bmatrix} 
+9.2\\
+1.1\sqrt{2} + 4.3{\sqrt{2}} - 3.5\sqrt{2} + 1.4\sqrt{2}\\
+1.1(0) + 4.3(2) - 3.5(0) - 1.4(2)\\
+-1.1\sqrt{2} + 4.3\sqrt{2} + 3.5\sqrt{2} + 1.4\sqrt{2}\\
+\end{bmatrix} = 
+\begin{bmatrix} 
+2.3\\
+0.825\sqrt{2}\\
+1.45\\
+2.025\sqrt{2}\\
+\end{bmatrix} \approx (2.3, \text{ } 1.1657, \text{ } 1.45, \text{ } 2.8638)$
+
+$ $
+
+将实数向量 $\vec{m}$ 乘以尺度因子 $\Delta$ 并舍入，得到缩放后的整数向量 $\Delta\vec{m}$：
+
+$\Delta\vec{m} \approx \lceil \Delta \vec{m} \rfloor = \lceil 1024 \cdot (2.3, \text{ } 1.1657, \text{ } 1.45, \text{ } 2.8638) \rfloor = (2355, \text{ } 1195, \text{ } 1485, \text{ } 2933)$
+
+$ $
+
+最终，$\vec{v} = (1.1 + 4.3i, \text{ } 3.5 - 1.4i)$ 被编码为如下明文多项式 $M(X)$：
+
+$\Delta M(X) = 2355 +  1195X + 1485X^2 + 2933X^3 \in \mathcal{R}_{\langle 4 \rangle}$
+
+$ $
+
+
+为了解码 $\vec{m}$，计算：
+
+$\vec{v}_{'} = \dfrac{W^T\cdot\Delta\vec{m}}{\Delta} = \begin{bmatrix}
+1,\omega,\omega^2, \omega^3\\
+1,\omega^3, \omega^6,\omega\\
+1,\overline{\omega}, \overline{\omega^2}, \overline{\omega^3}\\
+1,\overline{\omega^3}, \overline{\omega^6}, \overline{\omega}
+\end{bmatrix}$
+$\cdot \begin{bmatrix}
+2355\\1195\\1485\\2933
+\end{bmatrix}\cdot \dfrac{1}{1024}$
+
+$= 
+\begin{bmatrix}
+1,\dfrac{\sqrt{2}}{2} + \dfrac{i\sqrt{2}}{2},i, -\dfrac{\sqrt{2}}{2} + \dfrac{i\sqrt{2}}{2}\\
+1,-\dfrac{\sqrt{2}}{2} + \dfrac{i\sqrt{2}}{2}, -i,\dfrac{\sqrt{2}}{2} + \dfrac{i\sqrt{2}}{2}\\
+1,\dfrac{\sqrt{2}}{2} - \dfrac{i\sqrt{2}}{2}, -i, -\dfrac{\sqrt{2}}{2} - \dfrac{i\sqrt{2}}{2}\\
+1,-\dfrac{\sqrt{2}}{2} - \dfrac{i\sqrt{2}}{2}, i, \dfrac{\sqrt{2}}{2} - \dfrac{i\sqrt{2}}{2}
+\end{bmatrix}$
+$\cdot \begin{bmatrix}
+2.2998046875\\1.1669921875\\1.4501953125\\2.8642578125
+\end{bmatrix}$
+
+$ $
+
+$ \approx (1.0997+4.3007i, \text{ } 3.5000-1.4003i, \text{ } 1.0997-4.3007i, \text{ } 3.5000+1.4003i)$
+
+$ $
+
+提取厄米向量 $\vec{v}_{'}$ 的前 $\dfrac{n}{2} = 2$ 个元素，即可恢复输入向量：
+
+$(1.0997+4.3007i, \text{ } 3.5000-1.4003i)$
+
+$\approx (1.1 + 4.3i, \text{ } 3.5 - 1.4i) = \vec{v}$ \textcolor{red}{  $\rhd$ 原始输入向量}
+
+$ $
+
+由于将平方根转换为整数时产生舍入偏差，解码后的值与原始输入复数略有不同。这正是 CKKS 被称为近似同态加密的原因。
+
+$ $
+
+\para{源代码：}运行以下文件可执行 CKKS 编码示例：\href{https://github.com/fhetextbook/fhe-textbook/blob/main/source%20code/ckks.py}{\underline{此 Python 脚本}}. 
+
+
+
+\subsection{加密与解密}
+\label{subsec:ckks-enc-dec}
+
+CKKS 的加密与解密方案与 BFV 的加密与解密方案类似（见 \autoref{subsec:bfv-enc-dec} 中的总结~\ref*{subsec:bfv-enc-dec}）。
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ckks-enc-dec}} CKKS 加密与解密}}]
+
+\textbf{\underline{初始设置}：}
+
+$\Delta \text{ 是多项式编码的明文尺度因子}, \text{ } S \xleftarrow{\$} \mathcal{R}_{\langle n, \textit{tern} \rangle}$。多项式 $S$ 的系数为三元值（即 $\{-1, 0, 1\}$）。
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{\underline{加密输入}：}$\Delta M \in \mathcal{R}_{\langle n, q \rangle}$、$A_i \xleftarrow{\$} \mathcal{R}_{\langle n, q \rangle}$、$E \xleftarrow{\xi_\sigma} \mathcal{R}_{\langle n, q \rangle}$
+
+
+\begin{enumerate}
+%\item Scale up $M \rightarrow \Delta M \text { } \in \mathcal{R}_{\langle n, q\rangle}$
+
+\item 计算 $B = -A \cdot S + \Delta M + E \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
+
+\item $\textsf{RLWE}_{S,\sigma}(\Delta M + E) = (A, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^2$ 
+
+\end{enumerate}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{\underline{解密输入}：}$\textsf{ct} = (A, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^2$
+
+$\textsf{RLWE}^{-1}_{S,\sigma}(\textsf{ct}) = \left\lceil\dfrac{B + A \cdot S \bmod q}{\Delta}\right\rfloor_{\frac{1}{\Delta}} = \left\lceil\dfrac{\Delta M + E}{\Delta}\right\rfloor_{\frac{1}{\Delta}} \approx M$
+
+\textcolor{red}{ $\rhd$ $\lceil x\rfloor_{k}$ 表示将 $x$ 舍入到最近的 $k$ 的整数倍}
+%\item Scale down $\Bigl\lceil \dfrac{ \Delta  M + E }{\Delta}\Bigr\rfloor = M  \text{ } \in \mathcal{R}_{\langle n, t \rangle}$
+
+
+
+$ $
+
+\textbf{\underline{近似解密的性质}：}
+\begin{itemize}
+\item 与 BFV 不同，CKKS 中每个明文值 $m_i$ 原本并非模环中的元素，而是具有无限小数位的实数。因此，不可能将密文精确解密为完全相同的原始值。
+\item 若噪声 $E$ 的每个系数均小于 $\dfrac{\Delta}{2}$，则解密可保证以 $\dfrac{1}{\Delta}$ 的倍数为单位的精度。
+\end{itemize}
+
+\end{tcolorbox}
+
+为简洁起见，本节常将 $\textsf{RLWE}_{S,\sigma}(\Delta  M + E)$ 写成 $\textsf{RLWE}_{S,\sigma}(\Delta  M)$，因为 $\textsf{RLWE}_{S,\sigma}(\Delta M + E) \approx \textsf{RLWE}_{S,\sigma}(\Delta M)$（即它们解密得到近似相同的消息）。即使使用 $\textsf{RLWE}_{S,\sigma}(\Delta  M)$ 而不是 $\textsf{RLWE}_{S,\sigma}(\Delta  M + E)$，也应将其理解为对 $\Delta  M + E$ 的加密（即将噪声包含在缩放后的消息中）。
+
+\subsection{密文与密文相加}
+\label{subsec:ckks-add-cipher}
+
+CKKS 的密文与密文相加方案与 BFV 完全相同（见 \autoref{subsec:bfv-add-cipher} 中的总结~\ref*{subsec:bfv-add-cipher}）。
+
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ckks-add-cipher}} CKKS 密文与密文相加}}]
+$\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 1 \rangle} ) + \textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 2 \rangle} ) $
+
+$ = ( A^{\langle 1 \rangle}, \text{ } B^{\langle 1 \rangle}) + (A^{\langle 2 \rangle}, \text{ } B^{\langle 2 \rangle}) $
+
+$ = ( A^{\langle 1 \rangle} + A^{\langle 2 \rangle}, \text{ } B^{\langle 1 \rangle} + B^{\langle 2 \rangle} ) $
+
+$= \textsf{RLWE}_{S, \sigma}(\Delta(M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) )$
+\end{tcolorbox}
+
+
+\subsection{密文与明文相加}
+\label{subsec:ckks-add-plain}
+
+CKKS 的密文与明文相加方案与 BFV 完全相同（见 \autoref{subsec:bfv-add-plain} 中的总结~\ref*{subsec:bfv-add-plain}）。
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ckks-add-plain}} CKKS 密文与明文相加}}]
+$\textsf{RLWE}_{S, \sigma}(\Delta M) + \Delta\Lambda $
+
+$=  (A, \text{ } B) + \Delta\Lambda$
+
+$=  (A, \text{ } B + \Delta\cdot\Lambda)$
+
+$= \textsf{RLWE}_{S, \sigma}(\Delta (M + \Lambda) )$
+\end{tcolorbox}
+
+
+
+
+\subsection{密文与密文相乘}
+\label{subsec:ckks-mult-cipher}
+
+CKKS 的密文与密文相乘与 BFV 存在部分区别。对于 BFV，每次乘法后密文模数保持不变；而 CKKS 每次乘法后都会将密文模数降低一级（等价于将乘法层级降低一级）。当层级达到 0 时，便无法继续乘法（除非通过自举恢复模数）。这一差异源于两种方案处理明文尺度因子的策略不同：BFV 使用 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$，而 CKKS 的 $\Delta$ 可以取满足 $\Delta \ll q_0$ 的任意值，其中 $q_0$ 是最低乘法层级的密文模数。不过，两种方案都使用类似的重线性化技术。
+
+为便于理解，我们将基于 RLWE 的另一种形式（\autoref{subsec:glwe-alternative} 中的定理~\ref*{subsec:glwe-alternative}）来解释 CKKS 的密文与密文相乘，
+在该形式中，加密和解密公式中的 $AS$ 项取相反的符号。
+
+假设有以下两个（CKKS）RLWE 密文：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 1 \rangle}) = (A^{\langle 1 \rangle}, B^{\langle 1 \rangle})$，\text{ } 其中 $B^{\langle 1 \rangle} = -A^{\langle 1 \rangle} \cdot S + \Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle}$
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 2 \rangle}) = (A^{\langle 2 \rangle}, B^{\langle 2 \rangle})$，\text{ } 其中 $B^{\langle 2 \rangle} = -A^{\langle 2 \rangle} \cdot S + \Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle}$
+
+$ $
+
+\noindent RLWE 密文与密文相乘包括以下两个步骤：
+
+
+$ $
+
+\begin{enumerate}
+\item 利用如下同余关系，寻找与 $\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$ 等价的\textit{合成}密文的表达式：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle}) = \textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 1 \rangle}) \cdot \textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 2 \rangle})$ 
+
+$ $
+
+\item 将 $\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$ 重缩放为 $\textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$。
+\end{enumerate}
+
+$ $
+
+\noindent 下面逐步说明。
+
+
+\subsubsection{合成密文的推导}
+\label{subsubsec:ckks-mult-cipher-relation}
+
+
+RLWE 密文与密文相乘的第一步，是寻找一种方式来表达以下同余关系：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle}) = \textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 1 \rangle}) \cdot \textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 2 \rangle})$
+
+$ $
+
+使其仅涉及以下已知值：$A^{\langle 1 \rangle}, \text{ } B^{\langle 1 \rangle}, \text{ } A^{\langle 2 \rangle}, \text{ } B^{\langle 2 \rangle}, \text{ } S$。首先，注意下式成立：
+
+$ $
+
+\hspace{-5mm}\noindent $\textsf{RLWE}^{-1}_{S, \sigma}(\text{ } \textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle}) \textsf{ } )= \textsf{RLWE}^{-1}_{S, \sigma}(\text{ }  \textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 1 \rangle}) \text{ } ) \cdot \textsf{RLWE}^{-1}_{S, \sigma}(\text{ } \textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 2 \rangle})  \text{ } )$
+
+$ $
+
+\noindent 这是因为，先将两个明文的乘积加密再解密，应当与先分别解密两个密文再相乘得到相同的结果。消去相互抵消的加密与解密函数后，得到：
+
+\noindent $\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle} \approx (\Delta \cdot M^{\langle 1 \rangle} + E^{\langle 1 \rangle} ) \cdot ( \Delta \cdot M^{\langle 2 \rangle} + E^{\langle 2 \rangle} ) $
+
+$ = \textsf{RLWE}^{-1}_{S, \sigma}(\text{ }  \textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 1 \rangle}) \text{ } ) \cdot \textsf{RLWE}^{-1}_{S, \sigma}(\text{ } \textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 2 \rangle})  \text{ } )$
+
+\textcolor{red}{ $\rhd$ 其中 $(\Delta \cdot M^{\langle 1 \rangle} + E^{\langle 1 \rangle} ) \cdot ( \Delta \cdot M^{\langle 2 \rangle} + E^{\langle 2 \rangle} ) = \Delta^2\cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle} + \Delta \cdot M^{\langle 1 \rangle} \cdot E^{\langle 2 \rangle} + \Delta \cdot M^{\langle 2 \rangle} \cdot E^{\langle 1 \rangle} + E^{\langle 1 \rangle} \cdot E^{\langle 2 \rangle}$，而 $E^{\langle 1 \rangle} \cdot E^{\langle 2 \rangle}$ 足够小，可以在解密时被消除；$\Delta \cdot M^{\langle 1 \rangle} \cdot E^{\langle 2 \rangle}$ 与 $\Delta \cdot M^{\langle 2 \rangle} \cdot E^{\langle 1 \rangle}$ 则会在后续模数切换时分别缩小为 $M^{\langle 1 \rangle} \cdot E^{\langle 2 \rangle}$ 与 $M^{\langle 2 \rangle} \cdot E^{\langle 1 \rangle}$，从而小到可以在解密时被消除}
+
+$ $
+
+回顾 \autoref{subsec:glwe-alternative} 中的结论：
+
+$\textsf{RLWE}^{-1}_{S,\sigma}\bm{(} \text{ } C = (A, B) \text{ } \bm{)} = \Delta  M + E = B + A\cdot S$ 
+
+$ $
+
+因此，上述同余关系可改写为：
+
+$ $
+
+$\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle}$ \textcolor{red}{$ \approx (\Delta \cdot M^{\langle 1 \rangle} + E^{\langle 1 \rangle} ) \cdot ( \Delta \cdot M^{\langle 2 \rangle} + E^{\langle 2 \rangle} )$}
+
+$ = (B^{\langle 1 \rangle}  + A^{\langle 1 \rangle} \cdot S - E^{\langle 1 \rangle}) \cdot (B^{\langle 2 \rangle}  + A^{\langle 2 \rangle} \cdot S - E^{\langle 2 \rangle})$
+
+$ \approx (B^{\langle 1 \rangle}  + A^{\langle 1 \rangle} \cdot S) \cdot (B^{\langle 2 \rangle}  + A^{\langle 2 \rangle} \cdot S)$
+
+
+
+
+$ = B^{\langle 1 \rangle}B^{\langle 2 \rangle}  + (B^{\langle 2 \rangle}A^{\langle 1 \rangle} + B^{\langle 1 \rangle}A^{\langle 2 \rangle}) \cdot S  + (A^{\langle 1 \rangle}S)\cdot(A^{\langle 2 \rangle}S)$
+
+$ $
+
+
+
+$ = \underbrace{B^{\langle 1 \rangle}B^{\langle 2 \rangle}}_{D_0}  + \underbrace{(B^{\langle 2 \rangle}A^{\langle 1 \rangle} + B^{\langle 1 \rangle}A^{\langle 2 \rangle})}_{D_1} \cdot S + \underbrace{(A^{\langle 1 \rangle} \cdot A^{\langle 2 \rangle})}_{D_2} \cdot \underbrace{(S \cdot S)}_{ S^2}$
+
+%\textcolor{red}{ $\rhd$ where $\otimes$ is a vector outer-product such that for $\vec{u} = (u_0, u_1, \cdots, u_{k-1})$ and $\vec{v} = (v_0, v_1, \cdots, v_{k-1})$,}
+
+%\textcolor{red}{ \text{ } $\vec{u} \otimes \vec{v} = (u_0v_0, u_0v_1, \cdots, \text{ } u_1v_0, u_1v_1, \cdots, \text{ } u_{k-1}v_0, u_{k-1}v_1,  \cdots, u_{k-1}v_{k-1})$}
+
+$= {D_0 + D_1\cdot S} + D_2\cdot S^2$
+
+$ $
+
+$= \textsf{RLWE}_{S, \sigma}^{-1}\bm{(}\text{ } C_\alpha = (D_1, D_0) \text{ }\bm{)} + D_2\cdot S^2$ \textcolor{red}{ \text{ } \# 因为 $D_0 + D_1\cdot S = \textsf{RLWE}_{S, \sigma}^{-1}\bm{(}\text{ } C_\alpha=(D_1, D_0) \text{ } \bm{)}$ }
+
+$ $
+
+在上述最后一步中，我们将 $D_0 + D_1\cdot S$ 转换为 $\textsf{RLWE}_{S, \sigma}^{-1}\bm{(}\text{ } C_\alpha=(D_1, D_0) \text{ } \bm{)}$，其中 $C_\alpha$ 是用 $S$ 加密得到的合成 RLWE 密文 $(D_1, D_0)$。同样，接下来要推导一个满足 $D_2\cdot S^2 = \textsf{RLWE}_{S, \sigma}^{-1}(C_\beta)$ 的合成 RLWE 密文 $C_\beta$。之所以需要这个合成密文，是因为我们不希望保留 $S$ 的平方（即 $ S^2$）。若继续保留 $ S^2$，则随着更多连续的密文与密文相乘，这一项会积累成 $S^4, S^8, \cdots...$ 等指数不断翻倍的幂，从而使解密的计算开销呈指数增长。下一小节将解释如何推导满足 $D_2\cdot S^2 = \textsf{RLWE}_{S, \sigma}^{-1}(C_\beta)$ 的合成 RLWE 密文 $C_\beta$。
+
+\subsubsection{重线性化方法 1：密文分解}
+\label{subsubsec:relinearization-gadget-decomposition}
+
+如 BFV 的密文与密文相乘部分（\autoref{subsubsec:bfv-mult-cipher-relinearization}）所述，重线性化将多项式三元组 $(D_0, D_1, D_2) \in \mathcal{R}_{\langle n, q \rangle}^{3}$ 转换为多项式二元组 $(C_\alpha, C_\beta)\in \mathcal{R}_{\langle n, q \rangle}^{2}$：前者使用 $S$ 与 $S^2$ 作为密钥可解密得到 $\Delta M$，后者只使用 $S$ 作为密钥便能解密得到相同的 $\Delta M$。上一小节说明，只需将 $D_0$ 和 $D_1$ 视为 $C_\alpha = (D_1, D_0)$，就能将 $D_0$ 与 $D_1$ 转换为 $C_\alpha$。将 $D_2$ 转换为 $C_\beta$ 的过程，与 \autoref{subsubsec:bfv-mult-cipher-relinearization} 中介绍的技术完全相同：对 $D_2$ 应用 gadget 分解（\autoref{subsec:gadget-decomposition}），并与 $S^2$ 的 RLev 加密（\autoref{sec:glev}）计算内积。具体计算如下：
+
+$\textsf{RLWE}_{S, \sigma}^{-1}(C_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle} \bm{)}$ \textcolor{red}{ $\rhd$ $\textsf{RLev}_{S, \sigma}^{\beta, l}( S^2)$ 的尺度因子均为 1}
+
+$= D_{2,1}(E_1' +  S^2\dfrac{q}{\beta}) + D_{2,2}(E_2' +  S^2\dfrac{q}{\beta^2}) + \cdots + D_{2,l}(E_l' +  S^2\dfrac{q}{\beta^l})$
+
+$= \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i}) +  S^2\cdot(D_{2,1}\dfrac{q}{\beta} + D_{2,2}\dfrac{q}{\beta^2} + \cdots + D_{2, l}\dfrac{q}{\beta^l})$
+
+=============
+
+$= D_{2,1}(E_1' +  S^2 \beta^0) + D_{2,2}(E_2' +  S^2 \beta^1) + \cdots + D_{2,l}(E_l' +  S^2 \beta^{l-1})$
+
+$= \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i}) +  S^2\cdot(D_{2,1}\beta^0 + D_{2,2}\beta^1 + \cdots + D_{2, l}\beta^{l-1})$
+
+=============
+
+$= \sum\limits_{i=1}^{l} \epsilon_{i} + D_2\cdot S^2$ \textcolor{red}{ \text{ } \# 其中 $\epsilon_i = E_i'\cdot D_{2,i}$}
+
+$\approx D_2\cdot S^2$ \textcolor{red}{ \text{ } \# 因为 $\sum\limits_{i=1}^{l} \epsilon_{i} \ll D_2\cdot E''$（其中 $E''$ 是包含在 $\textsf{RLWE}_{S, \sigma}\bm(S^2\bm)$ 中的噪声）}
+
+$ $
+
+最终，得到如下关系：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle}) \approx C_\alpha + C_\beta$ \text{ }，其中 \text{ } $C_\alpha = (D_1, D_0), \text{ } C_\beta = \bm{\langle}  \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$
+
+$ $
+
+下一小节介绍另一种较早的重线性化技术。
+
+\subsubsection{重线性化方法 2：密文模数切换}
+\label{subsubsec:relinearization-modulus-switch}
+
+
+在 RLWE 方案的设置阶段，构造如下一对模 $q$ 的特殊多项式：
+
+$A'  \xleftarrow{\$} \mathcal{R}_{\langle n,q\rangle }^{k}$
+
+$E' \xleftarrow{\sigma} \mathcal{R}_{\langle n,q\rangle }$
+
+
+$\mathit{evk} = (A', \text{ } -A'\cdot S + E' +  S^2) \in \mathcal{R}_{\langle n, q\rangle}^2$
+
+
+$\mathit{evk}$ 称为求值密钥，它本质上是用秘密密钥 $S$ 加密 $ S^2$ 得到的 RLWE 密文，没有使用尺度因子 $\Delta$。回顾一下，我们的目标是寻找一个合成 RLWE 密文 $C_\beta$，使其解密得到 $D_2\cdot S^2$，即满足 $\textsf{RLWE}_{S, \sigma}^{-1}(C_\beta) = D_2\cdot S^2$。假设 $C_\beta = D_2 \cdot \mathit{evk}$，则解密 $C_\beta$ 得到：
+
+$\textsf{RLWE}_{S, \sigma}^{-1}\bm{(}C_\beta = (D_2 \cdot \mathit{evk})\bm{)} = \textsf{RLWE}_{S, \sigma}^{-1}\bm{(} \text{ } C = (D_2A', \text{ } -D_2A'\cdot S + D_2E' + D_2\cdot S^2) \text{ } \bm{)}$
+
+$= D_2A'\cdot S - D_2A'\cdot S + D_2E' + D_2\cdot S^2$
+
+$= D_2E' + D_2\cdot S^2$
+
+$ $
+
+但遗憾的是，$D_2E' + D_2\cdot S^2 \not\approx D_2\cdot S^2$，因为 $D_2E' \not\approx 0$（$D_2$ 未必是小数值）。原因在于 $D_2 = A^{\langle 1 \rangle} \cdot A^{\langle 2 \rangle}$，$D_2E'$ 可以取 $[0, q)$ 范围内的任意值。
+
+
+为解决上述问题，将求值密钥修改为如下大模数 $g$ 下的一组多项式：
+
+
+$A'  \xleftarrow{\$} \mathcal{R}_{\langle n,q\rangle }^{k}$
+
+$E' \xleftarrow{\sigma} \mathcal{R}_{\langle n,q\rangle }$
+
+$g \xleftarrow{\$} \mathbb{Z}_{q_L^2}$ \textcolor{red}{  $\rhd$ 其中 $g$ 是某个较大的 2 的整数次幂，$q_L$ 是任何重线性化发生之前的最大模数}
+
+$\mathit{evk_g} = (A', -A'\cdot S + E' + g S^2) \in \mathcal{R}_{\langle n, gq\rangle}^2$
+
+$ $
+
+$\mathit{evk_g}$ 本质上是用 $S$ 加密 $g S^2$ 得到的 RLWE 密文。由此可以推导：
+
+$\mathit{evk_g} = (A', -A'\cdot S + E' + g S^2) \in \mathcal{R}_{\langle n, gq\rangle}^2$
+
+$= (A'  \text{ mod } gq, \text{ } -A'\cdot S + E' + g S^2 \text{ mod } gq)$
+
+$= (A' + k_2gq, \text{ } -A'\cdot S + E' + g S^2 + k_1gq)$  \text{ }（对于某些整数 $k_1, k_2$）
+
+$ $
+
+注意 $D_2 = A^{\langle 1 \rangle} \cdot A^{\langle 2 \rangle} \in \mathcal{R}_{\langle n, q \rangle}$
+
+$= D_2 \text{ mod } q$
+
+$= D_2 + k_3q$ \text{ }（对于某个整数 $k_3$）
+
+$ $
+
+现在，将 $D_2$ 乘到 $\mathit{evk_g}$ 的每个分量上：
+
+$(A' + k_2gq, \text{ } -A'\cdot S + E' + g S^2 + k_1gq) \cdot (D_2 + k_3q)$
+
+$= (\text{ } D_2A' + D_2k_2gq + k_3qA' + k_3qk_2gq,$ 
+
+\text{ } $ -D_2A'\cdot S + D_2E' + gD_2\cdot S^2 + D_2k_1gq
+-k_3qA'\cdot S + k_3qE' + k_3qg S^2 + k_3qk_1gq)$
+
+
+
+$ $
+
+接下来，根据 \autoref{subsec:modulus-switch-glwe} 中的技术，对该 RLWE 密文执行模数切换 $gq \rightarrow q$：
+
+%$(-D_2A'\cdot S + D_2E' + D_2g S^2 + D_2k_1gq -k_3qA'\cdot S + k_3qE' + k_3qg S^2 + k_3qk_1gq,$ 
+
+%\text{ } $D_2A' + D_2k_2gq + k_3qA' + k_3qk_2gq)$
+
+%$ $
+
+$ \Bigg(\Bigg\lceil\dfrac{D_2A'}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{D_2k_2gq}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{k_3qA'}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{k_3qk_2gq}{g}\Bigg\rfloor, \text{ } \text{ }-\Bigg\lceil\dfrac{D_2A'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{D_2E'}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{gD_2\cdot S^2}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{D_2k_1gq}{g}\Bigg\rfloor
+-\Bigg\lceil\dfrac{k_3qA'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{k_3qE'}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{k_3qg S^2}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{k_3qk_1gq}{g}\Bigg\rfloor\Bigg)$
+
+$ $
+
+
+$=\Bigg(\Bigg\lceil\dfrac{D_2A'}{g}\Bigg\rfloor + D_2k_2q +\Bigg\lceil\dfrac{k_3qA'}{g}\Bigg\rfloor + k_3qk_2q,$
+
+$  \text{ } -\Bigg\lceil\dfrac{D_2A'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{D_2E'}{g}\Bigg\rfloor + D_2\cdot S^2 + D_2k_1q
+-\Bigg\lceil\dfrac{k_3qA'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{k_3qE'}{g}\Bigg\rfloor + k_3q S^2 + k_3qk_1q\Bigg)$
+
+$ $
+
+$= \Bigg(\Bigg\lceil\dfrac{D_2A'}{g}\Bigg\rfloor +\Bigg\lceil\dfrac{k_3qA'}{g}\Bigg\rfloor \text{ mod } q,  \text{ } -\Bigg\lceil\dfrac{D_2A'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{D_2E'}{g}\Bigg\rfloor + D_2\cdot S^2
+-\Bigg\lceil\dfrac{k_3qA'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{k_3qE'}{g}\Bigg\rfloor \text{ mod } q\Bigg)$
+
+$ $
+
+$= C_\beta \in \mathcal{R}_{n, q}^2$
+
+最终得到 $C_\beta$，它具有模 $q$ 的 RLWE 密文形式。回顾一下，我们希望将 $D_2\cdot S^2$ 表示为某个 RLWE 密文的解密结果。将 $C_\beta$ 视为合成 RLWE 密文并解密，得到：
+
+\noindent $\textsf{RLWE}^{-1}_{S, \sigma}(C_\beta)$ \textcolor{red}{  $\rhd$ 其中将 $C_\beta$ 视为合成 RLWE 密文}
+
+\noindent $=  \textsf{RLWE}^{-1}_{S, \sigma}\Bigg( \Bigg(-\Bigg\lceil\dfrac{D_2A'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{D_2E'}{g}\Bigg\rfloor + D_2\cdot S^2
+-\Bigg\lceil\dfrac{k_3qA'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{k_3qE'}{g}\Bigg\rfloor, \text{ } \Bigg\lceil\dfrac{D_2A'}{g}\Bigg\rfloor +\Bigg\lceil\dfrac{k_3qA'}{g}\Bigg\rfloor\Bigg)\Bigg)$
+
+$ $
+
+\noindent $=  -\Bigg\lceil\dfrac{D_2A'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{D_2E'}{g}\Bigg\rfloor + D_2\cdot S^2
+-\Bigg\lceil\dfrac{k_3qA'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{k_3qE'}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{D_2A'}{g}\Bigg\rfloor\cdot S + \Bigg\lceil\dfrac{k_3qA'}{g}\Bigg\rfloor\cdot S$
+
+$ $
+
+\noindent $\approx \Bigg\lceil\dfrac{D_2E'}{g}\Bigg\rfloor + D_2\cdot S^2
+ + \Bigg\lceil\dfrac{k_3qE'}{g}\Bigg\rfloor$ \textcolor{red}{  $\rhd$ $-\Bigg\lceil\dfrac{D_2A'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{D_2A'}{g}\Bigg\rfloor\cdot S = -\Bigg\lceil\dfrac{k_3qA'\cdot S}{g}\Bigg\rfloor + \Bigg\lceil\dfrac{k_3qA'}{g}\Bigg\rfloor\cdot S \approx 0$}
+
+$ $
+
+\noindent $\approx D_2\cdot S^2$ \textcolor{red}{  $\rhd$ 
+  $\Bigg\lceil\dfrac{D_2E'}{g}\Bigg\rfloor \approx 0$, \text{ } $\Bigg\lceil\dfrac{k_3qE'}{g}\Bigg\rfloor \approx 0$}
+
+
+$ $
+
+如上所示，对 $C_\beta$ 解密得到 $D_2\cdot S^2$。因此，可得如下结论：
+
+$\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle} \approx \textsf{RLWE}^{-1}_{S, \sigma}(C_\alpha) + \textsf{RLWE}^{-1}_{S, \sigma}(C_\beta)$ \text{ }，其中 $C_\alpha = (D_1, D_0), \text{ } C_\beta = \Bigg\lceil\dfrac{D_2 \cdot \mathit{evk_g}}{g}\Bigg\rfloor$
+
+$ $
+
+所以，最终得到如下同余关系：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle}) \approx C_\alpha + C_\beta$ \text{ }，其中 $C_\alpha = (D_1, D_0), \text{ } C_\beta = \Bigg\lceil\dfrac{D_2 \cdot \mathit{evk_g}}{g}\Bigg\rfloor$
+
+$ $
+
+$ $
+
+密文与密文相乘的最后一步，是将 $\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$ 转换为 $\textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$。因为若密文与密文相乘的结果为 $M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle} = M^{\langle 3 \rangle}$，为了保持表示形式一致，所得 RLWE 密文应为：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle}) = \textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 3 \rangle})$
+
+下一小节将解释这一过程。
+
+
+\subsubsection{重缩放}
+\label{subsubsec:ckks-mult-cipher-rescale}
+
+要将 $\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$ 转换为 $\textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$，不能简单地把密文 $\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$ 除以 $\Delta$，因为如 \autoref{subsec:modulo-division} 所述，模运算不支持直接除法。将 RLWE 密文乘以 $\Delta^{-1}$（即 $\Delta$ 的逆元）也不可行，因为逆元乘法可利用的有用性质只有 $a \cdot a^{-1} \equiv 1$。如果将逆元乘到与其对应元素不同的其他值上，结果可能是任意值。例如，将 $\Delta^{-1}$ 乘到噪声上（即 $\Delta^{-1}E$），结果可能非常大。因此，由于噪声项的结果不可预测，将 RLWE 密文乘以 $\Delta^{-1}$ 也无法解决问题。
+
+将 $\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$ 转换为 $\textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$ 的稳妥方法是模数切换（\autoref{subsec:modulus-switch-glwe}），其本质是模重缩放（\autoref{sec:modulus-rescaling}）。为此，RLWE 的设置阶段应将密文域 $q$ 设计为 $q_0\cdot\Delta^{L}$，其中 $L$ 表示乘法层级，并且 $q_0 \gg \Delta$（这对于 \autoref{subsec:ckks-bootstrapping} 中自举时同态模约减的精度很重要）。每次密文与密文相乘后，都对 RLWE 密文执行模数切换 $q_0\cdot\Delta^{i} \rightarrow q_0\cdot\Delta^{i-1}$，从而将明文的平方尺度因子 $\Delta^2$（位于 $\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$ 中）转换为 $\Delta$（位于 $\textsf{RLWE}_{S, \sigma}(\Delta \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})$ 中）。一旦 RLWE 密文的层级达到 0（即密文模数为 $q_0$），便无法再进行密文与密文相乘，此时需要通过称为自举的特殊过程，将模数层级重新初始化为 $L$。
+
+不过，这一设置存在一个问题：$\Delta^L$ 会是一个非常大的数。在模 $\Delta^L$ 下执行同态加法或乘法的计算代价很高。为降低大密文带来的开销，可以使用中国剩余定理（\autoref{sec:chinese-remainder}）：给定整数 $x \text{ mod } W$，其中 $W$ 是 $L+1$ 个两两互素的数的乘积，满足 $W = w_0w_1w_2w_3\cdots w_L$，则有以下同余关系：
+
+$x \equiv d_0 \text{ mod } w_0$ 
+
+$x \equiv d_1 \text{ mod } w_1$ 
+
+$x \equiv d_2 \text{ mod } w_2$ 
+
+$\vdots$
+
+$x \equiv d_L \text{ mod } w_L$ 
+
+$ $
+
+其中 $x = \sum\limits_{m=0}^{L} d_my_mz_m \text{ mod } W, \text{ } \text{ } y_m = \dfrac{W}{w_m}, \text{ } \text{ } z_m = y_m^{-1} \text{ mod } w_m$，且 $w_0 = q_0$
+
+$ $
+
+换言之，$x \bmod W$ 可以同构地映射为由较小的数构成的向量 $(d_0, d_1, \cdots, d_l)$，其中各元素分别在模 $w_0, w_1, \cdots, w_l$ 下取值。对于模 $W$ 的大数元素，可以通过对其编码后的较小 CRT 向量逐元素进行加法或乘法，再解码得到所需的大数结果。利用这一性质，将 CKKS 方案的最大密文模数设计为 $W= \prod\limits_{m=0}^{L}w_m$，其中 $L$ 是最大乘法层级，$w_0 = q_0 \gg \Delta$，其余各项满足 $w_i \approx \Delta$。随后，每当从第 $l$ 层降至下一层，即第 $l-1$ 层时，便按如下方式将模数从 $q=\prod\limits_{m=0}^{l}w_m$ 切换为 $\hat q =\prod\limits_{m=0}^{l - 1}w_m$：
+
+$(\text{ }C = (A, B)\text{ }) \in \mathcal{R}_{\langle n, q \rangle} \rightarrow \textsf{RLWE}_{S, \sigma}(\text{ }\hat{C} = (\hat{A}, \hat{B})\text{ }) \in \mathcal{R}_{\langle n, \hat q \rangle}$ 
+
+
+$q = \prod\limits_{m=0}^{l}w_m$，\textcolor{red}{ \text{ } \# 其中所有 $w_m$ 都是素数，$w_0 = q_0 \gg \Delta\cdot p$ 用于保证同态运算期间缩放后的明文 $\Delta M$ 即使在最低乘法层级也不会超出密文模数，而其余各项满足 $w_i \approx \Delta$}
+
+$\hat{q} = \dfrac{q}{w_l}$
+
+$\hat{A_i} = \left\lceil\dfrac{\hat q}{q}\cdot A_i\right\rfloor = \hat{a}_{i,0} + \hat{a}_{i,1}X + \hat{a}_{i,2}X^2 + \cdots + \hat{a}_{i, {n-1}}X^{n-1}$，其中每个 $\hat{a}_{i,j} = \Big\lceil a_{i,j}\dfrac{\hat{q}}{q} \Big\rfloor = \Big\lceil \dfrac{a_{i,j}}{w_l} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$
+
+
+$\hat{B} = \left\lceil\dfrac{\hat q}{q}\cdot B\right\rfloor = \hat{b}_0 + \hat{b}_1X + \hat{b}_2X^2 + \cdots + \hat{b}_{n-1}X^{n-1}$，其中每个 $\hat{b}_j = \Big\lceil b_j\dfrac{\hat{q}}{q} \Big\rfloor = \Big\lceil \dfrac{b_j}{w_l} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$
+
+
+$\textsf{RLWE}_{{S},\sigma}(\Delta  M) = (\hat{A}, \hat{B}) \in \mathcal{R}_{\langle n, \hat{q} \rangle}$ 
+
+
+$ $
+
+上述从 $(\{A_i\}_{i=0}^{k-1}, B)$ 到 $(\{\hat{A}_i\}_{i=0}^{k-1}, \hat B)$ 的更新，实际上将 $\Delta, E$ 改为 $\hat\Delta, \hat E$：
+
+$\hat{E} = \hat{e}_0 + \hat{e}_1X + \hat{e}_2X^2 + \cdots + \hat{e}_{n-1}X^{n-1}$，其中每个 $\hat{e}_j = \Big\lceil e_j\dfrac{\hat{q}}{q} \Big\rfloor = \Big\lceil \dfrac{e_j}{w_l} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$
+
+$\hat{\Delta} = \left\lceil\Delta^2\dfrac{\hat{q}}{q}\right\rfloor = \left\lceil\dfrac{\Delta^2}{w_l}\right\rfloor \approx \Delta$ \textcolor{red}{ $\rhd$ 若将 $\hat\Delta$ 视为 $\Delta$，则舍入误差会将噪声 $\hat E$ 略微增大为 $\hat E + E_\Delta$，但对 $(\hat A, \hat B)$ 解密仍输出相同的 $M$}
+
+$ $
+
+注意，重缩放后，$(\hat A, \hat B)$ 的明文尺度因子也更新为 $\hat{\Delta}$。而 $M$ 和 $S$ 保持不变。
+
+$ $
+
+将 $\dfrac{\hat{q}}{q}$ 分别乘到 $A$ 与 $B$ 上，对密文 $C$ 执行模数切换 $q \rightarrow \hat{q}$ 后，加密的原明文项 $\Delta^2 M^{\langle 1 \rangle} M^{\langle 2 \rangle}$ 变为 $\Delta^2 M^{\langle 1 \rangle} M^{\langle 2 \rangle} \cdot \dfrac{\hat{q}}{q} = \dfrac{\Delta^2 M^{\langle 1 \rangle} M^{\langle 2 \rangle}}{w_l} = (\Delta + \epsilon_\Delta)\cdot M^{\langle 1 \rangle} M^{\langle 2 \rangle}$，其中 $\epsilon_\Delta \approx 0$。这是因为如前所述，我们选择的 $\{w_i\}_{i=1}^{L}$ 满足 $w_i \approx \Delta$。因此，$(\Delta + \epsilon_\Delta)\cdot M^{\langle 1 \rangle} M^{\langle 2 \rangle} = \Delta M^{\langle 1 \rangle} M^{\langle 2 \rangle} + \epsilon_\Delta M^{\langle 1 \rangle} M^{\langle 2 \rangle}$，其中 $\epsilon_\Delta M^{\langle 1 \rangle} M^{\langle 2 \rangle} \approx 0$ 会成为模数切换（即重缩放）后新密文 $\hat{C}$ 的噪声项的一部分。
+
+$ $
+
+这种基于 CRT（中国剩余定理）的密文模数与重缩放设计具有如下优势：可以将密文多项式的巨大系数（超过 64 位）同构地分解为 $l$ 维中国剩余向量（\autoref{sec:chinese-remainder} 中的定理~\ref{sec:chinese-remainder}.2），并对较小的向量元素逐元素进行加法或乘法，以完成系数运算。这提高了大密文模数下同态加法和乘法的计算效率，尽管加法与乘法的运算次数增加了。该技术称为剩余数系统（RNS）。当密文采用 CRT 表示时，与密文模数有关的安全性取决于最小和最大的 CRT 元素。
+
+\para{加密时的初始尺度因子 $\bm\Delta$：}为了支持多级乘法层级（使用 CRT），需要将总结~\ref*{subsec:glwe-enc}（\autoref{subsec:glwe-enc}）中给出的通用尺度因子设置从 $\Delta = \dfrac{q}{t}$ 改为 $\Delta = w_L$。
+
+\para{噪声增长：}在密文与密文相乘的每次重缩放步骤中，噪声也会缩小 $\dfrac{1}{\Delta}$ 倍（采用 CRT 时，在乘法层级 $l$ 上缩小 $\dfrac{1}{w_l}$ 倍）。
+因此，重缩放将噪声的绝对幅度缩小 $\Delta$（或 $w_l$）倍。然而，每次密文与密文相乘后，加密的带噪明文为 $(\Delta M_1 + E_1)\cdot(\Delta M_2 + E_2) = \Delta^2 M_1 M_2 + \Delta\cdot (M_1E_2 + M_2E_1) + E_1E_2$，重缩放的效果大致相当于将它除以 $\Delta$，近似得到 $\Delta M_1 M_2 + M_1E_2 + M_2E_1 + \dfrac{E_1E_2}{\Delta}$。由于存在 $(M_1E_2 + M_2E_1)$ 项，与密文相乘之前相比，噪声实际上仍然增大了。因此，密文与密文相乘不可避免地会增加噪声。
+
+\subsubsection{BFV 与 CKKS 自举的比较}
+\label{subsubsec:bfv-bootstrapping-ckks-comparison}
+
+CKKS 自举与 BFV 自举有若干共同之处。CKKS 的 \textsf{ModRaise} 与\textsf{同态解密}步骤，等价于 BFV 的\textsf{同态解密（不执行模 $q$ 约减）}步骤。BFV 将系数属于 $\mathbb{Z}_{p^e}$ 的多项式 $A$ 和 $B$ 与密文模数为 $q$ 的秘密密钥密文进行同态乘法，从而产生模回绕后的系数值 $p^eK$。类似地，CKKS 的系数属于 $\mathbb{Z}_{q_0}$，秘密密钥密文的密文模数为 $q_L$，从而产生模回绕后的系数值 $q_0K$。不过，两者处理模回绕值的策略不同。CKKS 通过求值周期为 $q_0$ 的正弦函数，近似消去 $q_0K$（即 \textsf{EvalExp}）；而 BFV 通过数位提取将 $p^eK$ 缩小 $p^{e-1}$ 倍，再将剩余的较小 $pK$ 视为明文模回绕值的一部分。数位提取算法要求明文输入采用以 $p$ 为基数的表示，因此 BFV 自举在最开始包含模数切换 $q \rightarrow p^e$，并使用 $p^e$ 作为同态解密后的明文模数。
+
+BFV 与 CKKS 在 \textsf{CoeffToSlot}、\textsf{SlotToCoeff} 和\textsf{尺度因子重新解释}步骤中都采用相同的策略。
+
+\para{乘法层级：}BFV 与 CKKS 的一个关键区别是，在 BFV 中，密文与密文相乘后密文模数 $q$ 保持不变，并没有乘法层级对密文乘法次数的限制。而在 CKKS 中，每次乘法后密文模数都会按 $q_l \rightarrow q_{l-1}$ 改变；当达到 $q_0$ 时，就无法继续乘法，除非使用模数自举技术（\autoref{subsec:ckks-bootstrapping}）将密文模数重置为 $q_L$。
+
+\para{噪声处理的局限：}虽然 CKKS 在密文与密文相乘后的重缩放会将噪声 $E$ 的幅度缩小 $\Delta$ 倍，但密文模数也缩小相同倍数，因此噪声与密文模数的相对比值并不会因重缩放而减小。要减小（或重置）噪声与模数之比，就需要执行自举（\autoref{subsec:ckks-bootstrapping}），本节末尾将对此进行介绍。
+
+
+\subsubsection{总结}
+\label{subsubsec:ckks-mult-cipher-summary}
+
+综合以上内容，CKKS 的密文与密文相乘可总结如下：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:ckks-mult-cipher-summary}} CKKS 的密文与密文相乘}}]
+
+
+设有如下两个 RLWE 密文：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 1 \rangle}) = (A^{\langle 1 \rangle}, B^{\langle 1 \rangle})$，\text{ } 其中 $B^{\langle 1 \rangle} = -A^{\langle 1 \rangle} \cdot S + \Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle}$
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 2 \rangle}) = (A^{\langle 2 \rangle}, B^{\langle 2 \rangle})$，\text{ } 其中 $B^{\langle 2 \rangle} = -A^{\langle 2 \rangle} \cdot S + \Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle}$
+
+$ $
+
+两个密文之间的乘法按以下步骤执行：
+
+$ $
+
+\setlist[itemize]{leftmargin=*}
+\setlist[enumerate]{leftmargin=*}
+\begin{enumerate}
+\item \textbf{\underline{基本乘法}}
+
+计算以下各式：
+
+$ $
+
+$D_0 = B^{\langle 1 \rangle}B^{\langle 2 \rangle}$
+
+$D_1 = B^{\langle 2 \rangle}A^{\langle 1 \rangle} + B^{\langle 1 \rangle}A^{\langle 2 \rangle}$
+
+$D_2 = A^{\langle 1 \rangle} \cdot A^{\langle 2 \rangle}$
+
+$ $
+
+其中 $\Delta^2M^{\langle 1 \rangle}M^{\langle 2 \rangle} \approx \underbrace{B^{\langle 1 \rangle}B^{\langle 2 \rangle}}_{D_0}  + \underbrace{(B^{\langle 2 \rangle}A^{\langle 1 \rangle} + B^{\langle 1 \rangle}A^{\langle 2 \rangle})}_{D_1} \cdot S + \underbrace{(A^{\langle 1 \rangle} \cdot A^{\langle 2 \rangle})}_{D_2} \cdot \underbrace{S \cdot S}_{ S^2}$
+
+$= D_0 + D_1\cdot S + D_2\cdot S^2$
+
+$ $
+
+\item \textbf{\underline{重线性化}}
+
+$\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle}) \approx \textsf{RLWE}_{S, \sigma}\bm{(}\text{ }(D_0 + D_1\cdot S + D_2\cdot S^2)\text{ }\bm{)} \approx C_\alpha + C_\beta$
+
+$ $
+
+$, \text{ 其中 } \text{ } C_\alpha = (D
+_1, D_0),$
+
+\text{ }\text{ }\text{ }\text{ }\text{ }\text{ }\text{ }\text{ }\text{ } $C_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle} \text{ 或 }   \Bigg\lceil\dfrac{D_2 \cdot \mathit{evk_g}}{g}\Bigg\rfloor$,
+
+\text{ }\text{ }\text{ }\text{ }\text{ }\text{ }\text{ }\text{ }\text{ }  $\mathit{evk_g} = (A', -A'\cdot S + E' + g S^2) \in \mathcal{R}_{\langle n, gq\rangle}^2, \text{ } \text{ } g  = q_L^2, \text{ } L: \text{ 最大层级}$
+
+$ $
+
+\item \textbf{\underline{重缩放}}
+
+对重线性化后的密文执行模数切换 $q \rightarrow \hat q$，
+即按以下方式将 $(A, B)$ 更新为 $(\hat{A}, \hat B)$：
+
+$ $
+
+$(\text{ }C = (A, B)\text{ }) \in \mathcal{R}_{\langle n, q \rangle} \rightarrow (\text{ }\hat{C} = (\hat{A}, \hat{B})\text{ }) \in \mathcal{R}_{\langle n, \hat q \rangle}$ 
+
+$q = \prod\limits_{m=0}^{l}w_m$，\textcolor{red}{ \text{ } \# 其中所有 $w_m$ 都是素数，$w_0 = q_0 \gg \Delta\cdot p$ 用于保证同态运算期间明文 $\Delta M$ 即使在最低乘法层级也不会超出密文模数，而其余各项满足 $w_i \approx \Delta$}
+
+$\hat{q} = \dfrac{q}{w_l}$
+
+$\hat{A} = \left\lceil\dfrac{\hat q}{q}\cdot A\right\rfloor = \hat{a}_{0} + \hat{a}_{1}X + \hat{a}_{2}X^2 + \cdots + \hat{a}_{{n-1}}X^{n-1}$，其中每个 $\hat{a}_{i} = \Big\lceil a_{i}\dfrac{\hat{q}}{q} \Big\rfloor = \Big\lceil \dfrac{a_{i}}{w_l} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$
+
+
+$\hat{B} = \left\lceil\dfrac{\hat q}{q}\cdot B\right\rfloor = \hat{b}_0 + \hat{b}_1X + \hat{b}_2X^2 + \cdots + \hat{b}_{n-1}X^{n-1}$，其中每个 $\hat{b}_i = \Big\lceil b_i\dfrac{\hat{q}}{q} \Big\rfloor = \Big\lceil \dfrac{b_i}{w_l} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$
+
+$ $
+
+上述从 $(A, B)$ 到 $(\hat{A}, \hat B)$ 的更新，实际上将 $\Delta, E$ 改为 $\hat\Delta, \hat E$：
+
+$\hat{E} = \hat{e}_0 + \hat{e}_1X + \hat{e}_2X^2 + \cdots + \hat{e}_{n-1}X^{n-1}$，其中每个 $\hat{e}_i = \Big\lceil e_i\dfrac{\hat{q}}{q} \Big\rfloor = \Big\lceil \dfrac{e_i}{w_l} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$
+
+$\hat{\Delta} = \left\lceil\Delta^2\dfrac{\hat{q}}{q}\right\rfloor = \left\lceil\dfrac{\Delta^2}{w_l}\right\rfloor \approx \Delta$ \textcolor{red}{ $\rhd$ 这一舍入误差会将噪声 $\hat E$ 略微增大为 $\hat E + E_\Delta$，但对 $(\hat A, \hat B)$ 解密仍输出相同的明文 $M$}
+
+$ $
+
+
+注意，重缩放后密文模数按 $q \rightarrow \hat q$ 改变，$(\hat A, \hat B)$ 的明文尺度因子也更新为 $\hat{\Delta}$。而明文 $M$ 与秘密密钥 $S$ 保持不变。
+
+$ $
+
+\end{enumerate}
+\setlist[itemize]{leftmargin=\leftmargini}
+\setlist[enumerate]{leftmargin=\leftmargini}
+
+\para{交换\textsf{重线性化}与\textsf{重缩放}的顺序：}重线性化与重缩放的执行顺序可以互换。先重缩放再重线性化能够缩小密文模数，从而使后续的重线性化执行得更快。
+
+\end{tcolorbox}
+
+
+\subsection{密文与明文相乘}
+\label{subsec:ckks-mult-plain}
+
+回顾一下，BFV 的密文与明文相乘（\autoref{subsec:bfv-mult-plain}）按以下方式执行：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M) \cdot \Lambda$
+
+$= (A, \text{ } B) \cdot \Lambda$
+
+$= (A \cdot \Lambda, \text{ }  B \cdot \Lambda )$
+
+$= \textsf{RLWE}_{S, \sigma}(\Delta (M \cdot \Lambda) )$
+
+其中，明文多项式 $\Lambda$ 没有乘以尺度因子 $\Delta$。但上述关系不能直接用于 CKKS 的密文与明文相乘，因为 CKKS 将输入向量槽位编码为多项式系数时，所计算的编码为 $\vec{m} = \dfrac{\hathat W \cdot I_n^R \cdot \vec{v}_{'}}{n}$（\autoref{subsec:ckks-encoding-decoding} 中的总结~\ref*{subsec:ckks-encoding-decoding}），其中 $n$ 次单位根的基值为 $\omega = e^{i\pi/n} = \cos \left(\dfrac{\pi}{n}\right) + i\sin \left(\dfrac{\pi}{n}\right)$。由于 $\omega$ 通常不是整数，编码后的多项式 $\Lambda$ 的系数通常也不是整数，而是具有无限小数位的数。因此，需要执行 CKKS 编码过程的最后一步（\autoref{subsec:ckks-encoding-decoding} 中的总结~\ref*{subsec:ckks-encoding-decoding}），将 $\Lambda$ 乘以 $\Delta$，使足够多的小数位移至整数部分，从而以较高精度将小数系数近似为整数。随后，加密的明文变为 $\Delta M \cdot \Delta \Lambda = \Delta^2 M \Lambda$。为了将 $\Delta^2 M \Lambda$ 转换为 $\Delta M \Lambda$，需要像 CKKS 密文与密文相乘的最后一步（\autoref{subsubsec:ckks-mult-cipher-summary} 中的总结~\ref*{subsubsec:ckks-mult-cipher-summary}）那样执行重缩放。因此，CKKS 的密文与明文相乘会消耗一个乘法层级，而 BFV 的密文与明文相乘不消耗乘法层级。CKKS 的密文与明文相乘总结如下：
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ckks-mult-plain}} CKKS 密文与明文相乘}}]
+
+
+\setlist[itemize]{leftmargin=*}
+\setlist[enumerate]{leftmargin=*}
+\begin{enumerate}
+\item \textbf{\underline{基本乘法}}
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M) \cdot \Delta\Lambda$
+
+$= (A, \text{ } B) \cdot \Delta\Lambda$
+
+$= (A \cdot \Delta\Lambda, \text{ }  B \cdot \Delta\Lambda )$
+
+$= \textsf{RLWE}_{S, \sigma}(\Delta^2 (M \cdot \Lambda) )$
+
+$ $
+
+\item \textbf{\underline{重缩放}}
+
+按照 CKKS 密文与密文相乘的最后一步（\autoref{subsubsec:ckks-mult-cipher-summary} 中的总结~\ref*{subsubsec:ckks-mult-cipher-summary}），对重线性化后的密文执行模数切换 $q \rightarrow \hat q$。
+
+\end{enumerate}
+\setlist[itemize]{leftmargin=\leftmargini}
+\setlist[enumerate]{leftmargin=\leftmargini}
+
+\end{tcolorbox}
+
+
+\subsection{\textsf{ModDrop}}
+\label{subsec:ckks-moddrop}
+
+回顾 CKKS 的密文解密关系：
+
+$\Delta M + E = A \cdot S + B \bmod q_l$
+
+$\Delta M + E = A \cdot S + B - K\cdot q_l$ \textcolor{red}{ $\rhd$ 其中 $K\cdot q_l$ 表示对 $q_l$ 取模}
+
+$ $
+
+\textsf{ModDrop} 通过依次丢弃密文模数的一个或多个素数因子 $\left(\text{i.e.,} \left\{\dfrac{q_i}{q_{i-1}}\right\}_{i=0}^{L}\right)$（保留最后一个因子 $q_0$），降低密文的乘法层级，同时保证明文尺度因子 $\Delta$ 保持不变。具体而言，要通过 \textsf{ModDrop} 执行模数降低 $q_l \rightarrow q_{l-1}$，只需将密文 $(A, B)$ 更新为 $\bm(A' = A \bmod q_{l-1}$、$B' = B \bmod q_{l-1})$。\textsf{ModDrop} 后，密文模数按 $q_l \rightarrow q_{l-1}$ 降低，但其解密关系仍保持如下形式：
+
+$A' \cdot S + B' - K\cdot q_l $
+
+$= (A \bmod q_{l-1}) \cdot S + (B \bmod q_{l-1}) - K\cdot q_l$
+
+$= (A - K_A\cdot q_{l-1}) \cdot S + (B - K_B\cdot q_{l-1}) - K\cdot q_l$ 
+
+$= A\cdot S + B - (K_A + K_B + K\dfrac{q}{q_{l-1}})\cdot q_{l-1}$
+\textcolor{red}{ $\rhd$ 其中 $\dfrac{q}{q_{l-1}}$ 是一个整数（$q_L$ 的第 $l$ 个素数因子）}
+
+$= A\cdot S + B - K'\cdot q_{l-1}$ \textcolor{red}{ $\rhd$ 其中 $K' = K_A + K_B + K\dfrac{q}{q_{l-1}}$ 是一个整数}
+
+$= A\cdot S + B \bmod q_{l-1}$
+
+$= \Delta M + E$ \textcolor{red}{ $\rhd$ 因为 $\Delta M + E < q_0 < q_{l-1}$}
+
+$ $
+
+如上所示，$(A', B') \bmod q_{l-1}$ 解密得到相同的 $\Delta M + E$，即带有误差的缩放后明文。
+
+$ $
+
+
+
+CKKS 的 \textsf{ModDrop} 总结如下：
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ckks-moddrop}} CKKS 的 \textsf{ModDrop}}}]
+
+给定乘法层级为 $l$ 的 CKKS 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M) = (A, B) \bmod q_l$，\textsf{ModDrop} 操作如下：
+
+$(A', B') \bmod q_{l-1} = (A \bmod q_{l-1}, B \bmod q_{l-1})$
+
+$ $
+
+执行后，密文的乘法层级降低一级，而明文尺度因子 $\Delta$ 和噪声均不受影响。
+
+\end{tcolorbox}
+
+\subsubsection{模数切换与 \textsf{ModDrop} 的区别}
+\label{subsubsec:ckks-moddrop-vs-modswitch}
+
+在 CKKS 中，模数切换（即 \autoref{subsubsec:ckks-mult-cipher-rescale} 中说明的重缩放）与 \textsf{ModDrop} 都会按 $q_l \rightarrow q_{l-1}$ 降低密文模数。关键区别在于，重缩放还会将明文尺度因子缩小 $\dfrac{q_l}{q_{l-1}} \approx \Delta$ 倍，而 \textsf{ModDrop} 不影响明文尺度因子与噪声。因此，重缩放用于密文与密文相乘过程中，将中间密文中的明文尺度因子按 $\Delta^2 \rightarrow \Delta$ 缩小。而 \textsf{ModDrop} 则用于应用程序执行过程中，当确定密文不再需要进行任何额外的密文与密文相乘（即不需要为此进一步降低密文模数）时，通过减小模数来缩短模运算时间。
+
+
+
+\subsection{同态密钥切换}
+\label{subsec:ckks-key-switching}
+
+CKKS 的同态密钥切换方案将 RLWE 密文的秘密密钥从 $S$ 更换为 $S'$。该方案与 BFV 的密钥切换方案完全相同（见 \autoref{subsec:bfv-key-switching} 中的总结~\ref*{subsec:bfv-key-switching}）。
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ckks-key-switching}} CKKS 的密钥切换}}]
+$\textsf{RLWE}_{S',\sigma}(\Delta M) = (0, B) + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$
+\end{tcolorbox}
+
+
+
+
+\subsection{输入向量槽位的同态旋转}
+\label{subsec:ckks-rotation}
+
+CKKS 的批量编码方案（\autoref{subsec:ckks-encoding-decoding} 中的总结~\ref*{subsec:ckks-encoding-decoding}）天然支持输入槽位向量的同态旋转，方式与 BFV 的同态旋转类似（\autoref{subsubsec:bfv-rotation-summary} 中的总结~\ref*{subsubsec:bfv-rotation-summary}）。这是因为 CKKS 使用了 BFV 编码与解码方案中为支持输入向量槽位旋转而设计的相同矩阵（$\hathat W$ 和 $\hathat{W}^*$）。虽然 BFV 与 CKKS 中第 $(\mu=2n)$ 个分圆多项式 $X^n + 1$ 的根不同（一个定义在 $X \in \mathbb{Z}_t$ 上，另一个定义在 $X \in \mathbb{R}$ 上），CKKS 仍能使用与 BFV 相同的 $\hathat W$（及 $\hathat{W}^*$）矩阵，因为 $X \in \mathbb{Z}_t$ 上的第 $(\mu=2n)$ 个分圆多项式与 $X \in \mathbb{R}$ 上的第 $(\mu=2n)$ 个分圆多项式具有相同的基本性质（见 \autoref{sec:cyclotomic-polynomial-integer-ring}）。特别地，这两种第 $(\mu=2n)$ 个分圆多项式的根都是阶为 $2n$ 的本原 $(\mu=2n)$ 次单位根，而 $n$ 个互不相同的根表示为 $\omega^1, \omega^3, \cdots, \omega^{2n-1}$，其中 $\omega$ 可以取任意一个根。因此，将 CKKS 的 $(\mu=2n)$ 次单位根代入 BFV 编码矩阵 $\hathat{W}$（及解码矩阵 $\hathat{W}^*$）中的 $\omega$ 项，仍可保持编码、解码及输入向量槽位旋转计算的正确性。
+
+BFV 与 CKKS 中的 $\hathat{W}$ 和 $\hathat{W}^*$ 矩阵均满足支持输入向量槽位旋转所需的条件。具体而言，给定以下关系：
+
+\begin{itemize}
+    \item $\vec{v} \rightarrow \vec{m}$ 的编码公式：$\vec{m} = n^{-1}\cdot I_n^R\cdot \hathat{W}\cdot \vec{v}$
+    \item $\vec{m} \rightarrow \vec{v}$ 的解码公式：$\vec{v} = \hathat{W}^* \cdot \vec{m}$
+    \item 编码后的多项式 $M(X) = \sum\limits_{i=0}^{n-1}m_iX^i$
+\end{itemize}    
+
+将多项式 $M(X)$ 更新为 $M(X^{J(h)})$，等价于把 $n$ 个输入向量槽位（BFV 中为 $\vec{v} \in \mathbb{Z}^n_p$，CKKS 中为正序厄米向量 $\vec{v}_{'} \in \mathbb{\hat C}^{n} \rightarrow \mathbb{C}^{\frac{n}{2}}$）的前半部分在组内向左循环旋转 $h$ 个位置，同时把后半部分在组内向右循环旋转 $h$ 个位置。
+
+BFV 与 CKKS 采用相同的旋转方案，该方案见总结~\ref*{subsubsec:bfv-rotation-summary}（\autoref{subsubsec:bfv-rotation-summary}），具体如下：
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ckks-rotation}} CKKS 输入向量槽位的同态旋转}}]
+
+
+
+设有如下 RLWE 密文和密钥切换密钥：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M) = (A, B)$, \text{ } $\textsf{RLev}_{S, \sigma}^{\beta, l}(S^{J(h)})$
+
+$ $
+
+将该密文原始输入向量 $\vec{v}$ 的全部 $\dfrac{n}{2}$ 个元素向左旋转 $h$ 个位置，过程如下：
+
+\setlist[itemize]{leftmargin=*}
+\setlist[enumerate]{leftmargin=*}
+\begin{enumerate}
+\item 将 $A(X)$、$B(X)$ 更新为 $A(X^{J(h)})$、$B(X^{J(h)})$。
+\item 执行以下从 $S(X^{J(h)})$ 到 $S(X)$ 的密钥切换（\autoref{subsec:ckks-key-switching}）：
+
+
+$\textsf{RLWE}_{S(X),\sigma}\bm{(}\Delta M(X^{J(h)})\bm{)} = \bm{(} 0, B(X^{J(h)}) \bm{)} \text{ } + \text{ } \bm{\langle}  \textsf{Decomp}^{\beta, l}\bm{(}A(X^{J(h)})\bm{)}, \text{ } \textsf{RLev}_{S(X), \sigma}^{\beta, l}\bm{(}S(X^{J(h)})\bm{)} \bm{\rangle}$
+\end{enumerate}
+\setlist[itemize]{leftmargin=\leftmargini}
+\setlist[enumerate]{leftmargin=\leftmargini}
+
+\end{tcolorbox}
+
+\para{半区槽位内的旋转：}与 BFV 一样，CKKS 分别对正序厄米输入向量槽位 $\vec{v}_{'} \in \mathbb{\hat{C}}^n$ 的前半部分和后半部分进行分区旋转。这是因为 $\hathat{W}^*$ 的前半部分行由 $\omega^{J(h)}$ 项构成，其中 $h = \{0, 1, \cdots, \dfrac{n}{2} - 1\}$（即在 $X=\{\omega^{J(0)}, \omega^{J(1)}, \cdots, \omega^{J(\frac{n}{2}-1)}\}$ 处对 $M(X)$ 求值），而 $\hathat{W}^*$ 的后半部分行由 $\omega^{J_*(h)}$ 项构成（即在 $X=\{\omega^{J_*(0)}, \omega^{J_*(1)}, \cdots, \omega^{J_*(\frac{n}{2}-1)}\}$ 处对 $M(X)$ 求值）；随着 $h=\{0, 1, \cdots, \dfrac{n}{2} - 1\}$ 变化，$J(h)$ 与 $J_*(h)$ 的计算值各自在自己的旋转组中重复（即旋转）。由于 $\hathat W$ 与 $\hathat W^*$ 具有这种结构，BFV 与 CKKS 无法在输入向量的全部 $n$ 个槽位上统一进行循环旋转，而只能分别在前、后两个各含 $\dfrac{n}{2}$ 个槽位的组内循环旋转。不过，CKKS 本来就只能使用前 $\dfrac{n}{2}$ 个槽位来承载有意义的同态计算，因为后 $\dfrac{n}{2}$ 个槽位是前 $\dfrac{n}{2}$ 个槽位的共轭，不能由用户自由选择，而是由前 $\dfrac{n}{2}$ 个槽位唯一确定。相比之下，在 BFV 中，用户可以根据需要选择完整的 $\dfrac{n}{2}$，因此 BFV 能使用全部 $n$ 个槽位。用户可以同时利用 BFV 的前半部分和后半部分槽位执行并行计算。
+
+
+
+
+\subsubsection{示例}
+\label{subsubsec:ckks-rotation-ex}
+
+本小节给出以下两个示例：
+\begin{enumerate}
+\item 基于更新后的编码与解码矩阵 $\hathat W$ 和 $\hathat W^*$，将输入向量 $\vec{v}$ 编码为明文多项式 $M(X)$
+\item 将编码后的明文 $M(X)$ 更新为 $M(X^{J(h)})$，使输入向量 $\vec{v}$ 的所有元素向左旋转 $h$ 个位置
+\end{enumerate}
+
+$ $
+
+仍使用 \autoref{subsubsec:ckks-encoding-ex} 中相同的输入向量 $\vec{v}$：$\vec{v}^{\langle h=1 \rangle} = (1.1 + 4.3i, 3.5 - 1.4i)$。
+
+回顾一下，$\vec{v}$ 编码得到的明文多项式如下：
+
+$\Delta M(X) = 2355 + 1195X + 1485X^2 + 2933X^3 \in \mathcal{R}_{\langle 4 \rangle} \in \mathbb{R}[X] / X^4 + 1$
+
+
+假设希望将输入向量 $\vec{v}$ 向左旋转 1 个位置：
+
+$\vec{v}^{\langle h=1 \rangle} = (3.5 - 1.4i, 1.1 + 4.3i)$
+
+$ $
+
+因此，将 $\Delta M(X)$ 更新为 $\Delta M(X^{J(1)})$：
+
+$\Delta M(X^{J(1)}) = \Delta M(X^{5}) = 2355 + 1195(X^5) + 1485(X^5)^2 + 2933(X^5)^3$ 
+
+$= 2355 + 1195X^5 + 1485X^{10} + 2933X^{15}$
+
+$= 2355 + 1195X\cdot(-1) + 1485X^{2}\cdot(-1)\cdot(-1) + 2933X^{3}\cdot(-1)\cdot(-1)\cdot(-1)$
+
+$= 2355 - 1195X + 1485X^2 - 2933X^3$
+
+$ $
+
+旋转后的\textit{正序}厄米输入向量计算如下：
+
+$\dfrac{\hathat W^* \cdot \Delta \vec{m}}{\Delta} = \begin{bmatrix}
+1,\omega,\omega^2, \omega^3\\
+1,\omega^5, \omega^{10},\omega^{15}\\
+1,\overline{\omega}, \overline{\omega^2}, \overline{\omega^3}\\
+1,\overline{\omega^5}, \overline{\omega^{10}}, \overline{\omega^{15}}
+\end{bmatrix} \cdot \begin{bmatrix}
+2355\\- 1195\\1485\\-2933
+\end{bmatrix}\cdot \dfrac{1}{1024}$
+
+$= \dfrac{\hathat W^* \cdot \Delta \vec{m}}{\Delta} = \begin{bmatrix}
+1,\omega,\omega^2, \omega^3\\
+1,\omega^5, \omega^{2},\omega^{7}\\
+1,\overline{\omega}, \overline{\omega^2}, \overline{\omega^3}\\
+1,\overline{\omega^5}, \overline{\omega^{2}}, \overline{\omega^{7}}
+\end{bmatrix} \cdot \begin{bmatrix}
+2355\\- 1195\\1485\\-2933
+\end{bmatrix}\cdot \dfrac{1}{1024}$
+
+$= \dfrac{\hathat W^* \cdot \Delta \vec{m}}{\Delta} = \begin{bmatrix}
+1,\omega,\omega^2, \omega^3\\
+1,\omega^5, \omega^{2},\omega^{7}\\
+1,\omega^7, \omega^6, \omega^5\\
+1,\omega^3, \omega^{6}, \omega
+\end{bmatrix} \cdot \begin{bmatrix}
+2355\\- 1195\\1485\\-2933
+\end{bmatrix}\cdot \dfrac{1}{1024}$
+
+$= 
+\begin{bmatrix}
+1,\dfrac{\sqrt{2}}{2} + \dfrac{i\sqrt{2}}{2},i, -\dfrac{\sqrt{2}}{2} + \dfrac{i\sqrt{2}}{2}\\
+1,-\dfrac{\sqrt{2}}{2} - \dfrac{i\sqrt{2}}{2}, i,\dfrac{\sqrt{2}}{2} - \dfrac{i\sqrt{2}}{2}\\
+1,\dfrac{\sqrt{2}}{2} - \dfrac{i\sqrt{2}}{2}, -i, -\dfrac{\sqrt{2}}{2} - \dfrac{i\sqrt{2}}{2}\\
+1,-\dfrac{\sqrt{2}}{2} + \dfrac{i\sqrt{2}}{2}, -i, \dfrac{\sqrt{2}}{2} + \dfrac{i\sqrt{2}}{2}
+\end{bmatrix}$
+$\cdot \begin{bmatrix}
+2.2998046875\\-1.1669921875\\1.4501953125\\-2.8642578125
+\end{bmatrix}$
+
+$ $
+
+$ \approx (3.500 - 1.4003i, \text{ } 1.0997 + 4.3007i,\text{ } 3.500 + 1.4003i, \text{ } 1.0997 - 4.3007i)$
+
+$ $
+
+提取上述厄米向量的前 $\dfrac{n}{2} = 2$ 个元素，即可恢复输入向量：
+
+$(3.500 - 1.4003i, \text{ } 1.0997 + 4.3007i)$
+
+$ \approx (3.5 - 1.4i, \text{ } 1.1 + 4.3i)$
+$ = \vec{v}^{\langle h=1 \rangle}$ \textcolor{red}{  $\rhd$ 原始输入向量 $\vec{v}$ 向左旋转 1 个位置}
+
+
+
+$ $
+
+实际执行时，并不直接将 $\Delta M(X)$ 更新为 $\Delta M(X^{J(1)})$，因为除非持有秘密密钥 $S(X)$，否则无法访问明文多项式 $M(X)$。因此，实际将 $\textsf{ct}=\bm(A(X), B(X)\bm)$ 更新为 $\textsf{ct}^{\langle h=1 \rangle}=\bm(A(X^{J(1)}), B(X^{J(1)})\bm)$，其效果等价于同态旋转加密的输入向量槽位。随后，解密 $\textsf{ct}^{\langle h=1 \rangle}$ 并解码，即可得到 $\vec{v}^{\langle h=1 \rangle}$。
+
+$ $
+
+
+\para{源代码：}运行以下文件可执行 CKKS 输入向量槽位同态旋转的示例：\href{https://github.com/fhetextbook/fhe-textbook/blob/main/source%20code/ckks.py}{\underline{此 Python 脚本}}. 
+
+
+
+
+
+\subsection{对 CKKS 编码的进一步思考}
+\label{subsec:ckks-encoding-contemplate}
+
+\para{为什么 CKKS 编码使用第 $\bm{(\mu=2n)}$ 个分圆多项式：}至此，可以理解 CKKS 编码与解码方案为什么采用 $X \in \mathbb{C}$（复数域）上编号为 2 的幂的分圆多项式（即 $X^n + 1$）（\autoref{subsec:ckks-encoding-decoding}）。第一个原因是，为输入复向量设计有效的编码与解码公式时，CKKS 首先需要将该复向量同构地转换为唯一的实数向量；再将实数向量缩放为整数向量，作为多项式编码的系数列表，因为 CKKS 的同态加密与解密仅支持整数系数多项式。对于输入复向量的解码公式，我们的总体思路是把编码得到的实数向量视为 $(n-1)$ 次多项式的系数，再在 $n$ 个不同的 $X$ 坐标处对该多项式求值，保证得到的 $n$ 个不同 $Y$ 值所构成的集合在 $n$ 次多项式环中具有唯一性。基于这一思路，采用范德蒙德矩阵（\autoref{subsec:vandermonde}）的形式设计了解码矩阵（\autoref{subsec:ckks-encoding-decoding}）。于是，编码公式等价于将输入复向量乘以该解码矩阵的逆矩阵。但是在线性代数中，并非每个矩阵都存在逆矩阵。为了保证有效的编码矩阵（即解码矩阵的逆矩阵）存在，我们利用以下算术性质：如果范德蒙德矩阵 $V = \mathit{Vander}(x_0, x_1, \cdots, x_{n-1})$ 由 $n$ 个不同的本原 $(\mu=2n)$ 次单位根构成（其中 $n$ 是 2 的幂），则该范德蒙德矩阵必定存在逆矩阵（\autoref{subsec:vandermonde-euler}）。事实上，这些 $(\mu=2n)$ 次单位根正是第 $(\mu=2n)$ 个分圆多项式 $X^n + 1$ 的 $n$ 个不同的根（\autoref{subsec:cyclotomic-def}）。因此，CKKS 在后续加密与解密方案中也采用 $X^n + 1$ 作为多项式环（\autoref{subsec:ckks-enc-dec}）。
+
+CKKS 编码采用第 $(\mu=2n)$ 个分圆多项式的第二个原因，是为了设计有效的输入向量槽位旋转方案（\autoref{subsec:ckks-rotation}）。在该旋转方案中，将编码后的多项式 $M(X)$ 更新为 $M(X^{J(h)})$（其中 $J(h) = 5^h \bmod 2n$），等价于将 CKKS 解码过程中 $M(X)$ 的每个求值坐标从 $x_i$ 更新为 $x_i^{J(h)}$（其中每个 $x_i$ 都是本原 $(\mu=2n)$ 次单位根）。其效果与将编码矩阵（即由本原 $(\mu=2n)$ 次单位根构成的范德蒙德矩阵的逆矩阵）沿竖直方向向上循环移动 $h$ 个位置相同。在固定输入向量时，这种编码矩阵的竖直旋转，又等价于保持编码矩阵不变、将输入向量 $\vec{v}$ 向左旋转 $h$ 个位置。因此，第 $(\mu=2n)$ 个分圆多项式 $X^n + 1$ 是设计输入向量槽位旋转的理想工具。
+
+
+\subsection{同态共轭}
+\label{subsec:ckks-conjugation}
+
+
+如总结~\ref*{subsec:ckks-encoding-decoding}（\autoref{subsec:ckks-encoding-decoding}）所述，给定 $\dfrac{n}{2}$ 槽位输入向量 $\vec{v} = (v_0, v_1, \cdots, v_{\frac{n}{2}-1})$，对应的 $n$ 槽位厄米向量为 $\vec{v}_{'} = (v_0, v_1, \cdots, v_{\frac{n}{2}-1}, \overline{v}_0, \overline{v}_1, \cdots, \overline{v}_{\frac{n}{2}-1})$。计算 $\vec{v}$ 的共轭，本质上就是对 $\vec{v}_{'}$ 取共轭，因此可以按如下方式对 $M(X)$ 取共轭：
+
+$\overline{\vec{v}}_{'} = (\overline{v}_0, \overline{v}_1, \cdots, \overline{v}_{\frac{n}{2}-1}, v_0, v_1, \cdots, v_{\frac{n}{2}-1})$
+
+$= \bm{(}M(\overline{\omega}), M(\overline{\omega^{3}}), \cdots, M(\overline{\omega^{n-1}}), M(\omega), M(\omega^{3}), \cdots, M(\omega^{n-1})\bm{)}$ \textcolor{red}{ $\rhd$ 其中 $\omega = e^{\frac{i\pi}{n}}$}
+
+
+$= \bm{(}M((\omega)^{-1}), M((\omega^{3})^{-1}), \cdots, M((\omega^{n-1})^{-1}), M(\omega), M(\omega^{3}), \cdots, M(\omega^{n-1})\bm{)}$ 
+
+\textcolor{red}{ $\rhd$ 因为对于 $k = \{1, 3, \cdots, n-1\}$，有 $\overline{\omega^k} = e^{\overline{\frac{ki\pi}{n}}} = e^{-\frac{ki\pi}{n}} = \omega^{-k}$ 和 $\omega^{k} = (\overline{\omega^k})^{-1}$}
+
+$ $
+
+$=\{M(X^{-1})\}$ 
+
+\textcolor{red}{ $\rhd$ 其中 $X = \{\omega, \omega^{3}, \cdots, \omega^{n - 1}, \omega^{-1}, \omega^{-3}, \cdots, \omega^{-(n-1)}\}  = \{\omega, \omega^{3}, \cdots, \omega^{n - 1}, \omega^{2n-1}, \omega^{2n-3}, \cdots, \omega^{n+1} \}$}
+
+
+$ $
+
+因此，对输入向量执行同态共轭，等价于将密文 $\bm{(}A(X), B(X)\bm{)}$ 更新为 $\bm{(}A(X^{-1}), B(X^{-1})\bm{)}$，再进行密钥切换 $S(X^{-1}) \rightarrow S(X)$。
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ckks-conjugation}} CKKS 的同态共轭}}]
+
+对密文所对应的输入向量执行同态共轭，等价于以下操作：
+
+\begin{enumerate}
+\item 将密文 $\bm{(}A(X), B(X)\bm{)}$ 更新为 $\bm{(}A(X^{-1}), B(X^{-1})\bm{)}$。
+\item 将 $\bm{(}A(X^{-1}), B(X^{-1})\bm{)}$ 的密钥从 $S(X^{-1})$ 切换为 $S(X)$。
+
+\end{enumerate}
+
+\end{tcolorbox}
+
+\subsection{密文的稀疏打包}
+\label{subsec:ckks-sparse-packing}
+
+在 \autoref{subsec:ckks-encoding-decoding} 中，我们学习了 CKKS 编码方案：将具有 $\dfrac{n}{2}$ 个槽位的输入向量（即 $\dfrac{n}{2}$ 槽位输入向量）编码为 $(n-1)$ 次多项式。虽然多项式环的次数 $n$ 作为安全参数在 CKKS 设置阶段便已固定，但某些应用需要的输入向量槽位数可能少于 $\dfrac{n}{2}$。假设在 $\frac{n}{2}$ 个槽位中仅需使用 $\frac{n'}{2}$ 个槽位，其中 $n'$ 是能够整除 $n$ 的某个数，则相应的输入向量与编码后的多项式具有以下特殊性质：
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:ckks-sparse-packing}} CKKS 的稀疏打包多项式与密文}}]
+
+假设一个 $\frac{n}{2}$ 槽位输入向量被编码为 $\mathbb{R}[X] / (X^n + 1)$ 中的多项式，并设 $n'$ 是能够整除 $n$ 的某个数。定义多项式 $M(X) \in \mathbb{R}[X] / (X^n + 1)$：仅指数为 $\frac{n}{n'}$ 的倍数的项可以具有非零系数，其余项的系数均为零（即 $M(X) = c_0 + c_{\frac{n}{n'}}X^{\frac{n}{n'}} + c_{\frac{2n}{n'}}X^{\frac{2n}{n'}} + \cdots + c_{n - \frac{n}{n'}}X^{n - \frac{n}{n'}}$）。于是可将 $M(X)$ 写为某个 $M_Y(Y) \in \mathbb{R}[Y] / (Y^{n'} + 1)$，其中 $Y = X^{\frac{n}{n'}}$，因此 $M(X) = M_Y(X^{\frac{n}{n'}})$。
+
+$ $
+
+那么，以下结论成立：
+
+\begin{enumerate}
+    \item 每个 $M_Y(Y) \in \mathbb{R}[Y]/(Y^{n'} + 1)$ 都同构地映射（即解码）为某个 $\dfrac{n}{2}$ 槽位输入向量，该向量由连续 $\dfrac{n'}{2}$ 个槽位值重复 $\dfrac{n}{n'}$ 次构成。
+    \item 反过来，如果一个 $\dfrac{n}{2}$ 槽位输入向量由前 $\dfrac{n'}{2}$ 个连续槽位值重复 $\dfrac{n}{n'}$ 次构成，那么该向量将编码为某个 $M_Y(Y) \in \mathbb{R}[Y] / (Y^{n'} + 1)$，即 $\mathbb{R}[X] / (X^n + 1)$ 中指数不是 $\dfrac{n}{n'}$ 的倍数的各项系数均为零的多项式。
+\end{enumerate}
+
+\end{tcolorbox}
+
+可以给出两个方向的证明：（1）正向（解码方向）证明；（2）反向（编码方向）证明。不过，编码（$\sigma^{-1}$）与解码（$\sigma$）过程互为同构，因此证明其中任一方向即可。为简洁起见，下面只给出正向证明。
+
+\subsubsection{正向证明：稀疏打包密文的解码}
+
+下面证明，对于每个 $M_Y(Y) \in \mathbb{R}[Y] / (Y^{n'} + 1)$（即 $\mathbb{R}[X] / (X^n + 1)$ 中仅指数为 $\dfrac{n}{n'}$ 的倍数的项可能具有非零系数、其余项系数均为零的多项式），其解码结果是某个 $\dfrac{n}{2}$ 槽位输入向量，由前 $\dfrac{n'}{2}$ 个连续槽位值重复 $\dfrac{n}{n'}$ 次构成。
+
+要将 $M(X)$ 解码为输入向量，需要在 $X^n + 1$ 的 $\frac{n}{2}$ 个不同的根（即 $n$ 个不同的本原 $(\mu=2n)$ 次单位根）处对 $M(X)$ 求值。这些根为：
+
+$\bm{(} \text{ } 
+M(\omega^{J(0)}), \text{ } M(\omega^{J(1)}), \cdots,  M(\omega^{J(\frac{n}{2}-1)})\bm{)}$ 
+
+\textcolor{red}{ $\rhd$ 其中 $\omega=e^{\frac{i\pi}{n}}$ 是本原（$\mu=2n$）次单位根的基值与生成元}
+
+$ $
+
+由于 $M(X) = M_Y(X^{\frac{n}{n'}})$，上述求值等价于计算：
+
+$\bm{(} \text{ } 
+M_Y((\omega^{J(0)})^{\frac{n}{n'}}), \text{ } M_Y((\omega^{J(1)})^{\frac{n}{n'}}), \cdots,  M_Y((\omega^{J(\frac{n}{2}-1)})^{\frac{n}{n'}}) \bm{)}$
+
+$ $
+
+$= \bm{(} \text{ } 
+M_Y((\omega^{\frac{n}{n'}})^{J(0)}), \text{ } M_Y((\omega^{\frac{n}{n'}})^{J(1)}), \cdots,  M_Y((\omega^{\frac{n}{n'}})^{J(\frac{n}{2}-1)})\bm{)}$
+
+$ $
+
+$= \bm{(} \text{ } 
+M_Y(\xi^{J(0)}), \text{ } M_Y(\xi^{J(1)}), \cdots,  M_Y(\xi^{J(\frac{n}{2}-1)})\bm{)}$ 
+
+\textcolor{red}{ $\rhd$ 其中 $\xi = e^{\frac{i\pi}{n'}}$ 是本原 $(\mu=2n')$ 次单位根的基值与生成元}
+
+$ $
+
+注意 $\xi = \omega^{\frac{n}{n'}}$。因此，上述对 $M_Y(Y)$ 的求值，会将 $M_Y(Y)$ 在 $\frac{n'}{2}$ 个不同的本原 $(\mu=2n')$ 次单位根处的求值结果重复输出 $\dfrac{n}{n'}$ 次。
+
+
+
+\subsection{模数自举}
+\label{subsec:ckks-bootstrapping}
+
+
+\textbf{- 参考文献：}
+\href{https://eprint.iacr.org/2018/153.pdf}{Bootstrapping for Approximate Homomorphic Encryption}~\cite{ckks}
+
+
+
+在 CKKS 的密文与密文相乘过程中，每个密文都对应某个乘法层级。每次密文乘法都会通过内部的模重缩放操作，使该层级降低一级。当乘法层级达到 0 时，就到达了密文模数链的末端，无法再执行密文与密文相乘。为了继续执行更多密文乘法，CKKS 提供了一种称为\textit{自举}的特殊操作，将密文位于模数链末端的模数 $q_0$ 重置为初始最大模数 $q_L$。该最大模数在基本重缩放方案中为 $q_0\cdot\Delta^{L}$，使用 CRT 时为 $\prod\limits_{m=0}^{L}w_m$，详见 \autoref{subsubsec:ckks-mult-cipher-rescale}。
+
+
+设有乘法深度为 0 的密文 $(A, B)$。对乘法层级为 0（即密文模数为 $q_0$）的密文解密时，若\textit{不}执行模 $q_0$ 约减，则输出：
+
+$\textsf{RLWE}^{-1}\textbf{(}\textsf{ct} = (A, B)\textbf{)}$
+
+$ = B + A\cdot S = \Delta M + E + q_0\cdot K$ \textcolor{red}{ $\rhd$ 因为 $B + A\cdot S \bmod q_0 = \Delta M + E$}
+
+其中，$q_0 \cdot K$ 表示模 $q_0$ 的回绕值，即多项式 $q_0K$ 的每个系数都是 $q_0$ 的某个整数倍。CKKS 的自举过程等价于将密文模数从 $q_0$ \textit{安全地}转换为 $q_L$（其中 $q_L \gg q_0$）。
+
+
+
+\subsubsection{总体思路}
+\label{subsubsec:ckks-bootstrapping-high-level}
+
+自举的第一步，是直接将密文 $(A, B)$ 的模数从 $q_0$ 改为 $q_L$。此时，执行带模 $q_L$ 约减的解密，将输出：
+
+$\textsf{RLWE}^{-1}\textbf{(}\textsf{ct} = (A, B)\textbf{)} \bmod q_L$
+
+$ = B + A\cdot S \bmod q_L$
+
+$= \Delta M + E + q_0 K \bmod q_L$
+
+这里假设 $q_L$ 足够大，使 $\Delta M + E + q_0K \ll q_L$ 成立。由于 $S$ 的系数很小，仅取 $\{-1, 0, 1\}$，因此 $B + A\cdot S$ 的系数不会增长太多，这一假设成立。
+
+
+在 $\Delta M + E + q_0 K \bmod q_L$ 中，$q_0K$ 项不再被模 $q_0$ 约减消去，因此密文解密所得明文多项式的每个 $i$ 次项都会得到被扰动的系数 $\Delta m_i + e_i + q_0\cdot k_i \bmod q_L$，而不是 $\Delta m_i + e_i \bmod q_L$。所以，现在需要消去各系数中的多余项 $q_0\cdot k_i \bmod q_L$，提取出纯粹的明文系数 $\Delta m_i + e_i$。
+
+
+
+\begin{figure}[h!]
+    \centering
+  \includegraphics[width=1.0\linewidth]{figures/modulo-reduction-sine.png}
+  \caption{正弦函数 $f(x) = \dfrac{q_0}{2\pi}\cdot \sin \left(\dfrac{2\pi x}{q_0}\right)$ 满足 $f(\Delta m_i + e_i + q_0k_i) \approx \Delta m_i + e_i$（假设 $\Delta m_i + e_i \ll q_0$）\href{https://eprint.iacr.org/2018/153.pdf}{（来源）}}
+  \label{fig:modulo-reduction-sine}
+\end{figure}
+
+
+为此，采用一种近似方法：使用 \autoref{fig:modulo-reduction-sine} 所示、周期为 $q_0$、振幅为 $\dfrac{q_0}{2\pi}$ 的正弦函数。该函数具有以下两个有用性质：
+ 
+ \begin{enumerate}
+\item 在接近 $q_0$ 的整数倍的 $x$ 处计算 $f(x)$，结果近似等于直线函数 $y = x$ 的值。这是因为 $\sin x$ 的导数（斜率）为 $y' = \cos x$；当 $x$ 是 $2\pi$ 的整数倍时，斜率为 $y' = \cos 2\pi = 1$。
+\item 对 $f(x)$ 求值会消去输入中的 $q_0$ 的整数倍（即执行模约减 $q_0$）
+\end{enumerate}
+
+$ $
+
+结合这两个性质，对于输入 $x = \Delta m_i + e_i + q_0k_i$，有
+
+$f(\Delta m_i + e_i + q_0k_i) = \dfrac{q_0}{2\pi}\cdot \sin \left(\dfrac{2\pi \cdot (\Delta m_i + e_i + q_0k_i))}{q_0}\right) = \dfrac{q_0}{2\pi}\cdot \sin \left(\dfrac{2\pi \cdot (\Delta m_i + e_i))}{q_0}\right) \approx \Delta m_i + e_i$
+
+$ $
+
+
+前提是相对于 $q_0$ 而言，$\Delta m_i + e_i$ 非常接近 0（即 $\Delta m_i + e_i \ll q_0$）。根据 CKKS 方案的构造，明文模数即使乘以尺度因子 $\Delta$，仍显著小于密文模数，因此该条件成立。所以，要从 $\Delta M + E + q_0K$ 中消去 $q_0K$，可以将多项式 $\Delta M + E + q_0K$ 的每个系数代入正弦函数 $f(x)$ 并更新为其求值结果。然而，无法直接更新多项式系数，因为 CKKS（更一般地说，RLWE）只支持输入向量逐槽位的 $(+, \cdot)$ 运算。因此，要更新多项式系数，必须将更新逻辑表达为输入向量逐槽位的算术运算 $(+, \cdot)$。综合这些因素，CKKS 自举的整体过程如 \autoref{tab:ckks-bootstrapping-procedure} 所示。
+
+\begin{table}
+\begin{tabular}{|ll|}
+\hline
+1& \textsf{\textbf{\underline{ModRaise：}}}给定密文 $(A, B) \bmod q_0$，直接将其模数从 $q_0$ 提升至 $q_L$。\\
+& 此时，它加密的内容变为 $\Delta M + E + q_0k$，而非 $\Delta M + E$。\\
+2& \textsf{\textbf{\underline{CoeffToSlot：}}}基于步骤 1 的密文 $(A, B) \bmod q_L$，生成一个新密文，\\
+& 其加密的输入向量中，每个第 $i$ 个槽位存储 $\Delta m_i + e_i + q_0k_i$。\\
+& 这等价于将多项式 $\Delta M + E + q_0K$ 的系数移动到\\
+& 输入向量槽位中。\\
+3& \textsf{\textbf{\underline{EvalExp：}}}使用泰勒级数将正弦函数转换为近似多项式，\\
+& 并结合其他优化方法，例如\\
+& 欧拉公式（$e^{i\theta} = \cos(\theta) + i\cdot\sin(\theta)$）。然后，生成编码这一近似正弦函数的 CKKS 明文，\\
+& 并利用它对步骤 2 加密的向量元素执行同态求值，\\
+& 从而同态地消去每个系数中的 $q_0k_i$。\\
+4& \textsf{\textbf{\underline{SlotToCoeff：}}}基于步骤 3 得到的密文，生成一个新密文，\\
+& 其加密多项式的每个第 $i$ 个系数近似为 $\Delta m_i + e_i$。\\
+& 这等价于将步骤 3 中输入向量槽位里已消去 $q_0k_i$ 的值\\
+& 移回多项式系数的位置。最终密文就是目标密文，\\
+& 它在模 $q_L$ 下近似加密 $\Delta M + E$。\\
+\hline
+\end{tabular}
+\caption{CKKS 自举过程的总体说明}
+\label{tab:ckks-bootstrapping-procedure}
+\end{table}
+%CKKS's bootstrapping procedure described above breaks down into the following 5 steps: \textsf{ModRaise}, \textsf{CoeffToSlot}, \textsf{EvalExp}, \textsf{ImgExt}, and \textsf{SlotToCoeff}.
+
+\subsubsection{总体思路的数学展开}
+\label{subsubsec:ckks-bootstrapping-high-level-correctness}
+
+下面从数学上逐步说明，自举过程（\autoref{tab:ckks-bootstrapping-procedure}）如何将输入密文的模数从 $q_0$ 正确更新为 $q_L$。
+
+为了便于理解，首先假设能够访问秘密密钥 $S(X)$，说明如何对乘法层级为 0（即模数为 $q_0$）的密文执行模数自举。利用该密钥，可以按如下方式解密密文：
+
+$\textsf{RLWE}^{-1}\textbf{(}\textsf{ct} = (A, B)\textbf{)}$ \textcolor{red}{ $\rhd$ 其中 $\textsf{ct}=(A, B) = \textsf{RLWE}_{S, \sigma}\bm(\Delta M \bm)$}
+
+$ = B + A\cdot S = \Delta M + E \bmod q_0$ 
+
+$ = \Delta M + E + q_0K$ \textcolor{red}{ $\rhd$ 其中 $q_0K$ 表示可能出现的模 $q_0$ 回绕值}
+
+最初的目标是只利用以下三种工具，将密文模数从 $q_0$ 自举至 $q_L$：
+
+\begin{itemize}
+\item 秘密密钥 $S$
+\item 批量编码（$\sigma^{-1}$）与解码（$\sigma$）公式
+\item 基于批量编码多项式的输入向量逐槽位批量 $(+, \cdot)$ 运算
+\end{itemize}
+
+$ $
+
+解释上述过程后，再说明如何在无法访问秘密密钥 $S$ 的情况下完成相同的自举。
+
+
+$ $
+
+\para{\textsf{\textbf{\underline{ModRaise}：}}}这一步直接将密文模数从 $q_0$ 改为 $q_L$，然后按如下方式解密：
+
+$\textsf{RLWE}^{-1}\textbf{(}\textsf{ct} = (A, B)\textbf{)} = B + A\cdot S = \Delta M + E + q_0 K \bmod q_L$
+
+注意，密文解密所得明文多项式的每个第 $i$ 个系数都被扰动为 $\Delta m_i + e_i + q_0\cdot k_i \bmod q_L$。因此，需要消去各系数中的多余项 $q_0k_i \bmod q_L$，提取纯粹的明文系数 $\Delta m_i + e_i$。
+
+$ $
+
+\para{\textsf{\textbf{\underline{CoeffToSlot}：}}}这一步生成一个新的明文多项式，使其对应输入向量的每个第 $i$ 个槽位存储被扰动的系数 $(m_i + e_i + q_0k_i)$。实现方法是：将 CKKS 批量编码映射 $\sigma^{-1}$（表示 \autoref{subsec:ckks-encoding-decoding} 中说明的变换 $\vec{m} = \dfrac{\hathat W \cdot I_n^R \cdot \vec{v}_{'}}{n}$）应用于编码得到多项式 $\Delta M + E + q_0 K \bmod q_L$ 的输入向量槽位。设 $\vec{v}_c$ 是与多项式 $\Delta M + E + q_0 K$ 对应的输入向量，则 $\vec{v}_c$ 与 $\Delta M + E + q_0 K$ 在编码映射 $\sigma^{-1}$ 下满足：
+
+$\sigma^{-1}\bm(\vec{v}_c\bm) = M_c = \sum\limits_{i=0}^{n-1}(\Delta m_i + e_i + q_0k_i)\cdot X^{i}$ \textcolor{red}{ $\rhd$ 即多项式 $\Delta M + E + q_0K$}
+
+这意味着，如果将变换 $\sigma^{-1}$ \textit{同态地}应用于输入向量 $\vec{v}_c$ 的元素，那么所得输入向量 $\vec{v}_s$ 就会存储 $\vec{v}_c$ 编码后的多项式系数值：
+
+$\sigma^{-1} \circ \vec{v}_c = \vec{v}_s = (\Delta m_0 + e_0 + q_0k_0, \text{ } \Delta m_1 + e_1 + q_0k_1, \text{ } \cdots, \text{ } \Delta m_{n-1} + e_{n-1} + q_0k_{n-1})$  
+
+\textcolor{red}{ $\rhd$ 其中 $\circ$ 表示由 $(+, \cdot)$ 构成的线性变换操作}
+
+$ $
+
+
+
+
+不过，回顾一下，\textsf{ModRaise} 步骤结束后得到的是解密后的多项式 $M_c = \textsf{RLWE}^{-1}\textbf{(}\textsf{ct} = (A, B)\bm) = \Delta M + E + q_0K$（其受到 $q_0k$ 的扰动），并且不允许将其解码为 $\vec{v}_c$。因此，改为将编码变换 $\sigma^{-1}$（$\vec{m} = \dfrac{\hathat W \cdot I_n^R \cdot \vec{v}_{'}}{n}$）中的矩阵 $\hathat W \cdot I_n^R$ \textit{编码}为等价的多项式（把矩阵视为若干向量的组合），再在 $M_c$ 与 $\hathat W \cdot I_n^R$ 的多项式形式之间执行批量逐槽位 $(+, \cdot)$ 运算。这种基于多项式的计算表示为：
+
+$M_s = \sigma^{-1}_{\sigma^{-1}} \circ M_c \bmod q_L$
+\textcolor{red}{ $\rhd$ $\sigma^{-1}_{\sigma^{-1}}$ 是变换 $\sigma^{-1}$ 的多项式编码形式}
+
+于是，所得多项式 $M_s$ 对应的输入向量槽位（即 $M_s$ 的解码结果）将存储 $\vec{v}_s = (\Delta m_0 + e_0 + q_0k_0, \text{ } \Delta m_1 + e_1 + q_0k_1, \text{ } \cdots, \text{ } \Delta m_{n-1} + e_{n-1} + q_0k_{n-1})$。换言之，上述计算实际上将 $M_c$ 的系数\textit{移动}到了一个新的明文多项式所对应的输入向量槽位中。
+
+但要注意，CKKS 的输入向量最多只能存储 $\dfrac{n}{2}$ 个槽位，而需要把 $M_c$ 的全部 $n$ 个系数都存入输入向量槽位。因此，实际需要构造两个 $M_s$，分别为 $M_{s1}$ 与 $M_{s2}$：$M_{s1}$ 的输入向量存储 $(\Delta m_0 + e_0 + q_0k_0, \text{ } \Delta m_1 + e_1 + q_0k_1, \text{ } \cdots, \text{ } \Delta m_{\frac{n}{2}-1} + e_{\frac{n}{2}-1} + q_0k_{\frac{n}{2}-1})$，$M_{s2}$ 的输入向量存储 $(\Delta m_{\frac{n}{2}} + e_{\frac{n}{2}} + q_0k_{\frac{n}{2}}, \text{ } \cdots, \text{ } \Delta m_{n-1} + e_{n-1} + q_0k_{n-1})$。
+
+$ $
+
+\para{\textsf{\textbf{\underline{EvalExp}:}}}
+下一步通过正弦函数 $f(x)$ 求值，将 $\vec{v}_s$ 的每个元素 $m_i + e_i + q_0k_i$ 更新为 $m_i + e_i$。由于 \textsf{CoeffToSlot} 步骤输出的是多项式 $M_s$（实际为 $M_{s1}$ 与 $M_{s2}$），因此需要在编码形式下应用这一求值变换。首先，使用泰勒级数和欧拉公式（稍后解释），将 $f(x)$ 近似为仅由 $(+, \cdot)$ 运算组成的线性组合。然后，对该近似公式进行编码（即 $\sigma$），得到多项式形式，并记为 $\sigma_f$。最后，将变换 $\sigma_f$ 应用于 $M_s$：
+
+$\sigma^{-1}_f \circ M_s \bmod q_L$  \textcolor{red}{ $\rhd$ 将正弦函数对应的线性变换应用于 $\vec{v}_s$ 中存储 $\Delta m_i + e_i + q_0k_i$ 的各个槽位}
+
+$= M_t = \sigma\bm{(}\vec{v}_t\bm{)} = \sigma\bm{(}(\Delta m_i + e_i)_{i=0}^{n-1}\bm{)} \bmod q_L$
+
+$ $
+
+执行正弦函数对应的线性变换后，$\vec{v}_s$ 的槽位中的每个 $q_0 k_i$ 项均被消去（即模 $q$ 约减），所得向量 $\vec{v}_t$ 中仅存储 $\Delta m_i + e_i$ 项。
+
+
+$ $
+
+\para{\textsf{\textbf{\underline{SlotToCoeff}:}}}
+现在已有多项式 $M_t$，其对应输入向量 $\vec{v}_t$ 的槽位存储了原始明文多项式去除多余项后的系数（即 $\Delta m_i + e_i$）。下一步是将存储在 $\vec{v}_t$ 中的这些系数放回多项式。这正是 \textsf{CoeffToSlot} 的逆操作：
+
+$\sigma^{-1}_{\sigma} \circ M^t = M_b$ 
+\textcolor{red}{ $\rhd$ $\sigma^{-1}_{\sigma}$ 是批量解码公式 $\vec{v}_{'} = \hathat W^* \cdot \vec{m}$（\autoref{subsec:ckks-encoding-decoding}）的多项式编码形式}
+
+所得多项式 $M_b$ 的系数是 $M_c$ 去除多余项（即不含 $q_0k_i$）后的形式。最后，将 $M_b$ 重新加密为 $\textsf{RLWE}_{S, \sigma}(M_b)$，即最终完成模数自举的密文。
+
+
+$ $
+
+\para{\textsf{\textbf{\underline{不使用秘密密钥的自举}：}}}目前为止，我们假设可以访问秘密密钥 $S$。在允许解密和重新加密的条件下，上述自举步骤在数学上等价于以下计算：
+
+\begin{enumerate}
+\item \textsf{\textbf{\underline{输入}：}}$\textsf{ct} = (A, B) \bmod q_0$ \textcolor{red}{ $\rhd$ 其中 $\textsf{ct}=(A, B) = \textsf{RLWE}_{S, \sigma}\bm(\Delta M \bm)$}
+
+\item \textsf{\textbf{\underline{ModRaise}:}} $\textsf{ct} = (A, B) \bmod q_L$
+
+\item \textsf{\textbf{\underline{解密}：}}
+$\textsf{RLWE}^{-1}\textbf{(}\textsf{ct} = (A, B)\textbf{)} \textbf{)} \bmod q_L$
+
+\item \textsf{\textbf{\underline{CoeffToSlot}:}} $\sigma^{-1}_{\sigma^{-1}} \circ \textsf{RLWE}^{-1}\textbf{(}\textsf{ct} = (A, B)\textbf{)} \textbf{)} \bmod q_L$
+
+\item \textsf{\textbf{\underline{EvalExp}:}} $\sigma^{-1}_f \circ (\sigma^{-1}_{\sigma^{-1}} \circ \textsf{RLWE}^{-1}\textbf{(}\textsf{ct} = (A, B)\textbf{)} \textbf{)}) \bmod q_L$
+
+\item \textsf{\textbf{\underline{SlotToCoeff}:}} $\sigma^{-1}_{\sigma} \circ (\sigma^{-1}_f \circ (\sigma^{-1}_{\sigma^{-1}} \circ \textsf{RLWE}^{-1}\textbf{(}\textsf{ct} = (A, B)\textbf{)} \textbf{)})) \bmod q_L$
+
+\item \textsf{\textbf{\underline{重新加密}：}}$\textsf{RLWE}_{S, \sigma}\bm(\sigma^{-1}_{\sigma} \circ (\sigma^{-1}_f \circ (\sigma^{-1}_{\sigma^{-1}} \circ \textsf{RLWE}^{-1}\textbf{(}\textsf{ct} = (A, B)\textbf{)} \textbf{)}))\bm) \bmod q_L$
+
+\end{enumerate}
+
+$ $
+
+不过，CKKS 自举的最终目标是在无法访问 $S$ 的情况下，将密文模数从 $q_0$ 重置为 $q_L$。
+
+一个关键观察是，对密文 $(A, B) \bmod q_0$ 执行从 $q_0 \rightarrow q_L$ 开始的 CKKS \textsf{ModRaise} 过程，实际上会将该密文转换为一个加密 $\Delta M + q_0K$ 的新密文。在 \textsf{ModRaise} 之前，密文 $(A, B) \bmod q_0$ 的解密关系为：
+
+$A\cdot A + B = \Delta M + E + Kq_0 \bmod q_0 = \Delta M + E$ 
+
+$ $
+
+通过 \textsf{ModRaise} 将模数提升到 $(A, B) \bmod q_L$ 后，其解密关系为：
+
+$A\cdot S + B = \Delta M + E + Kq_0 \bmod q_L = \Delta M + E + Kq_0$ \textcolor{red}{ $\rhd$ 因为 $\Delta M + E + Kq_0 \ll q_L$}
+
+$ $
+
+因此，\textit{提升模数后的}密文为 $(A, B) \bmod q_L = \textsf{RLWE}_{S, \sigma}(\Delta M + Kq_0)$，噪声为 $E$。CKKS 的\textit{同态}自举策略，就是以密文 $(A, B) \bmod q_L$ 为基础，\textsf{同态地}执行后续的 \textsf{CoeffToSlot}、\textsf{EvalExp} 和 \textsf{SlotToCoeff} 步骤。执行这三个步骤会消耗若干乘法层级：同态计算系数到槽位与槽位到系数的变换矩阵乘法，以及在正弦近似中同态计算 $X$ 的幂（即 $X^k$）时，都需要密文与密文相乘。因此，三个步骤完成后，密文模数按 $q_L \rightarrow q_l$ 降低（其中 $l$ 是满足 $l < L$ 的某个整数）。
+
+
+注意，如果忽略最终密文模数与噪声的小差异，同态自举与基于解密、重新加密的显式自举得到相同的结果。下面各小节将解释 \textsf{CoeffToSlot}、\textsf{EvalExp} 与 \textsf{SlotToCoeff} 的具体代数过程。
+
+\subsubsection{细节：\textsf{CoeffToSlot}}
+\label{subsubsec:ckks-bootstrapping-coefftoslot-details}
+
+将 $M_c$ 的系数（即对 $0 \leq i \leq n - 1$ 而言的 $\Delta m_i + e_i + q_0k_i$）同态地移动到新密文的输入向量槽位，在数学上等价于同态计算 $\sigma^{-1}_{\sigma^{-1}} \circ (\textsf{RLWE}_{S, \sigma}\bm{(}\textsf{ct} = (A, B)\bm))$，也就是把编码公式应用于 $\textsf{RLWE}_{S, \sigma}\bm{(}\textsf{ct} = (A, B)\bm)$ 的输入向量槽位值。
+
+
+
+如总结~\ref*{subsec:ckks-rotation}（\autoref{subsec:ckks-rotation}）所述，将输入向量转换为多项式系数列表的编码公式是 $\vec{m} = \dfrac{\hathat W \cdot I_n^R \cdot \vec{v}_{'}}{n}$，其中 $\hathat W$ 是按如下方式构造的 $n$ 维向量空间的一组基：
+
+$ $
+
+\noindent{\small{$\noindent\hathat W = \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1 & 1 & \cdots & 1\\
+(\omega^{J(\frac{n}{2} - 1)}) & (\omega^{J(\frac{n}{2} - 2)}) & \cdots & (\omega^{J(0)}) & (\omega^{J_*(\frac{n}{2} - 1)}) & (\omega^{J_*(\frac{n}{2} - 2)}) & \cdots & (\omega^{J_*(0)})\\
+(\omega^{J(\frac{n}{2} - 1)})^2 & (\omega^{J(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J(0)})^2 & (\omega^{J_*(\frac{n}{2} - 1)})^2 & (\omega^{J_*(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J_*(0)})^2 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega^{J(\frac{n}{2} - 1)})^{n-1} & (\omega^{J(\frac{n}{2} - 2)})^{n-1} & \cdots & (\omega^{J(0)})^{n-1} & (\omega^{J_*(\frac{n}{2} - 1)})^{n-1} & (\omega^{J_*(\frac{n}{2} - 2)})^{n-1} & \cdots  & (\omega^{J_*(0)})^{n-1}
+\end{bmatrix}$}}
+
+$ $
+
+\textcolor{red}{ $\rhd$ 其中旋转辅助函数为 $J(h) = 5^h \bmod 2n$}
+
+$ $
+
+因此，给定输入密文 $\textsf{ct}_{\textsf{c}} = \textsf{RLWE}_{S, \sigma}\bm{(}\textsf{ct} = (A, B)\bm) \bmod q_L$，其明文多项式 $M_c$ 的系数已受到扰动，计算 $\sigma^{-1}_{\sigma^{-1}} \text{ } \circ \text{ } \textsf{ct}_{\textsf{c}}$ 就等价于计算 $\dfrac{\hathat W \cdot I_n^R \cdot \textsf{ct\textsubscript{c}}}{n}$。但问题在于，每个 CKKS 密文仅编码 $\dfrac{n}{2}$ 个输入向量槽位，而目标是移动 $\textsf{ct\textsubscript{c}}$ 所加密的明文多项式 $M_c$ 的 $n$ 个被扰动系数。因此，改为生成两个密文 $\textsf{ct}_{\textsf{s1}}$ 和 $\textsf{ct}_{\textsf{s2}}$，使 $\textsf{ct}_{\textsf{s1}}$ 的输入向量槽位存储 $(\Delta m_i + e_i + q_0k_i)_{0 \leq i < \frac{n}{2}}$，而 $\textsf{ct}_{\textsf{s2}}$ 的输入向量槽位存储 $(\Delta m_i + e_i + q_0k_i)_{\frac{n}{2} \leq i < n}$。
+
+下面利用矩阵分块技术。将 $n \times n$ 矩阵 $\hathat{W}$ 分为四个 $\frac{n}{2} \times \frac{n}{2}$ 的子块，并与向量 $\vec{v}'$ 相乘时，标准矩阵乘法为：
+
+$$\begin{bmatrix} \hathat{W}_{11} & \hathat{W}_{12} \\ \hathat{W}_{21} & \hathat{W}_{22} \end{bmatrix} \begin{bmatrix} \vec{a} \\ \vec{b} \end{bmatrix} = \begin{bmatrix} \hathat{W}_{11}\vec{a} + \hathat{W}_{12}\vec{b} \\ \hathat{W}_{21}\vec{a} + \hathat{W}_{22}\vec{b} \end{bmatrix}$$
+
+在本例中，$\vec{a} = (v_0, \dots, v_{\frac{n}{2}-1})$（$\vec{v}'$ 的前半部分），$\vec{b} = (\overline{v}_0, \dots, \overline{v}_{\frac{n}{2}-1})$（$\vec{v}'$ 的后半部分）。
+
+$ $
+
+因此，将 $n \times n$ 矩阵 $\hathat W$ 分为以下四个 $\dfrac{n}{2} \times \dfrac{n}{2}$ 矩阵：
+
+\begin{itemize}
+\item $[\hathat W]_{11}$：由 $\hathat W$ 的左上部分构成的矩阵
+\item $[\hathat W]_{12}$：由 $\hathat W$ 的右上部分构成的矩阵
+\item $[\hathat W]_{21}$：由 $\hathat W$ 的左下部分构成的矩阵
+\item $[\hathat W]_{22}$：由 $\hathat W$ 的右下部分构成的矩阵
+\end{itemize}
+
+$ $
+
+于是，可以按如下方式计算 $\textsf{ct}_{\textsf{s1}}$ 与 $\textsf{ct}_{\textsf{s2}}$：
+
+$\textsf{ct}_{\textsf{s1}} = \dfrac{[\hathat W]_{11} \cdot I_{\frac{n}{2}}^R \cdot \mathit{\overline{\textsf{ct\textsubscript{c}}}} + [\hathat W]_{12} \cdot I_{\frac{n}{2}}^R \cdot \textsf{ct\textsubscript{c}}}{n}$
+
+$\textsf{ct}_{\textsf{s2}} = \dfrac{[\hathat W]_{21} \cdot I_{\frac{n}{2}}^R \cdot \mathit{\overline{\textsf{ct\textsubscript{c}}}} + [\hathat W]_{22} \cdot I_{\frac{n}{2}}^R \cdot \textsf{ct\textsubscript{c}}}{n}$
+
+
+
+其中，$\mathit{\overline{\textsf{ct\textsubscript{c}}}}$ 可通过对 \textsf{ct\textsubscript{c}} 执行同态共轭（\autoref{subsec:ckks-conjugation}）来计算。每个同态矩阵与向量乘法（如 $[\hathat W]_{21} \cdot I^R_{\frac{n}{2}}\overline{\textsf{ct\textsubscript{c}}}$）都可以采用减少同态旋转次数的高效方式执行（\autoref{subsec:bfv-matrix-multiplication}）。
+
+
+
+\subsubsection{细节：\textsf{EvalExp}}
+\label{subsubsec:ckks-bootstrapping-evalexp-details}
+
+利用正弦函数 $f(x) = \dfrac{q_0}{2\pi}\cdot \sin\left(\dfrac{2\pi x}{q_0}\right)$，通过计算 $f(\Delta m_i + e_i + q_0k_i) \approx \Delta m_i + e_i$，从 $\Delta m_i + e_i + q_0k_i$ 中近似消去 $q_0k_i$。当相对于 $q_0$ 而言，$\Delta m_i + e_i$ 非常接近 $x=0$（即 $\Delta m_i + e_i \ll q_0$）时，该近似有效。不过，对 $q_0k_i$ 的消去仍然是近似的（即 $\approx \Delta m_i + e_i$），因为在 $x=0$ 附近，$f(x)$ 为 $y \approx x$，而并非精确的 $y = x$。
+
+这里的一个问题是，需要以 \textsf{ct\textsubscript{s1}} 与 \textsf{ct\textsubscript{s2}} 为输入（即 $f(\textsf{ct\textsubscript{s1}})$ 与 $f(\textsf{ct\textsubscript{s2}})$），同态求值 $f(x)$；但 FHE 仅支持 $(+, \cdot)$ 运算，而正弦曲线无法仅用 $(+, \cdot)$ 精确表示。因此，使用泰勒级数（\autoref{sec:taylor-series}）来近似正弦函数 $f(x)$：
+
+$f(x) = f(a) + \dfrac{f'(a)}{1!}(x-a) + \dfrac{f''(a)}{2!}(x-a)^2 + \dfrac{f'''(a)}{3!}(x-a)^3 + \cdots = \sum\limits_{d=0}^{\infty}\dfrac{f^{(d)}(a)}{d!}(x-a)^d$ 
+
+$ $
+
+如果在 $x = 0$ 附近近似 $f(x)$，则近似多项式为：
+
+$f(x) = \dfrac{q_0}{2\pi}\cdot \sin\left(\dfrac{2\pi}{q_0}\cdot 0\right) + \dfrac{q_0}{2\pi}\cdot\dfrac{2\pi}{q_0}\cdot\dfrac{\cos\left(\dfrac{2\pi}{q_0} \cdot 0\right)}{1!}\cdot x + \dfrac{q_0}{2\pi}\cdot \left(\dfrac{2\pi}{q_0}\right)^{2}\cdot\dfrac{-\sin\left(\dfrac{2\pi}{q_0} \cdot 0\right)}{2!}\cdot x^2 + \cdots$
+
+$ = \dfrac{q_0}{2\pi}\cdot \sum\limits_{j=0}^{\infty}\left(\dfrac{(-1)^j}{(2j + 1)!}\cdot \left(\dfrac{2\pi x}{q_0}\right)^{2j + 1}\right)$
+
+$ \approx \dfrac{q_0}{2\pi}\cdot \sum\limits_{j=0}^{h}\left(\dfrac{(-1)^j}{(2j + 1)!}\cdot \left(\dfrac{2\pi x}{q_0}\right)^{2j + 1}\right) = \hat f(x)$
+
+$ $
+
+其中，$\hat{f}(x)$ 是 $(2h + 1)$ 次多项式。
+
+回顾 RLWE 密码系统中的关系：$B + AS \bmod q_0 = \Delta M + E$，或者写为 $B + AS = \Delta M + E + q_0K$，其中多项式 $K$ 表示模 $q_0$ 的回绕值。秘密密钥 $S$ 是一个 $(n-1)$ 次多项式，其系数很小（即 $s_i \in \{-1, 0, 1\}$），所以 $K$ 的系数具有某个\textit{合理小}的上界。该上界会随着 $S$ 稀疏程度的提高（即 $S$ 中零系数比例的提高）而降低。因此，近似多项式 $\hat f(x)$ 的次数只需足以准确求值 $-q_0\cdot \mathit{k_{max}} \leq x \leq q_0\cdot \mathit{k_{max}}$ 范围内的 $y$。
+近似泰勒多项式 $\hat f(x)$ 所需的最低次数随 $q_0\mathit{k_{max}}$（即 $x$ 的上界）增大而提高。一个问题是，多项式同态求值的计算开销通常随多项式次数呈指数增长，从而使自举变慢。为了减少计算开销，下面利用欧拉公式（\autoref{sec:euler}）及其平方运算：
+
+\[
+\begin{cases}
+e^{i\cdot \theta} = \cos \theta + i \cdot \sin \theta\\
+(e^{i \cdot \theta})^2 = e^{i\cdot 2\theta}\\
+\end{cases}
+\]
+
+代入 $\theta = \dfrac{2\pi x}{q_0}$ 后，可以利用欧拉公式。同样使用泰勒级数近似 $e^{i\theta}$，但不直接近似 $e^{i\theta}$，而是先选取较大的 $2^r$，近似 $e^{\frac{i\theta}{2^r}}$。之后，对 $e^{\frac{i\theta}{2^r}}$ 连续平方 $r$ 次，即可得到 $(e^{\frac{i\theta}{2^r}})^{2^r} = e^{i\theta}$ 的近似值。之所以从 $e^{\frac{i\theta}{2^r}}$ 的近似开始，而非直接近似 $e^{i\theta}$，是因为只要 $2^r$ 足够大，$\dfrac{\theta}{2^r}$（即复指数函数的输入）就足够小，从而只需较低次数的近似多项式。具体而言，我们已知 $x$（$= \Delta m_i + e_i + q_0k_i$）的上界为 $q_0\mathit{k_{max}}$，因此 $\theta = \dfrac{2\pi x}{q_0}$ 的上界为 $\dfrac{2\pi\mathit{k_{max}}}{2^r}$。由于 $f(x)$ 中需要近似的 $x$ 的取值范围较小，只需使用低次泰勒多项式。
+
+在 $x = 0$ 附近使用 $d_0$ 次泰勒级数，可将 $e^{\frac{2\pi i x}{2^r q_0}}$ 近似为：
+
+$f_e(x) = e^{\frac{2\pi i x}{2^r q_0}} \approx \sum\limits_{d=0}^{d_0}\dfrac{1}{d!}\left(\dfrac{2\pi i x}{2^rq_0}\right)^d = \hat{f}_e(x)$
+
+$ $
+
+然后，将 $\hat{f}_e$ 连续平方 $r$ 次，得到：
+
+$(\hat{f}_e(x))^{2^r} \approx (f_e(x))^{2^r} = e^{i\frac{2\pi x}{q_0}} = e^{i\theta}$
+
+$ $
+
+接着，依据欧拉公式 $e^{i\cdot \theta} = \cos \theta + i \cdot \sin \theta$，可以推导如下关系：
+
+$ $
+
+$\overline{e^{i\cdot \theta}} = \cos \theta + \overline{i \cdot \sin \theta} $
+
+$ e^{-i\cdot \theta} = \cos \theta - i \cdot \sin \theta$
+
+$ e^{i\cdot \theta} - e^{-i\cdot \theta} = (\cos \theta + i \cdot \sin \theta) - (\cos \theta - i \cdot \sin \theta) = 2i\sin \theta$
+
+$\sin \theta = \dfrac{-i}{2} \cdot (e^{i\cdot \theta} - e^{-i\cdot \theta})$
+
+$\dfrac{q_0}{2\pi}\cdot \sin \theta = \dfrac{q_0}{2\pi}\cdot \dfrac{-i}{2} \cdot (e^{i\cdot \theta} - e^{-i\cdot \theta})$
+
+$ $
+
+代入 $\theta = \dfrac{2\pi x}{q_0}$，最终得到：
+
+$\dfrac{q_0}{2\pi}\cdot \sin \left(\dfrac{2\pi x}{q_0}\right) = \dfrac{q_0}{2\pi}\cdot \dfrac{-i}{2} \cdot (e^{i\cdot \frac{2\pi x}{q_0}} - e^{-i\cdot \frac{2\pi x}{q_0}})$
+
+$ $
+
+利用上述最终关系，\textsf{EvalExp} 步骤按如下方式同态求值 $\dfrac{q_0}{2\pi}\cdot \sin \left(\dfrac{2\pi x}{q_0}\right)$ 的近似值，其中 $x = \Delta m_i + e_i + q_0k_i$：
+
+\begin{enumerate}
+\item 同态地近似计算 $\hat{f}(x) = e^{i\cdot \frac{2\pi x}{q_0}}$。
+\item 对 $\hat{f}(x)$ 应用同态共轭（\autoref{subsec:ckks-conjugation}），同态地近似计算 $\overline{\hat{f}(x)} = e^{-i\cdot \frac{2\pi x}{q_0}}$。
+\item 同态计算 $\hat{f}(x) - \overline{\hat{f}(x)} = e^{i\cdot \frac{2\pi x}{q_0}} -  e^{-i\cdot \frac{2\pi x}{q_0}}$，再乘以编码为 CKKS 明文的 $\dfrac{-i}{2}$。
+\end{enumerate}
+
+$ $
+
+\textsf{EvalExp} 的结果是两个密文，其输入向量槽位存储了 $M_c$ 自举后的系数，即通过模约减 $q_0$ 将 $\Delta m_i + e_i + q_0k_i$ 转换为 $\Delta m_i + e_i + e_{bi}$。注意，$e_{bi}$ 是由以下三个因素产生的自举误差：（1）\textsf{CoeffToSlot}、\textsf{EvalExp} 和 \textsf{SlotToCoeff} 步骤固有的同态 $(+, \cdot)$ 运算噪声；（2）\textsf{EvalExp} 步骤中用泰勒多项式近似指数函数 $e^{i\theta}$ 产生的误差；（3）\textsf{EvalExp} 步骤的正弦曲线误差，因为曲线在 $x=0$ 附近并非精确等于 $y=x$，而只是 $y \approx x$。
+
+注意，由于 \textsf{CoeffToSlot} 的输出被分为两个密文（\textsf{ct\textsubscript{s1}} 与 \textsf{ct\textsubscript{s2}}），\textsf{EvalExp} 的输出也包含两个密文：\textsf{ct\textsubscript{b1}} 与 \textsf{ct\textsubscript{b2}}。\textsf{ct\textsubscript{b1}} 的输入向量槽位存储 $(\Delta m_i + e_i + e_{bi})_{i=0}^{\frac{n}{2} - 1}$，而 \textsf{ct\textsubscript{b2}} 的输入向量槽位存储 $(\Delta m_i + e_i + e_{bi})_{i=\frac{n}{2}}^{n - 1}$。
+
+
+\subsubsection{细节：\textsf{SlotToCoeff}}
+\label{subsubsec:ckks-bootstrapping-slottocoeff-details}
+
+这一步是 \textsf{CoeffToSlot} 的严格逆操作，将输入向量槽位中存储的 $M_v$ 自举后的系数（即已执行模约减 $q_0$ 的系数）移回最终明文多项式 $M_f$。回顾由多项式到输入向量的解码公式（\autoref{subsec:ckks-encoding-decoding}）：$\vec{v}_{'} = \hathat W^* \cdot \vec{m}$，其中：
+
+
+
+
+$\hathat{W}^* = \begin{bmatrix}
+1 & (\omega^{J(0)}) & (\omega^{J(0)})^2 & \cdots & (\omega^{J(0)})^{n-1}\\
+1 & (\omega^{J(1)}) & (\omega^{J(1)})^2 & \cdots & (\omega^{J(1)})^{n-1}\\
+1 & (\omega^{J(2)}) & (\omega^{J(2)})^2 & \cdots & (\omega^{J(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J(\frac{n}{2}-1)}) & (\omega^{J(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J(\frac{n}{2}-1)})^{n-1}\\
+1 & (\omega^{J_*(\frac{n}{2}-1)}) & (\omega^{J_*(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J_*(\frac{n}{2}-1)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J_*(1)}) & (\omega^{J_*(1)})^2 & \cdots & (\omega^{J_*(1)})^{n-1}\\
+1 & (\omega^{J_*(0)}) & (\omega^{J_*(0)})^2 & \cdots & (\omega^{J_*(0)})^{n-1}\\
+\end{bmatrix}$
+
+$ $
+
+$ $
+
+用 $[\hathat W^*]_{11}$、$[\hathat W^*]_{12}$、$[\hathat W^*]_{21}$ 和 $[\hathat W^*]_{22}$ 分别表示 $\hathat W^*$ 的左上、右上、左下和右下部分对应的 $\dfrac{n}{2} \times \dfrac{n}{2}$ 矩阵。同态应用解码公式后，得到最终模 $q_L$ 的自举密文 \textsf{ct\textsubscript{final}}，其明文多项式从 $\Delta M + E + q_0K \bmod q_L$ 变为消去多余项后的 $\Delta M + E + E_b \bmod q_l$（其中 $E_b$ 是自举误差多项式）。注意，密文模数按 $q_L \rightarrow q_l$ 改变（对于某个 $l < L$），因为在多项式求值（即 $X^k$）过程中，密文与密文相乘消耗了部分乘法层级。
+
+$$\begin{bmatrix} \hathat{W}^*_{11} & \hathat{W}^*_{12} \\ \hathat{W}^*_{21} & \hathat{W}^*_{22} \end{bmatrix} \begin{bmatrix} \vec{m}_1 \\ \vec{m}_2 \end{bmatrix} = \begin{bmatrix} \hathat{W}^*_{11}\vec{m}_1 + \hathat{W}^*_{12}\vec{m}_2 \\ \hathat{W}^*_{21}\vec{m}_1 + \hathat{W}^*_{22}\vec{m}_2 \end{bmatrix}$$
+
+$ $
+
+在本例中，$\vec{m}_1 = \textsf{ct\textsubscript{b1}}$，且 $\vec{m}_2 = \textsf{ct\textsubscript{b2}}$。对 \textsf{EvalExp} 的结果（\textsf{ct\textsubscript{b1}} 与 \textsf{ct\textsubscript{b2}}）同态应用解码变换 $\hathat{W}^*$，可按如下方式得到 \textsf{ct\textsubscript{final}}：
+
+
+$\textsf{ct\textsubscript{final}} = \textsf{RLWE}_{S, \sigma}\bm(\Delta M + E + E_{b}\bm) = [\hathat W^*]_{11} \cdot \textsf{ct\textsubscript{b1}} + [\hathat W^*]_{12} \cdot \textsf{ct\textsubscript{b2}}$
+
+$\overline{\textsf{ct\textsubscript{final}}} = \textsf{RLWE}_{S, \sigma}\bm(\Delta M + E + E_{b}\bm) = [\hathat W^*]_{21} \cdot \textsf{ct\textsubscript{b1}} + [\hathat W^*]_{22} \cdot \textsf{ct\textsubscript{b2}}$
+
+$ $
+
+注意，不需要计算 $\overline{\textsf{ct\textsubscript{final}}}$（即 $\textsf{ct\textsubscript{final}}$ 的同态共轭），因为只需得到 $\dfrac{n}{2}$ 个输入向量槽位，其解码结果就能给出最终 $(n-1)$ 次多项式的 $n$ 个系数 $(\Delta m_i + e_i + e_{bi})_{i=0}^{n-1}$。一旦生成了新密文 \textsf{ct\textsubscript{final}}，且其 $\dfrac{n}{2}$ 个输入向量槽位存储 $(\Delta m_i + e_i + e_{bi})_{i=0}^{n-1}$，后 $\dfrac{n}{2}$ 个共轭槽位就会自动填入前 $\dfrac{n}{2}$ 个槽位值的共轭。
+
+$\textsf{ct\textsubscript{final}} = \textsf{RLWE}_{S, \sigma}(\Delta M + E + E_b)$ 
+$= \textsf{SlotToCoeff}(\textsf{ct\textsubscript{b1}}, \textsf{ct\textsubscript{b2}})$
+
+\subsubsection{通过稀疏打包密文降低自举开销}
+\label{subsubsec:ckks-bootstrapping-time-reduction}
+
+在许多情况下，CKKS 应用只使用全部 $\dfrac{n}{2}$ 个槽位中的少量输入向量槽位（例如 $\dfrac{n'}{2}$）。设这样的 $n'$ 可以整除 $n$，则可以通过一系列同态旋转与乘法，使输入向量槽位存储 $\dfrac{n'}{2}$ 个槽位值的 $\dfrac{n}{n'}$ 次重复。具体而言，只需总计 $\dfrac{n}{n'}$ 轮旋转与加法：首先，用掩码将第 $\frac{n'}{2}$ 个至第 $\frac{n}{2} - 1$ 个槽位置零，并保存为 \textsf{ct}；然后，在每个第 $i$ 轮计算 $\textsf{ct} = \textsf{ct} +  \textsf{Rotate}\bm(\textsf{ct}, -n' \cdot 2^i\bm)$。
+
+随后，应用总结~\ref{subsec:ckks-sparse-packing}（\autoref{subsec:ckks-sparse-packing}）中的稀疏打包密文优化：若一个 $\dfrac{n}{2}$ 槽位输入向量由前 $\dfrac{n'}{2}$ 个槽位值连续重复 $\dfrac{n}{n'}$ 次构成，则其编码后的多项式 $M(X) \in \mathbb{Z}[X] / (X^{n} + 1)$ 中，所有指数不是 $\dfrac{n}{n'}$ 的倍数的项的系数均为零：
+
+$M(X) = c_0 + c_{\frac{n}{n'}}X^{\frac{n}{n'}} + c_{\frac{2n}{n'}}X^{\frac{2n}{n'}} + \cdots + c_{n - \frac{n}{n'}}X^{n - \frac{n}{n'}}$. 
+
+回顾 \textsf{CoeffToSlot} 步骤（\autoref{subsubsec:ckks-bootstrapping-coefftoslot-details}），其中使用公式 $\vec{m} = \dfrac{\hathat W \cdot I_n^R \cdot \vec{v}_{'}}{n}$ 将受到 $q_0k$ 扰动的多项式系数移至输入向量槽位。根据稀疏打包密文的性质，$\vec{m}$ 中索引不是 $\dfrac{n}{n'}$ 的倍数的槽位都存储零系数。这意味着，即使只取 $\hathat W$ 中行索引是 $\dfrac{n}{n'}$ 的倍数的行来计算公式 $\vec{m} = \dfrac{\hathat W \cdot I_n^R \cdot \vec{v}_{'}}{n}$，仍会得到相同结果。从数学上，可将编码公式更新为 $\vec{m_s} = \dfrac{ \text{\rotatecharone{E}} \cdot I_{n'}^R \cdot \vec{v}_{'}}{n'}$，其中 $n \times \frac{n}{n'}$ 矩阵 \rotatecharone{E} 是从 $\hathat W$ 中删除所有列索引不是 $\dfrac{n}{n'}$ 的倍数的列而得到的：
+
+{\footnotesize{\hspace{-1cm}\noindent $\text{\rotatecharone{E}} = \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1 & \cdots & 1 & 1\\
+(\xi^{J(\frac{0\cdot n}{n'}-n')}) & (\xi^{J(\frac{1\cdot n}{n'})}) & \cdots & (\xi^{J(n-\frac{n}{n'})}) & (\xi^{J_*(n-\frac{n}{n'})}) & \cdots & (\xi^{J_*(\frac{1\cdot n}{n'})}) & (\xi^{J_*(\frac{0\cdot n}{n'}-n')})\\
+(\xi^{J(\frac{0\cdot n}{n'}-n')})^2 & (\xi^{J(\frac{1\cdot n}{n'}-n')})^2 & \cdots & (\xi^{J(n-\frac{n}{n'})})^2 & (\xi^{J_*(n-\frac{n}{n'})})^2 & \cdots & (\xi^{J_*(\frac{1\cdot n}{n'}-n')})^2 & (\xi^{J_*(\frac{0\cdot n}{n'}-n')})^2 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \ddots & \vdots & \vdots \\
+(\xi^{J(\frac{0\cdot n}{n'}-n')})^{n-1} & (\xi^{J(\frac{1\cdot n}{n'}-n')})^{n-1} & \cdots & (\xi^{J(n-\frac{n}{n'})})^{n-1} & (\xi^{J_*(n-\frac{n}{n'})})^{n-1} & \vdots & (\xi^{J_*(\frac{1\cdot n}{n'}-n')})^{n-1} & (\xi^{J_*(\frac{0\cdot n}{n'}-n')})^{n-1} 
+\end{bmatrix}$}}
+
+$ $
+
+回顾原始 \textsf{CoeffToSlot} 步骤（\autoref{subsubsec:ckks-bootstrapping-coefftoslot-details}），之所以需要将 \textsf{ct\textsubscript{s}} 拆分为 \textsf{ct\textsubscript{s1}} 与 \textsf{ct\textsubscript{s2}}，是因为 CKKS 的每个输入向量最多只能存储 $\frac{n}{2}$ 个槽位，而自举需要把总计 $n$ 个系数值移至输入向量槽位。相比之下，使用稀疏打包密文时，上述更新后的编码公式得到 $\vec{m}_s$，其中只有 $\frac{n}{n'}$ 个系数槽位，而不是 $n$ 个；$\vec{m}_s$ 中的每个槽位索引 $i$ 对应编码多项式的 $i \cdot \dfrac{n}{n'}$ 次项系数。其余系数项不参与计算，因为已知它们本来就是 0，无需自举。又因为 $n'$ 整除 $n$，所以 $\frac{n}{n'} \leq \frac{n}{2}$。因此，无需分别计算两个密文 $\textsf{ct}_{\textsf{s1}} = [\hathat WI_n^R]_{11} \cdot \textsf{ct\textsubscript{c}} + [\hathat WI_n^R]_{12} \cdot I_{\frac{n}{2}}^R \cdot \mathit{\overline{\textsf{ct\textsubscript{c}}}}$ 和 $\textsf{ct}_{\textsf{s2}} = [\hathat WI_n^R]_{21} \cdot \textsf{ct\textsubscript{c}} + [\hathat WI_n^R]_{22} \cdot I_{\frac{n}{2}}^R \cdot \mathit{\overline{\textsf{ct\textsubscript{c}}}}$，可以直接计算 $\textsf{ct\textsubscript{c}} = \dfrac{ \text{\rotatecharone{E}} \cdot I_{n'}^R \cdot \textsf{ct\textsubscript{c}}}{n'}$，因为所有需要自举的系数都能放入 $\dfrac{n}{2}$ 个槽位。这样，\textsf{CoeffToSlot} 的同态运算次数和内存需求可以减半；\textsf{EvalExp} 步骤（\autoref{subsubsec:ckks-bootstrapping-evalexp-details}）也同样如此。
+
+类似地，在 \textsf{SlotToCoeff} 步骤（\autoref{subsubsec:ckks-bootstrapping-slottocoeff-details}）中，将解码公式 $\vec{v}_{'} = \hathat W^* \cdot \vec{m}$ 更新为 $\vec{v}_{'} = \text{\rotatecharone{E}}^{T} \cdot \vec{m}_c$，同样可以将同态运算次数和内存需求减半。注意，$\text{\rotatecharone{E}}^{T}$ 是一个列索引不是 $\dfrac{n}{n'}$ 的倍数的列均为零的矩阵。将 $\text{\rotatecharone{E}}^{T}$ 的这些列置零，仍会得到相同结果，因为向量 $\vec{m}_c$ 中槽位索引不是 $\dfrac{n}{n'}$ 的倍数的槽位本来就是零，所以它们与 $\text{\rotatecharone{E}}^{T}$ 中相应的列（即索引不是 $\dfrac{n}{n'}$ 的倍数的列）相乘所得的结果本来就是零。
+
+
+
+\subsubsection{总结}
+\label{subsubsec:ckks-bootstrapping-summary}
+
+CKKS 的自举过程总结如下。
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:ckks-bootstrapping-summary}} CKKS 自举}}]
+
+\setlist[itemize]{leftmargin=*}
+\setlist[enumerate]{leftmargin=*}
+\begin{enumerate}
+\item \textsf{\textbf{\underline{输入}：}}$\textsf{ct} = (A, B) \bmod q_0$ \textcolor{red}{ $\rhd$ 其中 $\textsf{ct}=(A, B) = \textsf{RLWE}_{S, \sigma}\bm(\Delta M \bm)$}
+
+$ $
+
+其满足解密关系：$A\cdot S + B = \Delta M + E + Kq_0$
+
+$ $
+
+\item \textsf{\textbf{\underline{ModRaise}：}}将多项式 $A$ 与 $B$ 视为每个系数均属于 $\mathbb{Z}_{q_L}$ 的明文多项式（即 $(A, B) \bmod q_L$）。这种解释方式的改变会自动将密文变为 $\textsf{RLWE}_{S, \sigma}(\Delta M + Kq_0)$。\textsf{ModRaise} 步骤无需执行实际计算。
+
+$ $
+
+\item \textsf{\textbf{\underline{CoeffToSlot}:}} 
+
+通过同态乘以 $n^{-1}\cdot \hathat W \cdot I_n^R$，将加密明文 $\Delta M + E + q_0K$ 的系数移至输入向量槽位：
+
+$\textsf{RLWE}_{S, \sigma}(Z_1) = n^{-1}\cdot \hathat W \cdot I_n^R \cdot \textsf{RLWE}_{S, \sigma}(\Delta M + E + q_0K) \bmod q_L$
+
+$ $
+
+\item \textsf{\textbf{\underline{EvalExp}:}} 
+
+同态求值以 $q_0$ 为周期的正弦函数的近似多项式 $\sigma_f$，从而消去 $\Delta M + E + q_0K$ 中的回绕多余项 $q_0K$：
+
+$\textsf{RLWE}_{S, \sigma}(Z_2) = \sigma_f \circ \textsf{RLWE}_{S, \sigma}(Z_1)  \bmod q_l$
+
+$ $
+
+这一步等价于对输入值\textit{同态地}执行模 $q_0$ 约减。同态求值正弦函数的多项式近似会消耗乘法层级，因此这一步使密文模数按 $q_L \rightarrow q_l$ 降低。
+
+$ $
+
+\item \textsf{\textbf{\underline{SlotToCoeff}:}} 
+
+通过同态乘以编码矩阵 $\hathat W^*$，将输入向量槽位中存储的已执行模 $q_0$ 约减的明文值 $\Delta M + E$ 移回明文系数位置：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M + E) = \hathat W^* \cdot \textsf{RLWE}_{S, \sigma}(Z_2)  \bmod q_l$
+
+$ $
+
+\end{enumerate}
+\setlist[itemize]{leftmargin=\leftmargini}
+\setlist[enumerate]{leftmargin=\leftmargini}
+
+$ $
+
+\textbf{局限性：}由于自举误差，噪声会在每次自举后缓慢增长，最终可能超过消息乃至密文模数所允许的范围。
+
+\end{tcolorbox}
+
+
+\para{BFV 与 CKKS 自举的比较：}CKKS 自举不会减小旧噪声 $E$ 的幅度，而是保持原来的量级，因为正弦近似函数将 $\Delta M + E + Kq_0$ 转换为 $\Delta M + E$。不过，密文模数按 $q_0 \rightarrow q_L$ 增大后，由于 $\dfrac{E}{q_L} \ll \dfrac{E}{q_0}$，噪声与密文模数之比会下降。另一方面，自举过程又引入了新的自举噪声，其大小可视为固定量。然而，这一固定量的新噪声会随每次自举不断累积，因此在执行大量自举后，噪声最终可能超过消息乃至密文模数所允许的范围。
+
+BFV 自举则会减小噪声，但不改变密文模数。它也无需重置密文模数，因为 BFV 不使用分层的密文模数链，且 BFV 的密文与密文相乘不会消耗密文模数。此外，由于 BFV 自举能够直接去除噪声，即使执行无限次自举，也能保证噪声保持在某个阈值以下。
+
+另一个重要区别是，CKKS 自举不要求执行同态解密，主要原因在于其在整个自举过程中保持明文尺度因子不变。而 BFV 自举为了执行数位提取算法，需要改变明文尺度因子。因此，需要通过同态解密，在保持密文模数（$q$）不变的同时，改变明文尺度因子（$p^{\varepsilon}$）。
+
+
+
+
+
+\subsubsection{降低自举噪声}
+\label{subsubsec:ckks-bootstrapping-noise-reduction}
+
+如 \autoref{subsubsec:ckks-bootstrapping-evalexp-details} 所述，自举过程会产生三类噪声：
+
+%\renewcommand{\labelenumi}{\underline{Type-\arabic{enumi} Noise:}}
+\begin{itemize}
+\item \underline{第 1 类噪声}：\textsf{CoeffToSlot}、\textsf{EvalExp} 和 \textsf{SlotToCoeff} 步骤固有的同态 $(+, \cdot)$ 运算噪声
+\item \underline{第 2 类噪声}：\textsf{EvalExp} 步骤中指数函数 $e^{i\theta}$ 的近似误差
+\item \underline{第 3 类噪声}：\textsf{EvalExp} 步骤中的正弦曲线误差，即曲线在 $x=0$ 附近并非精确等于 $y=x$，而只是 $y \approx x$
+\end{itemize}
+
+
+$ $
+
+
+第 1 类噪声源于 FHE 的设计，无法避免。第 2 类噪声能否避免，取决于自举精度与效率之间的权衡设置。与这两类噪声不同，较新的自举技术可以有效减小第 3 类噪声。
+
+\begin{figure}[h!]
+    \centering
+  \includegraphics[width=1.0\linewidth]{figures/arc-sine.png}
+  \caption{用于减小近似误差的反正弦曲线 \href{https://www.google.com/search?sca_esv=c744cb070de47b7e&sxsrf=ADLYWIKKaF93fcAFvJC4ehJso1E5qFTaow:1732546684173&q=arcsin(sin(x))&source=lnms&fbs=AEQNm0DmKhoYsBCHazhZSCWuALW8l8eUs1i3TeMYPF4tXSfZ95GzcfXnm5XYTvJV_9Qreh2py964ICpZJthXkELijctC8pFBYULoa3-fvQmwK0VJF0ntzsbN_W2CCJL9N57SWFNwWI58jCKaBJSdPgkprHQVK8H1PYOYWXMHTCCV-rDbC44rR6ANM870jZCZRtTKwFWtMIe2&sa=X&ved=2ahUKEwjZy6qt3_eJAxXbhlYBHXD2IvEQ0pQJegQIDxAB&cshid=1732546705369143&biw=1280&bih=635&dpr=1.5}{（来源）}}
+  \label{fig:arc-sine}
+\end{figure}
+
+$ $
+
+\para{$\bm{\arcsin(\sin(x))}$ 近似（\href{https://dl.acm.org/doi/10.1007/978-3-030-77870-5_22}{EUROCRYPT 2021}~\cite{cryptoeprint:2020/552}）：}使用 $\arcsin(\sin(x))$ 函数代替 $\sin x$ 函数可以减小第 3 类噪声，因为其图像由直线而非曲线构成，如 \autoref{fig:arc-sine} 所示（由一系列 $y = x$ 和 $y = -x$ 线段组成）。这一技术还采用 Remez 算法，使近似误差在指定区域内均匀分布。不过，其缺点是需要消耗 3 个乘法层级。
+
+$ $
+
+\para{Meta-BTS（\href{https://dl.acm.org/doi/10.1145/3548606.3560696}{CCS 2022}~\cite{cryptoeprint:2022/1167}）：}这是原文写作时计算效率和精度最高的自举技术，其过程如下：
+\begin{enumerate}
+\item 对输入密文执行基于正弦曲线的常规自举。
+\item 将步骤 1 自举后的密文重缩放至模数 $q_0$。
+\item 从最初未经自举的密文中减去步骤 2 的密文（两个密文的模数均为 $q_0$），得到模 $q_0$、其中存储自举误差的密文。
+\item 对步骤 3 输出的存储自举误差的密文执行自举，将模数提升到 $q_l$。
+\item 从步骤 1 的密文中减去步骤 4 的密文（两个密文的模数均为 $q_l$），得到模 $q_l$、自举误差更小的新密文。
+\end{enumerate}
+
+$ $
+
+\para{噪声处理的局限：}上述自举技术能够减小第 3 类噪声，因为自举误差比明文消息小，而近似正弦函数的输入值 $x$ 越小，输出就越接近 $y=x$。多次执行该算法时，第 3 类噪声会呈指数缩小，因为目标明文（即上述步骤 3 提取出的自举误差）的大小远小于此前的值。与此同时，第 1 类和第 2 类噪声并不会随着多轮自举而减小，而是基本维持相同量级，因为每一轮都会产生新的第 1 类和第 2 类噪声。
+
+

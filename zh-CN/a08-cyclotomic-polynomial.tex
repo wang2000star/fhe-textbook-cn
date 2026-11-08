@@ -1,0 +1,96 @@
+\textbf{- 参考资料：}
+\href{https://e.math.cornell.edu/people/belk/numbertheory/CyclotomicPolynomials.pdf}{域与分圆多项式}~\cite{cyclotomic-polynomial}
+
+\subsection{定义}
+\label{subsec:cyclotomic-def}
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:cyclotomic-def}} 分圆多项式}}]
+ \textbf{第 $\bm{n}$ 个分圆多项式：}以所有 $n$ 次本原单位根为根的多项式，即：
+ 
+ \[ \Phi_n(x) = \prod_{\zeta \in P(n)} (x - \zeta)  = \prod_{\substack{0 \leq k \leq n-1,\\ 
+ \text{gcd}(k, n) = 1}} (x - \omega^k) \textcolor{white}{......} \text{，其中 } \omega = e^{2\pi i/n} \]
+
+ 回顾欧拉公式：$e^{2k\pi i/n} = \cos\left(\dfrac{2k\pi}{n}\right) + i\cdot\sin\left(\dfrac{2k\pi}{n}\right)$
+
+$ $
+
+一些预先计算出的分圆多项式如下：
+ 
+\begin{multicols}{2}
+$\Phi_1(x) = x - 1$
+\newline $\Phi_2(x) = x + 1$
+\newline $\Phi_3(x) = x^2 + x + 1$
+\newline $\Phi_4(x) = x^2 + 1$
+\newline $\Phi_5(x) = x^4 + x^3 + x^2 + x + 1$
+\newline $\Phi_6(x) = x^2 - x + 1$
+\newline $\Phi_7(x) = x^6 + x^5 + x^4 + x^3 + x^2 + x + 1$
+\newline $\Phi_8(x) = x^4 + 1$
+\newline $\Phi_9(x) = x^6 + x^3 + 1$
+\newline $\Phi_{10}(x) = x^4 - x^3 + x^2 - x + 1$
+\end{multicols}
+\end{tcolorbox}
+
+
+例如，
+
+\[\Phi_4(x) = \prod_{\substack{0 \leq k \leq 3,\\ 
+ \text{gcd}(k, 4) = 1}} (x - \omega^k) = (x - \omega^1)(x - \omega^3) = (x - e^{2\pi i / 4})(x - e^{2\cdot3\pi i / 4}) = (x - e^{\pi i / 2})(x - e^{3\pi i / 2})\]
+
+$= \left(x - \left(\cos\left(\dfrac{\pi}{2}\right) + i \cdot \sin\left(\dfrac{\pi}{2}\right) \right) \right) \cdot \left(x - \left(\cos\left(\dfrac{3\pi}{2}\right) + i \cdot \sin\left(\dfrac{3\pi}{2}\right) \right) \right)$
+
+$= (x - i)(x + i) = x^2 + 1$
+
+
+
+\subsection{定理}
+\label{subsec:cyclotomic-theorem}
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:cyclotomic-theorem}.1} 第 $M$ 个分圆多项式的根}}]
+
+假设 $M$ 是 2 的幂，并考虑第 $M$ 个分圆多项式 $\Phi_M(x) = x^n + 1$，其中 $M = 2n$。则第 $M$ 个分圆多项式的根为 $\omega, \omega^3, \omega^5, \cdots, \omega^{2n-1}$，其中 $\omega = e^{i\pi/n}$。
+
+\end{tcolorbox}
+
+\begin{proof}
+
+根据 \autoref{subsec:cyclotomic-def} 中的定义~\ref*{subsec:cyclotomic-def}，$\Phi_M(x)$ 的根为 $e^{2k\pi i/M} = e^{2k\pi i/(2n)} = e^{k\pi i/n}$，其中 $0 \leq k < M = 2n$ 且 $\textsf{gcd}(k, M = 2n) = 1$，因此 $k = \{1, 3, 5, \cdots, 2n-1\}$。若令 $\omega = e^{i\pi/n}$，则 $\Phi_M(x)$ 的根为 $\omega, \omega^3, \omega^5, \cdots, \omega^{2n-1}$。
+
+\end{proof}
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:cyclotomic-theorem}.2} 将多项式分解为分圆多项式的乘积}}]
+对于任意正整数 $n$，有 \[ x^n - 1 = \prod_{d \mid n} \Phi_d(x) \]
+\end{tcolorbox}
+\begin{myproof}
+\begin{enumerate}
+    \item $x^n - 1$ 的根是全部 $n$ 次单位根。因此，$x^n - 1 = (x - \omega^0)(x - \omega^1)...(x - \omega^{n-1})$，其中 $\zeta = \omega^k$。
+    \item 定理~\ref*{subsec:roots-theorem}.3 表明，每个 $n$ 次单位根（$\omega^k$）都是某个 $d$ 次本原单位根，其中 $d$ 整除 $n$。换言之，每个 $n$ 次单位根都属于某个满足 $d \mid n$ 的 $P(d)$。另一方面，由定义有 $\Phi_d(x) = \Pi_{\zeta \in P(d)} (x - \zeta)$。因此，$x^n - 1$ 是所有满足 $d \mid n$ 的 $\Phi_d(x)$ 的乘积。
+\end{enumerate}
+\end{myproof}
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:cyclotomic-theorem}.3} 分圆多项式的整数系数性质}}]
+分圆多项式的所有系数都是整数。
+\end{tcolorbox}
+\begin{myproof}
+\begin{enumerate}
+    \item 采用归纳法证明。当 $n=1$ 时，$\Phi_1(x) = x - 1$，其每个系数都是整数。
+    \item 设 $x^n - 1 = f(x) \cdot g(x) = (\Sigma_{i=0}^{p}a_ix^i)(\Sigma_{j=0}^{q}b_jx^j)$。对于归纳假设 1，要证明：如果 $f(x)$ 的系数都是整数，那么 $g(x)$ 的系数也都是整数。目标等式为 $x^n - 1$。由 $a_px^p \cdot b_qx^q = x^n$ 可得 $a_pb_q = 1$，即 $a_p = \pm 1$，因为已经假设 $f(x)$ 的系数都是整数。还知道 $a_0b_0 = -1$，而其余系数都应为 0。因此，对于任意 $r < q$，相应系数为以下两种情况之一：(i) $a_pb_{r} + a_{p-1}b_{r + 1} + ... + a_{p-q+r}b_{q} = 0$；(ii) $a_pb_{r} + a_{p-1}b_{r + 1} + ... + a_{0}b_{r+p} = 0$。情况 (i) 和 (ii) 都表示在 $f(x)\cdot g(x)$ 中计算得到的某个 $x^i$ 项的系数，其中 $0 < i < n$。现在，再提出归纳假设 2：$b_{q}, ... \text{ } b_{r+1}$ 都是整数。
+    \item 在情况 (i) 中，$a_pb_{r} = -(a_{p-1}b_{r + 1} + ... + a_{p-q+r}b_{q})$。将两边除以 $a_p$（它等于 $1$ 或 $-1$），得到 $b_{r} = \pm(a_{p-1}b_{r + 1} + ... + a_{p-q+r}b_{q})$；根据假设，每个 $a_i$ 都是整数。由归纳假设 1 和 2，$b_r$ 为整数。情况 (ii) 同理。
+    \item 以 $b_q$（一个整数系数）作为归纳假设 2 的起点。于是，由上述第二层归纳证明可知，对于 $0 \leq j \leq q$，所有 $b_j$ 都是整数。
+    \item 现在，以 $\Phi_1(x)$（一个整系数多项式）作为归纳假设 1 的起点。设 $x^n - 1 = \Phi_{d_1}(x)\Phi_{d_2}(x)...\Phi_{d_k}(x)\Phi_{n}(x)$，其中每个 $d_i \mid n$（见定理~\ref*{subsec:cyclotomic-theorem}.2）。已知 $\Phi_{d_1}(x)\Phi_{d_2}(x)\cdots\Phi_{d_k}(x)$ 是整系数多项式。将 $\Phi_{d_1}(x)\Phi_{d_2}(x)\cdots\Phi_{d_k}(x)$ 视为 $f(x)$，并将 $\Phi_n(x)$ 视为 $g(x)$。
+    根据步骤 4 的归纳证明，$\Phi_{n}(x)$ 是整系数多项式；另外，$\Phi_n(x)$ 是首一多项式，即最高次项的系数为 1。
+    \item 将 $n$ 逐步增加到 $n+1$，以计算 $x^{n+1} - 1 = \Phi_{d'_1}(x)\Phi_{d'_2}(x)...\Phi_{d'_k}(x)\Phi_{n+1}(x)$，其中每个 $d'_i \mid (n+1)$。根据前一步的归纳证明，$\Phi_{d'_1}(x)\Phi_{d'_2}(x)\cdots\Phi_{d'_k}(x)$ 是首一多项式，因此 $\Phi_{n+1}(x)$ 也为首一多项式。
+\end{enumerate}
+\end{myproof}
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:cyclotomic-theorem}.4} $\bm{\Phi_{nk}(x)}$ 的公式}}]
+若 $k \mid n$，则 $\Phi_{nk}(x) = \Phi_n(x^k)$。
+\end{tcolorbox}
+\begin{myproof}
+\begin{enumerate}
+    \item 定理~\ref*{subsec:order-theorem}.3 表明，给定 $k \mid n$，则 $\text{ord}_{\mathbb{F}}(a) = kn$ 当且仅当 $\text{ord}_{\mathbb{F}}(a^k) = n$。因此，对于 $\zeta \in \mathbb{C}$，$\text{ord}_{\mathbb{C}}(\zeta) = nk$ 当且仅当 $\text{ord}_{\mathbb{C}}(\zeta^k) = n$。换言之，$\zeta$ 是 $nk$ 次本原单位根，当且仅当 $\zeta^k$ 是 $n$ 次本原单位根。这意味着，$\zeta$ 是 $\Phi_{nk}(x)$ 的根，当且仅当 $\zeta^k$ 是 $\Phi_{n}(x)$ 的根。
+    \item 设 $\Phi_{nk}(x) = (x - \zeta_1)(x - \zeta_2)...(x - \zeta_p)$，其中 $P(nk)$ 包含 $p$ 个 $nk$ 次本原单位根。
+    \item $\Phi_{n}(x) = (x - \zeta_1^k)(x - \zeta_2^k)...(x - \zeta_p^k)$. 
+    %Note that $P(n)$ should also have $p$ primitive $n$-th roots of unity, because elements of $P(nk)$ are isomorphic to the elements of $P(n)$ (as they preserved if and only if relationships in step 2). 
+    将 $P(nk)$ 的每个元素取 $k$ 次幂，就得到 $P(n)$ 中的元素，因此这给出了从 $P(nk)$ 到 $P(n)$ 的满射（由步骤 2 的结论可得）。
+    此外，还存在 $\Phi_{n}(y) = (y - \zeta_1^k)(y - \zeta_2^k)...(y - \zeta_p^k)$，其中 $y = x^k$。在这种情况下，$x = \{\zeta_1, \zeta_2, ... \zeta_p\}$。
+    \item $\Phi_{nk}(x)$ 与 $\Phi_{n}(y) = \Phi_{n}(x^k)$ 具有相同的根和相同的系数。因此，$\Phi_{nk}(x) = \Phi_{n}(y) = \Phi_{n}(x^k)$。
+\end{enumerate}
+\end{myproof}

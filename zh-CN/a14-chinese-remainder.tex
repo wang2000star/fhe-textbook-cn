@@ -1,0 +1,175 @@
+\textbf{- 参考资料 1：}
+\href{https://brilliant.org/wiki/chinese-remainder-theorem/}{Brilliant -- 中国剩余定理}~\cite{crt}
+
+\noindent \textbf{- 参考资料 2：}
+\href{https://www.youtube.com/watch?v=fz1vxq5ts5I}{YouTube -- 扩展欧几里得算法教程}
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{sec:chinese-remainder}.1} 中国剩余定理}}]
+
+假设有两两互素的正整数 $n_0, n_1, n_2, \cdots, n_k$，令 $N = n_0 n_1 \cdots n_k$。分别在各模数 $n_0, n_1, n_2, \dots, n_k$ 下选取共 $k + 1$ 个随机整数 $a_0, a_1, a_2, \cdots, a_k$，即 $a_0 \in \mathbb{Z}_{n_0}$、$a_1 \in \mathbb{Z}_{n_1}$、$\cdots$、$a_k \in \mathbb{Z}_{n_k}$。则存在唯一的解 $x \bmod N$，使得对于每个 $0 \le i \le k$，都有 $x \equiv a_i \pmod{n_i}$。也就是说：
+
+\text{ } $x \equiv a_0 \bmod n_0$
+
+\text{ } $x \equiv a_1 \bmod n_1$
+
+\text{ } $x \equiv a_2 \bmod n_2$
+
+\text{ } \text{ } $\vdots$
+
+\text{ } $x \equiv a_k \bmod n_k$
+
+$ $
+
+为了计算 $x$，首先对每个 $0 \leq i \leq k$，按如下方式计算 $y_i$ 和 $z_i$：
+
+$y_i = \dfrac{N}{n_i}, \text{ } z_i = y_i^{-1} \bmod n_i$
+
+$ $
+
+每个 $y_i$ 的逆元，即 $y_i^{-1}$，都可以通过扩展欧几里得算法计算（参见 \href{https://www.youtube.com/watch?v=fz1vxq5ts5I}{YouTube 教程}）。于是，唯一解 $x$ 可以计算为：
+
+$x = \sum\limits_{i=0}^k a_i y_i z_i $ \textcolor{red}{ $\rhd$ 也可以计算 $ x = \sum\limits_{i=0}^k |a_i z_i|_{n_i} y_i$，其中 $|a_i z_i|_{n_i} = a_i z_i \bmod n_i$}
+
+$ $
+
+由于这样的 $x$ 在 $\bmod \text{ } N$ 中唯一，因此 $x \bmod N$ 与 $(a_0, a_1, a_2, \cdots, a_k)$ 之间存在同构映射。
+
+$ $
+
+此外，对于所有 $0 \leq i \leq k$，都有 $y_iz_i \equiv (y_iz_i)^2 \bmod N$ \text{ }
+\end{tcolorbox}
+
+\begin{proof}
+
+$ $
+
+\begin{enumerate}
+\item 给定 $x = \sum\limits_{i=0}^k a_i y_i z_i$，对于每个满足 $0 \leq i \leq k$ 的 $i$，计算 $x \bmod n_i$：
+
+$x \bmod n_i = \sum\limits_{j=0}^k a_j y_j z_j \bmod n_i$
+
+$= a_0 y_0 z_0 + a_1 y_1 z_1 + a_2 y_2 z_2 + \cdots + a_k y_k z_k \bmod n_i$
+
+$= a_i y_i z_i \bmod n_i$ \textcolor{red}{ $\rhd$ 因为对于所有 $j \neq i$，都有 $y_j \equiv 0 \bmod n_i$，这些项都是 $n_i$ 的倍数}
+
+$= a_i$ \textcolor{red}{ $\rhd$ 因为 $y_i z_i \equiv y_i y_i^{-1} \equiv 1 \bmod n_i$}
+
+$ $
+
+因此，$x$ 在各模数 $n_0, n_1, n_2, \cdots, n_k$ 下都与 $a_0, a_1, a_2, \cdots, a_k$ 同余。
+
+
+$ $
+
+此外，以下关系也成立：
+
+$x \bmod n_i = \sum\limits_{j=0}^k |a_j z_j|_{n_j} y_i \text{ } (\bmod n_i)$
+
+$= |a_0 z_0|_{n_0} y_0 + |a_1 z_1|_{n_1} y_1 + |a_2 z_2|_{n_2} y_2 + \cdots + |a_k z_k|_{n_k} y_k \bmod n_i$
+
+$= |a_i z_i|_{n_i} y_i \bmod n_i$ 
+
+$= a_i$ 
+
+$ $
+
+\item 接下来，证明 $x$ 在模 $N$ 下是唯一解。假设存在两个解 $x$ 和 $x'$，满足：
+
+$x \equiv x' \equiv a_0 \bmod n_0$
+
+$x \equiv x' \equiv a_1 \bmod n_1$
+
+$x \equiv x' \equiv a_2 \bmod n_2$
+
+\text{ } $\vdots$
+
+$x \equiv x' \equiv a_k \bmod n_k$
+
+$ $
+
+根据模同余的定义，有 $ n_0 \mid (x - x') , n_1 \mid (x - x') , \text{ } n_2 \mid (x - x'), \cdots, \text{ } n_k \mid (x - x')$。
+
+由于 $n_0, n_1, n_2, \cdots, n_k$ 两两互素，必有 $n_0n_1n_2n_3\cdots n_k \mid (x - x')$，或等价地，$N \mid (x - x')$。这意味着 $x \equiv x' \bmod N$。因此，$x$ 在模 $N$ 下是唯一解。
+
+$ $
+
+\item 下面证明，对于所有 $0 \leq i \leq k$，均有 $y_iz_i \equiv (y_iz_i)^2 \bmod N$ \text{ }。
+
+$ $
+
+在模 $n_i$ 下，$y_iz_i \equiv 1 \bmod n_i$，因为 $z_i$ 是 $y_i$ 模 $n_i$ 的逆元。对于所有满足 $i \neq j$ 的其他模数 $n_j$，有 $y_iz_i \equiv 0 \bmod n_j$，因为 $y_i = \dfrac{N}{n_i}$，所以 $n_j$ 整除 $y_i$。
+
+$ $
+
+将 $(y_iz_i) \equiv 1 \bmod n_i$ 两边平方，得到 $(y_iz_i)^2 \equiv 1 \bmod n_i$。同样，将 $(y_iz_i) \equiv 0 \bmod n_j$ 两边平方，得到 $(y_iz_i)^2 \equiv 0 \bmod n_j$。
+
+$ $
+
+因此，$y_iz_i - (y_iz_i)^2 \equiv 0 \bmod n_i$ 且 $y_iz_i - (y_iz_i)^2 \equiv 0 \bmod n_j$。换言之，对于所有 $0 \leq j \leq k$，都有 $y_iz_i - (y_iz_i)^2 \equiv 0 \bmod n_j$。
+
+$ $
+
+再进行与步骤 2 相同的推理：由于各个两两互素的 $n_j$ 都整除 $y_iz_i - (y_iz_i)^2$，所以 $n_0n_1\cdots n_k = N$ 整除 $y_iz_i - (y_iz_i)^2$。因此，$y_iz_i - (y_iz_i)^2 \equiv 0 \bmod N$，即 $y_iz_i \equiv (y_iz_i)^2 \bmod N$。这对所有 $0 \leq i \leq k$ 都成立。
+
+\end{enumerate}
+
+\end{proof}
+
+
+\subsection{应用：剩余数系统（RNS）}
+\label{subsec:crt-application}
+
+现代处理器通常以至多 64 位的数据字进行运算。对于超过 64 位的数据，可以使用中国剩余定理高效地处理：令每个两两互素的模数 $n_i$ 都满足 $\log_2n_i \leq 64$，其中 $N = n_0\cdot n_1\cdots\cdot n_k$，从而将大数 $a \bmod N$ 表示为 $\vec{a}_{\mathit{crt}} = (a_0, a_1, \cdots , a_k)$，其中 $a \equiv a_i \bmod n_i$。这样，对于任意两个大数 $a$ 和 $b \bmod N$，可以按如下方式计算 $a + b \bmod N$ 和 $a \cdot b \bmod N$：
+
+\begin{itemize}
+\item $a + b \equiv \sum\limits_{i=0}^k a_i y_i z_i + \sum\limits_{i=0}^k b_i y_i z_i \equiv \sum\limits_{i=0}^k (a_i y_i z_i + b_i y_i z_i) \equiv \sum\limits_{i=0}^k (a_i + b_i) y_i z_i \bmod N $
+
+$ $
+
+\item $a \cdot b \equiv \sum\limits_{i=0}^k a_i y_i z_i \cdot \sum\limits_{i=0}^k b_i y_i z_i \equiv \sum\limits_{i=0}^k (a_i \cdot b_i) (y_i z_i)^2  + \sum\limits_{i\neq j}^k (a_i \cdot b_j) y_i z_iy_j z_j \equiv \sum\limits_{i=0}^k (a_i \cdot b_i) (y_i z_i)^2$
+
+\textcolor{red}{ $\rhd$ 对于满足 $i \neq j$ 的所有项 $y_iz_iy_jz_j$，其模 $N$ 的值都为 0，因为 $y_iy_j \bmod N \equiv 0$。\\
+这是因为 $y_i = n_0n_1\cdots n_{i-1}n_{i+1}\cdots$ 且 $y_j = n_0n_1\cdots n_{j-1}n_{j+1}\cdots$。\\
+因此，$y_iy_j$ 是 $N$ 的倍数。}
+
+$ $
+
+$\equiv \sum\limits_{i=0}^k (a_i \cdot b_i) (y_i z_i) \bmod N$
+
+\textcolor{red}{ $\rhd$ 这是因为 $(y_i z_i) \equiv (y_i z_i)^2$，如定理~\ref*{sec:chinese-remainder}.1 的证明步骤 3 所示。}
+
+
+\end{itemize}
+
+$ $
+
+因此，中国剩余定理给出如下有用的公式：
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{sec:chinese-remainder}.2} 中国剩余定理的应用}}]
+
+假设有两个大数 $a = \sum\limits_{i=0}^k a_i y_i z_i \bmod N$ 和 $b = \sum\limits_{i=0}^k b_i y_i z_i \bmod N$，其中 $N$ 是两两互素模数 $n_0 \cdot n_1 \cdots n_k$ 的乘积，则存在如下同构：
+
+$a \xrightarrow{\sigma} \vec{a}_{\mathit{crt}} = (a_0, a_1, \cdots, a_k)$
+
+$b \xrightarrow{\sigma} \vec{b}_{\mathit{crt}} = (b_0, b_1, \cdots, b_k)$
+
+$ $
+
+根据上述同构，有：
+
+\begin{itemize}
+
+\item $a + b \equiv \sum\limits_{i=0}^k (a_i + b_i) y_i z_i \bmod N \Longleftrightarrow \vec{a}_{\mathit{crt}} + \vec{b}_{\mathit{crt}} \equiv (a_0 + b_0, \text{ } a_1 + b_1, \cdots, \text{ } a_k + b_k) \bmod N$ 
+
+\item $a \cdot b \equiv \sum\limits_{i=0}^k (a_i \cdot b_i) y_i z_i \bmod N \Longleftrightarrow \vec{a}_{\mathit{crt}} \odot \vec{b}_{\mathit{crt}} \equiv (a_0b_0, a_1 b_1, \cdots, a_k b_k)  \bmod N$ 
+
+
+\end{itemize}
+
+
+
+其中，各分量的加法或乘法都可以在模 $n_i$ 下独立完成。
+
+\end{tcolorbox}

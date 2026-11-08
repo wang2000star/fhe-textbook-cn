@@ -1,0 +1,449 @@
+%\subsection{Scheme Comparison}
+%\label{subsec:scheme-comparison}
+
+下面对 TFHE、BFV、CKKS 和 BGV 进行总结与比较：
+
+\begin{comment}
+\clearpage
+
+
+
+\end{comment}
+
+\captionsetup{justification=raggedright,singlelinecheck=false,labelfont=bf}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\textbf{困难问题基础}\\\hline\hline
+\textbf{TFHE}&LWE\\\hline
+\textbf{BFV}&\\
+\textbf{CKKS}&RLWE\\
+\textbf{BGV}&\\\hline
+\end{tabular}
+\caption{\textbf{困难问题基础}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\textbf{基本数据类型}\\\hline\hline
+\textbf{TFHE}&向量\\\hline
+\textbf{BFV}&\\
+\textbf{CKKS}&多项式\\
+\textbf{BGV}&\\\hline
+\end{tabular}
+\caption{\textbf{基本数据类型}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{明文}}\\\hline\hline
+\textbf{TFHE}&数值 $m \in \mathbb{Z}_t$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为 2 的幂}\\\hline
+\textbf{BFV}&多项式 $M \in \mathbb{Z}_t[X]/X^n+1$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数，$n$ 为 2 的幂}\\\hline
+\textbf{CKKS}&多项式 $M \in \mathbb{R}[X]/X^n+1$ \text{ }\textcolor{red}{ $\rhd$ $n$ 为 2 的幂}\\\hline
+\textbf{BGV}&多项式 $M \in \mathbb{Z}_t[X]/X^n+1$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数，$n$ 为 2 的幂}\\\hline
+\end{tabular}
+\caption{\textbf{明文}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{私钥}}\\\hline\hline
+\textbf{TFHE}&向量 $\vec{s} \xleftarrow{\$} \mathbb{Z}_2^k$，由 $\{0, 1\}$ 采样 \textcolor{red}{ $\rhd$ $\$$ 为均匀随机分布}\\\hline
+\textbf{BFV}&\\
+\textbf{CKKS}&多项式 $S \xleftarrow{\$} \mathbb{Z}_3[X]/X^n+1$，其中 $\mathbb{Z}_3 = \{-1, 0, 1\}$\\
+\textbf{BGV}&\\\hline
+\end{tabular}
+\caption{\textbf{私钥}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{密文}}\\\hline\hline
+\textbf{TFHE}&（向量 $\vec{a}$，数值 $b$）= $(\vec{a} \xleftarrow{\$} \mathbb{Z}_q^k$，$\text{ } b \in \mathbb{Z}_q)$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$，且 $t$ 整除 $q$}\\\hline
+\textbf{BFV}&\\
+\textbf{CKKS}&（多项式 $A, B$）= $(A \xleftarrow{\$} \mathbb{Z}_q[X]/X^n+1$，\text{ } $B \in \mathbb{Z}_q[X]/X^n+1)$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$}\\
+\textbf{BGV}&\\\hline
+\end{tabular}
+\caption{\textbf{密文}}
+\end{table}
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{噪声}}\\\hline\hline
+\textbf{TFHE}&数值 $e \xleftarrow{\chi} \mathbb{Z}_q$ \text{ } \textcolor{red}{ $\rhd$ $\chi$ 为高斯随机分布}\\\hline
+\textbf{BFV}&\\
+\textbf{CKKS}&多项式 $E \xleftarrow{\chi} \mathbb{Z}_q[X]/X^n+1$\\
+\textbf{BGV}&\\\hline
+\end{tabular}
+\caption{\textbf{噪声}}
+\end{table}
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{尺度因子}}\\\hline\hline
+\textbf{TFHE}&用于 $\Delta m$，\text{ } 其中 $\Delta = \dfrac{q}{t}$ \text{ } \textcolor{red}{ $\rhd$ $t$ 整除 $q$}\\\hline
+\textbf{BFV}&用于 $\Delta M$，\text{ } 其中 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数}\\\hline
+\textbf{CKKS}&用于 $\Delta M$，\text{ } 其中 $\Delta \cdot ||M||_\infty \ll q_0$\\
+& \text{ } \textcolor{red}{ $\rhd$ $q_0$ 为最低乘法层级的密文模数}\\\hline
+\textbf{BGV}&用于 $\Delta E$，\text{ } 其中 $\Delta = t$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数}\\\hline
+\end{tabular}
+\caption{\textbf{尺度因子}}
+\end{table}
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{加密}}\\\hline\hline
+\textbf{TFHE}&$(\vec{a}, b)$ \text{ } 其中 $\vec{a} \xleftarrow{\$} \mathbb{Z}_q^k$、$\text{ } b = \Delta m + e - a\cdot s \bmod q$，\text{ } $e \xleftarrow{\chi} \mathbb{Z}_q$\\
+&\text{ } \text{ } \textcolor{red}{ $\rhd$ 每次使用 $e$ 后即丢弃}\\\hline
+\textbf{BFV}&$(A, B)$ \text{ } 其中 $A \xleftarrow{\$} \mathbb{Z}_q[X] / (X^n + 1)$、$\text{ } B = \Delta M + E - A\cdot S \bmod q$，\text{ } $E \xleftarrow{\chi} \mathbb{Z}_q[X]/(X^n+1)$\\
+\textbf{CKKS}&\text{ } \text{ }\textcolor{red}{ $\rhd$ 每次使用 $E$ 后即丢弃}\\\hline
+\textbf{BGV}&$(A, B)$ \text{ } 其中 $A \xleftarrow{\$} \mathbb{Z}_q[X] / (X^n + 1)$、$\text{ } B = M + \Delta E - A\cdot S \bmod q$，\text{ } $E \xleftarrow{\chi} \mathbb{Z}_q[X]/(X^n+1)$\\
+&\text{ } \text{ }\textcolor{red}{ $\rhd$ 每次使用 $E$ 后即丢弃}\\\hline
+\end{tabular}
+\caption{\textbf{加密}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{加密关系}}\\\hline\hline
+\textbf{TFHE}&$b + a\cdot s = \Delta m + e \pmod q$，\text{ } 其中 $\Delta = \dfrac{q}{t}$ \text{ } \textcolor{red}{ $\rhd$ $t$ 整除 $q$}\\\hline
+\textbf{BFV}&$B + A\cdot S = \Delta M + E \pmod q$，\text{ } 其中 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数}\\\hline
+\textbf{CKKS}&$B + A\cdot S = \Delta M + E \pmod q$，\text{ } 其中 $\Delta \cdot ||M||_\infty \ll q_0$\\
+& \text{ } \textcolor{red}{ $\rhd$ $q_0$ 为最低乘法层级的密文模数}\\\hline
+\textbf{BGV}&$B + A\cdot S = M + \Delta E \pmod q$，\text{ } 其中 $\Delta = t$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数}\\\hline
+\end{tabular}
+\caption{\textbf{加密关系}}
+\end{table}
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{解密公式}}\\\hline\hline
+\textbf{TFHE}&$m = \left\lceil\dfrac{(b + a\cdot s \bmod q)}{\Delta}\right\rfloor \bmod t$\\
+&$\textcolor{white}{m} = \left\lceil\dfrac{(\Delta m + e)}{\Delta}\right\rfloor \bmod t$ \text{ } \textcolor{red}{ $\rhd$ 若 $e < \dfrac{\Delta}{2}$，则 $e$ 被消去}\\\hline
+\textbf{BFV}&$M = \left\lceil\dfrac{(B + A\cdot S \bmod q)}{\Delta}\right\rfloor  \bmod t$\\
+&$\textcolor{white}{M} = \left\lceil\dfrac{(\Delta M + E)}{\Delta}\right\rfloor  \bmod t$ \text{ } \textcolor{red}{ $\rhd$ 若 $||E||_\infty < \dfrac{\Delta}{2}$，则 $E$ 被消去}\\\hline
+\textbf{CKKS}&$M = \left\lceil\dfrac{(B + A\cdot S \bmod q)}{\Delta}\right\rfloor_{\frac{1}{\Delta}}$\\
+&$\textcolor{white}{M} = \left\lceil\dfrac{\Delta M + E}{\Delta}\right\rfloor_{\frac{1}{\Delta}}$ \text{ } \textcolor{red}{ $\rhd$ 最终残余噪声为 $\dfrac{E}{\Delta}$（增大 $\Delta$ 可减小它）}\\\hline
+\textbf{BGV}&$M = (B + A\cdot S \bmod q) \bmod t$\\
+&$\textcolor{white}{M} = (M + \Delta E) \bmod t$ \text{ } \textcolor{red}{ $\rhd$ 若 $\Delta E < q$，则 $E$ 被消去}\\\hline
+\end{tabular}
+\caption{\textbf{解密公式}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{密文模数}}\\\hline\hline
+\textbf{TFHE}&单个数值 $q$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$，且 $t$ 整除 $q$}\\\hline
+\textbf{BFV}&单个数值 $q$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$}\\\hline
+\textbf{CKKS}&具有 $L$ 个乘法层级的模数链 $\{q_0, q_1, \cdots, q_L\}$\\
+& \text{ } \textcolor{red}{ $\rhd$ 各层满足 $q_i = \prod\limits_{j=0}^{l}w_j$，每个 $w_j$ 为 CRT 模数}\\
+&\text{ } \text{ } \text{ } \textcolor{red}{满足 $w_0 \gg \Delta \cdot ||M||_{\infty}, \text{ } w_j \approx \Delta$（对于 $1 \leq j \leq L$）}\\\hline
+\textbf{BGV}&具有 $L$ 个乘法层级的模数链 $\{q_0, q_1, \cdots, q_L\}$\\
+&\text{ } \textcolor{red}{ $\rhd$ 各层满足 $q_i = \prod\limits_{j=0}^{l}w_j$，每个 $w_j$ 为 CRT 模数}\\
+&\text{ } \text{ } \text{ } \textcolor{red}{满足 $w_0 \equiv w_1 \equiv \cdots \equiv w_L \bmod t$}\\\hline
+\end{tabular}
+\caption{\textbf{密文模数}}
+\end{table}
+
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{密文与密文加法}}\\\hline\hline
+\textbf{TFHE}&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
+&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_2) = (\vec{a}_2, b_2) = (a_{2,0}, a_{2, 1}, \cdots, a_{2, k-1}, b_2) \bmod q$\\
+&$\textsf{LWE}_{\vec{s}, \sigma}(\Delta (m_1 + m_2)) = (\vec{a}_1+\vec{a}_2, b_1+b_2) \bmod q$\\\hline
+\textbf{BFV}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q$\\
+&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2) \bmod q$\\
+&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + M_2)) =(A_1+A_2,B_1+B_2) \bmod q$\\\hline
+\textbf{CKKS}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q_l$\\
+&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2) \bmod q_l$\\
+&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + M_2)) =(A_1+A_2,B_1+B_2) \bmod q_l$\\\hline
+\textbf{BGV}&- 密文 $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1) \bmod q_l$\\
+&- 密文 $\textsf{RLWE}_{S, \sigma}(M_2) = (A_2, B_2) \bmod q_l$\\
+&$\textsf{RLWE}_{S, \sigma}(M_1 + M_2) =(A_1+A_2,B_1+B_2) \bmod q_l$\\\hline
+\end{tabular}
+\caption{\textbf{密文与密文加法}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{密文与明文加法}}\\\hline\hline
+\textbf{TFHE}&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
+&- 明文数值 $c \in \mathbb{Z}_t$\\
+&$\textsf{LWE}_{\vec{s}, \sigma}(\Delta (m_1 + c)) = (\vec{a}_1, b_1+\Delta c) \bmod q$\\\hline
+\textbf{BFV}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q$\\
+&- 明文多项式 $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
+&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + C)) =(A_1,B_1+\Delta C) \bmod q$\\\hline
+\textbf{CKKS}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q_l$\\
+&- 明文多项式 $C \in \mathbb{R}[X]/(X^n + 1)$\\
+&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + C)) =(A_1,B_1+\Delta C) \bmod q_l$\\\hline
+\textbf{BGV}&- 密文 $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1) \bmod q_l$\\
+&- 明文多项式 $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
+&$\textsf{RLWE}_{S, \sigma}(M_1 + C) =(A_1,B_1+C) \bmod q_l$\\\hline
+\end{tabular}
+\caption{\textbf{密文与明文加法}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{密文与明文乘法}}\\\hline\hline
+\textbf{TFHE}&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
+&- 明文数值 $c \in \mathbb{Z}_t$\\
+&$\textsf{LWE}_{\vec{s}, \sigma}(\Delta (m_1 \cdot c)) = (\vec{a}_1 \cdot c, \text{ } b_1 \cdot c) \bmod q$\\\hline
+\textbf{BFV}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q$\\
+&- 明文多项式 $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
+&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 \cdot C)) =(A_1 \cdot C, \text{ } B_1 \cdot C)$\\\hline
+\textbf{CKKS}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q_l$\\
+&- 明文多项式 $C \in \mathbb{R}[X]/(X^n + 1)$\\
+&1. \underline{基本乘法}\\
+&\textcolor{white}{1. } $\textsf{ct} = \textsf{RLWE}_{S, \sigma}(\Delta^2 (M_1 \cdot C)) =(A_1 \cdot \Delta C, \text{ } B_1 \cdot \Delta  C)  \bmod q_l$\\
+&2. 按 $\dfrac{1}{\Delta}$ \underline{重缩放}：$\left\lceil\dfrac{\textsf{ct}}{\Delta}\right\rfloor = \textsf{RLWE}_{S, \sigma}(\Delta M_1 C) \bmod q_{l-1}$\\\hline
+\textbf{BGV}&- 密文 $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1) \bmod q_l$\\
+&- 明文多项式 $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
+&$\textsf{RLWE}_{S, \sigma}(M_1 \cdot C) =(A_1 \cdot C, \text{ } B_1\cdot C)  \bmod q_l$\\\hline
+\end{tabular}
+\caption{\textbf{密文与明文乘法}}
+\end{table}
+
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{密文与密文乘法}}\\\hline\hline
+\textbf{TFHE}&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
+&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_2) = (\vec{a}_2, b_2) = (a_{2,0}, a_{2, 1}, \cdots, a_{2, k-1}, b_2)  \bmod q$\\
+&1. \underline{可编程自举}:\\ 
+&\textcolor{white}{1. } 将 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_2)$ 转换为 $\textsf{GSW}_{\vec{s}, \sigma}^{\beta, l}(m_2)$。\\
+&2. \underline{同态乘法}:\\
+&\textcolor{white}{2. } 计算 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) \cdot \textsf{GSW}_{\vec{s}, \sigma}^{\beta, l}(m_2)$\\
+&\text{ }$ = \sum\limits_{i=0}^{k-1} \langle \textsf{Decomp}^{\beta, l}(a_{1,i}),  \textsf{Lev}_{\vec{s}, \sigma}^{\beta, l}(-s_i\cdot m_2) \rangle + \langle \textsf{Decomp}^{\beta, l}(b_{1}),  \textsf{Lev}_{\vec{s}, \sigma}^{\beta, l}(m_2) \rangle$ \\
+&\text{ } $ = \textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1 m_2)$\\\hline
+\textbf{BFV}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q$\\
+&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2)  \bmod q$\\
+&1. \underline{\textsf{ModRaise}}：从 $q$ 升至 $Q = q \cdot \Delta$\\
+&\textcolor{white}{1. } - 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod Q$\\
+&\textcolor{white}{1. } - 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2)  \bmod Q$\\
+&2. \underline{多项式乘法}: \\
+& \textcolor{white}{1. } $(A_1A_2, \text{ } A_1B_2 + A_2B_1, \text{ } B_1B_2) \equiv (D_2, D_1, D_0) \pmod Q$\\
+&3. \underline{重线性化}: $\textsf{ct}_\alpha = (D
+_1, D_0),$\text{ } $\textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$\\
+&\textcolor{white}{3. 重线性化: } $\textsf{ct}_\alpha + \textsf{ct}_\beta = \textsf{ct}_{\alpha + \beta} = \textsf{RLWE}_{S, \sigma}(\Delta^2 M_1 M_2) \bmod Q$\\
+&4. 按 $\dfrac{1}{\Delta}$ \underline{重缩放}：$\left\lceil\dfrac{\textsf{ct}_{\alpha+\beta}}{\Delta}\right\rfloor = \textsf{RLWE}_{S, \sigma}(\Delta M_1 M_2) \bmod q$\\\hline
+\textbf{CKKS}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q_l$\\
+&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2)  \bmod q_l$\\
+&1. \underline{多项式乘法}: \\
+& \textcolor{white}{1. } $(A_1A_2, \text{ } A_1B_2 + A_2B_1, \text{ } B_1B_2) \equiv (D_2, D_1, D_0) \pmod{q_l}$\\
+&2. \underline{重线性化}: $\textsf{ct}_\alpha = (D
+_1, D_0),$\text{ } $\textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$\\
+&\textcolor{white}{3. 重线性化: } $\textsf{ct}_\alpha + \textsf{ct}_\beta = \textsf{ct}_{\alpha + \beta} = \textsf{RLWE}_{S, \sigma}(\Delta^2 M_1 M_2) \bmod q_l$\\
+&3. 按 $\dfrac{1}{\Delta}$ \underline{重缩放}：$\left\lceil\dfrac{\textsf{ct}_{\alpha+\beta}}{\Delta}\right\rfloor = \textsf{RLWE}_{S, \sigma}(\Delta M_1 M_2) \bmod q_{l-1}$\\\hline
+\textbf{BGV}&- 密文 $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1)  \bmod q_l$\\
+&- 密文 $\textsf{RLWE}_{S, \sigma}( M_2) = (A_2, B_2)  \bmod q_l$\\
+&1. \underline{多项式乘法}: \\
+& \textcolor{white}{1. } $(A_1A_2, \text{ } A_1B_2 + A_2B_1, \text{ } B_1B_2) \equiv (D_2, D_1, D_0) \pmod{q_l}$\\
+&2. \underline{重线性化}: $\textsf{ct}_\alpha = (D
+_1, D_0),$\text{ } $\textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$\\
+&\textcolor{white}{3. 重线性化: } $\textsf{ct}_\alpha + \textsf{ct}_\beta = \textsf{ct}_{\alpha + \beta} = \textsf{RLWE}_{S, \sigma}( M_1 M_2) \bmod q_l$\\
+&3. （可选）按 $\dfrac{1}{\Delta}$ \underline{重缩放}：$\left\lceil\dfrac{\textsf{ct}_{\alpha+\beta}}{\Delta}\right\rfloor_t = \textsf{RLWE}_{S, \sigma}(M_1 M_2) \bmod q_{l-1}$\\
+&\textcolor{red}{ $\rhd$ $\lceil\rfloor_t$ 表示舍入到 $t$ 的最近倍数}\\
+&\textcolor{red}{ $\rhd$ 重缩放可降低之后的噪声增长速度}\\\hline
+\end{tabular}
+\caption{\textbf{密文与密文乘法}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{最大乘法次数（不执行自举）}}\\\hline\hline
+\textbf{TFHE}&使用可编程自举时不受限制（不使用自举则无法实现）\\\hline
+\textbf{BFV}&不受限制（原文表述；请参见表后的译者注）\\\hline
+\textbf{CKKS}&次数受模数链长度限制\\\hline
+\textbf{BGV}&次数受模数链长度限制\\\hline
+\end{tabular}
+\caption{\textbf{最大乘法次数（不执行自举）}}
+\end{table}
+\noindent\textbf{译者注：}上表沿用原文的比较口径。BFV 在固定参数且不进行自举时仍受噪声预算约束；“不受限制”不能理解为可以正确执行任意深度的计算。关于 BGV 噪声管理等表述的进一步核对事项，见仓库的 \texttt{TRANSLATION.md}。
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{密钥切换}}\\\hline\hline
+\textbf{TFHE}&密钥切换 $\vec{s} \rightarrow \vec{s}_{'}$：\\
+&$\textsf{LWE}_{\vec{s}_{'},\sigma}(\Delta m) = b + a\cdot \textsf{LWE}_{\vec{s}_{'}, \sigma}(s)$\\
+&\textcolor{white}{$\textsf{LWE}_{\vec{s}_{'},\sigma}(\Delta m) $} $ = b + \bm{\langle} \textsf{Decomp}^{\beta, l}(\vec{a}), \text{ } \textsf{Lev}_{\vec{s}_{'}, \sigma}^{\beta, l}(\vec{s}) \bm{\rangle}$\\\hline
+\textbf{BFV}&密钥切换 $S \rightarrow S'$：\\
+\textbf{CKKS}&$\textsf{RLWE}_{S',\sigma}(\Delta M) = B + A\cdot \textsf{RLWE}_{S', \sigma}(S)$\\
+&\textcolor{white}{$\textsf{RLWE}_{S',\sigma}(\Delta M) $} $ = B + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$\\\hline
+\textbf{BGV}&密钥切换 $S \rightarrow S'$：\\
+&$\textsf{RLWE}_{S',\sigma}(M) = B + A\cdot \textsf{RLWE}_{S', \sigma}(S)$\\
+&\textcolor{white}{$\textsf{RLWE}_{S',\sigma}(M) $} $ = B + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$\\\hline
+\end{tabular}
+\caption{\textbf{密钥切换}}
+\end{table}
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{模数丢弃 (\textsf{ModDrop})}}\\\hline\hline
+\textbf{CKKS}&- 乘法层级为 $l$ 的密文：$\textsf{RLWE}_{S, \sigma}(\Delta M) = (A, B)  \bmod q_l$\\
+\textbf{BGV}&- 乘法层级为 $l-1$ 的密文：\\
+&\textcolor{white}{ - } $\textsf{RLWE}_{S, \sigma}(\Delta M) = (A', B') = (A \bmod q_{l-1}, B \bmod q_{l-1})$\\\hline
+\end{tabular}
+\caption{\textbf{模数丢弃 (\textsf{ModDrop})}}
+\end{table}
+
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{明文编码与解码}}\\\hline\hline
+\textbf{TFHE}&不需要，因为每个明文是单个数值\\\hline
+\textbf{BFV}&为支持批处理，须将输入槽位转换为多项式系数：\\
+\textbf{CKKS}&- 将输入槽位 $\vec{v}$ 编码为多项式系数：$\vec{m} = n^{-1}\cdot\vec{v}\cdot I_n^R \cdot \hathat W$\\
+\textbf{BGV}&- 将多项式系数 $\vec{m}$ 解码为输入槽位：$\vec{v} = \vec{m} \cdot \hathat W^{*}$\\\hline
+\end{tabular}
+\caption{\textbf{明文编码与解码}}
+\end{table}
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{输入槽位旋转}}\\\hline\hline
+\textbf{TFHE}&不适用，因为明文是单个数值（即单个槽位）\\\hline
+\textbf{BFV}&给定 $\textsf{ct} = \textsf{RLWE}_{S(X), \sigma}\bm(\Delta M(X)\bm) = \bm(A(X), B(X)\bm)$，\\
+&\text{ } 将输入槽位向左旋转 $h$ 个位置：\\
+\textbf{CKKS}&1. 将 $\textsf{ct}$ 更新为 $ \textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(\Delta M(X^{J(h)})\bm) = \bm(A(X^{J(h)})$、$B(X^{J(h)})\bm)$\\
+&\text{ } \text{ }（其中 $J(h) = 5^h \bmod 2n$）\\
+&2. 密钥切换：将 $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(\Delta M(X^{J(h)})\bm)$ 转为 $\textsf{RLWE}_{S(X), \sigma}\bm(\Delta M(X^{J(h)})\bm)$。\\\hline
+\textbf{BGV}&给定 $\textsf{ct} = \textsf{RLWE}_{S(X), \sigma}\bm(M(X)\bm) = \bm(A(X), B(X)\bm)$，\\
+&\text{ } 将输入槽位向左旋转 $h$ 个位置：\\
+&1. 将 $\textsf{ct}$ 更新为 $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(M(X^{J(h)})\bm) = \bm(A(X^{J(h)})$、$B(X^{J(h)})\bm)$\\
+&2. 密钥切换：将 $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm( M(X^{J(h)})\bm)$ 转为 $\textsf{RLWE}_{S(X), \sigma}\bm( M(X^{J(h)})\bm)$。\\\hline
+\end{tabular}
+\caption{\textbf{输入槽位旋转}}
+\end{table}
+
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{自举目标}}\\\hline\hline
+\textbf{TFHE}&重置噪声。\\
+\textbf{BFV}&\\\hline
+\textbf{CKKS}&按 $q_0 \rightarrow q_L$ 重置密文模数（严格地说，重置为满足 $q_0 < q_{l'} < q_L$ 的 $q_{l'}$）。\\
+\textbf{BGV}&\\\hline
+\end{tabular}
+\caption{\textbf{自举目标}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{自举细节}}\\\hline\hline
+\textbf{TFHE}&1. 按 $q \rightarrow 2n$ \underline{切换模数}，转换 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m) \rightarrow \textsf{LWE}_{\vec{s}, \sigma}(\hat\Delta m) = ( \vec{\hat a}, \hat b) \bmod 2n $，\\
+&\text{ } \text{ } 其中 $\hat\Delta = \dfrac{2n}{t}$。\text{ } \textcolor{red}{ $\rhd$ $t$ 整除 $2n$}\\
+&2. \underline{盲旋转}：同态地将 GLWE 加密的查找表\\
+&\text{ } \text{ } 多项式 $\textsf{GLWE}_{\vec{S},\sigma}(\Delta V)$ 向左旋转 $\Delta m + e$ 个位置，\\
+&\text{ } \text{ } 即按如下方式同态计算 $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_k)$：\\
+&\text{ } \text{ } $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_0) = \textsf{GLWE}_{\vec{S},\sigma}(\Delta V) \cdot X^{-\hat b}$\\
+&\text{ } \text{ } $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_i) = \textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1}) \cdot X^{\hat a_i s_{i-1}}$\\
+&\text{ } \text{ } \text{ } $ = \textsf{GGSW}_{\vec{S},\sigma}^{\beta, l}(s_{i-1})\cdot \bm(\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1}) \cdot X^{\hat{a}_{i-1}} - \textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1})\bm) + \textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1})$\\
+&3. \underline{系数提取}：旋转后的加密多项式 $V_k$ 的常数项为\\
+&\text{ } \text{ } $\Delta m$。从 $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_k)$ 中提取该加密常数项，得到 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m)$。\\\hline
+\textbf{BFV}&1. 按 $q \rightarrow p^\varepsilon$ \underline{切换模数}，转换 $\textsf{RLWE}_{S, \sigma}(\Delta M) \rightarrow \textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1} M) \bmod p^\varepsilon$\\
+&2. \underline{同态解密}:\\
+&\text{ } \text{ } $B + A\cdot \textsf{RLWE}_{S, \sigma}(\Delta' S) = \textsf{RLWE}_{S, \sigma}(\Delta' \cdot(p^{\varepsilon-1}M + E + Kp^\varepsilon)) \bmod q$，其中 $\Delta' = \left\lfloor\dfrac{q}{p^\varepsilon}\right\rfloor$\\
+&3. \underline{\textsf{CoeffToSlot}}：将密文乘以 $n^{-1}\cdot I_n^R \cdot \hathat W$，\\
+&\text{ } \text{ } 把 $p^{\varepsilon-1} M + E + Kp^\varepsilon$ 的明文系数移到输入槽位。\\
+&4. \underline{数位提取}：给定数位提取多项式 $G_{\varepsilon}(x)$，\\
+&\text{ } \text{ } 同态计算：\\
+&\text{ } \text{ } $G_{2} \circ G_{3}\circ \cdots \circ G_{\varepsilon-1} (p^{\varepsilon-1} M + E + Kp^\varepsilon)$\\
+&\text{ } \text{ } 将输出 $M + K^{\langle \varepsilon - 1 \rangle}p$ 存储在明文槽位中。\\
+&\text{ } \text{ } 通过重新解释尺度因子处理乘以 $p$ 逆元的操作。\\
+&5. \underline{\textsf{SlotToCoeff}}：将密文乘以 $\hathat W^*$，把 $M + K^{\langle \varepsilon - 1 \rangle}p$ 移回\\
+&\text{ } \text{ } 多项式系数位置，得到 $\textsf{RLWE}_{S, \sigma}(\Delta'\cdot(M + K^{\langle \varepsilon - 1 \rangle}p)) \bmod q$\\
+&\text{ } \text{ } $  = \textsf{RLWE}_{S, \sigma}(\Delta M) \bmod q$\\
+\hline
+\end{tabular}
+\caption{\textbf{自举细节: TFHE, BFV}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{自举细节}}\\\hline\hline
+\textbf{CKKS}&1. \underline{\textsf{ModRaise}：} 将密文 $(A, B) \bmod q_0$ 视为 $(A, B) \bmod q_L$\\
+%&2. \underline{Homomorphic Decryption } (without scaling down by $\Delta$): \\
+%&\text{ } \text{ } $B + A \cdot \textsf{RLWE}_{S, \sigma}(S) \bmod q_L = B + \langle \textsf{Decomp}^{\beta, l}(A), \textsf{RLev}_{S, \sigma}^{\beta, l}(S) \rangle$\\
+%&$\text{ } \text{ } = \textsf{RLWE}_{S, \sigma}(\Delta M + E + Kq_0) \bmod q_L$\\
+&2. \underline{\textsf{CoeffToSlot}}：将 $\Delta M + E + Kq_0$ 的系数移到输入槽位。\\
+&3. \underline{\textsf{EvalExp}}：在 $\Delta M + E + Kq_0$ 处同态求值\\
+&\text{ } \text{ } 周期为 $q_0$ 的正弦函数的多项式近似，\\
+&\text{ } \text{ } 得到在明文槽位中加密 $\Delta M + E$ 的密文。\\
+&4. \underline{\textsf{SlotToCoeff}}：将 $\Delta M + E$ 移到多项式系数位置，\\
+&\text{ } \text{ } 得到 $\textsf{RLWE}_{S, \sigma}(\Delta M + E)$。\\\hline
+\textbf{BGV}&1. 按 $q_{l} \rightarrow \hat{q}$ \underline{切换模数}，转换\\
+&\text{ } \text{ } $\textsf{RLWE}_{S, \sigma}(M) = (A, B) \bmod q_l \rightarrow \textsf{RLWE}_{S, \sigma}(M) = (\hat{A}, \hat{B}) \bmod \hat{q}$\\ 
+&\text{ } \text{ } 其中 $\hat{q} \equiv 1 \bmod p^\varepsilon$\\
+&2. \underline{密文系数乘以 $p^{\varepsilon-1}$}：\\
+&\text{ } \text{ } 计算 $(p^{\varepsilon-1}\hat{A}, p^{\varepsilon-1}\hat{B}) = (A', B') \bmod \hat{q}$（其中 $\hat{q} \equiv 1 \bmod p^\varepsilon$）\\
+&\text{ } \text{ } 得到密文 $\textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1}M) \bmod \hat{q}$，其噪声为 $p^\varepsilon E$。\\
+&3. \underline{\textsf{ModRaise}}: $(A', B') \bmod \hat{q} \rightarrow (A', B') \bmod q_L$\\
+&\text{ } \text{ } 这就是密文 $\textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1}M + p^\varepsilon E + K'\hat{q}) \bmod q_L$。\\
+&4. \underline{\textsf{CoeffToSlot}}：将密文乘以 $n^{-1}\cdot I_n^R \cdot \hathat W$，\\
+&\text{ } \text{ } 把 $p^{\varepsilon-1}M + p^\varepsilon E + K'\hat{q}$ 的明文系数移到输入槽位。\\
+&5. \underline{数位提取}：给定数位提取多项式 $G_{\varepsilon}(x)$，\\
+&\text{ } \text{ } 同态计算：\\
+&\text{ } \text{ } $\bm(\text{ } G_{2} \circ G_{3}\circ \cdots \circ G_{\varepsilon} (p^{\varepsilon-1} M + p^\varepsilon E + K'\hat{q})\text{ } \bm)$\\
+&\text{ } \text{ } 将输出 $M + K''p$ 存储在明文槽位中。\\
+&\text{ } \text{ } 为处理第 $i$ 轮中乘以 $p$ 逆元的操作，\\
+&\text{ } \text{ } 将所有密文多项式系数乘以 $|p^{-1}|_{q^{\langle i \rangle}}$，使明文部分\\
+&\text{ } \text{ } 从 $Mp^{\varepsilon - i} + K'''p^{\varepsilon - i + 1} \pmod{q^{\langle i \rangle}}$ 更新为 $M^{\varepsilon - i - 1} + K^{\langle i \rangle}p^{\varepsilon - i} \pmod{q^{\langle i \rangle}}$\\
+&\text{ } \text{ } \textcolor{red}{ $\rhd$ 其中 $q^{\langle i \rangle}$ 为该轮对应的密文模数}\\
+&6. \underline{\textsf{SlotToCoeff}}：将密文乘以 $\hathat W^*$，把 $M + K^{\langle \varepsilon - 1 \rangle}p$ 移回\\
+&\text{ } \text{ } 多项式系数位置，得到 $\textsf{RLWE}_{S, \sigma}(M + K^{\langle \textit{last} \rangle}p)$\\
+&\text{ } \text{ } $ = \textsf{RLWE}_{S, \sigma}(M + \Delta K^{\langle \textit{last} \rangle}) \bmod q_{l'}$ \textcolor{red}{ $\rhd$ 其中 $\Delta = p$，最终噪声为 $K^{\langle \textit{last} \rangle}$}\\\hline
+\end{tabular}
+\caption{\textbf{自举细节: CKKS, BGV}}
+\end{table}
+
+\begin{table}[h]
+\begin{tabular}{|c||l|}
+\hline
+&\multicolumn{1}{c|}{\textbf{噪声管理}}\\\hline\hline
+\textbf{TFHE}&通过自举重置噪声。\\
+\textbf{BFV}&\\\hline
+\textbf{CKKS}&- 噪声持续增长，因为自举仅重置\\
+&模数链。为减缓噪声增长，应增大明文的\\
+&尺度因子 $\Delta$。\\
+&- CKKS 的 \textsf{EvalExp} 不能用数位提取多项式去除噪声，\\
+&因为其明文是实数，而非模数环中的元素。\\\hline
+\textbf{BGV}&BGV 的模数切换具有重置噪声的特殊性质，而其\\
+&自举重置模数链，使模数切换能够持续进行。\\\hline
+\end{tabular}
+\caption{\textbf{噪声管理}}
+\end{table}

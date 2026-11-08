@@ -1,0 +1,100 @@
+\textbf{- 参考资料：}
+\href{https://e.math.cornell.edu/people/belk/numbertheory/CyclotomicPolynomials.pdf}{域与分圆多项式}~\cite{cyclotomic-polynomial}
+
+
+\subsection{定义}
+\label{subsec:roots-def}
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:roots-def}} 单位根的定义}}]
+\begin{itemize}
+\item \textbf{$\bm{n}$ 次单位根：}满足方程 $\zeta^n = 1$ 的复数 $\zeta$。
+\item \textbf{$\bm{n}$ 次本原单位根：}满足 $\textsf{ord}_{\mathbb{C}}(\zeta) = n$ 的任意 $n$ 次单位根 $\zeta$。将 $n$ 次本原单位根的集合记为 $P(n)$。
+\end{itemize}
+
+$ $
+
+一个 $n$ 次本原单位根可以视为全部 $n$ 个 $n$ 次单位根的\textit{生成元}。
+\end{tcolorbox}
+
+\subsection{定理}
+\label{subsec:roots-theorem}
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:roots-theorem}.1} $\bm{n}$ 次单位根的公式}}]
+给定 $\zeta^n = 1$，恰有 $n$ 个不同的 $n$ 次单位根：
+
+$ $
+
+$\zeta = e^{2k\pi i/n} = \cos\left(\dfrac{2k\pi}{n}\right) + i\cdot\sin\left(\dfrac{2k\pi}{n}\right)$, 
+
+$ $
+
+\noindent 对应于 $n$ 个不同的 $k$ 值，其中 $k = \{0, 1, \cdots, n-1\}$。
+\end{tcolorbox}
+\begin{myproof} 
+    \begin{enumerate}
+    \item 假设 $\zeta = e^{2k\pi i/n}$。则有 $\zeta^n = (e^{2k\pi i/n})^n = e^{2k\pi i}$。由于 $\zeta^n = 1$，需要寻找使 $e^{2k\pi i} = 1$ 成立的 $k$ 值。
+    \item 欧拉公式给出 $e^{i\cdot x} = \text{cos}(x) + i \cdot \text{sin}(x)$。因此，若 $x = 2k\pi$，则有 $e^{2k\pi i} = \text{cos}(2k\pi) + i \cdot \text{sin}(2k\pi)$。当 $k = 0, 1, 2, ...$ 时，该表达式的值为 1。所以，对于任意整数 $k \geq 0$，都有 $e^{2k\pi i} = 1$。
+    \item 若 $\zeta = e^{2k\pi i/n} = \text{cos}(\frac{2k\pi}{n}) + i\cdot\text{sin}(\frac{2k\pi}{n})$，则 $k = 0, 1, ... \text{ } n-1$ 所对应的前 $n$ 个根互不相同，因为它们位于复平面的圆上：$x$ 轴表示实部，$y$ 轴表示虚部的系数；对于 $k = \{0, 1, \cdots, n-1\}$，各点的角度分别为 $2k\pi/n$。
+    \item 注意，$\zeta^n = 1$ 是 $n$ 次多项式，因此至多有 $n$ 个根。所以，可以将 $k = \{0, 1, \cdots, n-1\}$ 所对应的前 $n$ 个根 $e^{2k\pi i/n}$ 视为这 $n$ 个互异的根，而忽略其余的根（即 $k \geq n$），因为后者只是复平面圆上前 $n$ 个根的重复（见 \autoref{fig:complex-plane}）。
+    \end{enumerate}
+\end{myproof}
+
+\begin{figure}[h!]
+    \centering
+  \includegraphics[width=0.4\linewidth]{figures/euler-formula.png}
+  \caption{复平面中由欧拉公式描述的圆。\href{https://en.wikipedia.org/wiki/Euler's_formula}{（来源）}}
+  \label{fig:complex-plane}
+\end{figure}
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:roots-theorem}.2} 单位根的阶}}]
+给定 $\zeta \in \mathbb{C}$（复数域）以及满足 $n \geq 1$ 的 $\zeta^n = 1$，$\zeta$ 是 $n$ 次单位根，当且仅当 $\textsf{ord}_{\mathbb{C}}(\zeta) \text{ } | \text{ } n$。
+\end{tcolorbox}
+\begin{proof}
+    使用
+    定理~\ref*{subsec:order-theorem}.1：
+    \begin{enumerate}
+    \item \textit{正向证明：}由于 $\textsf{ord}_{\mathbb{C}}(\zeta)=k$ 是使 $\zeta^k = 1$ 成立的最小整数，对于任意满足 $\zeta^n = 1$ 的 $n$，$n$ 必须是 $k$ 的倍数。这意味着 $k \mid n$。
+    \item \textit{反向证明：}若 $k \mid n$，则 $n$ 是 $k$ 的倍数，因此 $\zeta^n = 1$。
+    \end{enumerate}
+    %$(Here, note that our \b\bmodulo computation wraps around a circle of Euler's formula on the complex plane instead of a finite integer field).
+\end{proof}
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:roots-theorem}.3} 全部 $\bm{n}$ 次单位根的集合}}]
+全部 $n$ 次单位根的集合等于并集 $\bigcup_{d|n} P(d)$，即所有满足 $d \text{ } | \text{ } n$ 的 $d$ 次本原单位根集合之并。
+\end{tcolorbox}
+\begin{myproof}
+    \begin{enumerate}
+    \item 设 $\omega = e^{2\pi i/n}$。
+    给定 $\zeta^n = 1$，对于每个 $n$ 次单位根 $\zeta$，在 $k_i = \{0, 1, \cdots, n-1\}$ 时有 $\zeta = \omega^{k_i}$。根据定理~\ref*{subsec:order-theorem}.1，$(\omega^{k_i})^n = 1$ 当且仅当 $\textsf{ord}_{\mathbb{C}}(\omega^{k_i}) \text{ } | \text{ } n$。
+    \item 设 $\textsf{ord}_{\mathbb{C}}(\omega^{k_i}) = d_i$，则 $(\omega^{k_i})^{d_i} = 1$。综合这两个事实可知，每个 $n$ 次单位根 $\omega^{k_i}$ 也都是 $d_i$ 次本原单位根（即 $\zeta^{d_i} = 1$ 的一个解），也就是 $\omega^{k_i} \in P(d_i)$。
+    \item 对于每个 $\textsf{ord}_{\mathbb{C}}(\omega^{k_i}) = d_i$，都有 $d_i \text{ } | \text{ } n$。对于每个整除 $n$ 的 $d_i$，所有（本原）$d_i$ 次单位根也都是 $n$ 次单位根。这是因为，满足 $\zeta^{d_i} = 1$ 的（本原）$d_i$ 次单位根也满足 $\zeta^{n} = 1$，因为 $n$ 是 $d_i$ 的倍数。
+    \item 步骤 2 表明，每个 $n$ 次单位根，都是某个整除 $n$ 的 $d_i$ 所对应的 $d_i$ 次本原单位根。步骤 3 表明，当 $d_i$ 整除 $n$ 时，每个 $d_i$ 次单位根也都是 $n$ 次单位根。综合这两个结论，全部 $n$ 次单位根的集合，等于所有满足 $d_i$ 整除 $n$ 的 $d_i$ 次本原单位根集合之并（即 $\bigcup_{d|n} P(d)$）。
+    \end{enumerate}
+\end{myproof}
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:roots-theorem}.4} $\bm{n}$ 次本原单位根的判定条件}}]
+给定 $k = \{0, 1, \cdots, n-1\}$ 所对应的 $n$ 次单位根 $\zeta = \omega^k$，其中 $\omega = e^{2\pi i/n}$。则 $\zeta$ 是 $n$ 次本原单位根，当且仅当 $\text{gcd}(n, k) = 1$，即 $k$ 与 $n$ 互素。
+\end{tcolorbox}
+\begin{myproof}
+    \begin{enumerate}
+    \item 注意，对于 $k = 1$，有 $\zeta^n = 1$ 和 $\zeta = \omega$。因此，$\textsf{ord}_{\mathbb{C}}(\omega) = n$。
+    \item 定理~\ref*{subsec:order-theorem}.2 表明，若 $ord_{\mathbb{F}}(a) = k$，则对于任意 $n \geq 1$，都有 $ord_{\mathbb{F}}(a^n) = \dfrac{k}{\text{gcd}(k,n)}$。类似地，若 $\textsf{ord}_{\mathbb{C}}(\omega) = n$，则对于任意 $k \geq 1$，都有 $\textsf{ord}_{\mathbb{C}}(\omega^k) = \dfrac{n}{\text{gcd}(k, n)}$。
+    \item 由步骤 2 可知，$\textsf{ord}_{\mathbb{C}}(\omega^k) = n$（即 $\omega^k$ 是 $n$ 次本原单位根），当且仅当 $\text{gcd}(k, n) = 1$。
+    \end{enumerate}
+\end{myproof}
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:roots-theorem}.5} $\bm{n}$ 次本原单位根的个数}}]
+$n$ 次本原单位根的个数为 $\phi(n)$，即 $\{1, \cdots, n-1 \}$ 中与 $n$ 互素的元素个数。
+\end{tcolorbox}
+
+\begin{proof}
+$ $
+\begin{enumerate}
+\item 给定 $\zeta^n = 1$，单位根为 $\zeta = \omega^k$，其中 $\omega = e^{2\pi i/n}$ 且 $k = \{0, 1, \cdots, n-1\}$。
+\item 根据定义，$\omega^k$ 是 $n$ 次本原单位根，当且仅当 $\textsf{ord}_{\mathbb{C}}(\omega^k) = n$。
+\item $\omega$ 是 $n$ 次本原单位根，因为 $\textsf{ord}_{\mathbb{C}}(\omega) = n$。
+\item 根据定理~\ref*{subsec:order-theorem}.2，若 $\textsf{ord}_{\mathbb{C}}(\omega) = n$，则有 $\textsf{ord}_{\mathbb{C}}(\omega^k) = \dfrac{n}{\text{gcd}(k,n)}$。因此，要使 $\textsf{ord}_{\mathbb{C}}(\omega^k) = n$ 成立，$\text{gcd}(k,n)$ 必须为 1。换言之，$k$ 与 $n$ 必须互素。
+$n$ 与 $k = \{1, 2, \cdots, n-1\}$ 之间这样的互素数共有 $\phi(n)$ 个（排除 0，因为 $\text{gcd}(0, n)= n$，且 $\textsf{ord}_{\mathbb{C}}(\omega^0) = \textsf{ord}_{\mathbb{C}}(1) = 1 \neq n$），这也就是 $n$ 次本原单位根的总数。
+\end{enumerate}
+\end{proof}

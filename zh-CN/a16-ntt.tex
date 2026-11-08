@@ -1,0 +1,270 @@
+\textbf{- 参考资料：}
+\href{http://web.cecs.pdx.edu/~maier/cs584/Lectures/lect07b-11-MG.pdf}{多项式与快速傅里叶变换（FFT）}~\cite{ntt}
+
+\subsection{背景与动机}
+\label{subsec:ntt-motivation}
+
+给定两个 $(n-1)$ 次多项式：
+
+$A(X) = \sum\limits_{i=0}^{n-1}a_iX^i$, \textcolor{white}{...} $B(X) = \sum\limits_{i=0}^{n-1}b_iX^i$
+
+多项式乘积 $C(X) = A(X)\cdot B(X)$ 的计算方式如下：
+
+$C(X) = \sum\limits_{i=0}^{2n-2}c_iX^{i}$，其中 $c_i = \sum\limits_{k=0}^{i}a_kb_{i-k}$
+
+计算 $\vec{c} = (c_0, c_1, \cdots, c_{2n-1})$ 的这一运算也称为 $\vec a$ 与 $\vec b$ 的卷积，记为 $\vec{c} = \vec{a} \otimes \vec{b}$。其时间复杂度，即两个数之间乘法运算的总次数，为 $O(n^2)$。
+
+另一种多项式乘法方法基于\textbf{点值表示}。次数为 $(n-1)$ 或更低的多项式 $A(X)$ 的点值表示，是由 $n$ 个坐标点 $\{(x_0, y_0), (x_1, y_1), \cdots (x_{n-1}, y_{n-1})\}$ 组成的集合，其中各个 $x_i$ 是互不相同的 $X$ 坐标，而各个 $y_i$ 不必是互不相同的 $Y$ 坐标。给定次数为 $(n-1)$ 或更低的多项式的点值表示，可以通过多项式插值（见 \autoref{sec:polynomial-interpolation}）恢复该多项式。
+将次数为 $(n-1)$ 或更低的多项式 $A(X)$ 和 $B(X)$ 的点值表示记为：
+
+$A(X)$ : $\bm ( ({x}_0, {y}_0^{\langle a \rangle}), ({x}_1, {y}_1^{\langle a \rangle}), \cdots ({x}_{n-1}, {y}_{n-1}^{\langle a \rangle}) \bm )$
+
+$B(X)$ : $\bm ( ({x}_0, {y}_0^{\langle b \rangle}), ({x}_1, {y}_1^{\langle b \rangle}), \cdots ({x}_{n-1}, {y}_{n-1}^{\langle b \rangle}) \bm )$
+
+
+于是，多项式 $C(X) = A(X) \cdot B(X)$ 的点值表示，可以通过对 $A(X)$ 和 $B(X)$ 的点值表示中的 $y$ 值作 Hadamard 积得到（见 \autoref{subsec:vector-arithmetic} 中的定义~\ref*{subsec:vector-arithmetic}），如下所示：
+
+$C(X)$：$\bm ( ({x}_0, {y}_0^{\langle c \rangle}), ({x}_1, {y}_1^{\langle c \rangle}), \cdots ({x}_{n-1}, {y}_{n-1}^{\langle c \rangle}) \bm )$，其中 ${y}_i^{\langle c \rangle} = {y}_i^{\langle a \rangle} \cdot {y}_i^{\langle b \rangle}$
+
+然而，仅凭这 $n$ 个坐标点，无法恢复多项式 $C(X)$，因为 $C(X)$ 的次数为 $2n-2$，或者低于 $2n-2$。但如果将所有多项式，包括 $A(X), B(X)$ 和 $C(X)$，都视为多项式环 $\mathbb{R}[X]/ (X^n + 1)$（或 $\mathbb{Z}_p[X]/(X^n + 1)$）中的元素，就可以把 $(2n-2)$ 次多项式 $C(X)$ 约减为环中与之同余、次数为 $(n-1)$ 或更低的多项式。此时，$C(X)$ 的 $n$ 个坐标点就足以恢复 $C(X)$。
+
+不过，这种新方法的时间复杂度仍为 $O(n^2)$。两个多项式点值表示之间的 Hadamard 积仅需 $O(n)$，但在 $n$ 个互异 $x$ 值处对多项式求值需要 $O(n^2)$，因为每个多项式有 $n$ 项，需要对 $n$ 个互异 $x$ 值分别计算各项。用于恢复 $C(X)$ 的多项式插值也需要 $O(n^2)$。
+
+为解决这一效率问题，本节介绍一种高效的多项式求值技术：它能在 $O(n \log n)$ 时间内，求出一个多项式在 $n$ 个互异单位根处的值。这类技术分为快速傅里叶变换（FFT）和数论变换（NTT）。两者在方法上几乎相同，区别在于 FFT 使用复数上的多项式环（见 \autoref{sec:roots}），而 NTT 使用有限域上的多项式环，例如素数模整数域（见 \autoref{sec:cyclotomic-polynomial-integer-ring}）。基于 FFT 或 NTT 的多项式乘法包含三个步骤：(1) 正向 FFT 或 NTT；(2) 点值乘法；(3) 逆 FFT 或 NTT。
+
+\subsection{正向 FFT 或 NTT}
+\label{subsec:ntt-forward}
+
+对于 FFT，使用多项式环 $\mathbb{R}[X]/ (X^n + 1)$；对于 NTT，使用 $\mathbb{Z}_p[X]/ (X^n + 1)$，其中 $X^n + 1$ 为分圆多项式。目标多项式的求值坐标 $x$ 选为 $X^n + 1$ 的 $n$ 个互异根，即 $\omega^1$、$\omega^3, \ldots, \omega^{2n-1}$，其中 $\omega$ 为 $2n$ 次本原单位根。于是，多项式 $A(X)$ 的点值表示为 $\bm ( ({x}_0, {y}_0^{\langle a \rangle}), ({x}_1, {y}_1^{\langle a \rangle}), \cdots ({x}_{n-1}, {y}_{n-1}^{\langle a \rangle}) \bm )$，其中：
+
+${y}_i^{\langle a \rangle} = A(\omega^{2i + 1}) = \sum\limits_{j=0}^{n-1}a_{j}\cdot (\omega^{2i + 1})^j = \sum\limits_{j=0}^{n-1}a_{j}\cdot \omega^{(2i + 1)\cdot j}$
+
+$ $
+
+将向量 $\vec{y}^{\langle a \rangle} = (y_0^{\langle a \rangle}, y_1^{\langle a \rangle}, \cdots, y_{n-1}^{\langle a \rangle})$ 称为系数向量 $\vec{a} = (a_0, a_1, \cdots, a_{n-1})$ 的离散傅里叶变换（DFT），记为 $\vec{y}^{\langle a \rangle} = \textsf{DFT}(\vec{a})$。如 \autoref{subsec:ntt-motivation} 所述，直接计算 DFT 需要 $O(n^2)$ 时间，因为对于一个含 $n$ 项的多项式，需要在 $n$ 个互异的 $X$ 值处求值。
+
+\subsubsection{基本思路}
+\label{subsec:ntt-forward-overview}
+
+FFT 或 NTT 是计算 DFT 的改进方法，将时间复杂度从 $O(n^2)$ 降低到 $O(n \log n)$。FFT 的基本思路是：将次数为 $(n-1)$ 或更低的待求值多项式 $A(X)$，拆成两个次数约为原来一半的多项式 $A_0(X)$ 和 $A_1(X)$，如下所示：
+
+
+$A(X) = a_0 + a_1X + a_2X^2 + \cdots + a_{n-1}X^{n - 1}$
+
+$\textcolor{white}{A(X) }= A_0(X^2) + X \cdot A_1(X^2)$
+$A_0(X) = a_0 + a_2X + a_4X^2 + \cdots + a_{n-2}X^{\frac{n}{2} - 1}$
+
+$A_1(X) = a_1 + a_3X + a_5X^2 + \cdots + a_{n-1}X^{\frac{n}{2} - 1}$
+
+将一个多项式拆成两个次数减半的多项式的上述过程，称为 Cooley-Tukey 步骤。将 $A(X)$ 拆成低次多项式 $A_0(X)$ 和 $A_1(X)$ 后，在 $2n$ 次本原单位根的奇数次幂 $\{\omega^1, \omega^3, \omega^5, \cdots, \omega^{2n-1}\}$ 处求 $A(X)$ 的值，等价于在 $n$ 个 $n$ 次单位根的\textit{平方} $\{(\omega^2)^1, (\omega^2)^3, (\omega^2)^5, \ldots, (\omega^2)^{2n-1}\}$ 处求 $A_0(X)$ 和 $A_1(X)$ 的值，再计算 $A_0(X^2) + X\cdot A_1(X^2)$。但是，$2n$ 次本原单位根 $\omega$ 的阶为 $2n$，即 $\omega^{2n} = 1$，并且对于所有 $m < 2n$，都有 $\omega^m \neq 1$。因此，$\{(\omega^2)^1, (\omega^2)^3, (\omega^2)^5, \ldots, (\omega^2)^{2n-1}\}$ 的后半部分只是前半部分的重复。这意味着，只需分别在 $\dfrac{n}{2}$ 个互异的 $x$ 坐标处求 $A_0(X)$ 和 $A_1(X)$ 的值，而无需在 $n$ 个互异坐标处求值，因为另一半的求值结果与前半部分相同：代入多项式的 $x$ 本身就相同。
+
+继续递归地将 $A_0(X)$ 和 $A_1(X)$ 拆为次数减半的多项式，并在数量减半，即 $n/2$ 个 $n$ 次单位根处求值。拆分总轮数为 $\log n$，每轮单位根与系数相乘的次数至多为 $n$，总计为 $O(n \log n)$。
+
+\subsubsection{具体过程}
+\label{subsec:ntt-forward-details}
+
+假设多项式环为 $\mathbb{Z}_{p}[X] / (X^8 + 1)$，即素数 $p$ 对应的有限域上的多项式环，或为复数上的多项式环 $\mathbb{R}[X] / (X^8 + 1)$。
+用 $\omega$ 表示一个 $(2n=16)$ 次本原单位根，
+则 $X^8 + 1$ 的 8 个互异根为 $\{\omega^1, \omega^3, \omega^5, \omega^7, \omega^9, \omega^{11}, \omega^{13}, \omega^{15}\}$。
+
+$ $
+
+将待求值的目标多项式定义为：
+
+$A(X) = a_0 + a_1X + a_2X^2 + a_3X^3 + a_4X^4 + a_5X^5 + a_6X^6 + a_7X^7$
+
+$ $
+
+利用 Cooley-Tukey 步骤，将这个 7 次多项式拆成以下两个 3 次多项式：
+
+$A_0(X) = a_0 + a_2X + a_4X^2 + a_6X^3$
+
+$A_1(X) = a_1 + a_3X + a_5X^2 + a_7X^3$
+
+$A(X) = A_0(X^2) + X \cdot A_1(X^2)$
+
+$ $
+
+再递归地将上述两个 3 次多项式拆成 1 次多项式：
+
+
+$A_{0,0}(X) = a_0 + a_4X$, \textcolor{white}{...} $A_{0,1}(X) = a_2 + a_6X$
+
+$A_0(X) = A_{0,0}(X^2) + X\cdot A_{0,1}(X^2)$
+
+$ $
+
+$A_{1,0}(X) = a_1 + a_5X$, \textcolor{white}{...} $A_{1,1}(X) = a_3 + a_7X$
+
+$A_1(X) = A_{1,0}(X^2) + X\cdot A_{1,1}(X^2)$
+
+$ $
+
+$A(X) = A_0(X^2) + X \cdot A_1(X^2)$
+
+$\mathcolor{white}{A(X)} = \underbrace{\underbrace{(\underbrace{A_{0,0}(X^4)}_{\text{FFT 第 1 层}} + X^2\cdot \underbrace{A_{0,1}(X^4)}_{\text{FFT 第 1 层}})}_{\text{FFT 第 2 层}} + X \cdot \underbrace{(\underbrace{A_{1,0}(X^4)}_{\text{FFT 第 1 层}} + X^2\cdot \underbrace{A_{1,1}(X^4)}_{\text{FFT 第 1 层}})}_{\text{FFT 第 2 层}}}_{\text{FFT 第 3 层}}$
+
+$ $
+
+为了在 $n$ 个互异根 $X = \{\omega^1, \omega^3, \ldots, \omega^{15}\}$ 处求出 $A(X)$ 的值，从第 $1 \leq l \leq 3$ 层开始，对上述公式的每一层 FFT 在 $X = \{\omega^1, \omega^3, \cdots, \omega^{15}\}$ 处求值。
+
+$ $
+
+\para{FFT 第 $\bm{l = 1}$ 层：}在 $X = \{\omega^1, \omega^3, \cdots, \omega^{15}\}$ 处求出 $A_{0,0}(X^4)$、$A_{0,1}(X^4)$、$A_{1,0}(X^4)$ 和 $A_{1,1}(X^4)$ 的值。但是，将 $X = \{\omega^1, \omega^3, \cdots, \omega^{15}\}$ 代入 $X^4$ 后，只会得到两个不同的值 $\omega^4$ 和 $\omega^{12}$，它们对应于 $X^2+1$ 的根。这是因为 $\omega$ 的阶为 $2n$，即 $\omega^{2n} = 1$，因此 $(\omega^1)^4 = (\omega^5)^4 = (\omega^9)^4 = (\omega^{13})^4 = \omega^4$ 且 $(\omega^3)^4 = (\omega^7)^4 = (\omega^{11})^4 = (\omega^{15})^4 = \omega^{12}$。
+所以，只需在 2 个而非 8 个互异的 $x$ 值处，分别求出 $A_{0,0}(X^4)$、$A_{0,1}(X^4)$、$A_{1,0}(X^4)$ 和 $A_{1,1}(X^4)$ 的值。每次求值只需要常数次算术运算：1 次乘法和 1 次加法。由于共有 4 个待求值的多项式，即 $A_{0, 0}(X^4), A_{0, 1}(X^4), A_{1, 0}(X^4), A_{1, 1}(X^4)$，这一层共进行 $4 \cdot 2 = 8$ 次 FFT 基本计算。
+
+$ $
+
+\para{FFT 第 $\bm{l = 2}$ 层：}利用 FFT 第 1 层的求值结果作为基础，在 $X = \{\omega^1, \omega^3, \cdots, \omega^{15}\}$ 处求出 $A_{0}(X^2)$ 和 $A_{1}(X^2)$ 的值。但是，将 $X = \{\omega^1, \omega^3, \cdots, \omega^{15}\}$ 代入 $X^2$ 后，只会得到 4 个不同的值 $\omega^2$、$\omega^6$、$\omega^{10}$ 和 $\omega^{14}$，它们对应于 $X^4+1$ 的根。这是因为 $\omega$ 的阶为 $2n$，即 $\omega^{2n} = 1$，因此 $(\omega^1)^2 = (\omega^9)^2$、$(\omega^3)^2 = (\omega^{11})^2$、$(\omega^5)^2 = (\omega^{13})^2$ 和 $(\omega^7)^2 = (\omega^{15})^2$。所以，只需在 4 个而非 8 个互异的 $x$ 值处，分别求出 $A_{0}(X^2)$ 和 $A_{1}(X^2)$ 的值。每次求值只需常数次算术运算：1 次乘法和 1 次加法。这里复用了 FFT 第 1 层的结果，并且第 2 层的计算结构与第 1 层相同。待求值的多项式共有 2 个，即 $A_{0}(X^2), A_{1}(X^2)$，因此这一层共进行 $2 \cdot 4 = 8$ 次 FFT 基本计算。
+
+$ $
+
+\para{FFT 第 $\bm{l = 3}$ 层：}利用 FFT 第 2 层的求值结果作为基础，在 $X = \{\omega^1, \omega^3, \cdots, \omega^{15}\}$ 处求出 $A(X)$ 的值。在最后一层，所有 8 个 $X$ 值都互不相同，因此都需要求值；每次求值仍只需要常数次算术运算：1 次乘法和 1 次加法。待求值的多项式仅有 1 个，即 $A(X)$，因此这一层共进行 $1 \cdot 8 = 8$ 次 FFT 基本计算。
+
+$ $
+
+\para{一般化：}假设目标多项式的次数至多为 $n-1$，包含 $n$ 项，定义 $L = \log n$ 为 FFT 的总层数。正向 FFT 共需 $L$ 层，其中第 $l$ 层需要对 $2^{L - l}$ 个多项式，分别在 $2^l$ 个互异的 $X$ 值处求值。因此，正向 FFT 的基本计算总次数为 $\sum_{l=1}^{L}(2^{L-l} \cdot 2^l) = L \cdot 2^L = n \log n$
+%$\log (n) \cdot (2^{L - l} \cdot 2^l) = 2^L \log n = n \log n$
+。所以，正向 FFT 的时间复杂度为 $O(n \log n)$。
+
+
+
+使用 FFT 时，层数每降低一级，需要求值的 $x$ 点数就减半，而待求值的多项式数量加倍；两者相互抵消，使每层的计算量保持为 $O(n)$。由于共有 $\log n$ 层，总时间复杂度为 $O(n \log n)$。这一优化的关键在于求值坐标 $x$ 的特殊性质：它的幂，即 $\omega^i$，具有周期性。为保证这种周期性，FFT 将 $x$ 的求值点选为 $2n$ 次本原单位根的奇数次幂。
+
+
+\subsection{逐点乘法}
+\label{subsec:pointwise-multiplication}
+
+对多项式 $A(X)$ 和 $B(X)$ 分别应用正向 FFT（见 \autoref{subsec:ntt-forward}），得到 $\vec{y}^{\langle a \rangle}$ 和 $\vec{y}^{\langle b \rangle}$ 后，就可以通过 Hadamard 积 $ \vec{y}^{\langle c \rangle} = \vec{y}^{\langle a \rangle} \odot \vec{y}^{\langle b \rangle}$，在 $O(n)$ 时间内计算出 $C(X) = A(X) \cdot B(X)$ 的点值表示，如 \autoref{subsec:ntt-motivation} 所述。
+
+\subsection{逆 FFT 或 NTT}
+\label{subsec:ntt-backward}
+
+至此，已经计算出：
+
+$C(X)$：$\bm ( ({x}_0, {y}_0^{\langle c \rangle}), ({x}_1, {y}_1^{\langle c \rangle}), \cdots ({x}_{n-1}, {y}_{n-1}^{\langle c \rangle}) \bm )$，其中 ${y}_i^{\langle c \rangle} = {y}_i^{\langle a \rangle} \cdot {y}_i^{\langle b \rangle}$
+
+$ $
+
+最后一步是将 ${y}_i^{\langle c \rangle}$ 转回 $C(X)$ 的多项式系数 $\vec{c}$。这一逆向操作称为逆 FFT。
+
+给定 $(n-1)$ 次多项式
+$C(X) = \sum\limits_{i=0}^{n-1}c_iX^i$，正向 FFT 在计算上等价于在 $X^n + 1$ 的 $n$ 个互异 $n$ 次单位根处对多项式求值，如下所示：
+
+${y}_i^{\langle c \rangle} = C(\omega^{2i+1}) = \sum\limits_{j=0}^{n-1}c_{j}\cdot (\omega^{2i + 1})^j = \sum\limits_{j=0}^{n-1}c_{j}\cdot \omega^{(2i+1)j}$
+
+上述求值等价于以下矩阵与向量的乘法：
+
+$ $
+
+
+
+${y}_i^{\langle c \rangle} = W \cdot \vec{c}$，\text{ }其中 $W = \begin{bmatrix}
+(\omega^1)^0 & (\omega^1)^1 & \cdots & (\omega^1)^{n-1}\\
+(\omega^3)^0 & (\omega^3)^1 & \cdots & (\omega^3)^{n-1}\\
+\vdots & \vdots & \ddots & \vdots \\
+(\omega^{2n-1})^0 & (\omega^{2n-1})^1 & \cdots & (\omega^{2n-1})^{n-1}\\
+\end{bmatrix} $，\text{ }$\vec{c} = (c_0, c_1, \cdots, c_{n-1})$
+
+$ $
+
+将 $W$ 的各元素记为 $(W)_{i,j} = \omega^{(2i+1)j}$。逆 FFT 就是将上述计算反过来。为实现这种反演，需要找到逆矩阵 $W^{-1}$，使得 $W^{-1} \cdot {y}_i^{\langle c \rangle} = W^{-1} \cdot (W \cdot \vec{c}) = (W^{-1} \cdot W) \cdot \vec{c} = I_n \cdot \vec{c} =  \vec{c}$。
+可以构造如下逆矩阵 $W^{-1}$：
+
+$(W^{-1})_{j,k} = n^{-1}\cdot \omega^{-(2k+1)j}$
+
+$ $
+
+下面说明为何 $W^{-1} \cdot W = I_n$ 成立。$W^{-1} \cdot W$ 的每个元素计算为：
+
+$(W^{-1} \cdot W)_{j, i} = \sum\limits_{k=0}^{n-1}(n^{-1}\cdot \omega^{-(2k+1)j} \cdot \omega^{(2k+1)i}) = n^{-1}\cdot\sum\limits_{k=0}^{n-1}\omega^{(2k+1)(i-j)}$
+
+要使 $W^{-1} \cdot W$ 等于 $I_n$，需要满足：
+
+\[
+(W^{-1} \cdot W)_{j, i} = \begin{cases}
+\text{1，若 } j = i \\
+\text{0，若 } j \neq i \\
+\end{cases}
+\]
+
+如果 $j = i$，则上述条件成立，因为：
+
+$(W^{-1} \cdot W)_{j, i} = n^{-1}\cdot\sum\limits_{k=0}^{n-1}\omega^{(2k+1)(0)} =  n^{-1}\cdot\sum\limits_{k=0}^{n-1}1 = n^{-1} \cdot n = 1$
+
+$ $
+
+对于 $j \neq i$ 的情形，使用等比数列求和公式 $\sum\limits_{i=0}^{n-1}x^i = \dfrac{x^n - 1}{x - 1}$，证明如下：
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:ntt-backward}} 等比数列求和公式}}]
+
+设等比数列之和为 $S_n = 1 + x + x^2 + \cdots + x^{n - 1}$
+
+则 $x \cdot S_n = x + x^2 + x^3 + \cdots + x^{n}$
+
+$x \cdot S_n - S_n = (x + x^2 + x^3 + \cdots + x^{n}) - (1 + x + x^2 + \cdots + x^{n - 1}) = x^n - 1$
+
+$S_n\cdot (x - 1) = x^n - 1$
+
+$S_n = \dfrac{x^n - 1}{x - 1}$ \textcolor{red}{ $\rhd$ 其中要求 $x \neq 1$}
+
+\end{tcolorbox}
+
+目标是计算 $\sum\limits_{k=0}^{n-1}\omega^{(2k+1)(i-j)} = \omega^{i-j} \sum\limits_{k=0}^{n-1}(\omega^{2(i-j)})^k$。在等比数列求和公式中取 $x = \omega^{2(i-j)}$：
+
+$\omega^{i-j} \sum\limits_{k=0}^{n-1}(\omega^{2(i-j)})^k = \omega^{i-j} \dfrac{(\omega^{2(i-j)})^n - 1}{\omega^{2(i-j)} - 1}$ 
+
+$= \omega^{i-j} \dfrac{(\omega^{2n})^{i - j} - 1}{\omega^{2(i-j)} - 1}$
+
+$= \omega^{i-j} \dfrac{(1)^{i - j} - 1}{\omega^{2(i-j)} - 1}$ \textcolor{red}{ $\rhd$ 因为 $\omega$ 的阶为 $2n$，所以 $\omega^{2n}=1$}
+
+\textcolor{red}{ $\rhd$ 这里分母不能为 0。由于 $i \neq j$ 且 $|i-j| < n$，指数 $2(i-j)$ 不是 $2n$ 的倍数。}
+
+$= 0$
+
+$ $
+
+因此，$(W^{-1} \cdot W)_{j, i}$ 在 $j = i$ 时为 1，在 $j \neq i$ 时为 0。所以，逆 FFT 可以计算为 $\vec{c} = W^{-1} \cdot y^{\langle c \rangle}$，其中：
+
+$c_i = \sum_{j=0}^{n-1} (W^{-1})_{i,j} \cdot y_j^{\langle c \rangle}$
+
+$ \sum\limits_{j=0}^{n-1} \left( n^{-1} \cdot \omega^{-(2j+1)i} \right) \cdot y_j^{\langle c \rangle}$ \textcolor{red}{ $\rhd$ 因为 $(W^{-1})_{j,k} = n^{-1} \cdot \omega^{-(2k+1)j}$，且 $(W^{-1})_{i,j} = n^{-1} \cdot \omega^{-(2j+1)i}$}
+
+$ = n^{-1}\cdot \sum\limits_{j=0}^{n-1}{y}_j^{\langle c \rangle} \cdot \omega^{-(2j+1)i}$
+
+$ = n^{-1} \sum\limits_{j=0}^{n-1} y_j^{\langle c \rangle} \cdot (\omega^{-2ji} \cdot \omega^{-i}) $ \textcolor{red}{ $\rhd$ 因为 $\omega^{-(2j+1)i} = \omega^{-2ji - i} = \omega^{-2ji} \cdot \omega^{-i}$}
+
+$= n^{-1} \omega^{-i} \sum\limits_{j=0}^{n-1} {y}_j^{\langle c \rangle} (\omega^{-2})^{ji}$
+
+$ $
+
+
+复用正向过程中介绍的递归拆分技术（见 \autoref{subsec:ntt-forward-details}），逆变换同样可以达到 $O(n \log n)$ 的时间复杂度。
+
+
+\begin{comment}
+\begin{algorithm}[t]
+\algrenewcommand\algorithmicindent{1em} % Adjust indentation herei.e., 
+\begin{algorithmic}[1]
+\State \textsf{FFT}$(\vec{a}):$ %\textcolor{red}{ $\rhd$ an RLWE ciphertext storing $k$ zeros and non-zero random numbers, whose ratio varies}
+\State $n' \gets$ $\vec{a}$ 的长度
+\If{$n' = 1$}
+    \State \textbf{返回} $a$
+\EndIf
+\State $\omega = e^{\frac{2\pi}{k}}$ \textcolor{red}{ $\rhd$ 在 NTT 情形下为 $\omega = g^{\frac{p-1}{n}}$}
+\State $\omega' = 1$
+\State $\vec{a}^{\langle 0 \rangle} = (a_0, a_2, \cdots, a_{n'-2})$
+\State $\vec{a}^{\langle 1 \rangle} = (a_1, a_3, \cdots, a_{n'-1})$
+\State $\vec{y}^{\langle 0 \rangle} = \textsf{FFT}(\vec{a}^{\langle 0 \rangle})$
+\State $\vec{y}^{\langle 1 \rangle} = \textsf{FFT}(\vec{a}^{\langle 1 \rangle})$
+\For{$i \in \{0, 1, \cdots \frac{n'}{2} - 1\}$}
+    \State $y_i \gets y_i^{\langle 0 \rangle} + \omega \cdot y_i^{\langle 1 \rangle}$
+    \State $y_{i+\frac{n}{2}} \gets y_i^{\langle 0 \rangle} + \omega \cdot y_i^{\langle 1 \rangle}$
+    \State $\omega' = \omega' \cdot \omega$
+\EndFor
+\State \textbf{返回} $\vec{y}$
+\end{algorithmic}
+\caption{快速傅里叶变换（FFT）}
+\label{alg:fft}
+\end{algorithm}
+\end{comment}

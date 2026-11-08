@@ -1,0 +1,77 @@
+RLWE 密码体制的密文是二元组 $(A, B)$，其中 $B = S \cdot A + \Delta \cdot M + E$。公开随机掩码 $A$ 与秘密密钥 $S$ 都是 $(n-1)$ 次多项式；消息 $M$ 和噪声 $E$ 都是 $(n-1)$ 次多项式。与 LWE 类似，每个密文都使用新的公开随机掩码 $A$，而所有密文使用同一个秘密密钥 $S$。为简化记号，本节将每个密文实例记为 $(A, B)$，而不使用 $(A^{\langle i \rangle}, b^{\langle i \rangle})$。
+
+在 RLWE 中，所有多项式运算都在多项式环 $\mathbb{Z}_q[x] / (x^n + 1)$ 中进行，其中 $x^n + 1$ 为分圆多项式，对于某个整数 $f$ 满足 $n = 2^f$，且多项式系数属于 $\mathbb{Z}_q$。因此，RLWE 中所有多项式的系数范围为 $\mathbb{Z}_q$，最高次数为 $n -1$。为简化记号，记 $\mathcal{R}_{\langle n,q \rangle} = \mathbb{Z}_q[x] / (x^n + 1)$。
+
+\subsection{参数设置}
+
+设 $t$ 为明文空间大小，$q$ 为密文空间大小，其中 $t < q$，即 $t$ 远小于 $q$，并且 $t | q$，即 $t$ 整除 $q$。随机选取 $(n-1)$ 次多项式 $S \in \mathcal{R}_{\langle n, q \rangle}$ 作为秘密密钥，其系数取自 $\{-1, 0, 1\}$。令明文尺度因子为 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$。
+
+RLWE 的设置参数与 LWE 类似。区别在于，$S$ 不再是从 $\{-1, 0, 1\}$ 中采样的长度为 $k$ 的向量，而是包含 $n$ 个秘密系数的 $(n-1)$ 次多项式。每个系数都是从 $\{-1, 0, 1\}$ 中随机采样的三元数，记为 $S \xleftarrow{\$} \mathcal{R}_{\langle n, \textit{tern} \rangle}$。
+
+
+\subsection{加密}
+\label{subsec:rlwe-enc}
+
+\begin{enumerate}
+\item 假设有一个 $(n-1)$ 次多项式 $M \in \mathcal{R}_{\langle n, t \rangle}$，其系数表示要加密的明文数值。
+\item 随机选取 $(n-1)$ 次多项式 $A \in \mathcal{R}_{\langle n,q \rangle}$ 作为一次性的公开随机掩码，记为 $A \xleftarrow{\$} \mathcal{R}_{\langle n, q \rangle}$。
+\item 随机选取小系数多项式 $E \in \mathcal{R}_{\langle n,q \rangle}$ 作为一次性噪声，其 $n$ 个系数都是 $\mathbb{Z}_q$ 中从高斯分布 $\chi_\sigma$ 随机采样的小数值，记为 $E \xleftarrow{\chi_\sigma} \mathcal{R}_{\langle n, q \rangle}$。
+\item 将 $M$ 按 $\Delta$ 缩放，即计算 $\Delta \cdot M$。这将 $M \in \mathcal{R}_{\langle n,t \rangle}$ 转换为 $\Delta \cdot M \in \mathcal{R}_{\langle n,q \rangle}$。
+\item 计算 $B = A \cdot S + \Delta \cdot M + E \bmod \mathcal{R}_{\langle n,q \rangle}$，即按 $n$ 约减多项式次数，并将系数模 $q$ 约减。
+\item 最终密文为 $(A, B)$。
+\end{enumerate}
+
+$ $
+
+RLWE 加密公式汇总如下：
+
+$ $
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rlwe-enc}} RLWE 加密}}]
+\textbf{\underline{初始设置}：}$\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$，$S \xleftarrow{\$} \mathcal{R}_{\langle n, \textit{tern} \rangle}$
+
+$ $
+
+$ $
+
+\textbf{\underline{加密输入}：}$M \in \mathcal{R}_{\langle n, t \rangle}$，$A \xleftarrow{\$} \mathcal{R}_{\langle n, q \rangle}$，$E \xleftarrow{\chi_\sigma} \mathcal{R}_{\langle n, q \rangle}$
+
+$ $
+
+\begin{enumerate}
+\item 向上缩放 $M \longrightarrow \Delta  M \text{ } \in \mathcal{R}_{\langle n, q \rangle}$
+\item 计算 $B = A \cdot S + \Delta  M + E  \text{ } \bmod \mathcal{R}_{\langle n,q \rangle}$
+\item $\textsf{RLWE}_{S,\sigma}(\Delta  M + E) = (A, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^2$
+\end{enumerate}
+
+\end{tcolorbox}
+
+\subsection{解密}
+\label{subsec:rlwe-dec}
+
+\begin{enumerate}
+\item 给定密文 $(A, B)$，其中 $B = A \cdot S + \Delta \cdot M + E \in \mathcal{R}_{\langle n,q \rangle}$，计算 $B - A \cdot S = \Delta \cdot M + E$。
+\item 将多项式 $\Delta \cdot M + E \in \mathcal{R}_{\langle n,q \rangle}$ 的每个系数舍入到最接近的 $\Delta$ 的整数倍，即按基数 $\Delta$ 舍入，记为 $\lceil \Delta \cdot M + E \rfloor_{\Delta}$。这一操作可以成功消去 $E$，得到 $\Delta \cdot M$。需要注意的是，噪声多项式 $E$ 的每个系数 $e_i$ 都必须足够小，满足 $|e_i| < \dfrac{\Delta}{2}$，才能在舍入过程中被消去。否则，$e_i$ 的部分高位会与明文 $m_i$ 系数的低位重叠并将其破坏，而且无法通过舍入消去。
+\item 计算 $\dfrac{\Delta \cdot M}{\Delta}$，等价于将 $\Delta \cdot M$ 的每个多项式系数按 $\Delta$ 向下缩放；若 $\Delta$ 是 2 的幂，也就等价于将每个系数右移 $\text{log}_2 \Delta$ 位。
+\end{enumerate}
+
+$ $
+
+RLWE 解密公式汇总如下：
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rlwe-dec}} RLWE 解密}}]
+
+\textbf{\underline{解密输入}：}$\textsf{ct} = (A, B) \text{ } \in \mathcal{R}_{\langle n, q \rangle}^{2}$
+
+$ $
+
+\begin{enumerate}
+
+\item $\textsf{RLWE}^{-1}_{S,\sigma}(\textsf{ct}) = B - A \cdot S = \Delta  M + E \text{ } \in \mathcal{R}_{\langle n,q \rangle}$ 
+\item 向下缩放 $\Bigg\lceil\dfrac{ \Delta M + E}{\Delta}\Bigg\rfloor \bmod t = M \text{ } \in \mathcal{R}_{\langle n,t \rangle}$
+
+\end{enumerate}
+
+为了正确解密，噪声多项式 $E$ 的每个系数 $e_i$ 都应满足 $|e_i| < \dfrac{\Delta}{2}$。如果 $t$ 不整除 $q$，还要求 $q$ 充分大于 $t$。
+
+\end{tcolorbox}

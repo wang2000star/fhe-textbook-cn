@@ -1,0 +1,171 @@
+
+\noindent \textbf{- 参考资料}
+
+\href{https://www.youtube.com/watch?v=fz1vxq5ts5I}{YouTube -- 扩展欧几里得算法教程}。
+
+
+\subsection{概述}
+\label{subsec:modulo-overview} 
+
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:modulo-overview}} 整数取模}}]
+
+\begin{itemize}
+
+\item \textbf{取模（modulo）}是计算一个数除以另一个数所得余数的运算。\textbf{modulo} 常缩写为 \textbf{mod}。
+
+$ $
+
+\item \textbf{$\bm{a}$ mod $\bm{q}$（即 $\bm{a} \bm{\text{ modulo } q}$）}是 $a$ 除以 $q$ 所得的余数，其值总是 $\{0, 1, 2, 3, \cdots, q-1\}$ 中的一个元素。例如，$7 \bmod 5 = 2$，因为 7 除以 5 的余数为 2。
+
+$ $
+
+\item \textbf{模数：}对于 $\bm{a}$ mod $\bm{q}$，我们将除数 $q$ 称为模数，而 \emph{取模}指的是相应的运算。
+
+$ $
+
+\item \textbf{模同余（$\bm{\equiv}$）：}若 $a$ 与 $b$ 除以 $q$ 后的余数相同，则称它们模 $q$ 同余（即 $a \equiv b \textbf{ mod } q$）。例如，$5 \equiv 12 \bmod 7$，因为 $5 \bmod 7 = 5$ 且 $12 \bmod 7 = 5$。在数学中，记号 $a \equiv b \bmod q$ 与 $a = b \pmod q$ 的含义相同，都表示 $a$ 除以 $q$ 的余数与 $b$ 除以 $q$ 的余数相同。注意，这种记号不同于 $a = b \bmod q$，后者表示 $a$ 等于 $b$ 除以 $q$ 的余数。
+
+$ $
+
+\item \textbf{同余与相等：}
+
+$a \equiv b \bmod q \Longleftrightarrow a = b + k\cdot q$ \text{ }（其中 $k$ 为某个整数）
+
+$ $
+
+这意味着，$a$ 与 $b$ 模 $q$ 同余，当且仅当 $a$ 与 $b$ 之差是 $q$ 的某个整数倍。例如，$5 \equiv 12 \bmod 7 \Longleftrightarrow 5 = 12 + (-1)\cdot 7$
+
+\end{itemize}
+
+\end{tcolorbox}
+
+
+\subsection{模运算}
+\label{subsec:modulo-arithmetic}
+
+模运算支持加法、减法和乘法。这些运算具有如下性质：
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:modulo-arithmetic}.1} 模运算的性质}}]
+对于任意整数 $x$，有：
+
+\begin{enumerate}
+\item \textbf{加法：}$a \equiv b \bmod q \Longleftrightarrow a + x\equiv b + x\bmod q$
+
+\item \textbf{减法：}$a \equiv b \bmod q \Longleftrightarrow a - x\equiv b - x\bmod q$
+
+\item \textbf{乘法：}$a \equiv b \bmod q \Longleftrightarrow a \cdot x \equiv b \cdot x \bmod q$。
+上述等价关系成立的前提是 $\gcd(x,q)=1$。如果不满足这一假设，则只能保证蕴含关系 $a \equiv b \bmod q \Rightarrow a \cdot x \equiv b \cdot x \bmod q$ 成立。
+
+\end{enumerate}
+
+\end{tcolorbox}
+
+\begin{proof}
+
+$ $
+
+对于任意整数 $x$，
+
+\begin{enumerate}
+
+
+\item \textbf{加法：}$a \equiv b \bmod q \Longleftrightarrow a = b + k q $（其中 $k$ 为某个整数）\textcolor{red}{ \text{ } \# $a$ 与 $b$ 之差是 $q$ 的某个整数倍}
+
+$\Longleftrightarrow a + x = b + k\cdot q + x$
+
+$\Longleftrightarrow a + x = b + x + k\cdot q$ \textcolor{red}{ $\rhd$ $a+x$ 与 $b+x$ 之差是 $q$ 的某个整数倍}
+
+$\Longleftrightarrow a + x \equiv b + x \bmod q$
+
+$ $
+
+\item \textbf{减法：}$a \equiv b \bmod q \Longleftrightarrow a = b + k q $（其中 $k$ 为某个整数）
+
+$\Longleftrightarrow a - x = b + k\cdot q - x$
+
+$\Longleftrightarrow a - x = b - x + k\cdot q$ \textcolor{red}{ $\rhd$ $a-x$ 与 $b-x$ 之差是 $q$ 的某个整数倍}
+
+$\Longleftrightarrow a - x \equiv b - x \bmod q$
+
+$ $
+
+\item \textbf{乘法：}$a \equiv b \bmod q \Longleftrightarrow a = b + k q $（其中 $k$ 为某个整数）
+
+$\Longrightarrow a \cdot x = b \cdot x + k\cdot q \cdot x$
+
+$\Longrightarrow a \cdot x = b \cdot x + k_x\cdot q$（其中 $k_x = k \cdot x$）\textcolor{red}{ $\rhd$ $a\cdot x$ 与 $b\cdot x$ 之差是 $q$ 的某个整数倍}
+
+$\Longrightarrow a \cdot x \equiv b \cdot x \bmod q$
+
+反过来，如果 $x$ 与 $q$ 互素（即 $\gcd(x,q)=1$），则 $x$ 在模 $q$ 下存在乘法逆元 $x^{-1}$。由 $a \cdot x \equiv b \cdot x \bmod q$ 可得
+
+$\Longrightarrow a \cdot x \cdot x^{-1} \equiv b \cdot x \cdot x^{-1} \bmod q$
+
+$\Longrightarrow a \equiv b \bmod q$
+
+\end{enumerate}
+\end{proof}
+
+根据定理~\ref*{subsec:modulo-arithmetic}.1 中的模运算，还可以推导出如下性质：
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:modulo-arithmetic}.2} 模运算的代数性质}}]
+
+\begin{enumerate}
+\item \textbf{结合律：}$(a \cdot b) \cdot c \equiv a \cdot (b \cdot c) \bmod q$
+
+\item \textbf{交换律：}$(a \cdot b) \equiv (b \cdot a) \bmod q$
+
+\item \textbf{分配律：}$(a \cdot (b + c)) \equiv ((a \cdot b) + (a \cdot c))  \bmod q$
+
+\item \textbf{可替换性：}在模运算中，同余的数可以相互替换。
+
+例如，假设 $(a \equiv b \bmod q)$ 且 $(c \equiv d \bmod q)$。那么，在模运算中，$a$ 与 $b$ 可以相互替换，$c$ 与 $d$ 也可以相互替换，如下所示：
+
+$(a + c) \equiv (b + d) \equiv (a + d) \equiv (b + c) \bmod q$
+
+$(a - c) \equiv (b - d) \equiv (a - d) \equiv (b - c) \bmod q$
+
+$(a \cdot c) \equiv (b \cdot d) \equiv (a \cdot d) \equiv (b \cdot c) \bmod q$
+
+\end{enumerate}
+
+\end{tcolorbox}
+
+定理~\ref*{subsec:modulo-arithmetic}.2 的证明与定理~\ref*{subsec:modulo-arithmetic}.1 类似，留给读者作为练习。
+
+
+\subsection{逆元}
+\label{subsec:modulo-inverse}
+
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:modulo-inverse}} 模运算中的逆元}}]
+
+在模 $q$ 下（即所有数除以 $q$ 后得到的余数组成的世界中），对于每个 $a \in \{0, 1, 2, \cdots, q-1\}$：
+
+\begin{itemize}
+
+\item $a$ 的\textbf{加法逆元}记为 $a_+^{-1}$，满足 $a + a_+^{-1} \equiv 0 \bmod q$。例如，在模 11 下，$3_+^{-1} = 8$，因为 $3 + 8 \equiv 0 \bmod 11$。
+
+\item $a$ 的\textbf{乘法逆元}记为 $a_*^{-1}$，满足 $a \cdot a_*^{-1} \equiv 1 \bmod{q}$。这样的逆元存在，当且仅当 $\gcd(a,q)=1$。例如，在模 11 下，$3_*^{-1} = 4$，因为 $3 \cdot 4 \equiv 1 \bmod{11}$。
+
+\end{itemize}
+
+\end{tcolorbox}
+
+\subsection{模除法}
+\label{subsec:modulo-division}
+
+在模运算中，\textit{模除法}与通常的数值除法不同。严格来说，并不存在一个独立的“模除法”运算，因为取模运算本身就只返回除法的余数。在实际使用中，“模除法”指的是在模逆元存在时，即满足 $\gcd(a,q)=1$ 时，乘以该逆元。在模 $q$ 下，用 $a$ 除 $b$ 的\textit{模除法}等价于计算\textit{模}乘法 $b \cdot a^{-1} \bmod q$。\textit{模除法}的结果与数值除法不同：\textit{模除法}总是得到整数（模 $q$ 的一个剩余类代表），因为它在模 $q$ 下将两个整数相乘；而数值除法的结果可以是实数。整数模 $q$ 的逆元可以通过扩展欧几里得算法计算（\href{https://www.youtube.com/watch?v=fz1vxq5ts5I}{YouTube 教程}）。
+
+\subsection{中心化剩余表示}
+\label{subsec:modulo-centered}
+
+本节此前一直将余数视为正整数。例如，假设模 $q$ 的余数取自 $\{0, 1, \cdots, q-1\}$。这种表示称为标准（即无符号）剩余表示。与之对应，还可以采用有符号（即中心化）的剩余表示 $\left\{-\dfrac{q}{2}, -\dfrac{q}{2} + 1, \cdots, 0, \cdots, \dfrac{q}{2} - 2, \dfrac{q}{2} - 1\right\}$\footnote{这里假设 $q$ 为偶数。若 $q$ 为奇数，则剩余代表为 $\left\{ -\dfrac{q-1}{2}, -\dfrac{q-3}{2}, \cdots, 0, \cdots, \dfrac{q-3}{2}, \dfrac{q-1}{2}\right\}$。}，使剩余代表分布在 $0$ 两侧，而剩余代表的总数仍为 $q$。在这两种表示中，取模运算都将给定的值变换到相应的剩余代表范围内：(1) 如果给定值大于该范围的上界，就减去模数 $q$；(2) 如果该值小于范围的下界，就加上模数 $q$。这两种表示（标准表示与中心化表示）的区别仅在于上下界：标准剩余表示的下界和上界分别为 $0$ 与 $q-1$，而中心化剩余表示的下界和上界分别为 $-\dfrac{q}{2}$ 与 $\dfrac{q}{2} - 1$。标准剩余表示约定 $\mathbb{Z}_q = \{0, 1, \cdots, q-1\}$，中心化剩余表示则约定 $\mathbb{Z}_q = \left\{-\dfrac{q}{2}, -\dfrac{q}{2} + 1, \cdots, 0, \cdots, \dfrac{q}{2} - 2, \dfrac{q}{2} - 1\right\}$。
+
+在两种表示中，加法、减法、乘法以及除数可逆时的除法都具有相同的性质。可以利用 \autoref{subsec:modulo-arithmetic} 中的推理证明这一点：在任一表示中，两个同余的剩余代表之差都是 $q$ 的整数倍。
+
+逆元也具有相同的性质：$a$ 模 $q$ 的逆元为满足 $a \cdot a^{-1} \equiv 1 \bmod q$ 的 $a^{-1}$。
+
+在某些情况下，使用有符号剩余表示很有帮助。先看标准（即无符号）剩余表示的例子：假设有表达式 $a + b \bmod q$，并且已知在某个应用中，$a + b$ 一定处于 $[0, q-1]$ 范围内（即 $0 \leq a + b \leq q-1$）。此时，$(a + b \bmod q)$ = $a + b$，因此可以省去取模运算，简化表达式。再看中心化（即有符号）剩余表示的另一个例子：假设有表达式 $a - b \bmod q$，并且已知在某个应用中，$a - b$ 一定处于 $\left[-\dfrac{q}{2}, \dfrac{q}{2} - 1\right]$ 范围内，则有 $(a - b \bmod q) = a - b$。但是，如果表达式 $a - b \bmod q$ 使用标准剩余表示，就不能省去取模运算，因为当 $a - b$ 为负数时，它小于标准剩余表示的下界（即 $0$），因此仍需进行模约减（即加上一个或多个 $q$）。
+
+在 \autoref{subsec:rns-fastbconvex} 中，我们利用中心化剩余表示的这一有利性质设计 \textsf{FastBConvEx} 运算：在该算法中，由于已知 $-\dfrac{b_\alpha}{2} \leq \mu + u < \dfrac{b_\alpha}{2}$，因此可以将 $(\mu + u \bmod b_\alpha)$ 简化为 $\mu + u$。

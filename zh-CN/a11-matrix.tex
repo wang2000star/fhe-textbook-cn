@@ -1,0 +1,798 @@
+
+
+\subsection{向量运算}
+\label{subsec:vector-arithmetic}
+
+本节介绍向量和矩阵计算的基本运算，以及向量投影、平面投影、平面或空间的基等进一步的概念。
+
+
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:vector-arithmetic}} 向量运算}}]
+
+\begin{itemize}
+\item \textbf{加法：}给定两个 $n \times 1$ 向量（即 $n$ 维向量），每个向量由 $n$ 个数组成：
+
+$\vec{a} = (a_0, a_1,\cdots, a_{n-1})$, $\vec{b} = (b_0, b_1,\cdots, b_{n-1})$
+
+$ $
+
+向量加法定义为：
+
+$ \vec{a} + \vec{b} = (a_0 + b_0, \text{ } a_1  +  b_1, \text{ }\cdots, \text{ } a_{n-1}  +  b_{n-1})$
+
+$ $
+
+\item \textbf{点积：}给定两个 $n$ 维向量：
+
+$\vec{a} = (a_0, a_1,\ldots, a_{n-1})$, $\vec{b} = (b_0, b_1,\ldots, b_{n-1})$
+
+$ $
+
+点积定义为：
+
+$\langle \vec{a}, \vec{b} \rangle =  \vec{a} \cdot \vec{b} = a_0 b_0 + a_1 b_1 +\cdots + a_{n-1} b_{n-1}$.
+
+$\vec{a} \cdot \vec{b}$ 也可以表示为 $\|\vec{a}\|\,\|\vec{b}\|\cos\theta$，其中 $\theta$ 是 $\vec{a}$ 与 $\vec{b}$ 的夹角。当 $\vec{a}$ 和 $\vec{b}$ 指向同一方向时，$\vec{a}\cdot\vec{b}$ 取得最大值（$\|\vec{a}\|\,\|\vec{b}\|$）。当 $\vec{a}$ 与 $\vec{b}$ 正交时，$\vec{a}\cdot\vec{b} = 0$。
+
+$ $
+
+
+\item \textbf{Hadamard 积：}给定两个 $n$ 维向量：
+
+$\vec{a} = (a_0, a_1,\ldots, a_{n-1})$, $\vec{b} = (b_0, b_1,\ldots, b_{n-1})$
+
+$ $
+
+Hadamard 积定义为：
+
+$\vec{a} \odot \vec{b} = (a_0 b_0, \text{ } a_1 b_1, \text{ }\cdots, \text{ } a_{n-1} b_{n-1})$
+
+$ $
+
+\item \textbf{Hermitian 内积：}给定两个 $n$ 维复向量：
+
+$\vec{a} = (a_0 + i \cdot a'_0, \text{ } a_1+ i\cdot a'_1, \text{ }\ldots,\text{ }  a_{n-1}+ i\cdot a'_{n-1})$ 
+
+$\vec{b} = (b_0 + i\cdot b'_0, \text{ } b_1 + i\cdot b'_1, \text{ }\ldots, \text{ } b_{n-1} + i\cdot b'_{n-1})$
+
+$ $
+
+Hermitian 内积是对第二个操作数取共轭（见 \autoref{subsec:imaginary}）后的点积：
+
+$\langle\langle \vec{a}, \vec{b} \rangle\rangle =  \vec{a} \cdot \overline{\vec{b}} $
+
+$ = (a_0 + i \cdot a'_0, \text{ } a_1+ i\cdot a'_1, \text{ }\cdots,\text{ } a_{n-1}+ i\cdot a'_{n-1})  \cdot (b_0 - i\cdot b'_0, \text{ } b_1 - i\cdot b'_1, \text{ }\cdots, \text{ } b_{n-1} - i\cdot b'_{n-1})$
+
+
+
+
+\end{itemize}
+\end{tcolorbox}
+
+
+
+
+\subsection{不同类型的矩阵}
+\label{subsec:vandermonde}
+
+
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:vandermonde}} 矩阵}}]
+
+
+\begin{itemize}
+
+\item $n \times n$ 的\textbf{单位矩阵}和\textbf{反序单位矩阵}定义为：
+
+$I_n = \begin{bmatrix}
+1 & 0 & 0 & \cdots & 0\\
+0 & 1 & 0 & \cdots & 0 \\
+0 & 0 & 1 & \cdots & 0 \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+0 & 0 & 0 & \cdots & 1 \\
+\end{bmatrix}$, $I^R_n = \begin{bmatrix}
+0 & \cdots & 0 & 0 & 1\\
+0 & \cdots & 0 & 1 & 0 \\
+0 & \cdots & 1 & 0 & 0 \\
+\vdots & \iddots & \vdots & \vdots & \vdots \\
+1 & 0 & 0 & \cdots & 0 \\
+\end{bmatrix}$
+
+$ $
+
+\item 矩阵 $X$ 的\textbf{转置}是将各元素关于主对角线对调，记为 $X^T$，即：
+
+
+$X = \begin{bmatrix}
+a_1 & a_2 & a_3 & \cdots & a_n\\
+b_1 & b_2 & b_3 & \cdots & b_n \\
+c_1 & c_2 & c_3 & \cdots & c_n \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+m_1 & m_2 & m_3 & \cdots & m_n \\
+\end{bmatrix}$, $X^T = \begin{bmatrix}
+a_1 & b_1 & c_1 & \cdots & m_1\\
+a_2 & b_2 & c_2 & \cdots & m_2\\
+a_3 & b_3 & c_3 & \cdots & m_3\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+a_n & b_n & c_n & \cdots & m_n\\
+\end{bmatrix}$
+
+$ $
+
+
+\item \textbf{Vandermonde 矩阵}是一个 $(m + 1) \times (n + 1)$ 矩阵，定义为：
+
+$\mathit{Vander}(x_0, x_1, \cdots, x_{m}) = \begin{bmatrix}
+1 & x_0 & x_0^2 & \cdots & x_0^n\\
+1 & x_1 & x_1^2 & \cdots & x_1^n \\
+1 & x_2 & x_2^2 & \cdots & x_2^n \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & x_m & x_m^2 & \cdots & x_m^{n} \\
+\end{bmatrix}$
+
+%A Vandermonde matrix is often used for representing $m$ different $n$-degree polynomials.
+
+\end{itemize}
+
+\end{tcolorbox}
+
+
+ 
+
+
+
+
+
+\subsection{矩阵运算}
+\label{subsec:matrix-arithmetic}
+
+
+矩阵与向量相乘、矩阵与矩阵相乘分别定义如下：
+
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:matrix-arithmetic}} 矩阵运算}}]
+
+\begin{itemize}
+\item \textbf{矩阵与向量相乘：}给定 $m \times n$ 矩阵 $A$ 和 $n$ 维向量 $x$：
+
+
+$A = \begin{bmatrix}
+ a_{1, 1} & a_{1, 2} & a_{1, 3} & \cdots & a_{1, n}\\
+ a_{2, 1} & a_{2, 2} & a_{2, 3} & \cdots & a_{2, n} \\
+ a_{3, 1} & a_{3, 2} & a_{3, 3} & \cdots & a_{3, n} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+ a_{m, 1} & a_{m, 2} & a_{m, 3} & \cdots & a_{m, n} \\
+\end{bmatrix} = \begin{bmatrix} 
+\vec{a}_{1, * } \\ 
+\vec{a}_{2, * } \\ 
+\vec{a}_{3, * } \\ 
+\vdots\\
+\vec{a}_{m, * } \\ 
+\end{bmatrix}, \text{ } \vec{x} = (x_1, x_2, \cdots, x_{n})$
+
+
+$ $
+
+$A \cdot \vec{x}$ 的结果是一个 $m$ 维向量，计算如下：
+
+$A \cdot \vec{x} = \Big(\vec{a}_{1, * } \cdot \vec{x}, \text{ } \vec{a}_{2, * } \cdot \vec{x}, \text{ }\cdots,\text{ } \vec{a}_{m, * } \cdot \vec{x} \Big) = \left(\sum\limits_{i=1}^{n} a_{1, i} \cdot  x_i, \text{ } \sum\limits_{i=1}^{n}  a_{2, i} \cdot x_i,\cdots, \text{ } \sum\limits_{i=1}^{n} a_{m, i} \cdot x_i \right)$
+
+
+$ $
+
+
+\item \textbf{矩阵与矩阵相乘：}给定 $m \times n$ 矩阵 $A$ 和 $n \times k$ 矩阵 $B$：
+
+
+
+$A = \begin{bmatrix}
+ a_{1, 1} & a_{1, 2} & a_{1, 3} & \cdots & a_{1, n}\\
+ a_{2, 1} & a_{2, 2} & a_{2, 3} & \cdots & a_{2, n} \\
+ a_{3, 1} & a_{3, 2} & a_{3, 3} & \cdots & a_{3, n} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+ a_{m, 1} & a_{m, 2} & a_{m, 3} & \cdots & a_{m, n} \\
+\end{bmatrix}$, $B = \begin{bmatrix}
+ b_{1, 1} & b_{1, 2} & b_{1, 3} & \cdots & b_{1, k}\\
+ b_{2, 1} & b_{2, 2} & b_{2, 3} & \cdots & b_{2, k} \\
+ b_{3, 1} & b_{3, 2} & b_{3, 3} & \cdots & b_{3, k} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+ b_{n, 1} & b_{n, 2} & b_{n, 3} & \cdots & b_{n, k} \\
+\end{bmatrix}$
+
+$ $
+
+$A \cdot B$ 的结果是一个 $m \times k$ 矩阵，计算如下：
+
+$A \cdot B = \begin{bmatrix}
+\sum\limits_{i=1}^{n}a_{1, i}b_{i, 1} & \sum\limits_{i=1}^{n}a_{1, i}b_{i, 2} & \sum\limits_{i=1}^{n}a_{1, i}b_{i, 3} & \cdots & \sum\limits_{i=1}^{n}a_{1, i}b_{i, k} \\
+\sum\limits_{i=1}^{n}a_{2, i}b_{i, 1} & \sum\limits_{i=1}^{n}a_{2, i}b_{i, 2} & \sum\limits_{i=1}^{n}a_{2, i}b_{i, 3} & \cdots & \sum\limits_{i=1}^{n}a_{2, i}b_{i, k} \\
+\sum\limits_{i=1}^{n}a_{3, i}b_{i, 1} & \sum\limits_{i=1}^{n}a_{3, i}b_{i, 2} & \sum\limits_{i=1}^{n}a_{3, i}b_{i, 3} & \cdots & \sum\limits_{i=1}^{n}a_{3, i}b_{i, k} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+\sum\limits_{i=1}^{n}a_{m, i}b_{i, 1}
+& \sum\limits_{i=1}^{n}a_{m, i}b_{i, 2} & \sum\limits_{i=1}^{n}a_{m, i}b_{i, 3} & \cdots & \sum\limits_{i=1}^{n}a_{m, i}b_{i, k} \\
+\end{bmatrix}$
+
+
+\end{itemize}
+\end{tcolorbox}
+
+根据上述矩阵与向量运算的定义，可以得到以下代数性质：
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:matrix-arithmetic}} 矩阵运算的性质}}]
+
+\begin{itemize}
+
+\item \textbf{结合律：}
+
+$(AB)C = A(BC)$
+
+$A(Bx) = (AB)x$
+
+
+$ $
+
+ 
+\item \textbf{分配律：}
+
+$A(x + y) = Ax + Ay$
+
+%$A(x \odot y) = Ax \odot Ay $
+
+%$A\langle x, y\rangle = \langle Ax, Ay\rangle$
+
+%$A\langle \langle x, y\rangle\rangle = \langle\langle Ax, Ay\rangle\rangle$
+
+$ $
+
+但是，$Ax \cdot Ay \neq A(x \cdot y)$，因为结果的维数不匹配。另外，$A(x \odot y) \neq Ax \odot Ay $。还需注意 $A\langle x, y\rangle \neq \langle Ax, Ay\rangle$，以及 $A\langle \langle x, y\rangle\rangle \neq \langle\langle Ax, Ay\rangle\rangle$。
+
+$ $
+
+\item \textbf{不满足交换律：}
+
+$Ax \neq xA$
+
+$AB \neq BA$
+
+
+\end{itemize}
+\end{tcolorbox}
+
+\begin{proof}
+
+$ $
+
+可以为向量或矩阵的每个元素引入变量，按照运算定义展开各等式的左右两边，再比较得到的表达式，从而验证 \ref*{subsec:matrix-arithmetic} 所述的性质。具体展开留给读者作为练习。
+
+\end{proof}
+
+
+\subsection{投影}
+\label{subsec:projection}
+
+这里介绍两类投影：向量投影和正交投影（即平面投影）。
+
+
+
+\begin{figure}[!h]
+    \centering
+    \subfloat[向量投影 \href{https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Projection_and_rejection.png/200px-Projection_and_rejection.png}{（来源）}]{
+  \includegraphics[width=0.25\linewidth]{figures/vector-projection.png}
+
+  \label{fig:vector-projection}
+}
+    \subfloat[正交投影（平面／子空间投影）\href{https://www.researchgate.net/publication/333616378/figure/fig2/AS:766235117617152@1559696096437/Geometric-illustration-of-the-orthogonal-projection-operator-P-A-vector-x-R-m-is.png}{（来源）}]{
+  \includegraphics[width=0.4\linewidth]{figures/orthogonal-projection.png}
+
+  \label{fig:orthogonal-projection}
+}
+  \caption{}
+\end{figure}
+
+
+\para{向量投影：}给定同一 $n$ 维向量空间中的两个向量 $\vec{a}$ 和 $\vec{b}$，向量投影 $\textsf{Proj}_{\vec{b}}(\vec{a})$ 描述 $\vec{a}$ 在 $\vec{b}$ 方向上的分量，即 $\vec{a}$ 中平行于 $\vec{b}$ 的部分。在 \autoref{fig:vector-projection} 的例子中，$\vec{a}$ 在 $\vec{b}$ 上的投影是 $\vec{a}_1$，其长度 $\vec{a}_1$ 在几何上等于 $||a_1|| = ||a|| \cos \theta = ||a||\dfrac{a \cdot b}{||a||\cdot||b||} = \dfrac{a \cdot b}{||b||}$。设 $\vec{b'}$ 为 $\vec{b}$ 方向上的单位向量，即 $\vec{b'} = \dfrac{\vec{b}}{||b||}$。于是 $\vec{a}_1 = ||a_1||\cdot\vec{b'} = \dfrac{a \cdot b}{||b||} \cdot \dfrac{\vec{b}}{||b||} = \dfrac{a \cdot b}{||b||^2}\vec{b}$，从而 $\textsf{Proj}_{\vec{b}}(\vec{a}) = \dfrac{a \cdot b}{||b||^2}\vec{b}$。
+
+\para{正交投影：}给定向量 $\vec{x}$，以及张成子空间 $P$ 的一组两两正交向量 $\vec{p}_0, \vec{p}_1, \cdots, \vec{p}_{n-1}$，正交投影 $\textsf{Proj}_P(\vec{x})$ 描述 $\vec{x}$ 落在 $P$ 内的部分，即 $\vec{x}$ 在 $P$ 中的分量。在图示例子中，$\vec{x}$ 在 $P$ 上的投影（红色箭头），等于 $\vec{x}$ 在张成 $P$ 的各正交基向量 $\vec{p}_i$ 上的投影之和：$\textsf{Proj}_P(\vec{x}) = \sum\limits_{i=0}^{n-1}\textsf{Proj}_{\vec{p}_i}(\vec{x})$。这一计算可以理解为在由 $n$ 个正交向量定义的坐标系中表示 $\vec{x}$。
+
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:projection}} 向量投影与正交投影}}]
+
+\begin{itemize}
+
+\item \textbf{向量投影：}给定同一向量空间中的两个向量 $\vec{a}$ 和 $\vec{b}$，$\vec{a}$ 在 $\vec{b}$ 上的向量投影为：
+
+$\textsf{Proj}_{\vec{b}}(\vec{a}) = \vec{a}_p  = \dfrac{\vec{a} \cdot \vec{b}}{||b||^2} \vec{b}$ \textcolor{red}{ $\rhd$ 其中 $||\vec{a}_p|| = ||\vec{a}|| \cos \theta$}
+
+$ $
+
+\item \textbf{正交基：}如果 $n$ 维平面（或子空间）$P$ 由两两正交的 $n$ 维向量 $\vec{p}_0, \vec{p}_1, \cdots, \vec{p}_{n-1}$ 张成，
+
+则将矩阵 $P = \begin{bmatrix} 
+\vec{p}_0\\
+\vec{p}_1\\
+\vdots\\
+\vec{p}_{n-1}\\
+\end{bmatrix}
+$
+定义为平面 $P$ 的一组正交基。
+
+
+\item \textbf{正交投影：}给定正交基矩阵 $P = \begin{bmatrix} 
+\vec{p}_0\\
+\vec{p}_1\\
+\vdots\\
+\vec{p}_{n-1}\\
+\end{bmatrix}
+$，
+
+向量 $\vec{a}$ 在 $P$ 上的正交投影为：
+
+$\textsf{Proj}_P(\vec{a}) = \sum\limits_{i=0}^{n-1} \textsf{Proj}_{\vec{p}_i}(\vec{a})$
+
+
+
+\end{itemize}
+
+
+\end{tcolorbox}
+
+
+根据正交投影的定义，可以推导出以下性质：
+
+\para{正交基：}在 $n$ 维向量空间中，任意 $n$ 个两两正交的向量所张成的子空间 $P$ 就是整个向量空间。此外，该向量空间中的任意向量在 $P$ 上的正交投影都是唯一确定的向量。
+
+\para{非正交基：}在 $n$ 维向量空间中，假设有 $n$ 个非正交向量满足两个条件：(i) 它们张成整个向量空间；(ii) 它们线性无关，即其中任何一个向量都不能表示为其他向量的线性组合。那么，由这 $n$ 个向量构成的 $n \times n$ 矩阵 $P$ 组成整个向量空间 $V$ 的一组基。对于空间中的每个 $\vec{v}$，矩阵与向量的乘法 $P\vec{v}$ 都得到唯一确定的向量。不过，由于这 $n$ 个基向量并不正交，表达式 $\textsf{Proj}_P(\vec{v})$ 并不是向量 $\vec{v}$ 在 $P$ 上的有效几何投影。尽管如此，计算 $P\vec{v}$ 仍可理解为将 $\vec{v}$ 唯一地变换到另一个坐标系中：该坐标系使用 $P$ 中的 $n$ 个非正交向量描述这个向量空间。
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:projection}} 变换后向量的唯一性}}]
+
+\begin{itemize}
+\item \textbf{正交基：}如果 $n$ 个向量是 $n$ 维向量空间中平面 $P$ 的一组正交基，则 $P$ 等于整个向量空间，且对于空间中的每个向量 $\vec{v}$，$\textsf{Proj}_P(v)$ 都是唯一确定的向量。
+\item \textbf{非正交基：}如果 $n$ 个向量是 $n$ 维向量空间中平面 $P$ 的一组非正交基，即这些向量线性无关并张成 $P$，则 $P$ 等于整个向量空间，并且 $P\vec{v}$ 的结果是唯一确定的向量。
+\end{itemize}
+\end{tcolorbox}
+
+
+
+
+\subsection{多项式环的基}
+\label{subsec:polynomial-ring-basis}
+
+给定 $(n-1)$ 次多项式环 $\mathbb{Z}[X] / (X^n + 1)$，该环的一组基定义为满足以下两个要求的多项式集合：
+
+\begin{itemize}
+
+\item \textbf{线性无关：}基中的任何一个多项式，都不能表示为同一组基中其他多项式的线性组合。
+\item \textbf{张成多项式环：}基中多项式的线性组合可以表示该环中的任意多项式。
+\end{itemize}
+
+对于 $(n-1)$ 次多项式环，构成其一组基的多项式个数恰为 $n$。
+
+
+\subsection{整数（环）上多项式与向量之间的同构}
+\label{subsec:poly-vector-transformation}
+
+
+
+现在，定义从 $(n-1)$ 次多项式环到 $n$ 维向量空间的映射 $\sigma$：将输入多项式在 $n$ 个互异的 $X \in \mathbb{Z}_t$ 坐标处（例如 $x_0, x_1, \cdots, x_{n-1}$）求得的 $y$ 值依次排列，构成输出向量。这里要求 $\mathbb{Z}_t$ 为域，即 $t$ 为素数，以保证经过 $(n+1)$ 个互异 $X$ 点的插值多项式 $f(X)$ 定义良好，如 \autoref{subsec:polynomial-interpolation-field-condition} 所述。具体地，$\sigma$ 定义为：
+
+$\sigma: f(X) \in \mathbb{Z}_t[X] / (X^n + 1) \text{ } \longrightarrow \text{ } (f(x_0), f(x_1), f(x_2), \cdots, f(x_{n-1})) \in \mathbb{Z}^n_t$
+
+$ $
+
+下面说明映射 $\sigma$ 为何是同构，即 $\sigma$ 是从 $\mathbb{Z}_t[X] / (X^n + 1)$ 到 $\mathbb{Z}^n_t$ 的一一对应双射，并且保持代数运算 $(+, \cdot)$，也就是说，$\sigma$ 对加法和乘法均为同态。
+
+$ $
+
+\para{双射：}在 $(n-1)$ 次多项式环中，将多项式在预先固定的 $n$ 个互异 $x$ 坐标处求值得到的一组 $y$ 值，可以唯一确定该多项式。其原因是，从代数上看，经过给定的 $n$ 个互异 $(x, y)$ 坐标点，只有一个次数为 $(n-1)$ 或更低的多项式。这一点已由拉格朗日多项式插值证明（见 \autoref{sec:polynomial-interpolation} 中的定理~\ref*{sec:polynomial-interpolation}）。
+
+$ $
+
+\para{同态：}映射 $\sigma$ 对运算 $(+, \cdot)$ 的同态性，意味着以下两个关系成立：
+
+$\sigma(f_a(X) + f_b(X)) = \sigma(f_a(X)) + \sigma(f_b(X))$
+
+$\sigma(f_a(X) \cdot f_b(X)) = \sigma(f_a(X)) \odot \sigma(f_b(X))$ \textcolor{red}{\text{ } \# $\odot$ 是向量的 Hadamard 积（见总结~\ref*{subsec:vector-arithmetic}）}
+
+$ $
+
+为证明映射 $\sigma$ 的同态性，将输入多项式 $f_a(X)$、$f_b(X)$ 以及经 $\sigma$ 映射得到的输出向量记为：
+
+
+$f_a(X) = a_0 + a_1X + a_2X^2 + \cdots + a_{n-1}X^{n-1}$
+
+$ \sigma(f_a(X)) = \left({f_a(x_0)}, {f_a(x_1)}, {f_a(x_2)}, \cdots, {f_a(x_{n-1}}) \right)  = \left(\sum\limits_{i=0}^{n-1}a_i(x_0)^i, \sum\limits_{i=0}^{n-1}a_i(x_1)^i, \sum\limits_{i=0}^{n-1}a_i(x_2)^i, \cdots, \sum\limits_{i=0}^{n-1}a_i(x_{n-1})^i\right)$
+
+
+$ $
+
+$f_b(X) = b_0 + b_1X + b_2X^2 + \cdots + b_{n-1}X^{n-1}$
+
+$ \sigma(f_b(X)) = \left({f_b(x_0)}, {f_b(x_1)}, {f_b(x_2)}, \cdots, {f_b(x_{n-1}}) \right) = \left(\sum\limits_{i=0}^{n-1}b_i(x_0)^i, \sum\limits_{i=0}^{n-1}b_i(x_1)^i, \sum\limits_{i=0}^{n-1}b_i(x_2)^i, \cdots, \sum\limits_{i=0}^{n-1}b_i(x_{n-1})^i\right)$
+
+$ $
+
+在上述设定下，可以看出 $\sigma$ 对运算 $(+)$ 保持同态，如下所示：
+
+$\bm{\sigma}\bm{(}f_a(X) + f_b(X)\bm{)} = \bm{\sigma\bigg(}(a_0 + b_0) + (a_1 + b_1)X + (a_2 + b_2)X^2 + \cdots + (a_{n-1} + b_{n-1})X^{n-1}\bm{\bigg)}$
+
+$= \left(\sum\limits_{i=0}^{n-1}(a_i + b_i)(x_0)^i, \text{ }\sum\limits_{i=0}^{n-1}(a_i + b_i)(x_1)^i, \text{ }\sum\limits_{i=0}^{n-1}(a_i + b_i)(x_2)^i, \cdots, \text{ }\sum\limits_{i=0}^{n-1}(a_i + b_i)(x_{n-1})^i\right)$
+
+$= \left(\sum\limits_{i=0}^{n-1}a_i(x_0)^i, \text{ }\sum\limits_{i=0}^{n-1}a_i(x_1)^i, \text{ }\sum\limits_{i=0}^{n-1}a_i(x_2)^i, \cdots, \text{ } \sum\limits_{i=0}^{n-1}a_i(x_{n-1})^i\right)$
+
+\text{ } $+ \left(\sum\limits_{i=0}^{n-1}b_i(x_0)^i, \text{ } \sum\limits_{i=0}^{n-1}b_i(x_1)^i, \text{ } \sum\limits_{i=0}^{n-1}b_i(x_2)^i, \cdots, \text{ } \sum\limits_{i=0}^{n-1}b_i(x_{n-1})^i\right)$
+
+$= \bm{\sigma(}f_a(X)\bm{)} + \bm{\sigma(}f_b(X)\bm{)}$
+
+$ $
+
+同样，$\sigma$ 对运算 $(\cdot)$ 也保持同态，如下所示：
+
+
+$\bm{\sigma(}f_a(X)\cdot f_b(X)\bm{)} = \bm{\sigma\bigg(}\left(\sum\limits_{i=0}^{n-1}a_iX^i\right)\cdot\left( \sum\limits_{i=0}^{n-1}b_iX^i\right)\bm{\bigg)}$
+
+$ $
+
+$= \Bigg( \left(\sum\limits_{i=0}^{n-1}a_ix_0^i\right)\left( \sum\limits_{i=0}^{n-1}b_ix_0^i\right), \text{ }
+\left(\sum\limits_{i=0}^{n-1}a_ix_1^i\right)\left( \sum\limits_{i=0}^{n-1}b_ix_1^i\right), \text{ }
+\left(\sum\limits_{i=0}^{n-1}a_ix_2^i\right)\left( \sum\limits_{i=0}^{n-1}b_ix_2^i\right),$
+
+$  \text{ } \text{ } \text{ } \text{ } \text{ } \text{ }
+\cdots,
+\left(\sum\limits_{i=0}^{n-1}a_ix_{n-1}^i\right)\left( \sum\limits_{i=0}^{n-1}b_ix_{n-1}^i\right)
+\Bigg)$
+
+$ $
+
+$ = \Bigg(\sum\limits_{i=0}^{n-1}a_i(x_0)^i, \text{ } \sum\limits_{i=0}^{n-1}a_i(x_1)^i, \text{ } \cdots, \text{ } \sum\limits_{i=0}^{n-1}a_i(x_{n-1})^i\Bigg)$
+
+$  \text{ } \text{ } \text{ } \text{ }  \odot  \Bigg(\sum\limits_{i=0}^{n-1}b_i(x_0)^i, \text{ } 
+\sum\limits_{i=0}^{n-1}b_i(x_1)^i, \text{ }
+\cdots, \text{ } \sum\limits_{i=0}^{n-1}b_i(x_{n-1})^i\Bigg)$
+
+$ $
+
+$= \bm{\sigma(}f_a(X)\bm{)} \odot \bm{\sigma(}f_b(X)\bm{)}$
+
+$ $
+
+因此，$\sigma$ 保持以下同态关系：
+
+$\sigma(f_a(X) + f_b(X)) = \sigma(f_a(X)) + \sigma(f_b(X))$
+
+$\sigma(f_a(X) \cdot f_b(X)) = \sigma(f_a(X)) \odot \sigma(f_b(X))$
+
+$ $
+
+不过，对于 $\sigma(f_a(X) \cdot f_b(X)) = \sigma(f_a(X)) \odot \sigma(f_b(X))$，还需要进一步说明为什么该关系在多项式环中成立，具体如下。
+
+
+\para{多项式环中的约减：}假设没有多项式环 $X^n + 1$ 的设定，那么将 $f_a(X)$ 和 $f_b(X)$ 相乘，得到的 $f_a(X) \cdot f_b(X)$ 可能是一个次数高于 $n-1$ 的新多项式。这个较高次的多项式仍可解码为预期的正确向量。考虑以下情形：
+
+$\sigma(f_a(X)) = (f_a(x_0), f_a(x_1), \cdots, f_a(x_{n-1})) = (v_0, v_1, \cdots, v_{n-1})$
+
+$\sigma(f_b(X)) = (f_b(x_0), f_b(x_1), \cdots, f_b(x_{n-1})) = (u_0, u_1, \cdots, u_{n-1})$
+
+$ $
+
+此时，有：
+
+$\sigma(f_a(X) \cdot f_b(X)) = (f_a(x_0)\cdot f_b(x_0), f_a(x_1)\cdot f_b(x_1), \cdots, f_a(x_{n-1})\cdot f_b(x_{n-1})) = (v_0u_0, v_1u_1, \cdots, v_{n-1}u_{n-1})$
+
+$= (v_0, v_1, \cdots, v_{n-1}) \odot (u_0, u_1, \cdots, u_{n-1}) $
+
+$ $
+
+如上所示，即使 $f_a(X) \cdot f_b(X)$ 得到的多项式次数高于 $n-1$，仍可将其解码为预期的正确向量。然而，映射 $\sigma$ 会失去多项式与向量之间的同构性，因为当多项式次数高于 $n-1$ 时，经过给定的 $n$ 个互异 $X$ 坐标点 $\{x_0, x_1, \cdots, x_{n-1}\}$ 的多项式可能不止一个。这会带来问题：如果 $\sigma$ 只支持从多项式到向量的映射，而不支持从向量到多项式的映射，就无法在一开始将向量转换为多项式并进行同构计算。另一个问题是，多项式次数高于 $n-1$ 时，解码（即多项式求值）的计算开销也会增大。
+
+为解决这两个问题，可以将 $n$ 个互异求值坐标 $X$ 选为多项式环模数 $X^n + 1$ 的根，其中 $n$ 是 2 的某个幂；再将 $f_a(X) \cdot f_b(X)$ 模 $X^n + 1$ 约减为次数至多为 $n - 1$ 的新多项式。设 $f_{ab}(X) = f_a(X) \cdot f_b(X)$，并令 $f'_{ab}(X)$ 为约减后的多项式，使得对于某个商多项式 $Q(X)$ 有 $f_{ab}(X) = Q(X)\cdot (X^n + 1) + f'_{ab}(X)$。根据总结~\ref*{subsubsec:polynomial-ring-discuss}（\autoref{subsubsec:polynomial-ring-discuss}），如果在 $X^n + 1$ 的根处求值，$Q(X)$ 项为零，因此 $f_{ab}(X)$ 和 $f'_{ab}(X)$ 的求值结果相同。所以，只要将 $n$ 个互异求值点 $\{x_0, x_1, \cdots, x_{n-1}\}$ 选为 $X^n + 1$ 的根，就能保证 $f'_{ab}(X)$ 的解码向量与预期的 $f_{ab}(X)$ 的解码向量完全相同。于是可以用约减后的多项式 $f'_{ab}(X)$ 替代高次多项式 $f_{ab}(X)$，并继续使用 $f'_{ab}(X)$ 进行后续多项式加法或乘法。多项式环中的约减既能提高多项式加法和乘法的效率，也能保持映射 $\sigma$ 的同构性，因此可以自由地在向量和多项式之间转换，并进行加法和乘法运算。
+
+要应用上述多项式环约减，模多项式可以选择为任何具有至少 $n$ 个互异根的多项式。在实际应用中，常选择 $X^n + 1$ 作为多项式环的模数，它是第 $(\mu=2n)$ 个分圆多项式（见 \autoref{subsec:cyclotomic-def}）。选择分圆多项式，特别是第 $(\mu=2n)$ 个分圆多项式 $X^n + 1$ 作为模数，是因为其 $n$ 个互异的根（即 $(\mu=2n)$ 次本原单位根）有明确的表达，即使 $n$ 很大也能快速找到。
+
+$ $
+
+\para{多项式系数的模约减：}此外，为提高计算效率，常对多项式系数按某个模数 $t$ 约减，将系数大小限制在给定范围内。假设两个多项式 $f_c(X)$ 和 $f_d(X)$ 的系数模 $t$ 同余：
+
+$f_c(X) = w_0 + w_1\cdot X + w_2\cdot X^2 + \cdots + w_{n-1}\cdot X^{n-1}$
+
+$f_d(X) = w'_0 + w'_1\cdot X + w'_2\cdot X^2 + \cdots + w'_{n-1}\cdot X^{n-1} $
+
+$w_i \equiv w'_i \bmod t$
+
+$ $
+
+则对于任意 $x \in \mathbb{Z}$，其求值结果 $f_c(x)$ 与 $f_d(x)$ 一定模 $t$ 同余，如下所示：
+
+$f_c(x) = w_0 + w_1\cdot x + w_2\cdot x^2 + \cdots + w_{n-1}\cdot x^{n-1}$
+
+$\equiv (w_0 + w_1\cdot x + w_2\cdot x^2 + \cdots + w_{n-1}\cdot x^{n-1}) \bmod t $
+
+$\equiv (w_0  \bmod t) + (w_1  \bmod t)\cdot x + (w_2  \bmod t)\cdot x^2 + \cdots + (w_{n-1} \bmod t)\cdot x^{n-1} $
+
+$\equiv w'_0 + w'_1\cdot x + w'_2\cdot x^2 + \cdots + w'_{n-1}\cdot x^{n-1} $
+
+$= f_d(x)$
+
+\para{总结：}由于 $\sigma$ 既是双射又是同态，$\sigma$ 就是 $(n-1)$ 次多项式环 $\mathbb{Z}_t[X]/(X^n + 1)$ 与 $n$ 维向量空间 $\mathbb{Z}_t^n$ 之间的同构映射。
+
+
+$ $
+
+
+\subsubsection{寻找合适的模数 $t$}
+\label{subsubsec:poly-vector-transformation-modulus}
+
+要通过同构映射，将 $\mathbb{Z}_t[X]/(X^n + 1)$ 中的多项式求值为一个 $n$ 维向量，需要在 $X^n + 1 \bmod t$ 的 $n$ 个互异根处求值。然而，并非所有（次数，模数）组合 $ = (n, t)$ 都能使 $X^n + 1 \bmod t$ 具有 $n$ 个互异的根。例如，若 $n = 2$ 且 $t = 3$，则对于 $X = \{0, 1, 2\}$ 的任意取值，均有 $X^2+ 1 \not\equiv 0 \bmod 3$。因此，目标是在固定 $n$ 后，找到满足要求的 $t$，使 $X^n + 1 \pmod t$ 存在 $n$ 个互异的根，从而能够使用同构映射 $\sigma$。
+
+先提出两个约束：(1) 选择 $t$ 为素数；(2) 保证 $t-1$ 是 $2n$ 的倍数。
+
+由定理~\ref*{subsec:order-theorem}.4（\autoref{subsec:order-theorem}）中的费马小定理，已知 $a^{t - 1} \equiv 1 \bmod t$ 当且仅当 $a$ 与 $t$ 互素。这意味着，若 $t$ 为素数，则对于所有 $a \in \mathbb{Z}_t^{\times}$（即 $\mathbb{Z}_t$ 中除去 $\{0\}$ 的元素），都有 $a^{t - 1} \equiv 1 \bmod t$。假设 $g$ 是 $\mathbb{Z}_t^{\times}$ 的生成元，其各次幂能够生成 $\mathbb{Z}_t^{\times}$ 的全部元素。则有 $\textsf{Ord}_{\mathbb{Z}_t}(g) = t - 1$ 和 $g^{t - 1} \equiv 1 \bmod t$。由于对于某个 $k$ 有 $t - 1 = k \cdot 2n$，所以 $g^{k\cdot2n} \equiv (g^{k})^{2n} \equiv 1 \bmod t$，从而 $\textsf{Ord}_{\mathbb{Z}_t}(g^{k}) \leq 2n$。但是，由于 $\textsf{Ord}_{\mathbb{Z}_t}(g) = t - 1$，对于所有满足 $a < t - 1 = k \cdot 2n$ 的 $a$，都有 $g^a \not\equiv 1 \bmod t$。换言之，对于所有满足 $b < 2n$ 的 $b$，都有 $(g^k)^b \not\equiv 1 \bmod t$。因此，$\textsf{Ord}_{\mathbb{Z}_t}(g^{k}) = 2n$。
+
+令 $c = g^k$。由于 $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$，有 $c^{2n} \equiv 1 \bmod t$，换言之，$(c^n)^2 \equiv 1 \bmod t$。
+此时，$c^n$ 只能为 1 或 -1。原因是，在关系 $X^2 \equiv 1 \bmod t$ 中，$X$ 只能取 $1$ 或 $-1 \equiv t - 1 \bmod t$。代入 $X = c^n$ 后，$c^n$ 只能取 $1$ 或 $-1 \equiv t - 1 \bmod t$。但由于 $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$，$c^n$ 不可能等于 1，因为 $1^1 = 1$，而 1 小于 $c$ 的阶 $2n > 1$。因此，$c^n$ 只能等于 $-1 \equiv t - 1 \bmod t$。如果 $c^n = -1 \equiv t - 1 \bmod t$，那么 $c$ 就是 $X^n + 1 \bmod t$ 的根，因为 $X^n + 1 = c^n + 1 \equiv (t - 1) + 1 \equiv 0 \bmod t$。
+
+因此，给定分圆多项式 $X^n + 1$，如果选择素数 $t$，使其对于某个整数 $k$ 满足 $t - 1 = k \cdot 2n$，则 $X^n + 1 \bmod t$ 的一个根为 $X = c = g^k$。
+
+找到 $X^n + 1$ 的一个根之后，就可以推导出 $X^n + 1$ 的全部 $n$ 个互异的根。假设 $\omega$ 是 $X^n + 1 \bmod t$ 的一个根，则有：
+
+$\omega^n + 1 \equiv 0 \bmod t$
+
+$\omega^n \equiv t - 1 \bmod t$
+
+$\omega^{2n} \equiv (t - 1)\cdot(t - 1) \equiv  t^2 - 2t + 1 \equiv   1 \bmod t$
+
+虽然 $\omega^{2n} \equiv 1 \bmod t$，但 $\omega^{n} \not\equiv 1 \bmod t$；否则就有 $X^n + 1 = \omega^n + 1 = 1 + 1 = 2 \neq 0$，这与 $\omega$ 是 $X^n + 1$ 的根相矛盾。因此，$\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$。
+
+接下来，按如下方式推导出 $X^n + 1 \bmod t$ 的其余 $n-1$ 个互异的根：
+
+$(\omega^3)^n + 1 \equiv (\omega^{2n})\cdot \omega^n + 1 \equiv \omega^n + 1 \equiv t - 1 + 1 \equiv 0 \bmod t$
+
+$(\omega^5)^n + 1 \equiv (\omega^{4n})\cdot \omega^n + 1 \equiv \omega^n + 1 \equiv t - 1 + 1 \equiv 0 \bmod t$
+
+$\vdots$
+
+$(\omega^{2n - 1})^n + 1 \equiv 0 \bmod t$ \\ \textcolor{red}{ $\rhd$ 对任意奇数 $k = 2j+1$，有 $(\omega^{2j+1})^n = (\omega^{2n})^j \cdot \omega^n = 1^j \cdot (-1) = -1$，因此 $(\omega^k)^n + 1 = 0$}
+
+$ $
+
+由于 $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$，$\omega, \omega^3, \omega^5, \cdots, \omega^{2n - 1}$ 在 $\mathbb{Z}_t^{\times}$ 中互不相同。因此，$\{\omega^{2i + 1}\}_{i=0}^{n-1}$ 是 $X^n + 1$ 的 $n$ 个互异的根。同时，由于它们是分圆多项式 $X^n + 1$ 的根，所以也是 $n$ 个互异的 $(\mu=2n)$ 次本原单位根。
+
+
+$ $
+
+
+将上述结论归纳如下：
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsubsec:poly-vector-transformation-modulus}} 整数（环）上多项式与向量之间的同构}}]
+
+\begin{itemize}
+\item 假设有一个 $(n-1)$ 次多项式环 $\mathbb{Z}_t[X] / F(X)$，其中 $F(X)$ 是具有 $n$ 个互异根 $\{x_0, \cdots, x_{n-1}\}$ 的 $n$ 次多项式；另有一个 $n$ 维向量空间 $\mathbb{Z}_t^n$（模 $t$ 的整数向量），其中的向量为 $\vec{v}$。
+
+$\sigma: f(X) \in \mathbb{Z}_t[X] / F(X) \text{ } \longrightarrow \text{ } (f(x_0), f(x_1), f(x_2), \cdots, f(x_{n-1})) \in \mathbb{Z}_t^n$
+
+$ $
+
+则 $\sigma$ 对运算 $(+, \cdot)$ 保持同构：
+
+
+$\sigma(f_a(X) + f_b(X)) = \sigma(f_a(X)) + \sigma(f_b(X))$
+
+$\sigma(f_a(X) \cdot f_b(X)) = \sigma(f_a(X)) \odot \sigma(f_b(X))$
+
+$ $
+
+%\item If the $n$-degree polynomial $F(x)$ has a fewer number of roots than $n$, then isomorphism between the vectors and polynomials over the $(+, \cdot)$ operations holds without modulo $t$ as follows:
+
+%$\sigma': f(X) \in \mathbb{Z}[X] / F(X) \text{ } \longrightarrow \text{ } (f(x_0), f(x_1), f(x_2), \cdots, f(x_{n-1})) \in \mathbb{Z}^n$
+
+%$ $
+
+\item 假设第 $(\mu=2n)$ 个分圆多项式为 $X^n + 1 \bmod t$，其中 $t$ 是素数，$t - 1$ 是 $2n$ 的某个倍数，且 $g$ 是 $\mathbb{Z}_t^{\times}$ 的生成元。则 $X^n + 1$ 的 $n$ 个互异的根（即 $(\mu=2n)$ 次本原单位根）可以高效地计算为 $\{\omega^{2i + 1}\}_{i=0}^{n-1}$，其中 $\omega = g^{\frac{t-1}{2n}} \bmod t$。
+
+
+\end{itemize}
+\end{tcolorbox}
+
+
+
+
+
+\subsection{复数上多项式与向量之间的同构}
+\label{subsec:poly-vector-transformation-complex}
+
+
+在定理~\ref*{subsec:polynomial-ring-basis}（\autoref{subsec:polynomial-ring-basis}）中，已经学习了同构映射 $\sigma: f(X) \in \mathbb{Z}_t[X]/(X^n + 1) \longrightarrow (f(x_0),f(x_1),f(x_2), \cdots, f(x_{n-1})) \in \mathbb{Z}_t^n$，其中 $x_0, x_1, x_2, \cdots, x_{n-1} \in \mathbb{Z}$ 是分圆多项式 $X^n + 1$ 的根（即 $(\mu=2n)$ 次本原单位根），具体为 $\omega, \omega^3, \omega^5, \cdots, \omega^{2n-1}$。这里，$\omega$ 可以是 $X^n + 1$ 的任意一个根，因为每个 $\omega$ 都能生成全部根。本小节将说明复数上的向量空间与多项式环之间的同构，具体如下：
+
+$\sigma_c: f(X) \in \mathbb{R}[X]/(X^n + 1) \longrightarrow (f(\omega),f(\omega^3),f(\omega^5), \cdots, f(\omega^{2n-1})) \in \mathbb{\hat{C}}^{n}$
+
+$ $
+
+其中，$X \in \mathbb{C}$，而 $\omega = e^{i\pi/n}$ 是复数上分圆多项式 $X^n + 1$ 的根，即 $(\mu=2n)$ 次本原单位根（见 \autoref{subsec:cyclotomic-theorem} 中的定理~\ref*{subsec:cyclotomic-theorem}.1）。将 $\mathbb{\hat{C}}^{n}$ 定义为一个 $n$ 维的\textit{特殊}向量空间，其中每个向量的后半部分元素，都是其前半部分元素按逆序排列后的共轭，例如 $(v_0, v_1, \cdots, v_{\frac{n}{2}-1}, \overline{v}_{\frac{n}{2}-1}, \cdots, \overline{v}_1, \overline{v}_0 )$。
+
+\subsubsection{$\mathbb{C}^{\frac{n}{2}}$ 与 $\hat{\mathbb{C}}^{n}$ 之间的同构}
+\label{subsec:poly-vector-transformation-complex-isomorphism1}
+
+本节将 $\mathbb{C}^{\frac{n}{2}}$ 和 $\hat{\mathbb{C}}^{n}$ 都视为由复向量组成的向量空间，它们之间的映射定义为 $\phi: \mathbb{C}^{\frac{n}{2}} \rightarrow \hat{\mathbb{C}}^{n}$，如下所示：
+
+$\phi(z_0, z_1, \dots, z_{\frac{n}{2}-1}) = (z_0, z_1, \dots, z_{\frac{n}{2}-1}, \overline{z_{\frac{n}{2}-1}}, \dots, \overline{z_1}, \overline{z_0})$
+
+
+$ $
+
+换言之，$\hat{\mathbb{C}}^{n}$ 是 $\mathbb{C}^{\frac{n}{2}}$ 的共轭扩展：$\hat{\mathbb{C}}^{n}$ 的前半部分元素与 $\mathbb{C}^{\frac{n}{2}}$ 相同，而 $\hat{\mathbb{C}}^{n}$ 的后半部分元素是 $\mathbb{C}^{\frac{n}{2}}$ 逆序排列后的共轭。
+
+下面证明，$\mathbb{C}^{\frac{n}{2}}$ 与 $\hat{\mathbb{C}}^{n}$ 之间的映射 $\phi$ 是同构。
+
+
+$ $
+
+\para{双射：}映射 $\phi$ 的双射性是直接的。对于 $\mathbb{C}^{\frac{n}{2}}$ 中的每个向量，将其逆序共轭附加到末尾，即可唯一地映射到 $\hat{\mathbb{C}}^{n}$ 中的一个向量。反过来，对于 $\hat{\mathbb{C}}^{n}$ 中的任意向量，只需去掉后半部分元素，就能唯一地映射回 $\mathbb{C}^{\frac{n}{2}}$，从而建立一一对应关系。
+
+\para{同态：}下面证明，$\phi$ 对加法 $(+)$ 和向量逐元素乘法 $(\odot)$ 保持同态。给定两个向量 $\vec{u}, \vec{v} \in \mathbb{C}^{\frac{n}{2}}$：
+\begin{itemize}
+    \item \textbf{加法：}$\phi(\vec{u} + \vec{v}) = \phi(\vec{u}) + \phi(\vec{v})$ 成立，因为复共轭对加法满足分配性，即 $\overline{u + v} = \overline{u} + \overline{v}$。
+    \item \textbf{逐元素乘法：}$\phi(\vec{u} \odot \vec{v}) = \phi(\vec{u}) \odot \phi(\vec{v})$ 成立，因为乘积的共轭等于各因子共轭的乘积，即 $\overline{u \cdot v} = \overline{u} \cdot \overline{v}$。
+\end{itemize}
+
+$ $
+
+因此，映射 $\phi: \mathbb{C}^{\frac{n}{2}} \rightarrow \hat{\mathbb{C}}^{n}$ 是同构。
+
+\begin{tcolorbox}[title={\textbf{以实数或复数为标量的复向量空间}}]
+
+根据数学定义，向量空间必须满足\textit{数乘封闭性}：对于空间中的任意向量 $\vec{v}$，以及标量域中的任意标量 $c$，乘积 $c \cdot \vec{v}$ 仍必须属于同一向量空间。在这一要求下，$\mathbb{C}^{\frac{n}{2}}$ 自然构成以复数为标量的复向量空间；由于复数包含实数，它也可以视为以实数为标量的向量空间。另一方面，$\hat{\mathbb{C}}^{n}$ 是一个\textit{只能以实数为标量}的复向量空间。
+
+$ $
+
+原因如下：向量 $\vec{v} = (v_0, v_1, \dots, v_{n-1}) \in \hat{\mathbb{C}}^n$ 必须满足 Hermitian 对称约束，即对于所有 $k$，都有 $v_{n-1-k} = \overline{v_k}$。考虑 $n = 4$ 的例子：
+
+$$\vec{v} = (1+i,\ 2+2i,\ 2-2i,\ 1-i) \in \hat{\mathbb{C}}^4$$
+
+将 $\vec{v}$ 乘以复标量 $c = i$：
+
+$$i \cdot \vec{v} = (-1+i,\ -2+2i,\ 2+2i,\ 1+i)$$
+
+要使结果仍属于 $\hat{\mathbb{C}}^4$，第三个分量必须是第二个分量的共轭。但 $\overline{-2+2i} = -2-2i$，并不等于 $2+2i$。因此，$i \cdot \vec{v} \notin \hat{\mathbb{C}}^4$，不满足封闭性。
+
+$ $
+
+更一般地，对于任意 $\vec{v} \in \hat{\mathbb{C}}^n$ 和任意标量 $c$，乘积 $c \cdot \vec{v}$ 保持 Hermitian 对称，当且仅当 $\overline{c} = c$，即 $c$ 为实数。因此，只有将标量限制为实数时，$\hat{\mathbb{C}}^n$ 才构成向量空间。这就是 $\hat{\mathbb{C}}^n$ 必须视为以实数为标量的复向量空间的原因。
+
+$ $
+
+本书始终将 $\mathbb{C}^{\frac{n}{2}}$ 与 $\hat{\mathbb{C}}^{n}$ 都视为以实数为标量、由复向量组成的向量空间。
+
+$ $
+
+\textbf{向量空间的同构：}向量空间之间的一个映射要成为同构，除了是双射并且对运算 $(+, \cdot)$ 保持同态以外，还必须对数乘保持同态。因此，还需证明 $\phi(c \cdot \vec{u}) = c \cdot \phi(\vec{u})$。在这里，这一点总是成立，因为标量 $c$ 为实数，取复共轭时不变，即 $\overline{c} = c$，因此 $\overline{c \cdot u_k} = c \cdot \overline{u_k}$。
+
+$ $
+
+\textbf{向量空间的维数：}向量空间的维数由完整描述其中向量所需的独立标量个数确定。因此，$\mathbb{C}^{\frac{n}{2}}$ 的维数为 $n$：它包含 $\dfrac{n}{2}$ 个元素，每个元素需要 2 个实标量描述，分别对应实部和虚部。$\hat{\mathbb{C}}^{n}$ 的维数也为 $n$，因为前 $\dfrac{n}{2}$ 个元素需要 $\dfrac{n}{2}\cdot 2$ 个标量描述，而后 $\dfrac{n}{2}$ 个元素只是前 $\dfrac{n}{2}$ 个元素按逆序排列后的共轭。
+
+\end{tcolorbox}
+
+
+$ $
+
+
+
+\subsubsection{$\hat{\mathbb{C}}^{n}$ 与 $\mathbb{R}[X] / (X^n + 1)$ 之间的同构}
+\label{subsec:poly-vector-transformation-complex-isomorphism2}
+
+下面采用与 \autoref{subsec:poly-vector-transformation} 开头相同的推理，证明 $\sigma_c$ 是 $\hat{\mathbb{C}}^{n}$ 与 $\mathbb{R}[X] / (X^n + 1)$ 之间的同构，即它既是双射又是同态。
+
+\begin{figure}[h!]
+    \centering
+  \includegraphics[width=0.3\linewidth]{figures/cyclotomic-polynomial.pdf}
+  \caption{第 8 个分圆多项式 $x^4 + 1$ 的四个根的示意图。}
+  \label{fig:cyclotomic-polynomial}
+\end{figure}
+
+$ $
+
+\para{双射：}根据欧拉公式 $e^{i\theta} = \cos\theta + i\cdot\sin\theta$（见 \autoref{subsec:euler}），可以得到算术关系 $\omega = \overline{\omega^{2n-1}}, \text{ } \omega^3 = \overline{\omega^{2n-3}}, \cdots, \omega^{n-1} = \overline{\omega^{n+1}}$。换言之，一半的根分别是另一半根的共轭。\autoref{fig:cyclotomic-polynomial} 中的复平面图形直观地展示了这一点：红色箭头表示第 8 个分圆多项式 $X^4 + 1$ 的根，每个根都包含实部和虚部。如图所示，一半的红色箭头（即根）是另一半关于 $x$ 轴（实轴）的镜像。因此，可以将这些根表示为一个 $n$ 维向量，其元素为 $X^n + 1$ 的根，且后半部分元素是前半部分元素逆序排列后的共轭。基于这种向量结构，映射 $\sigma_c$ 可以重写为：
+
+$\sigma_c(f(X)) = (f(\omega),f(\omega^3),f(\omega^5), \cdots, f(\omega^{n-1}), f(\overline{\omega^{n-1}}), f(\overline{\omega^{n-3}}), \cdots, f(\overline{\omega^3}), f(\overline{\omega}))$
+
+$ $
+
+由于 $f(\overline{X}) = \overline{f(X)}$（因为 $f(X)$ 的系数均为实数），可以将 $\sigma_c$ 重写为：
+
+$\sigma_c(f(X)) = (f(\omega),f(\omega^3),f(\omega^5), \cdots, f(\omega^{n-3}), f(\omega^{n-1}), \overline{f(\omega^{n-1})}, \overline{f(\omega^{n-3})}, \cdots, \overline{f(\omega^3)}, \overline{f(\omega)})$
+
+$ $
+
+这种向量结构恰好符合 $\hat{\mathbb{C}}^n$ 的定义：$n$ 维向量 $\vec{\hat v}$ 的后半部分元素，是其前半部分元素逆序排列后的共轭。
+
+为了证明双射性，还需说明：每个 $f(X) \in \mathbb{R}[X] / (X^n + 1)$ 都映射到某个 $\vec{\hat v} \in \hat{\mathbb{C}}^{n}$，并且不存在两个不同的 $f_1(X), f_2(X) \in \mathbb{R}[X] / (X^n + 1)$ 映射到同一个 $\vec{\hat v} \in \hat{\mathbb{C}}^{n}$。第一个要求成立，因为每个多项式 $f(X) \in \mathbb{R}[X] / (X^n + 1)$ 都可以在 $X^n + 1$ 的 $n$ 个互异根处求值，得到有效的数值。第二个要求也成立，因为在 $(n-1)$ 次多项式环中，每组 $n$ 个互异的 $(x, y)$ 坐标点只能对应一个次数不超过 $(n-1)$ 的多项式；这里将 $X$ 坐标固定为 $X^n + 1$ 的 $n$ 个互异根 $\{\omega, \omega^3, \cdots, \omega^{2n - 1}\}$。这一点已由拉格朗日多项式插值证明（见 \autoref{sec:polynomial-interpolation} 中的定理~\ref*{sec:polynomial-interpolation}）。
+
+$ $
+
+\para{同态：}$\sigma_c$ 是同态。根据 \autoref{subsec:poly-vector-transformation} 中的推理，无论 $X$ 是模整数还是复数，关系 $\sigma_c(f_a(X) + f_b(X)) = \sigma_c(f_a(X)) + \sigma_c(f_b(X))$ 和 $\sigma_c(f_a(X) \cdot f_b(X)) = \sigma_c(f_a(X)) \odot \sigma_c(f_b(X))$ 都成立。此外，对于任意实标量 $c \in \mathbb{R}$，有 $\sigma_c(c \cdot f(X)) = c \cdot \sigma_c(f(X))$，因为先对多项式作数乘再求值，与先求值再对结果作数乘是相同的。
+
+$ $
+
+由于 $\sigma_c$ 既是双射，又对运算 $(+, \cdot)$ 保持同态，因此它是同构。
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:poly-vector-transformation-complex}} 复数上多项式与向量之间的同构}}]
+
+下面的映射 $\sigma_c$ 是复数上多项式与向量之间的同构：
+
+$\sigma_c: f(X) \in \mathbb{R}[X]/(X^n + 1) \longrightarrow (f(\omega),f(\omega^3),f(\omega^5), \cdots, f(\omega^{2n-1})) \in \hat{\mathbb{C}}^{n} \text{ } (\cong \mathbb{C}^{\frac{n}{2}})$
+
+$ $
+
+其中，$\omega = e^{i\pi/n}$ 是复数上分圆多项式 $X^n + 1$ 的根，即 $(\mu=2n)$ 次本原单位根；$\hat{\mathbb{C}}^{n}$ 是一个以实数为标量、由复向量组成的 $n$ 维向量空间，其中后半部分元素是前半部分元素逆序排列后的共轭。
+
+\end{tcolorbox}
+
+
+
+
+
+\subsection{多项式环与实标量复向量空间之间的基变换}
+\label{subsec:poly-vector-basis-transfer}
+
+
+假设多项式 $f_0(X), f_1(X), \cdots, f_{n-1}(X)$ 构成 $(n-1)$ 次多项式环的一组基，且 $\sigma$ 是从 $(n-1)$ 次多项式环到 $n$ 维向量空间的同构映射。那么，$(\sigma(f_0(X)), \sigma(f_1(X)), \cdots, \sigma(f_{n-1}(X)))$ 就构成该 $n$ 维向量空间的一组基。这是因为，经 $\sigma$ 映射得到的向量保持关于运算 $(+, \cdot)$ 的代数关系，而基向量与子空间之间的基关系，也就是线性无关性与张成性，可以用由运算 $(+, \cdot)$ 构成的线性代数表达式描述。因此，如果一组多项式构成基，那么它们经 $\sigma$ 映射得到的向量也保持相应的基关系。
+
+同样的原理适用于多项式环与以实数为标量的复向量空间之间的对应。给定多项式环 $\mathbb{R}[X]/(x^n + 1)$，构造 $\mathbb{R}[X]/(x^n + 1)$ 的一组基最直接的方法如下：
+
+$f_0(X) = 1$
+
+$f_1(X) = X$
+
+$f_2(X) = X^2$
+
+$\vdots$
+
+$f_{n-1}(X) = X^{n-1}$
+
+$ $
+
+这 $n$ 个多项式线性无关，因为每个多项式都只含有其独有次数的单项式，而这个单项式无法由其他单项式的线性组合表示。此外，这 $n$ 个多项式张成整个多项式环 $\mathbb{R}[X]/(x^n + 1)$，因为对每个多项式作数乘可以赋予对应次数项任意系数，将它们相加就可以表示多项式环 $\mathbb{R}[X]/(X^n + 1)$ 中的任意多项式。
+
+
+现在，对上述构成 $(n-1)$ 次多项式环 $\mathbb{R}[X]/(x^n + 1)$ 的一组基的 $n$ 个多项式应用映射 $\sigma_c$。根据多项式基到向量基的转换原理（见 \autoref{subsec:polynomial-ring-basis} 中的定理~\ref*{subsec:polynomial-ring-basis}），可以利用这 $n$ 个多项式，即 $(n-1)$ 次多项式环的一组基，以及从多项式到向量的同构映射 $\sigma_c$，计算 $n$ 维特殊向量空间 $\hat{\mathbb C}^{n}$ 的一组基，如下所示：
+
+$W = \begin{bmatrix}
+\sigma_c(f_0(X)) \\
+\sigma_c(f_1(X)) \\
+\sigma_c(f_2(X)) \\
+\vdots \\
+\sigma_c(f_{n-1}(X)) \\
+\end{bmatrix}
+= \begin{bmatrix}
+\sigma_c(1) \\
+\sigma_c(X) \\
+\sigma_c(X^2) \\
+\vdots \\
+\sigma_c(X^{n-1}) \\
+\end{bmatrix}$
+$= \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1\\
+(\omega) & (\omega^3) & (\omega^5) & \cdots & (\omega^{2n-1})\\
+(\omega)^2 & (\omega^3)^2 & (\omega^5)^2 & \cdots & (\omega^{2n-1})^2\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega)^{n-1} & (\omega^3)^{n-1} & (\omega^5)^{n-1} & \cdots & (\omega^{2n-1})^{n-1}\\
+\end{bmatrix}$
+
+\text{ } \text{ }  $= \begin{bmatrix}
+1 & 1 & 1 & \cdots & 1\\
+(\omega) & (\omega^3) & \cdots & (\overline{\omega})^3 & (\overline{\omega})\\
+(\omega)^2 & (\omega^3)^2 & \cdots & (\overline{\omega}^3)^2 & (\overline{\omega})^2\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega)^{n-1} & (\omega^3)^{n-1} & \cdots & (\overline{\omega}^3)^{n-1} & (\overline{\omega})^{n-1}\\
+\end{bmatrix}$
+
+$ $
+
+$W$ 是 $n$ 维特殊向量空间 $\hat{\mathbb C}^{n}$ 的一组有效的基。
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:poly-vector-transformation-complex}} 多项式环与向量空间之间的基变换}}]
+
+如果 $n$ 个多项式构成一个 $(n-1)$ 次多项式环的一组基，并通过从 $(n-1)$ 次多项式环到 $n$ 维向量空间的同构映射 $\sigma$（在复数情形下为 $\sigma_c$）转换为 $n$ 个互异向量，那么转换得到的 $n$ 个向量就构成该 $n$ 维向量空间的一组基。
+
+\end{tcolorbox}

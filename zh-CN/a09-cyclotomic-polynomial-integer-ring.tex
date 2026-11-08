@@ -1,0 +1,57 @@
+在 \autoref{sec:roots} 和 \autoref{sec:cyclotomic} 中，已经学习了复数上（即 $X \in \mathbb{C}$）的 $\mu$ 次单位根与第 $\mu$ 个分圆多项式的定义和性质，概括如下：
+
+\begin{itemize}
+\item \textbf{$\bm \mu$ 次单位根}是方程 $X^\mu = 1$ 在 $\mathbb{C}$ 中的解。换言之，所有 $\mu$ 次单位根都可以写成 $X = e^{2 \pi i k / \mu}$，其中整数 $k$ 满足 $0 \le k < \mu$。
+\item \textbf{$\bm \mu$ 次本原单位根（记为 $\bm \omega$）}是阶（见 \autoref{subsec:order-def}）等于 $\mu$ 的 $\mu$ 次单位根，即满足 $\omega^{\mu} = 1$，且对任意满足 $d \mid \mu$ 的 $1 \le d < \mu$ 都有 $\omega^d \neq 1$。
+\item 给定任意一个 $\mu$ 次本原单位根 $\omega$，计算 $\omega^{k'}$ 即可生成全部 $\mu$ 次本原单位根，其中整数 $k'$ 满足 $0 < k' < \mu$ 且 $\textsf{gcd}(k', \mu) = 1$（见 \autoref{subsec:order-theorem} 中的定理~\ref*{subsec:roots-theorem}.4）。
+\item \textbf{第 $\bm \mu$ 个分圆多项式}定义为以全部 $\mu$ 次本原单位根为根的多项式，即 \[ \Phi_{\mu}(x) = \prod_{\omega \in P({\mu})} (x - \omega) = \prod_{\substack{0 \leq k \leq {\mu}-1,\\ \textsf{gcd}(k, {\mu}) = 1}} (x - \omega^k) \]
+\end{itemize}
+
+本节介绍 $\mathbb{Z}_p$ 上的第 $\mu$ 个分圆多项式，其中 $p$ 为素数，其结构如下：
+
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{sec:cyclotomic-polynomial-integer-ring}} 环 $\mathbb{Z}_p$ 上的单位根与分圆多项式}}]
+
+
+\begin{itemize}
+\item \textbf{$\bm \mu$ 次单位根（记为 $\bm \omega$）}是 $X^\mu \equiv 1 \bmod p$ 的解。与复数情形不同，这些解不能写成 $X = e^{2 \pi i k / \mu}$。
+\item \textbf{$\bm \mu$ 次本原单位根}定义为阶等于 $\mu$ 的 $\mu$ 次单位根，即满足 $\omega^{\mu} \equiv 1 \bmod p$，且对于任意满足 $d \mid \mu$ 的 $1 \le d < \mu$，都有 $\omega^d \not\equiv 1 \bmod p$。
+\item 给定任意一个 $\mu$ 次本原单位根 $\omega$，计算 $\omega^{k'}$ 即可生成全部 $\mu$ 次本原单位根，其中整数 $k'$ 满足 $0 < k' < \mu$ 且 $\textsf{gcd}(k', \mu) = 1$。
+\item \textbf{第 $\bm \mu$ 个分圆多项式}定义为以全部 $\mu$ 次本原单位根为根的多项式，即 \[ \Phi_{\mu}(x) = \prod_{\omega \in P({\mu})} (x - \omega) = \prod_{\substack{0 \leq k \leq {\mu}-1,\\ \textsf{gcd}(k, {\mu}) = 1}} (x - \omega^k) \]
+\end{itemize}
+
+\end{tcolorbox}
+
+\begin{table}[h] %usepackage{array} 
+\begin{tabular}{|c||c||c|}
+\hline \hline
+& \textbf{$\bm{\mathbb{C}}$ 上的多项式} & \textbf{$\bm{\mathbb{Z}}_{\bm{p}}$ 上的多项式} \\
+& \textbf{（复数）} & \textbf{（环）} \\ \hline \hline
+\textbf{单位根}&所有满足 $X^\mu = 1$ 的 $X \in \mathbb{C}$（可通过&所有满足 $X^\mu \equiv 1 \bmod p$ 的 $X \in \mathbb{Z}_p$\\
+\textbf{的定义}&$X = e^{2 \pi i k / \mu}$ 计算，其中整数 $k$&\\
+\textbf{（$\bm \mu$ 次）}&满足 $0 \leq k \leq \mu - 1$）&\\
+\textbf{}&&\\\hline
+\textbf{本原单位根}&满足以下条件的 $\mu$ 次单位根 $\omega$：&满足以下条件的 $\mu$ 次单位根 $\omega$：\\
+\textbf{的定义}&$\omega^{\mu} = 1$，且 $\omega^{d} \neq 1$&$\omega^{\mu} \equiv 1 \bmod p$，且 $\omega^{d} \not\equiv 1 \bmod p$\\
+\textbf{}&对任意满足 $d \mid \mu$ 的 $1 \le d < \mu$ 成立&对任意满足 $d \mid \mu$ 的 $1 \le d < \mu$ 成立\\
+\textbf{（$\bm \mu$ 次）}&&\\
+\textbf{}&&\\
+\textbf{}&&\\\hline
+\textbf{分圆多项式}&\multicolumn{2}{|c|}{以全部 $\mu$ 次本原单位根为根的多项式，如下所示：}\\
+\textbf{的定义}&\multicolumn{2}{|c|}{$ \Phi_{\mu}(x) = \prod_{\omega \in P(\mu)} (x - \omega) $ \text{ }（见 \autoref{subsec:cyclotomic-def} 中的定义~\ref*{subsec:cyclotomic-def}）}\\
+\textbf{（第 $\bm \mu$ 个）}&\multicolumn{2}{|c|}{}\\
+\textbf{}&\multicolumn{2}{|c|}{}\\
+\textbf{}&\multicolumn{2}{|c|}{}\\\hline
+\textbf{求本原}&对于 $\omega = e^{2 \pi i/ \mu}$，计算满足以下条件的所有 ${\omega}^k$：&先找到第 $\mu$ 个分圆多项式的一个\\
+\textbf{单位根}&$0 < k < \mu $ 且 $\textsf{gcd}(k, \mu) = 1$&本原根 $\omega$，然后\\
+\textbf{（$\bm \mu$ 次）}&（见 \autoref{subsec:roots-theorem} 中的定理~\ref*{subsec:roots-theorem}.4）&计算满足以下条件的所有 $\omega^k \bmod p$：\\
+\textbf{}&&$0 < k < \mu $ 且 $\textsf{gcd}(k, \mu) = 1$\\
+\textbf{}&&\\\hline\hline
+\end{tabular}
+\caption{$X \in \mathbb{C}$ 上与 $X \in \mathbb{Z}_p$ 上的单位根和分圆多项式的比较。}
+\label{tab:cyclotomic-polynomial-comparison}
+\end{table}
+
+
+对于第 $\mu$ 个分圆多项式，无论在 $X \in \mathbb{C}$ 上还是在 $X \in \mathbb{Z}_p$ 上，它的每个根 $\omega$（即 $\mu$ 次本原单位根）的阶均为 $\mu$，也就是说，在 $X \in \mathbb{C}$ 上有 $\omega^{\mu} = 1$，在 $X \in \mathbb{Z}_p$ 上有 $\omega^{\mu} \equiv 1 \bmod p$。此外，通过计算满足 $\textsf{gcd}(k', \mu) = 1$ 的 $\omega^{k'}$，可以由任意一个根 $\omega$ 生成第 $\mu$ 个分圆多项式的全部根。
+
+\autoref{tab:cyclotomic-polynomial-comparison} 比较了 $\mathbb{C}$（复数）上与 $\mathbb{Z}_p$（环）上的单位根和第 $\mu$ 个分圆多项式的性质。

@@ -1,0 +1,42 @@
+name: Textbook PDFs
+
+on:
+  push:
+    branches: [main, chinese-edition]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: textbook-pdf-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check translation structure and formulas
+        run: python3 scripts/check_translation.py --math
+      - name: Compile both editions
+        uses: xu-cheng/texlive-action/full@v1
+        with:
+          run: |
+            mkdir -p build/en build/zh
+            latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error -outdir=build/en 00-main.tex
+            latexmk -xelatex -interaction=nonstopmode -halt-on-error -file-line-error -outdir=build/zh 00-main-zh.tex
+      - name: Upload English PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: fhe-textbook-en
+          path: build/en/00-main.pdf
+          if-no-files-found: error
+      - name: Upload Chinese PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: fhe-textbook-zh
+          path: build/zh/00-main-zh.pdf
+          if-no-files-found: error

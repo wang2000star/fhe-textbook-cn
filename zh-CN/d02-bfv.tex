@@ -1,0 +1,2487 @@
+BFV 方案用于整数的同态加法与乘法。由于 BFV 只对整数进行编码，其编码方案不涉及近似误差问题，因此能够保证精确的加密与解密。BFV 适合要求加密前后的值完全一致的应用，例如投票和金融计算；CKKS 则适合能够容忍微小误差的应用，例如数据分析和机器学习。
+
+在 BFV 中，每个明文都被加密为一个 RLWE 密文。因此，BFV 的密文与密文加法、密文与明文加法，以及密文与明文乘法，均基于 GLWE 的同态加法与乘法（见 \autoref{part:generic-fhe}）实现；取 $k = 1$ 即可将 GLWE 化为 RLWE。
+
+
+
+
+\begin{tcolorbox}[
+    title = \textbf{所需背景知识},    % box title
+    colback = white,    % light background; tweak to taste
+    colframe = black,  % frame colour
+    boxrule = 0.8pt,     % line thickness
+    left = 1mm, right = 1mm, top = 1mm, bottom = 1mm % inner padding
+]
+
+\begin{itemize}
+\item \autoref{sec:modulo}: \nameref{sec:modulo}
+\item \autoref{sec:group}: \nameref{sec:group}
+\item \autoref{sec:field}: \nameref{sec:field}
+\item \autoref{sec:order}: \nameref{sec:order}
+\item \autoref{sec:polynomial-ring}: \nameref{sec:polynomial-ring}
+\item \autoref{sec:decomp}: \nameref{sec:decomp}
+\item \autoref{sec:roots}: \nameref{sec:roots}
+\item \autoref{sec:cyclotomic}: \nameref{sec:cyclotomic}
+\item \autoref{sec:cyclotomic-polynomial-integer-ring}: \nameref{sec:cyclotomic-polynomial-integer-ring}
+\item \autoref{sec:matrix}: \nameref{sec:matrix}
+\item \autoref{sec:euler}: \nameref{sec:euler}
+\item \autoref{sec:modulus-rescaling}: \nameref{sec:modulus-rescaling}
+\item \autoref{sec:chinese-remainder}: \nameref{sec:chinese-remainder}
+\item \autoref{sec:polynomial-interpolation}: \nameref{sec:polynomial-interpolation}
+\item \autoref{sec:ntt}: \nameref{sec:ntt}
+\item \autoref{sec:lattice}: \nameref{sec:lattice}
+\item \autoref{sec:rlwe}: \nameref{sec:rlwe}
+\item \autoref{sec:glwe}: \nameref{sec:glwe}
+\item \autoref{sec:glwe-add-cipher}: \nameref{sec:glwe-add-cipher}
+\item \autoref{sec:glwe-add-plain}: \nameref{sec:glwe-add-plain}
+\item \autoref{sec:glwe-mult-plain}: \nameref{sec:glwe-mult-plain}
+\item \autoref{subsec:modulus-switch-rlwe}: \nameref{subsec:modulus-switch-rlwe}
+\item \autoref{sec:glwe-key-switching}: \nameref{sec:glwe-key-switching}
+\end{itemize}
+\end{tcolorbox}
+
+\clearpage
+
+\subsection{单值编码}
+\label{subsec:bfv-single-encoding}
+
+BFV 支持两种编码方案：单值编码和批量编码。本小节介绍单值编码。
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bfv-single-encoding}} BFV 编码}}]
+
+\textbf{\underline{输入整数}：} 将输入整数 $m \in \mathbb{Z}_{\geq 0}$（即 0 或任意正整数）分解如下：
+
+$m = b_{n-1}\cdot 2^{n-1} + b_{n-2}\cdot 2^{n-2} + \cdots + b_1\cdot 2^1 + b_0\cdot 2^0$  \text { } ，其中每个 $b_i \in \{0, 1\}$
+
+$ $
+
+
+\textbf{\underline{编码后的多项式}：} $M(X) = b_0 + b_1X + b_2X^2 + \cdots + b_{n-1}X^{n-1} \in \mathcal{R}_{\langle n, t\rangle}$
+
+$ $
+
+\textbf{\underline{解码}：} $M(X=2) = m$
+
+\end{tcolorbox}
+
+
+下面分析小结~\ref*{subsec:bfv-single-encoding} 中的编码方案，是否能保证加法和乘法之后仍能正确解码。这等价于证明：
+
+$\text{Decode}(\sigma(m_1) + \sigma(m_2)) = m_1 + m_2$ \textcolor{red}{$\rhd$ 其中 $\sigma$ 为编码函数}
+
+$\text{Decode}(\sigma(m_1) \cdot \sigma(m_2)) = m_1 \cdot m_2$
+
+设 $\sigma(m_1) = M_1(X)$ 且 $\sigma(m_2) = M_2(X)$，则
+
+$\text{Decode}(\sigma(m_1) + \sigma(m_2)) = \text{Decode}(M_1(X) + M_2(X))$
+
+
+$= \text{Decode}(M_{1+2}(X))$ \textcolor{red}{$\rhd$ 其中 $M_{1+2}(X) = M_1(X) + M_2(X)$}
+
+$= M_{1+2}(2)$ \textcolor{red}{$\rhd$ 因为解码就是在 $X = 2$ 处对多项式求值}
+
+$= M_{1}(2) + M_{2}(2)$ \textcolor{red}{$\rhd$ 因为在 $X=2$ 处对 $M_{1+2}(X)$ 求值，等价于将 $M_{1+2}(X)$ 拆分为 $M_{1}(X)$ 和 $M_{2}(X)$，分别对 $M_1(2)$ 与 $M_2(2)$ 求值后相加}
+
+$ $
+
+类似地，乘法之后的解码也保持正确：
+
+$\text{Decode}(\sigma(m_1) \cdot \sigma(m_2)) = \text{Decode}(M_1(X) \cdot M_2(X))$
+
+$= \text{Decode}(M_{1\cdot2}(X))$ \textcolor{red}{$\rhd$ 其中 $M_{1\cdot2}(X) = M_1(X) \cdot M_2(X)$}
+
+$= M_{1\cdot2}(2)$ \textcolor{red}{$\rhd$ 因为解码就是在 $X = 2$ 处对多项式求值}
+
+$= M_{1}(2) \cdot M_{2}(2)$ \textcolor{red}{$\rhd$ 因为在 $X=2$ 处对 $M_{1\cdot2}(X)$ 求值，等价于将 $M_{1\cdot2}(X)$ 拆分为 $M_{1}(X)$ 和 $M_{2}(X)$，分别对 $M_1(2)$ 与 $M_2(2)$ 求值后相乘}
+
+
+
+
+$ $
+
+因此，单值编码方案在加法与乘法后能够保持解码的正确性。
+
+$ $
+
+小结~\ref*{subsec:bfv-single-encoding} 中的编码方案用于全同态加密时，必须保证编码多项式相乘后的次数不超过多项式环的次数 $n$；一旦次数溢出并发生规约，多项式的求值结果就不再保持一致。此外，加法或乘法后的多项式系数也不能发生模 $t$ 回绕。
+由于这些约束，单值编码并不是全同态加密的理想选择。而且，尽管每个多项式包含 $n$ 个系数，却只能编码一个值，因此计算效率也较低。
+
+
+\subsection{批量编码}
+\label{subsec:bfv-batch-encoding}
+
+单值编码方案（\autoref{subsec:bfv-single-encoding}）每次只对一个值进行编码与解码，而批量编码利用高维向量，同时对大量数值执行这些操作。因此，批量编码比单值编码更高效。此外，通过向量加法和 Hadamard 积，可以同时对批量编码的值逐元素执行同态加法与乘法。因此，批量编码能够采用 SIMD（单指令多数据）方式，比单值编码更高效地完成同态运算。
+
+BFV 编码将模 $t$ 的、含 $n$ 个槽位的整数输入向量 $\vec{v} = (v_0, v_1, v_2, \cdots v_{n-1})$，转换为模 $t$ 的另一个含 $n$ 个槽位的向量 $\vec{m} = (m_0, m_1, m_2, \cdots m_{n-1})$。后者的各元素作为编码所得 $(n-1)$ 次或更低次数多项式 $M(X) \in \mathbb{Z}_t[X] / (X^n + 1)$ 的系数。
+
+$ $
+
+\subsubsection{编码第一阶段（\textsf{Encoding\textsubscript{1}}）}
+\label{subsubsec:bfv-encoding-1} 
+
+在 \autoref{subsec:poly-vector-transformation} 中，我们已经知道，通过映射 $\sigma$，可以将 $(n-1)$ 次或更低次数的多项式同构地映射为一个含 $n$ 个槽位的向量（为简化记号，将 \autoref{subsec:poly-vector-transformation} 中的 $\sigma_c$ 记为 $\sigma$）：
+
+$\sigma: M(X) \in \mathbb{Z}_t[X]/(X^n + 1) \longrightarrow  (M(\omega),M(\omega^3),M(\omega^5), \cdots, M(\omega^{2n-1})) \in \mathbb{Z}_t^n$
+
+$ $
+
+，即在 $n$ 个不同的 $(\mu=2n)$ 次本原单位根 $\omega, \omega^3, \omega^5, \cdots, \omega^{2n-1}$ 处对多项式 $M(X)$ 求值。令 $\vec{m}$ 为包含多项式 $M(X)$ 的 $n$ 个系数的向量，则可将映射 $\sigma$ 表示为：
+
+$\vec{v} = W^T \cdot \vec{m}$
+
+$ $
+
+，其中 $W^T$ 如下：
+
+$W^T = \begin{bmatrix}
+1 & (\omega) & (\omega)^2 & \cdots & (\omega)^{n-1}\\
+1 & (\omega^3) & (\omega^3)^2 & \cdots & (\omega^3)^{n-1}\\
+1 & (\omega^5) & (\omega^5)^2 & \cdots & (\omega^5)^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{2n-1}) & (\omega^{2n-1})^2 & \cdots & (\omega^{2n-1})^{n-1}\\
+\end{bmatrix}$  \textcolor{red}{ \text{ } \# $W^T$ 是 \autoref{subsec:poly-vector-transformation} 中所述 $W$ 的转置}
+
+$ $
+
+注意，$W^T$ 的每一行与 $\vec{m}$ 的点积，给出多项式 $M(X)$ 在相应 $X = \{w, w^3, w^5, \cdots, w^{2n-1}\}$ 处的求值结果。在 BFV 编码方案中，\textsf{Encoding\textsubscript{1}} 将含 $n$ 个槽位的输入向量 $\vec{v}$ $\in \mathbb{Z}_t$ 编码为明文多项式 $M(X) \in \mathbb{Z}_t[X] / (X^n + 1)$，而 \textsf{Decoding\textsubscript{2}} 则将 $M(X)$ 解码回 $\vec{v}$。由于 $W^T \cdot \vec{m}$ 得到的 $\vec{v}$ 是 $M(X)$ 的解码，因此将 $W^T$ 称为解码矩阵。另一方面，\textsf{Encoding\textsubscript{1}} 的目标是将 $\vec{v}$ 编码为 $M(X)$，以便基于 $M(X)$ 进行同态计算。由关系 $\vec{v} = W^T \cdot \vec{m}$，可以推导出编码公式：
+
+$(W^T)^{-1} \cdot \vec{v} = (W^T)^{-1} W^T \cdot \vec{m}$
+
+$\vec{m} = (W^T)^{-1} \cdot \vec{v}$
+
+$ $
+
+因此，需要求出 $W^T$ 的逆矩阵 $(W^T)^{-1}$，作为编码矩阵。根据 \autoref{subsec:vandermonde-euler} 中的定理~\ref*{subsec:vandermonde-euler}，已经知道 $V^{-1} = \dfrac{V^T \cdot I_n^R}{n}$，其中 $V = W^T$ 且 $V^T = W$。换言之，$(W^T)^{-1} = \dfrac{W \cdot I_n^R}{n}$。因此，BFV 的编码公式可以写为：
+
+$\vec{m} = (W^T)^{-1} \cdot \vec{v} = \dfrac{W \cdot I_n^R \cdot \vec{v}}{n}$，\text{ } 其中
+
+$ $
+
+$W =  \begin{bmatrix}
+1 & 1 & 1 & \cdots & 1\\
+(\omega) & (\omega^3) & (\omega^5) & \cdots & (\omega^{2n-1})\\
+(\omega)^2 & (\omega^3)^2 & (\omega^5)^2 & \cdots & (\omega^{2n-1})^2\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega)^{n-1} & (\omega^3)^{n-1} & (\omega^5)^{n-1} & \cdots & (\omega^{2n-1})^{n-1}\\
+\end{bmatrix}$
+
+$= \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1 & \cdots & 1 & 1\\
+(\omega) & (\omega^3) & \cdots & (\omega^{\frac{n}{2} - 1}) & (\omega^{-(\frac{n}{2} - 1)}) & \cdots & (\omega^{-3}) & (\omega^{-1})\\
+(\omega)^2 & (\omega^3)^2 & \cdots & (\omega^{\frac{n}{2} - 1})^2 & (\omega^{-(\frac{n}{2} - 1)})^2 & \cdots & (\omega^{-3})^2 & (\omega^{-1})^2\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega)^{n-1} & (\omega^3)^{n-1} & \cdots & (\omega^{\frac{n}{2} - 1})^{n-1} & (\omega^{-(\frac{n}{2} - 1)})^{n-1} & \cdots & (\omega^{-3})^{n-1} & (\omega^{-1})^{n-1}\\
+\end{bmatrix}$
+
+$ $
+
+，其中 $\omega$ 是模 $t$ 的 $2n$ 次本原单位根（这意味着 $t \equiv 1 \bmod 2n$）。因此有 $\omega = g^{\frac{t - 1}{2n}} \bmod t$（$g$ 是 $\mathbb{Z}_t^{\times}$ 的生成元，见 \autoref{subsubsec:poly-vector-transformation-modulus}）。
+
+在 \autoref{subsec:poly-vector-transformation} 中，我们已经知道 $W$ 是 $n$ 维向量空间的一组基。因此，对于 $n$ 维向量空间 $\mathbb{Z}_t^{n}$ 中的每个 $\vec{v}$，都存在唯一对应的向量 $\dfrac{W \cdot \vec{v}}{n} = \vec{m}$（参见 \autoref{subsec:projection} 中的定理~\ref*{subsec:projection}）。由此，以 $\vec{m}$ 的 $n$ 个元素为系数构成的多项式 $M(X)$，也是与 $\vec{v}$ 双射对应的唯一多项式。
+
+注意，通过计算 $\dfrac{W \cdot I_n^R \cdot \vec{v}}{n}$
+，可以将输入槽位向量 $\vec{v}$ 转换为同一向量空间 $\mathbb{Z}_t^{n}$ 中的另一个向量 $\vec{m}$，同时保持这两个向量之间的同构关系，即一一对应的双射，以及对 $(+, \cdot)$ 运算的同态性。
+
+\subsubsection{编码第二阶段（\textsf{Encoding\textsubscript{2}}）}
+
+得到含 $n$ 个槽位的向量 $\vec{m}$ 后，使用尺度因子 $\Delta = \left\lfloor \dfrac{q}{t} \right\rfloor$ 对其放大（即相乘），其中 $q$ 是密文模数。将 $\vec{m}$ 乘以 $\Delta$，得到 $\Delta \vec{m}$。
+$\Delta\vec{m}$ 中的 $n$ 个整数将作为 RLWE 加密中明文多项式的 $n$ 个系数。最终编码后的明文多项式为 $\Delta M = \sum\limits_{i=0}^{n-1}\Delta m_iX^i$。
+
+
+\subsubsection{解码第一阶段（\textsf{Decoding\textsubscript{1}}）}
+\label{subsubsec:bfv-enc-dec-decoding1} 
+
+RLWE 密文完成解密的前半部分、得到 $\Delta M = \sum\limits_{i=0}^{n-1}\Delta m_iX^i$ 后，计算 $\dfrac{\Delta\vec{m}}{\Delta} = \vec{m}$。
+
+
+
+
+\subsubsection{解码第二阶段（\textsf{Decoding\textsubscript{2}}）}
+
+
+在 \autoref{subsubsec:bfv-encoding-1} 中，我们已经推导出以下解码公式，用于将一个系数为模 $t$ 整数、次数为 $(n-1)$ 的多项式转换成包含 $n$ 个槽位的输入向量：
+
+$\vec{v} = W^T \cdot \vec{m}$
+
+
+\subsubsection{小结}
+\label{subsubsec:bfv-encoding-summary}
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:bfv-encoding-summary}} BFV 的编码与解码}}]
+
+
+
+\textbf{\underline{输入}：} 包含 $n$ 个槽位的模 $t$ 整数向量 $\vec{v} = (v_0, v_1, \cdots, v_{n-1}) \in \mathbb{Z}_t^n$
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{\underline{编码}}
+\begin{enumerate}
+
+\item 应用变换 $\vec{m} = n^{-1}\cdot W \cdot I_n^R \cdot \vec{v}$，将 $\vec{v} \in \mathbb{Z}_t^n$ 转换为 $\vec{m} \in \mathbb{Z}_t^n$
+
+，其中，$W$ 是按如下方式构造的 $n$ 维向量空间的一组基：
+
+$W =  \begin{bmatrix}
+1 & 1 & 1 & \cdots & 1\\
+(\omega) & (\omega^3) & (\omega^5) & \cdots & (\omega^{2n-1})\\
+(\omega)^2 & (\omega^3)^2 & (\omega^5)^2 & \cdots & (\omega^{2n-1})^2\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega)^{n-1} & (\omega^3)^{n-1} & (\omega^5)^{n-1} & \cdots & (\omega^{2n-1})^{n-1}\\
+\end{bmatrix}$
+
+$= \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1 & \cdots & 1 & 1\\
+(\omega) & (\omega^3) & \cdots & (\omega^{\frac{n}{2} - 1}) & (\omega^{-(\frac{n}{2} - 1)}) & \cdots & (\omega^{-3}) & (\omega^{-1})\\
+(\omega)^2 & (\omega^3)^2 & \cdots & (\omega^{\frac{n}{2} - 1})^2 & (\omega^{-(\frac{n}{2} - 1)})^2 & \cdots & (\omega^{-3})^2 & (\omega^{-1})^2\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega)^{n-1} & (\omega^3)^{n-1} & \cdots & (\omega^{\frac{n}{2} - 1})^{n-1} & (\omega^{-(\frac{n}{2} - 1)})^{n-1} & \cdots & (\omega^{-3})^{n-1} & (\omega^{-1})^{n-1}\\
+\end{bmatrix}$
+
+$ $
+
+，其中，$\omega$ 是模 $t$ 的一个本原 $2n$ 次单位根。这意味着 $\omega = g^{\frac{t - 1}{2n}} \bmod t$（$g$ 是 $\mathbb{Z}_t^{\times}$ 的一个生成元，见 \autoref{subsubsec:poly-vector-transformation-modulus}）。
+
+$ $
+
+\item 将 $\vec{m}$ 转换为缩放后的整数向量 $\Delta\vec{m}$，其中，$1 \leq \Delta \leq \lfloor \dfrac{q}{t}\rfloor$ 是尺度因子。如果 $\Delta$ 过于接近 1（即 $t$ 太大），则\textbf{噪声预算}会过小（容易导致解密失败）。如果 $\Delta$ 过于接近 $q$（即 $t$ 太小），则\textbf{消息容量}会过小（即明文模数 $t$ 限制了可编码数值的范围）。最终编码得到的明文多项式为 $\Delta M = \sum\limits_{i=0}^{n-1} \Delta m_i X^i \text{ } \in \mathbb{Z}_q[X] / (X^n + 1)$。 %The rounding of $\lceil \Delta \vec{m} \rfloor$ during the encoding process makes CKKS an approximate FHE scheme.
+
+\end{enumerate}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{\underline{解码}：} 从明文多项式 $\Delta M = \sum\limits_{i=0}^{n-1}\Delta m_iX^i$ 中恢复 $\vec{m} = \dfrac{\Delta \vec{m}}{\Delta}$。然后，
+计算 $\vec{v} = W^T \cdot \vec{m}$。
+
+\end{tcolorbox}
+
+
+%\para{BFV's Encoding Range:} \autoref{tab:polynomial-encoding-capacity-integer} depicts the range of input values that can be encoded by the polynomials $M(X) \in \mathcal{R}_{\langle n, t \rangle}$ over $X \in \mathbb{Z}_t$. As illustrated in \autoref{tab:polynomial-encoding-capacity-integer}, the encoding range of integer inputs is determined by the size of the $n$ and $t$ parameters. Therefore, these two parameters should be chosen sufficiently large enough to encode all values that can be used by an application. 
+
+不过，小结~\ref*{subsubsec:bfv-encoding-summary} 还不是 BFV 批量编码的最终版本。在 \autoref{subsec:bfv-rotation} 中，我们将介绍如何在不解密封装输入向量的密文的情况下，对其槽位进行同态旋转。为了支持这种同态旋转，需要对小结~\ref*{subsubsec:bfv-encoding-summary} 中介绍的编码方案稍作调整。我们将在 \autoref{subsec:bfv-rotation} 中说明具体方法，并在 \autoref{subsubsec:bfv-rotation-summary} 的小结~\ref*{subsubsec:bfv-rotation-summary} 中给出 BFV 的最终编码方案。
+
+
+\subsection{加密与解密}
+\label{subsec:bfv-enc-dec}
+
+BFV 基于 RLWE 密码系统（\autoref{sec:rlwe}）进行密文的加密与解密，但将加密和解密公式中各 $A\cdot S$ 项的符号取反。具体而言，这等价于 $k = 1$ 时的另一种 GLWE 密码系统（\autoref{subsec:glwe-alternative}）。因此，BFV 的加密和解密公式如下：
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bfv-enc-dec}} BFV 加密与解密}}]
+
+\textbf{\underline{初始设置}：} $\Delta=\left\lfloor\dfrac{q}{t}\right\rfloor \text{ 是多项式编码的明文尺度因子}, \text{ } S \xleftarrow{\$} \mathcal{R}_{\langle n, \textit{tern} \rangle}$
+
+，其中，明文模数 $t$ 为素数（$p$）或素数幂（$p^r$），密文模数为 $q \gg t$。多项式 $S$ 的系数为三值系数（即 $\{-1, 0, 1\}$）。
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{\underline{加密输入}：} $\Delta M \in \mathcal{R}_{\langle n, q \rangle}$、$A_i \xleftarrow{\$} \mathcal{R}_{\langle n, q \rangle}$、$E \xleftarrow{\chi_\sigma} \mathcal{R}_{\langle n, q \rangle}$
+
+
+$ $
+
+\begin{enumerate}
+
+
+\item 计算 $B = -A \cdot S + \Delta M + E \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
+
+\item $\textsf{RLWE}_{S,\sigma}(\Delta M + E) = (A, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^2$ 
+
+\end{enumerate}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{\underline{解密输入}：} $\textsf{ct} = (A, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^2$
+
+$\textsf{RLWE}^{-1}_{S,\sigma}(\textsf{ct}) = \left\lceil\dfrac{B + A \cdot S \bmod q}{\Delta}\right\rfloor \bmod t = \left\lceil\dfrac{\Delta M + E}{\Delta}\right\rfloor \bmod t = M \bmod t$
+
+（噪声 $E = \sum\limits_{i=0}^{n-1}e_iX^i$ 由舍入过程消除。）
+
+
+
+$ $
+
+\textbf{\underline{正确解密的条件}：}
+
+如小结~\ref*{subsubsec:lwe-noise-bound}（位于 \autoref{subsubsec:lwe-noise-bound}）所述，噪声界为 $|-\epsilon k_i t + e_i| < \dfrac{\Delta}{2}$，其中，$k_i$ 是多项式 $K$ 的各个系数；该多项式描述了明文多项式经过同态运算更新后，其系数产生的 $t$ 整数倍溢出。
+
+\end{tcolorbox}
+
+
+在本节中，为简洁起见，我们经常将 $\textsf{RLWE}_{S,\sigma}(\Delta  M + E)$ 写作 $\textsf{RLWE}_{S,\sigma}(\Delta  M)$，因为 $\textsf{RLWE}_{S,\sigma}(\Delta M + E) \approx \textsf{RLWE}_{S,\sigma}(\Delta M)$（即二者解密得到相同的消息）。即使我们用 $\textsf{RLWE}_{S,\sigma}(\Delta  M)$ 代替 $\textsf{RLWE}_{S,\sigma}(\Delta  M + E)$，也应将其理解为对 $\Delta  M + E$ 的加密（即噪声包含在缩放后的消息中）。
+
+
+我们将在 \autoref{subsubsec:bfv-noise-analysis} 中更详细地说明 BFV 正确解密的条件。
+
+
+
+\subsection{密文与密文相加}
+\label{subsec:bfv-add-cipher}
+
+BFV 的密文与密文相加采用 RLWE 的密文与密文相加方案，但将加密和解密公式中 $A\cdot S$ 项的符号取反。具体而言，这等价于 $k = 1$ 时的另一种 GLWE 版本（\autoref{subsec:glwe-alternative}）的密文与密文相加方案。
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bfv-add-cipher}} BFV 密文与密文相加}}]
+$\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} ) + \textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle}) $
+
+$ = ( A^{\langle 1 \rangle}, \text{ } B^{\langle 1 \rangle}) + (A^{\langle 2 \rangle}, \text{ } B^{\langle 2 \rangle}) $
+
+$ = ( A^{\langle 1 \rangle} + A^{\langle 2 \rangle}, \text{ } B^{\langle 1 \rangle} + B^{\langle 2 \rangle} ) $
+
+$= \textsf{RLWE}_{S, \sigma}(\Delta(M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) + E^{\langle 1 \rangle} + E^{\langle 2 \rangle})$
+\end{tcolorbox}
+
+
+\subsubsection{噪声界分析}
+\label{subsubsec:bfv-noise-analysis}
+
+在小结~\ref*{subsec:bfv-enc-dec}（位于 \autoref{subsec:bfv-enc-dec}）的最后部分，我们了解了 BFV 正确解密所需的噪声界条件。本小节将以 BFV 的密文与密文相加为例，更详细地说明这一条件如何成立。
+
+将同态相加后的密文记为：
+
+$ ( A^{\langle 3 \rangle}, \text{ } B^{\langle 3 \rangle}) = ( A^{\langle 1 \rangle} + A^{\langle 2 \rangle}, \text{ } B^{\langle 1 \rangle} + B^{\langle 2 \rangle} ) \bmod q$
+
+$ $
+
+对其应用解密的第一步，得到以下中间结果：
+
+$B^{\langle 3 \rangle} + A^{\langle 3 \rangle}\cdot S \bmod q$
+
+$B^{\langle 1 \rangle} + B^{\langle 2 \rangle} + A^{\langle 1 \rangle}\cdot S + A^{\langle 2 \rangle}\cdot S \bmod q$
+
+$= (-A^{\langle 1 \rangle}\cdot S + \Delta M^{\langle 1\rangle} + E^{\langle 1 \rangle}) + (- A^{\langle 2 \rangle}\cdot S  + \Delta M^{\langle 2\rangle}  + E^{\langle 2 \rangle}) + A^{\langle 1 \rangle}\cdot S + A^{\langle 2 \rangle}\cdot S \bmod q$
+
+$= \Delta M^{\langle 1\rangle} + E^{\langle 1 \rangle} + \Delta M^{\langle 2\rangle} + E^{\langle 2 \rangle} \bmod q $
+
+$ $
+
+解密的第二步是将上述中间多项式的每个系数除以 $\Delta$，舍入后再模 $t$ 约减，如下所示：
+
+$ $
+
+$\left\lceil\dfrac{\Delta (M^{\langle 1\rangle} + M^{\langle 2\rangle}) + E^{\langle 1 \rangle} + E^{\langle 2 \rangle} \bmod q}{\Delta}\right\rfloor \bmod t$
+
+$ $
+
+正确解密要求上述结果等于 $M^{\langle 1 + 2 \rangle} = M^{\langle 1 \rangle} + M^{\langle 2 \rangle} \bmod t$，其中，$M^{\langle 1 + 2 \rangle}$ 是经过模 $t$ 约减后的最终多项式。定义 $\epsilon = \dfrac{q}{t} - \left\lfloor\dfrac{q}{t}\right\rfloor = \dfrac{q}{t} - \Delta$。由于 $q \gg t$，$\epsilon$ 是位于 $[0, 1)$ 之间的分数值。现在可以将上述解密项改写如下：
+
+$ $
+
+$\left\lceil\dfrac{\Delta (M^{\langle 1\rangle} + M^{\langle 2\rangle}) + E^{\langle 1 \rangle} + E^{\langle 2 \rangle} \bmod q}{\Delta}\right\rfloor \bmod t$ 
+
+$ $
+
+$\left\lceil\dfrac{(\frac{q}{t} - \epsilon)\cdot (M^{\langle 1\rangle} + M^{\langle 2\rangle}) + E^{\langle 1 \rangle} + E^{\langle 2 \rangle} \bmod q}{\Delta}\right\rfloor \bmod t$ \textcolor{red}{ $\rhd$ 应用 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor = \dfrac{q}{t} - \epsilon$}
+
+$ $
+
+$ = \left\lceil\dfrac{(\frac{q}{t} - \epsilon)\cdot (M^{\langle 1 + 2\rangle} + t\cdot K) + E^{\langle 1 \rangle} + E^{\langle 2 \rangle} \bmod q}{\Delta}\right\rfloor \bmod t$ 
+
+\textcolor{red}{ $\rhd$ 其中，$t \cdot K$ 表示 $M^{\langle 1\rangle} + M^{\langle 2\rangle}$ 的模加法所产生的 $t$ 整数倍溢出 }
+
+$ $
+
+$ $
+
+$ = \left\lceil\dfrac{\frac{q}{t} \cdot M^{\langle 1 + 2\rangle}  - \epsilon \cdot M^{\langle 1 + 2\rangle}  + \frac{q}{t} \cdot t\cdot K  - \epsilon \cdot t\cdot K + E^{\langle 1 \rangle} + E^{\langle 2 \rangle} \bmod q}{\Delta}\right\rfloor \bmod t$ 
+
+$ $
+
+$ = \left\lceil\dfrac{\frac{q}{t} \cdot M^{\langle 1 + 2\rangle}  - \epsilon \cdot M^{\langle 1 + 2\rangle}  - \epsilon \cdot t\cdot K + E^{\langle 1 \rangle} + E^{\langle 2 \rangle} \bmod q}{\Delta}\right\rfloor \bmod t$ 
+
+\textcolor{red}{ $\rhd$ 因为 $\frac{q}{t}\cdot t = q$，且 $q\cdot K \bmod q = 0$}
+
+$ $
+
+$ $
+
+
+$ = \left\lceil\dfrac{\left\lfloor\frac{q}{t}\right\rfloor \cdot M^{\langle 1 + 2\rangle} + \epsilon \cdot M^{\langle 1 + 2\rangle} - \epsilon \cdot M^{\langle 1 + 2\rangle}  - \epsilon \cdot t\cdot K + E^{\langle 1 \rangle} + E^{\langle 2 \rangle} \bmod q}{\Delta}\right\rfloor \bmod t$  
+
+\textcolor{red}{ $\rhd$ 应用 $\dfrac{q}{t} = \left\lfloor\dfrac{q}{t}\right\rfloor + \epsilon$}
+
+$ $
+
+$ $
+
+
+$ = \left\lceil\dfrac{\left\lfloor\frac{q}{t}\right\rfloor \cdot M^{\langle 1 + 2\rangle} - \epsilon \cdot t\cdot K + E^{\langle 1 \rangle} + E^{\langle 2 \rangle} \bmod q}{\Delta}\right\rfloor \bmod t$  
+
+$ $
+
+$ $
+
+$ = \left\lceil\dfrac{\left\lfloor\frac{q}{t}\right\rfloor \cdot M^{\langle 1 + 2\rangle} - \epsilon \cdot t\cdot K + E^{\langle 1 \rangle} + E^{\langle 2 \rangle}}{\Delta}\right\rfloor \bmod t$  
+
+\textcolor{red}{ $\rhd$ 对所有 $n$ 系数应用特殊假设 $|\epsilon \cdot t \cdot K + E^{\langle 1 \rangle} + E^{\langle 2 \rangle}| < \dfrac{\Delta}{2}$（见 \autoref{subsubsec:lwe-noise-bound}）}
+
+$ $
+
+$ $
+
+
+$ = M^{\langle 1 + 2\rangle} + \left\lceil\dfrac{E^{\langle 1 \rangle} + E^{\langle 2 \rangle} - \epsilon \cdot t\cdot K}{\Delta}\right\rfloor \bmod t$  \textcolor{red}{ $\rhd$ 因为 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$，且 $\lceil M^{\langle 1 + 2\rangle} \rfloor = M^{\langle 1 + 2\rangle}$}
+
+$ $
+
+$ $
+
+$ = M^{\langle 1 + 2\rangle} \bmod t$
+\textcolor{red}{ $\rhd$ 对所有 $n$ 系数应用特殊假设 $\epsilon \cdot t \cdot K + E^{\langle 1 \rangle} + E^{\langle 2 \rangle} < \dfrac{\Delta}{2}$}
+
+
+$ $
+
+上述最终表达式表明，可以保持正确解密（即 $M^{\langle 1 + 2\rangle}$），只要
+特殊假设 $\epsilon \cdot t \cdot K + E^{\langle 1 \rangle} + E^{\langle 2 \rangle} < \dfrac{\Delta}{2}$ 对多项式的所有 $n$ 系数成立。总体而言，密文模数 $q$ 相对于明文模数 $t$ 越大，尺度因子 $\Delta$ 就越大，从而能够容纳更大的噪声预算（$E^{\langle 1 \rangle} + E^{\langle 2 \rangle}$），以及明文因模回绕而产生的更多 $t$ 整数倍溢出（$\epsilon \cdot t\cdot K$）。
+
+这一噪声界原理不仅适用于同态加法，也适用于后续小节将要介绍的同态乘法和旋转。$E^{\langle 1 \rangle} + E^{\langle 2 \rangle}$ 项可以推广为所有同态运算（例如加法、乘法和旋转）产生的累积噪声，$\epsilon \cdot t\cdot K$ 项则可以推广为同态运算所得明文多项式每个系数的 $t$ 整数倍溢出量。
+
+
+
+\subsection{密文与明文相加}
+\label{subsec:bfv-add-plain}
+
+BFV 的密文与明文相加采用 RLWE 的密文与明文相加方案，但将加密和解密公式中 $A\cdot S$ 项的符号取反。具体而言，这等价于 $k = 1$ 时的另一种 GLWE 版本（\autoref{subsec:glwe-alternative}）的密文与明文相加方案（\autoref{sec:glwe-add-plain}）。
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bfv-add-plain}} BFV 密文与明文相加}}]
+$\textsf{RLWE}_{S, \sigma}(\Delta M + E) + \Delta\Lambda $
+
+$=  (A, \text{ } B) + \Delta\Lambda$
+
+$=  (A, \text{ } B + \Delta\cdot\Lambda)$
+
+$= \textsf{RLWE}_{S, \sigma}(\Delta (M + \Lambda) + E)$
+\end{tcolorbox}
+
+
+
+\subsection{密文与明文相乘}
+\label{subsec:bfv-mult-plain}
+
+
+BFV 的密文与明文相乘采用 RLWE 的密文与明文相乘方案，但将加密和解密公式中 $A\cdot S$ 项的符号取反。具体而言，这等价于 $k = 1$ 时的另一种 GLWE 版本（\autoref{subsec:glwe-alternative}）的密文与明文相乘方案（\autoref{sec:glwe-mult-plain}）。
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bfv-mult-plain}} BFV 密文与明文相乘}}]
+$\textsf{RLWE}_{S, \sigma}(\Delta M + E) \cdot \Lambda$
+
+$= (A, \text{ } B) \cdot \Lambda$
+
+$= (A \cdot \Lambda, \text{ }  B \cdot \Lambda )$
+
+$= \textsf{RLWE}_{S, \sigma}(\Delta (M \cdot \Lambda) + \Lambda E)$
+\end{tcolorbox}
+
+
+
+
+\subsection{密文与密文相乘}
+\label{subsec:bfv-mult-cipher}
+
+\noindent \textbf{- 参考资料 1：}
+\href{https://www.inferati.com/blog/fhe-schemes-bfv}{BFV 加密方案简介}~\cite{inferati-bfv}
+
+\noindent \textbf{- 参考资料 2：}
+\href{https://eprint.iacr.org/2012/144.pdf}{某种程度上、部分与全同态加密}~\cite{cryptoeprint:2012/144}
+
+%\noindent \textbf{- Reference 3:} 
+%\href{https://eprint.iacr.org/2016/510.pdf}{A Full RNS Variant $of FV like Somewhat Homomorphic Encryption Schemes}~\cite{cryptoeprint:2016/510}
+
+
+给定两个密文 $\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 1\rangle })$ 和 $\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 2\rangle})$，密文与密文相乘的目标是构造一个新密文，使其解密结果为 $\Delta M^{\langle 1 \rangle} M^{\langle 2 \rangle}$。密文与密文相乘比密文与明文相乘更复杂，包括四个步骤：（1）\textsf{ModRaise}；（2）多项式乘法；（3）重线性化；（4）重缩放。
+
+为便于理解，我们将基于 RLWE 的另一种版本（\autoref{subsec:glwe-alternative} 中的定理~\ref*{subsec:glwe-alternative}）来解释 BFV 的密文与密文相乘；在该版本中，加密和解密公式中 $AS$ 项的符号取反。
+
+\subsubsection{模数提升（\textsf{ModRaise}）}
+\label{subsubsec:bfv-mult-cipher-modraise}
+
+从小结~\ref*{subsec:bfv-enc-dec}（位于 \autoref{subsec:bfv-enc-dec}）可知，密文模数为 $q$ 的 BFV 密文满足（解密）关系：$\Delta M + E = A\cdot S + B - K \cdot q$，其中，$K \cdot q$ 表示对 $q$ 进行模约减。\textsf{ModRaise} 是将密文模数强制提升为 $q \rightarrow Q$ 的过程，其中 $q \ll Q$。假设将密文 $(A, B)$ 的模数从 $q$ 改为 $Q$，其中 $Q = q \cdot \Delta$（回顾 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$）。那么，\textit{模数提升后}的密文解密将输出 $A\cdot S + B \bmod Q$。然而，由于 $A$ 和 $B$ 的每个多项式系数都小于 $q$，而 $S$ 的每个多项式系数均为 $\{-1, 0, 1\}$ 之一，因此即使不对 $Q$ 进行模约减，也能保证 $A\cdot S + B$ 所得多项式的每个系数都严格小于 $Q$。这是因为 $(q-1)\cdot n + (q-1) < Q$，其中，$(q-1)\cdot n$ 是 $A \cdot S$ 的最大可能系数，$(q-1)$ 是 $B$ 的最大可能系数。如前所述，我们还知道关系 $A\cdot S + B = \Delta M + E + Kq$。因此，\textit{模数提升后}的密文 $(A, B) \bmod Q$ 的解密结果如下：
+
+$\Delta M + E + Kq \bmod Q = \Delta M + E + Kq$ \textcolor{red}{ $\rhd$ 因为 $\Delta M + E + Kq < Q$}
+
+$ $
+
+BFV 密文与密文相乘的第一步是对两个输入密文 $(A^{\langle 1 \rangle}, B^{\langle 1 \rangle}) \bmod q$ 和 $(A^{\langle 2 \rangle}, B^{\langle 2 \rangle}) \bmod q$ 进行\textit{模数提升}，
+按如下方式将模数变为 $q \rightarrow Q$（其中 $Q = q\cdot \Delta$）：
+
+$(A^{\langle 1 \rangle}, B^{\langle 1 \rangle}) \bmod Q$
+
+$(A^{\langle 2 \rangle}, B^{\langle 2 \rangle}) \bmod Q$
+
+$ $
+
+经过 \textsf{ModRaise} 后，这两个密文的解密结果为：
+
+$A^{\langle 1 \rangle} \cdot S + B^{\langle 1 \rangle} = \Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + K_1q < Q$
+
+$A^{\langle 2 \rangle} \cdot S + B^{\langle 2 \rangle} = \Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + K_2q < Q$
+
+
+$ $
+
+因此，\textit{模数提升后}的密文具有以下形式：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 1 \rangle} + K_1q) = (A^{\langle 1 \rangle}, B^{\langle 1 \rangle}) \bmod Q$
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 2 \rangle} + K_2q) = (A^{\langle 2 \rangle}, B^{\langle 2 \rangle}) \bmod Q$
+
+
+\subsubsection{多项式乘法}
+\label{subsubsec:bfv-mult-cipher-multiplication}
+
+接下来的目标是构造一个新密文，它加密的内容为
+$(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + K_1q) \cdot (\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + K_2q)$. 
+
+首先，可以推导出以下关系：
+
+$(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + K_1q) \cdot (\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + K_2q)$
+
+$ = (A^{\langle 1 \rangle} \cdot S + B^{\langle 1 \rangle}) \cdot (A^{\langle 2 \rangle} \cdot S + B^{\langle 2 \rangle})$
+
+$ = \underbrace{B^{\langle 1 \rangle}B^{\langle 2 \rangle}}_{D_0}  + \underbrace{(B^{\langle 2 \rangle}A^{\langle 1 \rangle} + B^{\langle 1 \rangle}A^{\langle 2 \rangle})}_{D_1} \cdot S + \underbrace{(A^{\langle 1 \rangle} \cdot A^{\langle 2 \rangle})}_{D_2} \cdot S \cdot S $
+
+
+
+$= D_0 + D_1\cdot S + D_2\cdot S^2$
+
+
+
+$ $
+
+同时，我们还具有以下关系：
+
+$\textsf{RLWE}_{S, \sigma}^{-1}(\Delta M^{\langle 1 \rangle} + K_1q) = \Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + K_1q$
+
+$\textsf{RLWE}_{S, \sigma}^{-1}(\Delta M^{\langle 2 \rangle} + K_2q) = \Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + K_2q$
+
+$ $
+
+将这些关系结合起来，得到：
+
+$\textsf{RLWE}_{S, \sigma}^{-1}(\Delta M^{\langle 1 \rangle} + K_1q) \cdot \textsf{RLWE}_{S, \sigma}^{-1}(\Delta M^{\langle 2 \rangle} + K_2q) = D_0 + D_1\cdot S + D_2\cdot S^2$
+
+$ $
+
+注意，作为密文分量的 $D_0, D_1,$ 和 $D_2$ 是已知值，而 $S$ 只有私钥持有者知道。因此，可以将 $D_0 + D_1\cdot S + D_2\cdot S^2$ 视为解密公式：给定密文分量 $D_0, D_1, D_2$ 和私钥 $S$，便可得到 $(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + K_1q) \cdot (\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + K_2q)$。换言之，可以令 $(D_0, D_1, D_2)$ 为一种新的密文形式，它能够由 $S$ 解密为 $(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + K_1q) \cdot (\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + K_2q)$。
+
+然而，$(D_0, D_1, D_2)$ 不符合 RLWE 密文格式，因为它包含 3 个分量，而不是 2 个。具有 3 个密文分量时，计算效率较低，因为其解密涉及 $S$ 的平方根（即 $ S^2$）。随着后续密文与密文相乘不断进行，$S$ 项的指数将依次翻倍为 $S^4, S^8, \cdots$，密文分量数也随之增加，从而使解密的计算开销呈指数增长。因此，我们希望将中间密文格式 $(D_0, D_1, D_2)$ 转换为仅以两个多项式作为密文分量的标准 BFV 密文格式。这一转换过程称为重线性化，将在下一小节中介绍。
+
+
+
+\subsubsection{重线性化}
+\label{subsubsec:bfv-mult-cipher-relinearization}
+
+重线性化是将多项式三元组 $(D_0, D_1, D_2) \in \mathcal{R}_{\langle n, Q \rangle}^{3}$ 转换为两个 RLWE 密文 $\textsf{ct}_\alpha$ 和 $\textsf{ct}_\beta$ 的过程，使其满足关系 $D_0 + D_1 S + D_2 S^2 = \textsf{RLWE}^{-1}_{S, \sigma}(\textsf{ct}_\alpha + \textsf{ct}_\beta)$。
+
+在公式 $D_0 + D_1 S + D_2 S^2$ 中，可以将 $D_0 + D_1 S$ 改写为一个\textit{构造的} RLWE 密文 $\textsf{ct}_\alpha = (D_1, D_0)$，它能由 $S$ 解密为 $D_1 S + D_0$。同样，接下来需要构造另一个 RLWE 密文 $\textsf{ct}_\beta$，使其解密结果为 $D_2 \cdot S^2$（即 $\textsf{RLWE}_{S, \sigma}^{-1}(\textsf{ct}_\beta) = D_2\cdot S^2$）。
+
+构造加密 $D_2 \cdot S^2$ 的密文有一种直接的方法：将 $S^2$ 加密为 RLWE 密文 $\textsf{RLWE}_{S, \sigma}(S^2) = (A^{\langle s \rangle}, B^{\langle s \rangle})$，使其满足 $A^{\langle s \rangle}\cdot S + B^{\langle s \rangle} = S^2 + E^{\langle s \rangle} \bmod Q$（其中，密文模数为 $Q$，明文尺度因子为 $\Delta = 1$）。然后，将 $D_2$ 看作模 $Q$ 的明文多项式，与 $D_2$ 进行密文与明文相乘（\autoref{sec:glwe-mult-plain}）。但这种方法在实际中不可行，因为计算 $D_2 \cdot \textsf{RLWE}_{S, \sigma}(S^2)$ 会产生如下巨大的噪声：
+
+$D_2 \cdot (A^{\langle s \rangle}, B^{\langle s \rangle}) = (D_2\cdot A^{\langle s \rangle}, D_2 \cdot B^{\langle s \rangle})$
+
+$ $
+
+，其解密结果为：
+
+$D_2\cdot A^{\langle s \rangle} \cdot S + D_2\cdot B^{\langle s \rangle} = D_2 \cdot S^2 + D_2\cdot E^{\langle s \rangle} \pmod Q$ 
+
+$ $
+
+。在上述解密表达式 $D_2S^2 + D_2E^{\langle s \rangle} \bmod Q$ 中，$D_2S^2$ 项可以模 $Q$ 约减，因为在最终解密公式 $D_0 + D_1S + D_2S^2 \bmod Q$ 中，这一项本来就允许模 $Q$ 约减。然而，问题出在噪声 $D_2\cdot E^{\langle s \rangle}$：其系数可以取 $[0, Q - 1]$ 中的任意值（因为多项式 $D_2 = A^{\langle 1 \rangle} A^{\langle 2 \rangle}$ 的每个系数都可以取 $[0, Q - 1]$ 中的任意值）。如此大的噪声无法保证最终的正确解密。
+
+为避免这一噪声问题，改进的方法是使用Gadget 分解技术（\autoref{subsec:gadget-decomposition}），将加密 $D_2 S^2$ 的 RLWE 密文表示为多个噪声较小的 RLWE 密文之和。为此，我们使用加密 $S^2$ 的 RLev 密文（\autoref{sec:glev}）。假设Gadget 向量为 $\vec{g} = \Bigg(\dfrac{Q}{\beta}, \dfrac{Q}{\beta^2}, \dfrac{Q}{\beta^3}, \cdots, \dfrac{Q}{\beta^l}\Bigg)$。回顾我们的目标：在已知 $D_2$、未知 $S$ 且已知 $\textsf{RLev}_{S, \sigma}^{\beta, l}(S^2) = \left\{\textsf{RLWE}_{S, \sigma}\left(\dfrac{Q}{\beta^i}\cdot S\right)\right\}_{i=1}^{l}$ 的情况下，求得 $\textsf{ct}_\beta = \textsf{RLWE}_{S, \sigma}( S^2 \cdot D_2)$。于是，可以按如下方式构造 $\textsf{ct}_\beta$：
+
+$\textsf{ct}_\beta = \textsf{RLWE}_{S, \sigma}(S^2 \cdot D_2)$
+
+$= \textsf{RLWE}_{S, \sigma}\left( S^2 \cdot \left(D_{2,1}\dfrac{Q}{\beta} + D_{2,2}\dfrac{Q}{\beta^2} + \cdots D_{2,l}\dfrac{Q}{\beta^l}\right)\right)$ \textcolor{red}{ $\rhd$ 对 $D_2$ 进行分解}
+
+$= \textsf{RLWE}_{S, \sigma}\left( S^2 \cdot D_{2,1} \cdot \dfrac{Q}{\beta}\right) + \textsf{RLWE}_{S, \sigma}\left( S^2 \cdot D_{2,2} \cdot \dfrac{Q}{\beta^2}\right) + \cdots + \textsf{RLWE}_{S, \sigma}\left( S^2 \cdot D_{2,l} \cdot \dfrac{Q}{\beta^l}\right)$ 
+
+$= D_{2,1}\cdot\textsf{RLWE}_{S, \sigma}\left( S^2 \cdot \dfrac{Q}{\beta}\right) + D_{2,2}\cdot\textsf{RLWE}_{S, \sigma}\left( S^2 \cdot \dfrac{Q}{\beta^2}\right) + \cdots + D_{2,l}\cdot\textsf{RLWE}_{S, \sigma}\left( S^2 \cdot \dfrac{Q}{\beta^l}\right)$ 
+\textcolor{red}{ $\rhd$ 其中，每个 \textsf{RLWE} 密文都以 $S^2\dfrac{Q}{\beta}, S^2\dfrac{Q}{\beta^2}, \cdots, S^2\dfrac{Q}{\beta^l}$ 为明文，明文尺度因子为 $\Delta = 1$}
+
+$ $
+
+$= \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$ \textcolor{red}{ $\rhd$ 将 \textsf{Decomp} 和 \textsf{RLev} 视为向量并求内积}
+
+$ $
+
+对上述结果解密，得到：
+
+$\textsf{RLWE}_{S, \sigma}^{-1}(\textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle} \bm{)}$ \textcolor{red}{ $\rhd$ $\textsf{RLev}_{S, \sigma}^{\beta, l}( S^2)$ 的尺度因子均为 1}
+
+$= D_{2,1}\cdot\left(E_1' +  S^2\dfrac{Q}{\beta}\right) + D_{2,2}\cdot\left(E_2' +  S^2\dfrac{Q}{\beta^2}\right) + \cdots + D_{2,l}\cdot\left(E_l' +  S^2\dfrac{Q}{\beta^l}\right)$ \textcolor{red}{ \text{ } \# 其中，每个 $E_i'$ 都是嵌入 $\textsf{RLWE}_{S, \sigma}\left(S^2\cdot\dfrac{Q}{\beta^i}\right)$ 中的噪声}
+
+$ $
+
+$= \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i}) +  S^2\cdot\left(D_{2,1}\dfrac{Q}{\beta} + D_{2,2}\dfrac{Q}{\beta^2} + \cdots + D_{2, l}\dfrac{Q}{\beta^l}\right)$
+
+$= \sum\limits_{i=1}^{l} \epsilon_{i} + D_2\cdot S^2$ \textcolor{red}{ \text{ } \# 其中，每个 $\epsilon_i = E_i'\cdot D_{2,i}$}
+
+$\approx D_2\cdot S^2$ \textcolor{red}{ \text{ } \# $\sum\limits_{i=1}^{l} \epsilon_{i} \ll D_2\cdot E''$，其中，$E''$ 是本可嵌入 $\textsf{RLWE}_{S, \sigma}\bm(S^2\bm)$ 中的噪声}
+
+$ $
+
+因此，我们得到以下完整关系：
+
+
+$\textsf{RLWE}_{S, \sigma}^{-1}(\Delta M^{\langle 1 \rangle} + K_1q) \cdot \textsf{RLWE}_{S, \sigma}^{-1}(\Delta M^{\langle 2 \rangle} + K_2q) \bmod Q$
+
+$= (\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + K_1q) \cdot (\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + K_2q) \bmod Q$
+
+$ = (A^{\langle 1 \rangle} \cdot S + B^{\langle 1 \rangle}) \cdot (A^{\langle 2 \rangle} \cdot S + B^{\langle 2 \rangle})  \bmod Q$
+
+$ = D_0 + D_1\cdot S + D_2\cdot S^2  \bmod Q$ \textcolor{red}{ $\rhd$ $D_0 = B^{\langle 1 \rangle} B^{\langle 2 \rangle}$, \text{ } $D_1 = A^{\langle 1 \rangle} B^{\langle 2 \rangle} + A^{\langle 2 \rangle} B^{\langle 1 \rangle}$, \text{ } $D_2 = A^{\langle 1 \rangle} A^{\langle 2 \rangle}$}
+
+$ = \textsf{RLWE}_{S, \sigma}^{-1}(\textsf{ct}_\alpha) + \textsf{RLWE}_{S, \sigma}^{-1}(\textsf{ct}_\beta) - \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i})  \bmod Q$ 
+
+\textcolor{red}{ $\rhd$ $\textsf{ct}_\alpha = (D_1, D_0) = (A_\alpha, B_\beta)$, \text{ } $\textsf{ct}_\beta = \langle \textsf{Decomp}^{\beta, l}(D_2), \textsf{RLev}_{S, \sigma}^{\beta, l}(S^2) \rangle = (A_\beta, B_\beta)$}
+
+$ $
+
+$ = \textsf{RLWE}_{S, \sigma}^{-1}(\textsf{ct}_\alpha + \textsf{ct}_\beta) - \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i})  \bmod Q$
+
+$ = \textsf{RLWE}_{S, \sigma}^{-1}\bm((A_{\alpha+\beta}, B_{\alpha+\beta})\bm) - \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i}) \bmod Q$  \textcolor{red}{ $\rhd$ $A_{\alpha+\beta} = A_{\alpha} + A_\beta$, \text{ } $B_{\alpha + \beta} = B_\alpha + B_\beta$}
+
+
+$ $
+
+从上述推导中提取以下关系：
+
+$(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + K_1q) \cdot (\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + K_2q) \bmod Q$
+
+$=  \Delta^2M^{\langle 1 \rangle}M^{\langle 2 \rangle} + \Delta\cdot (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + q\cdot(\Delta M^{\langle 1 \rangle}K_2 + \Delta M^{\langle 2 \rangle}K_1 + E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1) + K_1 K_2 q^2 + E^{\langle 1 \rangle} E^{\langle 2 \rangle} \bmod Q$
+
+$= \textsf{RLWE}_{S, \sigma}^{-1}\bm((A_{\alpha+\beta}, B_{\alpha+\beta})\bm) - \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i}) \bmod Q$  
+
+$ $
+
+可以将上述关系改写为：
+
+
+$\textsf{RLWE}_{S, \sigma}^{-1}\bm((A_{\alpha+\beta}, B_{\alpha+\beta})\bm) = A_{\alpha+\beta}\cdot S + B_{\alpha+\beta} \bmod Q$
+
+$ = \Delta^2M^{\langle 1 \rangle}M^{\langle 2 \rangle} + \Delta\cdot (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + q\cdot(\Delta M^{\langle 1 \rangle}K_2 + \Delta M^{\langle 2 \rangle}K_1 + E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1) + K_1 K_2 q^2 + E^{\langle 1 \rangle} E^{\langle 2 \rangle} + \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i}) \bmod Q$ 
+
+$ $
+
+上述关系的含义是：解密通过构造得到的密文 $(A_{\alpha+\beta}, B_{\alpha+\beta})$，再对其模 $Q$ 约减，就得到 $\Delta^2 M^{\langle 1 \rangle}M^{\langle 2 \rangle}$ 以及许多噪声项。同时，如本小节开头所述，我们的目标是得到一个解密结果为 $\Delta M^{\langle 1 \rangle}M^{\langle 2 \rangle}$ 的密文，并且保证解密后密文的噪声足够小，以便在最后将明文除以 $\Delta$ 缩小后能够完全消除。这一目标由最后的重缩放步骤实现，下一小节将予以说明。
+
+
+\subsubsection{重缩放}
+\label{subsubsec:bfv-mult-cipher-rescaling}
+
+重缩放步骤等价于将密文 $(A_{\alpha+\beta}, B_{\alpha+\beta}) \bmod Q$ 转换为 $\left(\left\lceil\dfrac{A_{\alpha+\beta}}{\Delta}\right\rfloor, \left\lceil\dfrac{B_{\alpha+\beta}}{\Delta}\right\rfloor\right) \bmod q$，其中 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor \approx \dfrac{q}{t}$。对重缩放后的密文解密（并在最后除以 $\Delta$ 缩小），所得结果为 $\Delta M^{\langle 1 \rangle}M^{\langle 2 \rangle}$。证明如下：
+
+$ $
+
+$ \left\lceil\dfrac{A_{\alpha+\beta}}{\Delta}\right\rfloor \cdot S + \left\lceil\dfrac{B_{\alpha+\beta}}{\Delta}\right\rfloor \bmod q$ \textcolor{red}{ $\rhd$ 对密文 $\left(\left\lceil\dfrac{A_{\alpha+\beta}}{\Delta}\right\rfloor, \left\lceil\dfrac{B_{\alpha+\beta}}{\Delta}\right\rfloor\right) \bmod q$ 解密}
+
+$ $
+
+$ = \left\lceil\dfrac{A_{\alpha+\beta}}{\Delta}\right\rfloor \cdot S + \left\lceil\dfrac{B_{\alpha+\beta}}{\Delta}\right\rfloor + K_3q$ \textcolor{red}{ $\rhd$ 其中，$K_3q$ 表示对 $q$ 进行模约减}
+
+$ $
+
+$ = \left\lceil\dfrac{A_{\alpha+\beta}}{\Delta}\right\rfloor \cdot S + \left\lceil\dfrac{B_{\alpha+\beta}}{\Delta}\right\rfloor + \dfrac{K_3Q}{\Delta}$ \textcolor{red}{ $\rhd$ 因为 $Q = \Delta \cdot q$}
+
+
+$ $
+
+$ = \left\lceil\dfrac{1}{\Delta}\cdot (A_{\alpha+\beta}\cdot S + B_{\alpha+\beta} + K_3Q)\right\rfloor + E_r$ \textcolor{red}{ $\rhd$ $E_r$ 为舍入误差}
+
+$ $
+
+$ = \left\lceil\dfrac{1}{\Delta}\cdot (A_{\alpha+\beta}\cdot S + B_{\alpha+\beta} \bmod Q)\right\rfloor + E_r$ 
+
+$ $
+
+$ = \Bigg\lceil\dfrac{1}{\Delta}\cdot ( \Delta^2M^{\langle 1 \rangle}M^{\langle 2 \rangle} + \Delta\cdot (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + $
+
+\text{ } \text{ } $ q\cdot(\Delta M^{\langle 1 \rangle}K_2 + \Delta M^{\langle 2 \rangle}K_1 + E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1) + K_1 K_2 q^2 + E^{\langle 1 \rangle} E^{\langle 2 \rangle} + \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i}) \bmod Q
+)\Bigg\rfloor + E_r$
+
+\textcolor{red}{ $\rhd$ 由 \autoref{subsubsec:bfv-mult-cipher-relinearization} 末尾的推导可得}
+
+$ $
+
+$ = \Bigg\lceil\dfrac{1}{\Delta}\cdot ( \Delta^2M^{\langle 1 \rangle}M^{\langle 2 \rangle} + \Delta\cdot (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + $
+
+\text{ } \text{ } $ q\cdot(\Delta M^{\langle 1 \rangle}K_2 + \Delta M^{\langle 2 \rangle}K_1 + E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1) + K_1 K_2 q^2 + E^{\langle 1 \rangle} E^{\langle 2 \rangle} + \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i}) + K_4Q
+)\Bigg\rfloor + E_r$
+
+\textcolor{red}{ $\rhd$ 其中，$K_4Q$ 表示对 $Q$ 进行模约减}
+
+
+$ $
+
+$ $
+
+
+
+$ = \Bigg\lceil\Delta M^{\langle 1 \rangle}M^{\langle 2 \rangle} + (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + q\cdot (M^{\langle 1 \rangle}K_2 +  M^{\langle 2 \rangle}K_1) $
+
+\text{ } \text{ } $+ \dfrac{1}{\Delta}\cdot q\cdot(E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1) + \dfrac{1}{\Delta}\cdot (K_1K_2q^2 
+ + E^{\langle 1 \rangle} E^{\langle 2 \rangle} + \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i})) + K_5q\Bigg\rfloor $ 
+
+\text{ } \text{ }  \textcolor{red}{ $\rhd$ 其中 $K_5q = K_4q + M^{\langle 1 \rangle}q K_2 + M^{\langle 2 \rangle} K_1q$}
+
+
+
+
+$ $
+
+$ $
+
+$ = \Bigg\lceil\Delta M^{\langle 1 \rangle}M^{\langle 2 \rangle} + (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + q\cdot (M^{\langle 1 \rangle}K_2 +  M^{\langle 2 \rangle}K_1) + (t + \epsilon)\cdot(E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1) $
+
+\text{ } \text{ } $+  \dfrac{1}{\Delta}\cdot (K_1K_2q^2 
+ + E^{\langle 1 \rangle} E^{\langle 2 \rangle} + \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i})) + K_5q\Bigg\rfloor $ 
+
+\text{ } \text{ }  \textcolor{red}{ $\rhd$ 其中 $\epsilon = \dfrac{q}{\Delta} - \dfrac{q}{\dfrac{q}{t}} = \dfrac{q}{\left\lfloor\dfrac{q}{t}\right\rfloor} - \dfrac{q}{\dfrac{q}{t}} \approx 0$，因此代入 $\dfrac{q}{\Delta} = \epsilon + t$}
+
+
+ $ $
+
+ $ $
+
+$ = \Bigg\lceil\Delta M^{\langle 1 \rangle}M^{\langle 2 \rangle} + (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + q\cdot (M^{\langle 1 \rangle}K_2 +  M^{\langle 2 \rangle}K_1) + (t + \epsilon)\cdot(E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1)$
+
+\text{ } \text{ } $ + \dfrac{K_1K_2q^2}{\Delta}   
+ + \dfrac{E^{\langle 1 \rangle} E^{\langle 2 \rangle} + \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i})}{\Delta} + K_5q\Bigg\rfloor $
+
+\text{ } \text{ }  \textcolor{red}{ $\rhd$ 现在，令 $\epsilon' = \dfrac{K_1K_2q^2}{\Delta} - \dfrac{K_1K_2q^2}{\dfrac{q}{t}} = \dfrac{K_1K_2q^2}{\left\lfloor\dfrac{q}{t}\right\rfloor} - \dfrac{K_1K_2q^2}{\dfrac{q}{t}} \approx 0$。}
+
+\text{ } \text{ }  \textcolor{red}{ 因此，代入 $\dfrac{K_1K_2q^2}{\Delta} = \dfrac{K_1K_2q^2}{\dfrac{q}{t}} + \epsilon' = K_1K_2qt + \epsilon'$}
+ 
+ $ $
+
+ $ $
+
+$ = \Delta M^{\langle 1 \rangle}M^{\langle 2 \rangle} + (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + q\cdot (M^{\langle 1 \rangle}K_2 +  M^{\langle 2 \rangle}K_1) $
+
+\text{ } \text{ } $+ (t + \epsilon)\cdot(E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1) + K_1K_2qt + \epsilon'   
+ + K_5q + \Bigg\lceil\dfrac{E^{\langle 1 \rangle} E^{\langle 2\rangle} + \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i}) }{\Delta}\Bigg\rfloor $
+
+ $ $
+
+ $ $
+
+$ = \Delta M^{\langle 1 \rangle}M^{\langle 2 \rangle} + \epsilon'' + K_6q$
+
+
+\textcolor{red}{ $\rhd$ 其中 $K_6q = K_5q + q\cdot(M^{\langle 1 \rangle}K_2 +  M^{\langle 2 \rangle}K_1) + K_1K_2qt, $}
+
+\textcolor{red}{$ \epsilon'' = M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle} + (t + \epsilon)\cdot(E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1) + \Bigg\lceil\dfrac{E^{\langle 1 \rangle} E^{\langle 2 \rangle} + \sum\limits_{i=1}^{l} (E_i'\cdot D_{2,i})}{\Delta}\Bigg\rfloor$} 
+
+
+$ $
+
+$ $
+
+
+$ = \Delta M^{\langle 1 \rangle}M^{\langle 2 \rangle} + \epsilon'' \bmod q$
+
+
+$ $
+
+综上，如果 $\epsilon'' < \dfrac{\Delta}{2} \approx \dfrac{q}{2t}$，密文 $\left(\left\lceil\dfrac{A_{\alpha+\beta}}{\Delta}\right\rfloor, \left\lceil\dfrac{B_{\alpha+\beta}}{\Delta}\right\rfloor\right) \bmod q$ 就能成功解密为 $\Delta M^{\langle 1 \rangle}M^{\langle 2 \rangle}$。
+
+$ $
+
+\para{噪声分析：} 在 $\epsilon''$ 的各项中，分析密文与密文相乘后 $(t + \epsilon)\cdot(E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1)$ 项的噪声增长。$K_1$ 的每个系数至多为 $n$，因为 $A^{\langle 1 \rangle}\cdot S + B^{\langle 1 \rangle} = \Delta M + E^{\langle 1 \rangle} + K_1q$，其中，$A^{\langle 1 \rangle}\cdot S + B^{\langle 1 \rangle}$ 的最大可能系数值为 $q\cdot n$。$K_2$ 的系数也同样如此。因此，在最终解密阶段将 $(t + \epsilon)\cdot(E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1)$ 除以 $\Delta$ 缩小后，这一项缩小后的噪声界为：
+
+$\dfrac{1}{\Delta}\cdot(t + \epsilon)\cdot(E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1) \approx \dfrac{t}{q}\cdot(t + \epsilon)\cdot(E^{\langle 1 \rangle}K_2 + E^{\langle 2 \rangle}K_1) < \dfrac{nt \cdot (t + \epsilon)}{q} \cdot (E^{\langle 1 \rangle} + E^{\langle 2 \rangle})$
+
+$ $
+
+这意味着，要保证正确解密，$\dfrac{nt \cdot (t + \epsilon)}{q} \cdot (E^{\langle 1 \rangle} + E^{\langle 2 \rangle})$ 必须小于 $0.5$。换言之，$E^{\langle 1 \rangle} + E^{\langle 2 \rangle}$ 必须小于 $\dfrac{q}{2nt \cdot (t + \epsilon)}$。可以用类似方法分析 $\epsilon''$ 的其余各项噪声。关键在于，解密时所有这些噪声项缩小后的值之和必须小于 $0.5$，才能正确解密。
+
+$ $
+
+\para{模数切换与重缩放：}
+注意，在重缩放过程中，将 $A_{\alpha + \beta}$ 和 $B_{\alpha + \beta}$ 乘以 $\dfrac{1}{\Delta}$ 会产生两个效果：（1）将 $\Delta^2 M^{\langle 1 \rangle} M^{\langle 2 \rangle}$ 转换为 $\Delta M^{\langle 1 \rangle}  M^{\langle 2 \rangle}$；（2）将\textit{模数提升后}密文的模数按 $Q \rightarrow q$ 进行切换。
+实际上，模数切换与重缩放密切相关，近乎等价。模数切换是改变密文模数（例如 $q \rightarrow q'$）的过程，同时保持两个密文解密后得到相同明文这一性质。另一方面，重缩放指的是改变密文内部明文尺度因子的过程（例如 $\Delta \rightarrow \Delta'$）。模数切换不可避免地会改变目标密文内部明文的尺度因子，而重缩放也不可避免地会改变包含该明文的密文模数（如 \autoref{subsubsec:bfv-mult-cipher-rescaling} 所示）。因此，这两个术语可以互换使用。
+
+
+\subsubsection{小结}
+\label{subsubsec:bfv-mult-cipher-summary}
+
+将以上内容综合起来，BFV 的密文与密文相乘可总结如下：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:bfv-mult-cipher-summary}} BFV 的密文与密文相乘}}]
+
+
+假设有以下两个 RLWE 密文：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 1 \rangle}) = (A^{\langle 1 \rangle}, B^{\langle 1 \rangle}) \bmod q$，\text{ } 其中 $B^{\langle 1 \rangle} = -A^{\langle 1 \rangle} \cdot S + \Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} \bmod q$
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M^{\langle 2 \rangle}) = (A^{\langle 2 \rangle}, B^{\langle 2 \rangle})  \bmod q$，\text{ } 其中 $B^{\langle 2 \rangle} = -A^{\langle 2 \rangle} \cdot S + \Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} \bmod q$
+
+$ $
+
+这两个密文的乘法按如下步骤执行：
+
+$ $
+
+\begin{enumerate}
+
+\item \textbf{\underline{模数提升（\textsf{ModRaise}）}}
+
+按如下方式将密文 $(A^{\langle 1 \rangle}, B^{\langle 1 \rangle}) \bmod q$ 和 $(A^{\langle 2 \rangle}, B^{\langle 2 \rangle}) \bmod q$ 的模数强制提升至 $Q$（其中 $Q = q \cdot \Delta$）：
+
+$(A^{\langle 1 \rangle}, B^{\langle 1 \rangle}) \bmod Q$
+
+$(A^{\langle 2 \rangle}, B^{\langle 2 \rangle}) \bmod Q$
+
+
+$ $
+
+\item \textbf{\underline{乘法}}
+
+在模 $Q$ 下计算以下多项式乘法：
+
+$D_0 = B^{\langle 1 \rangle}B^{\langle 2 \rangle} \bmod Q$
+
+$D_1 = B^{\langle 2 \rangle}A^{\langle 1 \rangle} +  B^{\langle 1 \rangle}A^{\langle 2 \rangle} \bmod Q$
+
+$D_2 = A^{\langle 1 \rangle} \cdot A^{\langle 2 \rangle} \bmod Q$
+
+
+$ $
+
+\item \textbf{\underline{重线性化}}
+
+
+计算：
+
+$ \textsf{ct}_\alpha = (D
+_1, D_0)$
+
+$ \textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$.
+
+$ \textsf{ct}_{\alpha + \beta} = \textsf{ct}_{\alpha} + \textsf{ct}_{\beta}$
+
+$ $
+
+于是，以下性质成立：
+
+$\textsf{RLWE}^{-1}_{S, \sigma}\bm(\textsf{RLWE}_{S, \sigma}(\Delta^2 \cdot M^{\langle 1 \rangle} \cdot M^{\langle 2 \rangle})\bm) \approx \textsf{RLWE}^{-1}_{S, \sigma}\bm{(}\textsf{ct}_{\alpha + \beta}\bm)$
+
+$ $
+
+
+
+
+\item \textbf{\underline{重缩放}}
+
+将 $\textsf{ct}_{\alpha + \beta} = (A_{\alpha + \beta}, B_{\alpha + \beta}) \bmod Q$ 更新为 $\textsf{ct'}_{\alpha + \beta} = \left(\left\lceil\dfrac{A_{\alpha + \beta}}{\Delta}\right\rfloor, \left\lceil\dfrac{B_{\alpha + \beta}}{\Delta}\right\rfloor\right) \bmod q$。
+
+$ $
+
+这一明文重缩放过程也可以视为密文 $\textsf{ct}_{\alpha + \beta}$ 按 $Q \rightarrow q$ 进行模数切换。
+
+
+$ $
+
+\end{enumerate}
+
+注意，密文与密文相乘后，明文尺度因子 $\Delta=\left\lfloor\dfrac{q}{t}\right\rfloor$、密文模数 $q$ 和私钥 $S$ 均保持不变。
+
+
+
+\end{tcolorbox}
+
+
+\para{\textsf{ModRaise} 的目的：} 在密文与密文相乘的第二步（\autoref{subsubsec:bfv-mult-cipher-multiplication}）进行多项式相乘时，密文内部的明文暂时增大为 $\Delta^2 M^{\langle 1 \rangle} M^{\langle 2 \rangle}$，超出明文允许的最大界限 $q$（\autoref{subsec:bfv-enc-dec} 中的小结~\ref*{subsec:bfv-enc-dec}）。此后，若对中间结果进行模 $q$ 约减，将不可逆地破坏明文。为了避免明文增大为 $\Delta^2 M^{\langle 1 \rangle} M^{\langle 2 \rangle}$ 时遭到破坏，我们将密文模数暂时按 $q \rightarrow Q$ 增大；所得模数足够大，可以容纳 $\Delta^2 M^{\langle 1 \rangle} M^{\langle 2 \rangle}$，而不越过密文模数的边界发生回绕。
+
+$ $
+
+\para{交换\textsf{重线性化}与\textsf{重缩放}的顺序：} 重线性化与重缩放的执行顺序可以交换。先执行重缩放再执行重线性化会减小密文模数，因此后续重线性化可以执行得更快。
+
+
+
+\subsubsection{应用于 TFHE 的密文与密文相乘}
+\label{subsubsec:bfv-mult-cipher-tfhe}
+
+
+在 \autoref{subsec:tfhe-mult-cipher} 中，我们了解了 TFHE 如何在 LWE 密文与 GSW 密文之间执行密文与密文相乘。然而，这一方法计算开销较大，因为它需要通过电路自举将 LWE 密文转换为 GSW 密文。如果将 BFV 的密文与密文相乘策略直接应用于 TFHE 的 LWE 密文，就可以避免这一开销。给定两个待相乘的 LWE 密文，它们满足以下关系：
+
+$\textsf{LWE}_{\vec{s}, \sigma}(\Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle}) = (\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle }) \Rightarrow \,\,\, \vec{a}^{\langle 1 \rangle} \cdot \vec{s} + b^{\langle 1 \rangle} = \Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle} + k_1q$
+
+$\textsf{LWE}_{\vec{s}, \sigma}(\Delta m^{\langle 2 \rangle} + e^{\langle 2 \rangle})  = (\vec{a}^{\langle 2 \rangle}, b^{\langle 2 \rangle}) \Rightarrow \,\,\, \vec{a}^{\langle 2 \rangle} \cdot \vec{s} + b^{\langle 2 \rangle} = \Delta m^{\langle 2 \rangle} + e^{\langle 2 \rangle} + k_2q$
+
+$ $
+
+将这两个等式相乘，得到以下关系：
+
+
+$(\Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle} + k_1q) \cdot (\Delta m^{\langle 2 \rangle} + e^{\langle 2 \rangle} + k_2q)$ \textcolor{red}{ $\rhd \approx \Delta^2 m^{\langle 1 \rangle} m^{\langle 2 \rangle} \bmod q$ }
+
+$ = (\vec{a}^{\langle 1 \rangle} \cdot \vec{s} + b^{\langle 1 \rangle}) \cdot (\vec{a}^{\langle 2 \rangle} \cdot \vec{s} + b^{\langle 2 \rangle})$ 
+
+$ = b^{\langle 1 \rangle}b^{\langle 2 \rangle}  + (b^{\langle 2 \rangle}\vec{a}^{\langle 1 \rangle} + b^{\langle 1 \rangle}\vec{a}^{\langle 2 \rangle}) \cdot \vec{s} + (\vec{a}^{\langle 1 \rangle} \cdot \vec{s}) \cdot (\vec{a}^{\langle 2 \rangle} \cdot \vec{s}) $
+
+
+
+$ = \underbrace{b^{\langle 1 \rangle}b^{\langle 2 \rangle}}_{d_0}  + \underbrace{(b^{\langle 2 \rangle}\vec{a}^{\langle 1 \rangle} + b^{\langle 1 \rangle}\vec{a}^{\langle 2 \rangle})}_{d_1} \cdot \vec{s} + \underbrace{(\vec{a}^{\langle 1 \rangle} \otimes \vec{a}^{\langle 2 \rangle})}_{\vec{d}_2} \cdot (\vec{s} \otimes \vec{s}) $  
+
+
+$= d_0 + d_1\cdot \vec{s} + \vec{d}_2\cdot \vec{s}^{\otimes}$ \textcolor{red}{ $\rhd$ 其中 $\vec{s}^{\otimes} = \vec{s} \otimes \vec{s}$}
+
+$ $
+
+，其中，$\otimes$ 表示两个向量的外积。例如，给定两个长度为 $n$ 的向量 $\vec{v}$ 和 $\vec{u}$，$\vec{v} \otimes \vec{u}$ 等价于将以下 $n$ 个不同的、长度为 $n$ 的向量连接而成的长度为 $n^2$ 的向量：$v_0\cdot\vec{u}, \,\, v_1\cdot\vec{u}, \,\, \cdots v_{n-1}\cdot\vec{u}$。注意，上述关系与 BFV 密文与密文相乘中推导出的关系类似。因此，类似于 BFV 的其余步骤，可以对这一 LWE 项按如下方式进行重线性化与重缩放：
+
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:bfv-mult-cipher-summary}} TFHE 的密文与密文相乘——方法 2}}]
+
+
+假设有以下两个 LWE 密文：
+
+$\textsf{LWE}_{\vec{s}, \sigma}(\Delta M^{\langle 1 \rangle}) = (\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle}) \bmod q$，\text{ } 其中 $b^{\langle 1 \rangle} = -\vec{a}^{\langle 1 \rangle} \cdot \vec{s} + \Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle} \bmod q$
+
+$\textsf{LWE}_{\vec{s}, \sigma}(\Delta M^{\langle 2 \rangle}) = (\vec{a}^{\langle 2 \rangle}, b^{\langle 2 \rangle}) \bmod q$，\text{ } 其中 $b^{\langle 2 \rangle} = -\vec{a}^{\langle 2 \rangle} \cdot \vec{s} + \Delta m^{\langle 2 \rangle} + e^{\langle 2 \rangle} \bmod q$
+
+$ $
+
+这两个 LWE 密文的乘法按如下步骤执行：
+
+$ $
+
+\begin{enumerate}
+
+\item \textbf{\underline{模数提升（\textsf{ModRaise}）}}
+
+按如下方式将密文 $(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle}) \bmod q$ 和 $(\vec{a}^{\langle 2 \rangle}, b^{\langle 2 \rangle}) \bmod q$ 的模数强制提升至 $Q$（其中 $Q = q \cdot \Delta$）：
+
+$(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle}) \bmod Q$
+
+$(\vec{a}^{\langle 2 \rangle}, b^{\langle 2 \rangle}) \bmod Q$
+
+
+$ $
+
+\item \textbf{\underline{乘法}}
+
+在模 $Q$ 下计算以下多项式乘法：
+
+$d_0 = b^{\langle 1 \rangle}b^{\langle 2 \rangle} \bmod Q$
+
+$d_1 = b^{\langle 2 \rangle}\vec{a}^{\langle 1 \rangle} +  b^{\langle 1 \rangle}\vec{a}^{\langle 2 \rangle} \bmod Q$
+
+$\vec{d}_2 = \vec{a}^{\langle 1 \rangle} \otimes \vec{a}^{\langle 2 \rangle} \bmod Q$
+
+
+$ $
+
+\item \textbf{\underline{重线性化}}
+
+
+计算：
+
+$ \textsf{ct}_\alpha = (d
+_1, d_0)$
+
+$ \textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(\vec{d}_2), \text{ } \textsf{Lev}_{\vec{s}, \sigma}^{\beta, l}(\vec{s}^{\otimes}) \bm{\rangle}$.
+
+$ \textsf{ct}_{\alpha + \beta} = \textsf{ct}_{\alpha} + \textsf{ct}_{\beta}$
+
+$ $
+
+于是，以下性质成立：
+
+$\textsf{LWE}^{-1}_{\vec{s}, \sigma}\bm(\textsf{LWE}_{\vec{s}, \sigma}(\Delta^2 \cdot m^{\langle 1 \rangle} \cdot m^{\langle 2 \rangle})\bm) \approx \textsf{LWE}^{-1}_{\vec{s}, \sigma}\bm{(}\textsf{ct}_{\alpha + \beta}\bm)$
+
+$ $
+
+
+
+
+\item \textbf{\underline{重缩放}}
+
+将 $\textsf{ct}_{\alpha + \beta} = (\vec{a}_{\alpha + \beta}, b_{\alpha + \beta}) \bmod Q$ 更新为 $\textsf{ct'}_{\alpha + \beta} = \left(\left\lceil\dfrac{\vec{a}_{\alpha + \beta}}{\Delta}\right\rfloor, \left\lceil\dfrac{b_{\alpha + \beta}}{\Delta}\right\rfloor\right) \bmod q$。
+
+$ $
+
+这一明文重缩放过程也可以视为密文 $\textsf{ct}_{\alpha + \beta}$ 按 $Q \rightarrow q$ 进行模数切换。
+
+
+$ $
+
+\end{enumerate}
+
+注意，密文与密文相乘后，明文尺度因子 $\Delta=\dfrac{q}{t}$、密文模数 $q$ 和私钥 $\vec{s}$ 均保持不变。
+
+
+
+\end{tcolorbox}
+
+
+
+\subsection{同态密钥切换}
+\label{subsec:bfv-key-switching}
+
+BFV 的密钥切换方案将 RLWE 密文的秘密密钥从 $S$ 改为 $S'$。其本质上是 RLWE 的密钥切换方案，只是在加密和解密公式中将 $A\cdot S$ 项的符号取反。具体而言，它等价于 $k = 1$ 时的另一种 GLWE 版本（\autoref{subsec:glwe-alternative}）的密钥切换方案（\autoref{sec:glwe-key-switching}），如下所示：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bfv-key-switching}} BFV 的密钥切换}}]
+$\textsf{RLWE}_{S',\sigma}(\Delta M) = (0, B) + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$
+\end{tcolorbox}
+
+
+
+
+\subsection{输入向量槽位的同态旋转}
+\label{subsec:bfv-rotation}
+
+
+本节将介绍：当输入向量 $\vec{v}$ 已被编码为多项式并加密为 RLWE 密文后，如何对其元素进行同态旋转。在 \autoref{subsec:coeff-rotation} 中，我们学习了如何旋转多项式的系数。然而，旋转明文多项式 $M(X)$ 或 RLWE 密文多项式 $(A(X), B(X))$，不一定会旋转生成它们的输入向量。
+
+对输入向量槽位（即输入向量）进行同态旋转的关键要求是：该运算必须作用于 RLWE 密文，并且在运算结束后，对 RLWE 密文进行解密和解码所恢复出的输入向量，应处于预期的旋转状态。我们将这一任务分为以下两个子问题：
+
+\begin{enumerate}[leftmargin=3\parindent]
+\item 如何通过将明文多项式 $M$ 更新为 $M'$，间接旋转输入向量？
+
+\item 如何通过将 RLWE 密文多项式 $(A, B)$ 更新为 $(A', B')$，间接将明文多项式 $M$ 更新为 $M'$？
+\end{enumerate}
+
+
+
+\subsubsection{通过更新明文多项式旋转输入向量槽位}
+
+在这一任务中，目标是修改明文多项式 $M(X)$，使输入向量 $\vec{v}$ 的前半部分元素在其内部向左循环移动 $h$ 个位置，同时使 $\vec{v}$ 的后半部分元素也在其内部向左循环移动 $h$ 个位置。具体而言，如果 $\vec{v}$ 定义如下：
+
+$\vec{v} = (v_0, v_1, \cdots, v_{n-1})$
+
+$ $
+
+那么，将移动 $h$ 个位置后的向量 $\vec{v}^{\langle h \rangle}$ 记为：
+
+$\vec{v}^{\langle h \rangle} = (\underbrace{v_h, v_{h+1}, \cdots, v_0, v_1, \cdots, v_{h-2}, v_{h-1},}_{\text{前半部分 $\dfrac{n}{2}$ 个元素向左旋转 $h$ 个位置}} \text{ } \underbrace{v_{\frac{n}{2}+h}, v_{\frac{n}{2}+h+1}, \cdots, v_{\frac{n}{2}+h-2}, v_{\frac{n}{2}+h-1}}_{\text{后半部分 $\dfrac{n}{2}$ 个元素向左旋转 $h$ 个位置}})$
+
+$ $
+
+回顾 \autoref{subsec:bfv-batch-encoding}，BFV 编码方案的组成部分如下：
+
+$\vec{v} = (v_0, v_1, v_2, \cdots, v_{n-1})$ \textcolor{red}{ $\rhd$ 包含 $n$ 个槽位的输入向量}
+
+$ $
+
+$W =  \begin{bmatrix}
+1 & 1 & 1 & \cdots & 1\\
+(\omega) & (\omega^3) & (\omega^5) & \cdots & (\omega^{2n-1})\\
+(\omega)^2 & (\omega^3)^2 & (\omega^5)^2 & \cdots & (\omega^{2n-1})^2\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega)^{n-1} & (\omega^3)^{n-1} & (\omega^5)^{n-1} & \cdots & (\omega^{2n-1})^{n-1}\\
+\end{bmatrix}$
+
+$= \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1 & \cdots & 1 & 1\\
+(\omega) & (\omega^3) & \cdots & (\omega^{\frac{n}{2} - 1}) & (\omega^{-(\frac{n}{2} - 1)}) & \cdots & (\omega^{-3}) & (\omega^{-1})\\
+(\omega)^2 & (\omega^3)^2 & \cdots & (\omega^{\frac{n}{2} - 1})^2 & (\omega^{-(\frac{n}{2} - 1)})^2 & \cdots & (\omega^{-3})^2 & (\omega^{-1})^2\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega)^{n-1} & (\omega^3)^{n-1} & \cdots & (\omega^{\frac{n}{2} - 1})^{n-1} & (\omega^{-(\frac{n}{2} - 1)})^{n-1} & \cdots & (\omega^{-3})^{n-1} & (\omega^{-1})^{n-1}\\
+\end{bmatrix}$
+
+，其中 $\omega = g^{\frac{t - 1}{2n}} \bmod t$（$g$ 是 $\mathbb{Z}_t^{\times}$ 的一个生成元）
+
+\textcolor{red}{ $\rhd$ 将 $\vec{v}$ 转换为 $\vec{m}$ 的编码矩阵（即明文多项式 $M(X)$ 的 $n$ 个系数）}
+ 
+
+
+$ $
+
+$\Delta\vec{m}  = n^{-1}\cdot\Delta W\cdot I_n^R\cdot\vec{v}$  
+
+\textcolor{red}{ $\rhd$ 包含明文多项式经缩放后的 $n$ 个整数系数的向量}
+
+$ $
+
+$\Delta M = \sum\limits_{i=0}^{n-1} ( \Delta m_i  X^i)$ 
+
+\textcolor{red}{ $\rhd$ 对输入向量 $\vec{v}$ 进行同构编码得到的整数多项式}
+
+
+$ $
+
+由 \autoref{subsec:poly-vector-transformation} 可知，对多项式 $M(X)$ 进行解码 $\vec{v}$，等价于在以下 $n$ 个不同的本原 $(\mu=2n)$ 次单位根处计算 $M(X)$ 的值：$\{\omega, \omega^3, \omega^5, \cdots, \omega^{2n-3}, \omega^{2n-1} \}$。因此，上述解码过程等价于：
+
+$\vec{v} = \dfrac{W^T \Delta \vec{m}}{\Delta} = \bm{(}W^T_0\cdot \vec{m}, \text{ } W^T_1\cdot \vec{m}, \text{ } W^T_2\cdot \vec{m}, \text{ } \cdots, \text{ } W^T_{n-1}\cdot \vec{m}\bm{)}$  
+
+$= \bm{(} \text{ } M(\omega), \text{ } M(\omega^3), \text{ } M(\omega^5), \cdots, M(\omega^{2n-3}), \text{ } M(\omega^{2n-1}) \text{ } \bm{)}$
+
+
+$= \bm{(} \text{ } M(\omega), \text{ } M(\omega^3), \text{ } M(\omega^5), \cdots, M(\omega^{n-3}), \text{ } M(\omega^{n-1}), \text{ } M(\omega^{-(n-1)}), \text{ } M(\omega^{-(n-3)}), \cdots, M(\omega^{-3}), \text{ } M(\omega{-1}) \text{ } \bm{)}$ 
+
+
+%%$\textsf{LWE}_{S, \sigma}(\Delta M) = (A, B) \in \mathcal{R}_{\langle n, q \rangle }^{2}$ \textcolor{red}{  $\rhd$ An LWE ciphertext that encrypts $\Delta M$}
+
+%$A\cdot S + B = \Delta M + E$
+
+
+$ $
+
+接下来的任务是将 $M(X)$ 修改为 $M'(X)$，使解码 $M'(X)$ 得到经过修改的输入向量 $\vec{v}^{\langle h \rangle}$：它将 $\vec{v}$ 的前半部分元素在其内部向左循环旋转 $h$ 个位置，并将后半部分元素也在其内部向左循环旋转 $h$ 个位置。为实现这一旋转，我们采用以下两步方案：
+
+\begin{enumerate}[leftmargin=3\parindent]
+\item 为将 $M(X)$ 转换为 $M'(X)$，定义新的映射 $\sigma_M$ 如下：
+
+$\sigma_M : (M(X), h) \in (\mathcal{R}_{\langle n, t \rangle}, \mathbb{Z}_{n}) \longrightarrow M'(X) \in \mathcal{R}_{\langle n, t \rangle}$
+
+，其中，$h$ 是要对 $\vec{v}$ 施加的旋转位置数。
+\item 为将 $M'(X)$ 解码为旋转后的输入向量 $\vec{v}^{\langle h \rangle}$，需要修改 \textsf{Encoding\textsubscript{1}}（\autoref{subsubsec:bfv-encoding-1}）中的同构映射 $\sigma : M(X) \in \mathcal{R}_{\langle n, t \rangle} \longrightarrow \vec{v} \in \mathbb{Z}^n$，重新设计解码方案。
+\end{enumerate}
+
+$ $
+
+\para{将 $\bm{M(X)}$ 转换为 $\bm{M'(X)}$：} 第一个任务是将 $M(X)$ 转换为 $M'(X)$，等价于应用新的映射 $\sigma_M : (M(X), h) \in (\mathcal{R}_{\langle n, t \rangle}, \mathbb{Z}_{n}) \longrightarrow M'(X) \in \mathcal{R}_{\langle n, t \rangle}$，使解码 $M'(X)$ 得到旋转后的输入向量 $\vec{v}^{\langle h \rangle}$：$\vec{v}$ 的前半部分元素在其内部向左循环旋转 $h$ 个位置，后半部分元素也在其内部向左循环旋转 $h$ 个位置。为了设计满足这一要求的 $\sigma_M$，我们将使用具有以下两个特殊性质的数 $5^j$（这些性质来自数论）：
+\begin{itemize}
+\item 当整数 $j$ 满足 $0 \leq j < \dfrac{n}{2}$ 时，$(5^j \bmod 2n)$ 和 $(-5^j \bmod 2n)$ 生成 $[0, 2n)$ 之间的所有奇数。
+\item 对每个满足 $0 \leq j < \dfrac{n}{2}$ 的整数 $j$，均有 $(5^j \bmod 2n) + (-5^j \bmod 2n) \equiv 0 \bmod 2n$。
+\end{itemize}
+例如，假设模数 $2n = 16$。那么，
+
+\begin{multicols}{2}
+\noindent $5^0 \bmod 16 = 1$
+\newline $5^1 \bmod 16 = 5$
+\newline $5^2 \bmod 16 = 9$
+\newline $5^3 \bmod 16 = 13$
+\newline $-(5)^0 \bmod 16 = 15$
+\newline $-(5)^1 \bmod 16 = 11$
+\newline $-(5)^2 \bmod 16 = 7$
+\newline $-(5)^3 \bmod 16 = 3$
+\end{multicols}
+
+
+如上所示，$0 \leq j < 4$ 生成 $[0, 16)$ 之间的所有奇数。此外，对 $0 \leq j < 4$ 中的每个 $j$，均有 $(5^j \bmod 16) + (-5^j \bmod 16) = 16$。
+
+$ $
+
+定义 $J(h) = 5^h \bmod 2n$，\text{ } 以及 \text{ } $J_*(h) = -5^h \bmod 2n$。基于 $J(h)$ 和 $J_*(h)$，将映射 $\sigma_M : M(X) \rightarrow M'(X)$ 定义如下：
+
+$\sigma_{M} : M(X) \rightarrow M(X^{J(h)})$
+
+$ $
+
+给定明文多项式 $M(X)$，为了使其解码得到的输入向量 $\vec{v}$ 的前半部分元素向左循环旋转 $h$ 个位置，后半部分元素也向左循环旋转 $h$ 个位置，我们通过应用 $\sigma_M$ 映射，将当前明文多项式 $M(X)$ 更新为新的多项式 $M'(X) = M(X^{J(h)}) = M(X^{5^h})$，其中，$h$ 是 $\vec{v}$ 的前、后半部分元素各自向左旋转的位置数。
+
+
+$ $
+
+\para{将 $\bm{M'(X)}$ 解码为 \boldmath$\vec{v}^{\langle h \rangle}$}：第二个任务是修改原始解码方案，使其能够成功地将 $M'(X)$ 解码为旋转后的输入向量 $\vec{v}^{\langle h \rangle}$。为此，我们将原来的同构映射 $\sigma : M(X) \longrightarrow \vec{v}$ 从：
+
+$\sigma: M(X) \in \mathcal{R}_{\langle n, q \rangle} \longrightarrow  \bm{(}M(\omega), M(\omega^3),M(\omega^5), \cdots, M(\omega^{2n-1})\bm{)} \in \mathbb{Z}^n$ \textcolor{red}{ \text{ } \# 该映射在 \autoref{subsec:poly-vector-transformation} 中设计}
+
+$ $
+
+，改为：
+
+$\sigma_J: M(X) \in \mathcal{R}_{\langle n, t \rangle} \longrightarrow  \bm{(}M(\omega^{J(0)}),M(\omega^{J(1)}),M(\omega^{J(2)}), \cdots, M(\omega^{J(\frac{n}{2} - 1)}), $
+
+\textcolor{white}{$\sigma_J: M(X) \in \mathcal{R}_{\langle n, q \rangle} \longrightarrow  \bm{(}$} $M(\omega^{J_*(0)}), \text{ } M(\omega^{J_*(1)}), \text{ } M(\omega^{J_*(2)}), \cdots, M(\omega^{J_*(\frac{n}{2} - 1}) \text{ } \bm{)} \in \mathbb{Z}^{n}$
+
+
+$ $
+
+$\sigma$ 与 $\sigma_J$ 的共同点在于：它们都在 $n$ 个不同的本原 $(\mu=2n)$ 次单位根处计算多项式 $M(X)$ 的值（即 $w^i$，其中 $i$ 取 $[0,2n]$ 之间的所有奇数）。对于 $\sigma_J$ 映射，注意当 $j$ 遍历 $0 \leq j < \dfrac{n}{2} $ \text{ } 时，$J(j) = 5^j \bmod 2n$ \text{ } 和 \text{ } $J_*(j) = -5^j \bmod 2n$ \text{ } 覆盖了 $[0, 2n]$ 之间的所有奇数。因此，在 $0 \leq j < \frac{n}{2}$ 范围内，$\omega^{J(j)}$ 和 $\omega^{J_*(j)}$ 覆盖了全部 $n$ 个不同的本原 $(\mu=2n)$ 次单位根。
+
+同时，$\sigma$ 和 $\sigma_J$ 的差别在于输出向量元素的顺序。在 $\sigma$ 映射中，对 $M(X)$ 求值所用坐标的顺序为 $\omega, \omega^3, \cdots, \omega^{2n - 1}$；而在 $\sigma_J$ 映射中，求值所用坐标的顺序为 $\omega^{J(0)}, \omega^{J(1)}, \cdots, \omega^{J(\frac{n}{2} - 1)}, \omega^{J_*(0)}, \omega^{J_*(1)}, \cdots, \omega^{J_*(\frac{n}{2} - 1)}$。稍后将说明为何这样修改顺序。
+
+在原始的 \textsf{Decoding\textsubscript{2}} 过程（\autoref{subsec:bfv-batch-encoding}）中，对明文多项式 $M(X)$ 应用 $\sigma$ 映射，等价于进行以下计算：
+
+$\vec{v}_{'} = \bm{(} \text{ } M(\omega), \text{ } M(\omega^3), \text{ } M(\omega^5), \cdots, M(\omega^{2n-3}), \text{ } M(\omega^{2n-1}) \bm{)}$ 
+
+$ $
+
+$ = \bm{(} \text{ } M(\omega), \text{ } M(\omega^3), \text{ } M(\omega^5), \cdots, M(\omega^{n-1}), \text{ } M(\omega^{-(n-1)}), \cdots, \text{ } M(\omega^{-3}), \text{ } M(\omega^{-1}) \text{ } \bm{)}$ 
+
+$ $
+
+$= \bm{(} \text{ } W^T_0\cdot \vec{m}, \text{ } W^T_1\cdot \vec{m}, \text{ } W^T_2\cdot \vec{m}, \text{ } \cdots, \text{ } W^T_{n-1}\cdot \vec{m} \text{ } \bm{)} $ 
+$ $ \textcolor{red}{ $\rhd$ 其中，$W_i^T$ 是 $W^T$ 的第 $(i+1)$ 行}
+
+$ = W^T \vec{m} $
+%$= \dfrac{I_n^R}{n}\cdot \bm{(} \text{ } M(\omega), \text{ } M(\omega^3), \text{ } M(\omega^5), \cdots, M(\omega^{2n-3}), \text{ } M(\omega^{2n-1}) \text{ } )$
+
+
+
+
+$ $
+
+类似地，对明文多项式 $M(X)$ 应用修改后的 $\sigma_J$ 映射，等价于进行以下计算：
+
+$\vec{v}_{'} =  \bm{(} \text{ } 
+M(\omega^{J(0)}), \text{ } M(\omega^{J(1)}), \text{ } M(\omega^{J(2)}), \cdots,  M(\omega^{J(\frac{n}{2}-1)}), \text{ } M(\omega^{J_*(0)}), \text{ } M(\omega^{J_*(1)}), \cdots,  M(\omega^{J_*(\frac{n}{2}-1)}) \text{ } \bm{)}$
+
+
+$ $
+
+$= \bm{(} \text{ } \hathat{W}^*_0\cdot \vec{m}, \text{ } \hathat{W}^*_1\cdot \vec{m}, \text{ } \hathat{W}^*_2\cdot \vec{m}, \text{ } \cdots, \text{ } \hathat{W}^*_{n-1}\cdot \vec{m} \text{ } \bm{)} $ 
+
+$ $
+
+$ = \hathat{W}^* \vec{m} $，其中
+
+$ $
+
+\noindent $\hathat{W}^* = \begin{bmatrix}
+1 & (\omega^{J(0)}) & (\omega^{J(0)})^2 & \cdots & (\omega^{J(0)})^{n-1}\\
+1 & (\omega^{J(1)}) & (\omega^{J(1)})^2 & \cdots & (\omega^{J(1)})^{n-1}\\
+1 & (\omega^{J(2)}) & (\omega^{J(2)})^2 & \cdots & (\omega^{J(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J(\frac{n}{2}-1)}) & (\omega^{J(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J(\frac{n}{2}-1)})^{n-1}\\
+1 & (\omega^{J_*(0)}) & (\omega^{J_*(0)})^2 & \cdots & (\omega^{J_*(0)})^{n-1}\\
+1 & (\omega^{J_*(1)}) & (\omega^{J_*(1)})^2 & \cdots & (\omega^{J_*(1)})^{n-1}\\
+1 & (\omega^{J_*(2)}) & (\omega^{J_*(2)})^2 & \cdots & (\omega^{J_*(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J_*(\frac{n}{2}-1)}) & (\omega^{J_*(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J_*(\frac{n}{2}-1)})^{n-1}\\
+\end{bmatrix}$
+
+$ $
+
+$ $
+
+\noindent $\hathat{W} = \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1 & 1 & \cdots & 1\\
+(\omega^{J(\frac{n}{2} - 1)}) & (\omega^{J(\frac{n}{2} - 2)}) & \cdots & (\omega^{J(0)}) & (\omega^{J_*(\frac{n}{2} - 1)}) & (\omega^{J_*(\frac{n}{2} - 2)}) & \cdots & (\omega^{J_*(0)})\\
+(\omega^{J(\frac{n}{2} - 1)})^2 & (\omega^{J(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J(0)})^2 & (\omega^{J_*(\frac{n}{2} - 1)})^2 & (\omega^{J_*(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J_*(0)})^2 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \vdots & \vdots \\
+(\omega^{J(\frac{n}{2} - 1)})^{n-1} & (\omega^{J(\frac{n}{2} - 2)})^{n-1} & \cdots & (\omega^{J(0)})^{n-1} & (\omega^{J_*(\frac{n}{2} - 1)})^{n-1} & (\omega^{J_*(\frac{n}{2} - 2)})^{n-1} & \cdots  & (\omega^{J_*(0)})^{n-1}
+\end{bmatrix}$
+
+$ $
+
+$ $
+
+从现在开始，将 \textsf{Encoding\textsubscript{1}} 过程（\autoref{subsec:bfv-batch-encoding}）中的 $W$ 替换为 $\hathat{W}$，并将 \textsf{Decoding\textsubscript{2}} 过程中的 $W^T$ 替换为 $\hathat{W}^*$。
+
+$ $
+
+为证明 $\hathat{W}$ 和 $W$ 一样是有效的编码矩阵，且 $\hathat{W}^*$ 和 $W^T$ 一样是有效的解码矩阵，需要证明以下两点：
+\begin{itemize}[leftmargin=3\parindent]
+
+\item \textbf{${\hathat{\bm W}}$ 是 $\bm{n}$ 维向量空间的一组基：} 这一点成立，因为 $\hathat{W}$ 只是对 $W$ 的行重新排序，仍然是 $\bm{n}$ 维向量空间的一组基。
+
+\item \boldmath{$\hathat{W}^{*} \cdot \hathat{W} = n \cdot I_n^R$（满足 \autoref{subsec:vandermonde-euler} 中的定理~\ref*{subsec:vandermonde-euler}）}：这一证明分为两个子证明：
+\begin{enumerate}[leftmargin=2\parindent]
+\item \boldmath{${\hathat{ W}^{ *} \cdot \hathat{ W}}$ 的反对角线上各值为 $\bm{n}$：} \boldmath$\hathat{ W}^{ *} \cdot \hathat{ W}$ 的反对角线上每个元素的计算结果均为 $\sum\limits_{i=0}^{n-1} \omega^{2nik} = n$，其中 $k$ 为某个整数。
+\item \boldmath{${\hathat{ W}^{ *} \cdot \hathat{ W}}$ 的其余位置各值均为 0：} 除反对角线上的元素外，其余所有元素均为 $\sum\limits_{i=0}^{n-1}\omega^{2i} \dfrac{\omega^n - 1}{\omega - 1} = 0$（由等比数列求和公式可得）。
+\end{enumerate}
+
+我们提供了 \href{https://github.com/fhetextbook/fhe-textbook/blob/main/source%20code/bfv_j_matrix_inverse_proof.py}{\underline{Python 脚本}}，用于通过实验验证这一点。
+
+\end{itemize}
+
+
+
+
+因此，$\hathat{W}^*$ 和 $\hathat{W}$ 是将 $\vec{v}$ 转换为 $M(X)$ 的有效编码与解码矩阵。
+
+$ $
+
+现在考虑 $\vec{v}^{\langle h \rangle}$ 的结构（即将 $\vec{v}$ 的前半部分元素在其内部向左循环旋转 $h$ 个位置，同时将后半部分元素也在其内部向左循环旋转 $h$ 个位置）。回顾 $\vec{v}$ 的表达式：
+
+$\vec{v} = \bm{(} \text{ } 
+M(\omega^{J(0)}), \text{ } M(\omega^{J(1)}), \cdots,  M(\omega^{J(\frac{n}{2}-1)}), \text{ } 
+M(\omega^{J_*(0)}), \text{ } M(\omega^{J_*(1)}),  \cdots,  M(\omega^{J_*(\frac{n}{2}-1)}) \bm{)}$
+
+
+\text{ } \text{ } $= \bm{(} \text{ } \hathat{W}^*_0\cdot \vec{m}, \text{ } \hathat{W}^*_1\cdot \vec{m}, \text{ } \hathat{W}^*_2\cdot \vec{m}, \text{ } \cdots, \text{ } \hathat{W}^*_{n - 1}\cdot \vec{m} \text{ } \bm{)} $ 
+
+$ $
+
+因此，分别将 $\vec{v}$ 的前、后半部分元素向左旋转 $h$ 个位置，所得 $\vec{v}^{\langle h \rangle}$ 的状态如下：
+
+$\vec{v}^{\langle h \rangle} = \bm{(} \text{ } M(\omega^{J(h)}), \text{ } M(\omega^{J(h+1)}), \cdots, M(\omega^{J(\frac{n}{2}-1)}), \text{ } M(\omega^{J(0)}), \text{ }M(\omega^{J(1)}), \cdots, \text{ } M(\omega^{J(h-2)}), \text{ } M(\omega^{J(h-1)}),$
+
+\text{ }\text{ }\text{ } $ M(\omega^{J_*(h)}), \text{ } M(\omega^{J_*(h+1)}), \cdots, M(\omega^{J_*(\frac{n}{2}-1)}), \text{ } M(\omega^{J_*(0)}), \text{ }M(\omega^{J_*(1)}), \cdots, \text{ } M(\omega^{J_*(h-2)}), \text{ } M(\omega^{J_*(h-1)}) \text{ } \bm{)}$
+
+$ $
+
+注意，上述 $\vec{v}^{\langle h \rangle}$ 的计算等价于：将 $\hathat{W}^*$ 的上方 $\frac{n}{2}$ 行在其内部向上循环旋转 $h$ 个位置，将 $\hathat{W}^{*}$ 的下方 $\frac{n}{2}$ 行在其内部向上循环旋转 $h$ 个位置，再将得到的矩阵与 $\vec{m}$ 相乘。然而，实际中不希望如此直接修改解码矩阵 $\hathat{W}^*$，因为这样解码矩阵就无法保持一致。因此，我们将通过把 $\vec{m}$ 修改为 $\vec{m}_{'}$（即把 $M(X)$ 修改为 $M'(X)$）来保持关系 $\vec{v}^{\langle h \rangle} = \hathat{W}^* \cdot \vec{m}_{'}$ 成立，而不直接修改 $\hathat{W}^*$。提取 $\hathat{W}^*$ 的上半部分行，将这一 $\dfrac{n}{2} \times n$ 矩阵记为 $\hathat{H}_1^*$。那么，$\hathat{H}_1^*$ 等价于形式为 $V(\omega^{J(0)}, \omega^{J(1)}, \cdots, \omega^{J(\frac{n}{2}-1)})$ 的范德蒙德矩阵（\autoref{subsec:vandermonde} 中的定义~\ref*{subsec:vandermonde}）。类似地，提取 $\hathat{W}^*$ 的下半部分行，将这一 $\dfrac{n}{2} \times n$ 矩阵记为 $\hathat{H}_2^*$。那么，$\hathat{H}_2^*$ 等价于形式为 $V(\omega^{J_*(0)}, \omega^{J_*(1)}, \cdots, \omega^{J_*(\frac{n}{2}-1)})$ 的范德蒙德矩阵（\autoref{subsec:vandermonde} 中的定义~\ref*{subsec:vandermonde}）。
+
+现在，将 $\hathat{H}_1^*$ 的各行向上旋转 $h$ 个位置，并记为 $\hathat{H}_1^{*\langle h \rangle}$；将 $\hathat{H}_2^*$ 的各行向上旋转 $h$ 个位置，并记为 $\hathat{H}_2^{*\langle h \rangle}$。将由 $\vec{v}^{\langle h \rangle}$ 的前半部分元素构成的 $\dfrac{n}{2}$ 维向量记为 $\vec{v}_1^{\langle h \rangle}$，将由 $\vec{v}^{\langle h \rangle}$ 的后半部分元素构成的 $\dfrac{n}{2}$ 维向量记为 $\vec{v}_2^{\langle h \rangle}$。
+那么，计算（即解码）$\vec{v}_1^{\langle h \rangle} = \hathat{H}_1^{*\langle h \rangle}\cdot \vec{m}$，等价于将 $M(X)$ 修改为 $M'(X) = M(X^{J(h)})$（其系数向量为 $\vec{m}^{\langle h \rangle}$）后，再计算（即解码）$\vec{v}_1^{\langle h \rangle} = \hathat{H}_1^{*}\cdot \vec{m}^{\langle h \rangle}$。原因如下：
+
+$\vec{v}_1^{\langle h \rangle} =\hathat{H}_1^{*\langle h \rangle}\cdot \vec{m}$
+
+$ = \bm{(} \text{ } \hathat{W}^*_{h}\cdot\vec{m}, \text{ } \hathat{W}^*_{h+1}\cdot\vec{m}, \text{ } \hathat{W}^*_{h+2}\cdot\vec{m}, \cdots, \hathat{W}^*_{\frac{n}{2}-1}\cdot\vec{m}, \text{ } \hathat{W}^*_{0}\cdot\vec{m}, \text{ }\hathat{W}^*_{1}\cdot\vec{m}, \cdots, \text{ } \hathat{W}^*_{h-2}\cdot\vec{m}, \text{ } \hathat{W}^*_{h-1}\cdot\vec{m}  \bm{)}$
+
+$ $
+
+$= \bm{(} \text{ } M((\omega^{J(h)})^{J(0)}), \text{ } M((\omega^{J(h)})^{J(1)}), \text{ } M((\omega^{J(h)})^{J(2)}), \cdots, M((\omega^{J(h)})^{J(\frac{n}{2}-1)}) \text{ } \bm{)}$
+
+
+\textcolor{red}{ $\rhd$ 这等价于在以下 $\dfrac{n}{2}$ 个不同的 $(\mu=2n)$ 次单位根处计算多项式 $M(X^{J(h)})$ 的值：$\omega^{J(0)}, \omega^{J(1)},  \omega^{J(2)}, \cdots, \omega^{J(\frac{n}{2} - 1)}$}
+
+$ $
+
+$= \bm{(} \text{ } M(\omega^{J(h)\cdot J(0)}), \text{ } M(\omega^{J(h)\cdot J(1)}), \text{ } M(\omega^{J(h)\cdot J(2)}), \cdots, M(\omega^{J(h)\cdot J(\frac{n}{2}-1)}) \text{ } \bm{)}$
+
+$= \bm{(} \text{ } M(\omega^{5^h\cdot 5^0}), \text{ } M(\omega^{5^h\cdot 5^1}), \text{ } M(\omega^{5^h\cdot 5^2}), \cdots, M(\omega^{5^h\cdot 5^{n/2-1}}) \text{ } \bm{)}$
+
+$= \bm{(} \text{ } M(\omega^{5^{h}}), \text{ } M(\omega^{5^{h+1}}), \text{ } M(\omega^{5^{h+2}}), \cdots, M(\omega^{5^{h+n/2-1}}) \text{ } \bm{)}$ \textcolor{red}{ $\rhd$ 注意 $5^{\frac{n}{2}} \bmod 2n = 1$}
+
+$ $
+
+$= \bm{(} \text{ } M(\omega^{J(h)}), \text{ } M(\omega^{J(h+1)}), \text{ } M(\omega^{J(h+2)}), \cdots, M(\omega^{J(\frac{n}{2}-1)}), \text{ } M(\omega^{J(0)}), \text{ }M(\omega^{J(1)}),$ 
+                                    
+$\cdots, \text{ } M(\omega^{J(h-2)}), \text{ } M(\omega^{J(h-1)})  \bm{)}$ 
+
+$ $
+
+$= \tilde{H}_1^{*}\cdot \vec{m}^{\langle h \rangle}$ \textcolor{red}{ \text{ } \# 其中，$\vec{m}^{\langle h \rangle}$ 包含多项式 $M(X^{J(h)})$ 的 $n$ 个系数 }
+
+
+$ $
+
+类似地，计算（即解码）$\vec{v}_2^{\langle h \rangle} = \hathat{H}_2^{*\langle h \rangle}\cdot \vec{m}$，等价于将 $M(X)$ 修改为 $M'(X) = M(X^{J(h)})$（其系数向量为 $\vec{m}^{\langle h \rangle}$）后，再计算（即解码）$\vec{v}_2^{\langle h \rangle} = \hathat{H}_2^{*}\cdot \vec{m}^{\langle h \rangle}$。原因如下：
+
+$\vec{v}_2^{\langle h \rangle} =\hathat{H}_2^{*\langle h \rangle}\cdot \vec{m}$
+
+$ $
+
+
+$ = \bm{(} \text{ } \hathat{W}^*_{\frac{n}{2} +h}\cdot\vec{m}, \text{ } \hathat{W}^*_{\frac{n}{2} + h+1}\cdot\vec{m}, \text{ } \hathat{W}^*_{\frac{n}{2} +h+2}\cdot\vec{m}, \cdots, \hathat{W}^*_{n -1}\cdot\vec{m}, \text{ } \hathat{W}^*_{\frac{n}{2}}\cdot\vec{m}, \text{ }\hathat{W}^*_{\frac{n}{2} + 1}\cdot\vec{m}, \cdots,$
+
+\text{ }\text{ }\text{ }\text{ }$ \text{ } \hathat{W}^*_{\frac{n}{2} + h-2}\cdot\vec{m}, \text{ } \hathat{W}^*_{\frac{n}{2} + h-1}\cdot\vec{m}  \bm{)}$
+
+$ $
+
+$= \bm{(} \text{ } M((\omega^{J(h)})^{J_*(0)}), \text{ } M((\omega^{J(h)})^{J_*(1)}), \text{ } M((\omega^{J(h)})^{J_*(2)}), \cdots, M((\omega^{J(h)})^{J_*(\frac{n}{2}-1)}) \text{ } \bm{)}$
+
+
+\textcolor{red}{ $\rhd$ 这等价于在以下 $\dfrac{n}{2}$ 个不同的 $(\mu=2n)$ 次单位根处计算多项式 $M(X^{J(h)})$ 的值：$\omega^{J_*(0)}, \omega^{J_*(1)},  \omega^{J_*(2)}, \cdots, \omega^{J_*(\frac{n}{2} - 1)}$}
+
+$ $
+
+$= \bm{(} \text{ } M(\omega^{J(h)\cdot J_*(0)}), \text{ } M(\omega^{J(h)\cdot J_*(1)}), \text{ } M(\omega^{J(h)\cdot J_*(2)}), \cdots, M(\omega^{J(h)\cdot J_*(\frac{n}{2}-1)}) \text{ } \bm{)}$
+
+$= \bm{(} \text{ } M(\omega^{5^h\cdot -5^0}), \text{ } M(\omega^{5^h\cdot -5^1}), \text{ } M(\omega^{5^h\cdot -5^2}), \cdots, M(\omega^{5^h\cdot -5^{n/2-1}}) \text{ } \bm{)}$
+
+$= \bm{(} \text{ } M(\omega^{-5^{h}}), \text{ } M(\omega^{-5^{h+1}}), \text{ } M(\omega^{-5^{h+2}}), \cdots, M(\omega^{-5^{h+n/2-1}}) \text{ } \bm{)}$ \textcolor{red}{ $\rhd$ 注意 $-(5^{\frac{n}{2}} \bmod 2n) = -1$}
+
+$ $
+
+$= \bm{(} \text{ } M(\omega^{J_*(h)}), \text{ } M(\omega^{J_*(h+1)}), \text{ } M(\omega^{J_*(h+2)}), \cdots, M(\omega^{J_*(\frac{n}{2}-1)}), \text{ } M(\omega^{J_*(0)}), \text{ }M(\omega^{J_*(1)}),$ 
+                                    
+$\cdots, \text{ } M(\omega^{J_*(h-2)}), \text{ } M(\omega^{J_*(h-1)})  \bm{)}$ 
+
+$ $
+
+$= \hathat{H}_2^{*}\cdot \vec{m}^{\langle h \rangle}$
+
+
+$ $
+
+上述推导表明，$\vec{v}_1^{\langle h \rangle} = \hathat{H}_1^{*}\cdot \vec{m}^{\langle h \rangle}$，且 $\vec{v}_2^{\langle h \rangle} = \hathat{H}_2^{*}\cdot \vec{m}^{\langle h \rangle}$。结合这两点，得到结论 $\vec{v}^{\langle h \rangle} = \hathat{W}^* \cdot \vec{m}^{\langle h \rangle}$：将输入向量 $\vec{v}$ 的前半部分元素向左旋转 $h$ 个位置、后半部分元素也向左旋转 $h$ 个位置，等价于将明文多项式 $M(X)$ 更新为 $M(X^{J(h)})$，再使用解码矩阵 $\hathat{W}^*$ 进行解码。
+
+
+
+然而，现在出现了一个新问题：无法直接将明文 $M(X)$ 更新为 $M(X^{J(h)})$，因为 $M(X)$ 已被加密为 RLWE 密文。因此，需要更新 RLWE 密文分量 $(A, B)$，从而\textit{间接地}将 $M(X)$ 更新为 $M(X^{J(X)})$。下一小节将介绍具体方法。
+
+
+\subsubsection{通过更新密文多项式来更新明文多项式}
+
+给定 RLWE 密文 $\textsf{ct} = (A, B)$，目标是将 $\textsf{ct} = (A, B)$ 更新为 $C^{\langle h \rangle} = (A^{\langle h \rangle}, B^{\langle h \rangle})$，使其解密后得到输入向量 $\vec{v}^{\langle h \rangle}$。也就是说，应满足以下关系：
+
+$\textsf{RLWE}^{-1}_{S, \sigma}\bm{(} \text{ } C^{\langle h \rangle} = (A^{\langle h \rangle}, B^{\langle h \rangle}) \text{ }\bm{)} = \Delta M(X^{J(h)}) + E'$
+
+$ $
+
+回顾 RLWE 密码系统（\autoref{sec:rlwe}）的另一种版本（\autoref{subsec:glwe-alternative}），明文与密文对满足以下关系：
+
+$\Delta M(X) + E(X) = A(X)\cdot S(X) + B(X) \approx \Delta M(X)$
+
+$ $
+
+在上述关系中应用 $X = X^{J(h)}$，可推导出以下关系：
+
+$\Delta M(X^{J(h)}) + E(X^{J(h)}) = A(X^{J(h)}) \cdot S(X^{J(h)}) + B(X^{J(h)}) \approx \Delta M(X^{J(h)})$
+
+$ $
+
+这一关系意味着，以 $S(X^{J(h)})$ 为秘密密钥解密密文 $C^{\langle h \rangle} = (A(X^{J(h)}), B(X^{J(h)}))$，即可得到 $\Delta M(X^{J(h)})$。因此，$C^{\langle h \rangle} = (A(X^{J(h)}), B(X^{J(h)}))$ 就是我们要寻找的 RLWE 密文，因为对它解密，再对其明文 $M(X^{J(h)})$ 解码，就能得到输入向量 $\vec{v}^{\langle h \rangle}$。
+
+对 $A(X)$ 和 $B(X)$ 这两个多项式，分别将 $X^{J(h)}$ 应用于 $X$，即可轻松地将 $\textsf{ct} = (A(X), B(X))$ 转换为 $C^{\langle h \rangle} = (A(X^{J(h)}), B(X^{J(h)}))$。不过，之后 RLWE 密文 $C^{\langle h \rangle} = (A(X^{J(h)}), B(X^{J(h)}))$ 的解密密钥将从 $S(X)$ 变为 $S(X^{J(h)})$。因此，还需要将密文 $C^{\langle h \rangle}$ 的密钥按 $S(X^{J(h)}) \rightarrow S(X)$ 进行切换，这等价于将 $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm{(} C^{\langle h \rangle} = (A(X^{J(h)}), B(X^{J(h)})) \bm{)}$ 转换为 $\textsf{RLWE}_{S, \sigma}\bm{(} C^{\langle h \rangle} = (A(X^{J(h)}), B(X^{J(h)})) \bm{)}$。为此，应用在 \autoref{subsec:bfv-key-switching} 中学习的 BFV 密钥切换技术（小结~\ref*{subsec:bfv-key-switching}），如下所示：
+
+$ $
+
+\noindent $\underbrace{\textsf{RLWE}_{S(X),\sigma}\bm{(}\Delta M(X^{J(h)})\bm{)}}_{\substack{\text{以下运算的结果：} \\ \text{明文与密文相加}}} = \underbrace{\bm{(} \text{ } 0, B(X^{J(h)}) \text{ } \bm{)}}_{\substack{\text{明文 } B(X^{J(h)}) \\ \text{（平凡密文）}}} + \bm{\langle} \text{ } \underbrace{\textsf{Decomp}^{\beta, l}\bm{(}A(X^{J(h)})\bm{)}, \text{ } \textsf{RLev}_{S(X), \sigma}^{\beta, l}\bm{(}S(X^{J(h)})\bm{)} \text{ } \bm{\rangle}}_{\substack{\substack{\text{加密 $A(X^{J(h)}) \cdot S(X^{J(h)})$ 的 RLWE 密文}\\ \text{其密钥已按 $S(X^{J(h)})\rightarrow S(X)$ 切换}}}}$
+
+
+
+\subsubsection{小结}
+\label{subsubsec:bfv-rotation-summary}
+
+BFV 输入向量的旋转过程总结如下：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bfv-rotation}} BFV 输入向量槽位的同态旋转}}]
+
+为支持输入向量槽位旋转，将 \textsf{Encoding\textsubscript{1}} 中的原始编码矩阵更新如下：
+
+$ $
+
+{\footnotesize{\noindent $\hathat{W} = \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1 & 1 & \cdots & 1\\
+(\omega^{J(\frac{n}{2} - 1)}) & (\omega^{J(\frac{n}{2} - 2)}) & \cdots & (\omega^{J(0)}) & (\omega^{J_*(\frac{n}{2} - 1)}) & (\omega^{J_*(\frac{n}{2} - 2)}) & \cdots & (\omega^{J_*(0)})\\
+(\omega^{J(\frac{n}{2} - 1)})^2 & (\omega^{J(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J(0)})^2 & (\omega^{J_*(\frac{n}{2} - 1)})^2 & (\omega^{J_*(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J_*(0)})^2 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega^{J(\frac{n}{2} - 1)})^{n-1} & (\omega^{J(\frac{n}{2} - 2)})^{n-1} & \cdots & (\omega^{J(0)})^{n-1} & (\omega^{J_*(\frac{n}{2} - 1)})^{n-1} & (\omega^{J_*(\frac{n}{2} - 2)})^{n-1} & \cdots  & (\omega^{J_*(0)})^{n-1}
+\end{bmatrix}$}}
+
+$ $
+
+$ $
+
+
+，并将 \textsf{Decoding\textsubscript{2}} 中的原始解码矩阵更新如下：
+
+$\hathat{W}^* = \begin{bmatrix}
+1 & (\omega^{J(0)}) & (\omega^{J(0)})^2 & \cdots & (\omega^{J(0)})^{n-1}\\
+1 & (\omega^{J(1)}) & (\omega^{J(1)})^2 & \cdots & (\omega^{J(1)})^{n-1}\\
+1 & (\omega^{J(2)}) & (\omega^{J(2)})^2 & \cdots & (\omega^{J(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J(\frac{n}{2}-1)}) & (\omega^{J(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J(\frac{n}{2}-1)})^{n-1}\\
+1 & (\omega^{J_*(0)}) & (\omega^{J_*(0)})^2 & \cdots & (\omega^{J_*(0)})^{n-1}\\
+1 & (\omega^{J_*(1)}) & (\omega^{J_*(1)})^2 & \cdots & (\omega^{J_*(1)})^{n-1}\\
+1 & (\omega^{J_*(2)}) & (\omega^{J_*(2)})^2 & \cdots & (\omega^{J_*(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J_*(\frac{n}{2}-1)}) & (\omega^{J_*(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J_*(\frac{n}{2}-1)})^{n-1}\\
+\end{bmatrix}$
+
+$ $
+
+$ $
+
+，其中，$J(h)$ 是\textit{旋转辅助公式}：$J(h) = 5^h \bmod 2n$，
+\text{ } $J_*(h) = -5^h \bmod 2n$. 
+
+$ $
+
+使用 $\hathat{W}$ 进行编码：$\vec{m} = n^{-1}\cdot \hathat{W} \cdot I_n^R \cdot \vec{v}$。使用 $\hathat{W}^*$ 进行解码：$\vec{v} = \hathat{W}^* \cdot \vec{m}$
+
+$ $
+
+假设有如下 RLWE 密文和密钥切换密钥：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta M) = (A, B)$, \text{ } $\textsf{RLev}_{S, \sigma}^{\beta, l}\bm(S(X^{J(h)})\bm)$
+
+$ $
+
+那么，要使密文所对应原始输入向量 $\vec{v}$ 的前半部分元素在其内部向左循环旋转 $h$ 个位置，同时使 $\vec{v}$ 的后半部分元素也在其内部向左循环旋转 $h$ 个位置，过程如下：
+
+\begin{enumerate}
+\item 将 $A(X)$、$B(X)$ 更新为 $A(X^{J(h)})$、$B(X^{J(h)})$。
+\item 执行如下从 $S(X^{J(h)})$ 到 $S(X)$ 的密钥切换（\autoref{subsec:ckks-key-switching}）：
+
+$\textsf{RLWE}_{S(X),\sigma}\bm{(}\Delta M(X^{J(h)})\bm{)} = \bm{(} 0, B(X^{J(h)}) \bm{)} \text{ } + \text{ } \bm{\langle}  \textsf{Decomp}^{\beta, l}\bm{(}A(X^{J(h)})\bm{)}, \text{ } \textsf{RLev}_{S(X), \sigma}^{\beta, l}\bm{(}S(X^{J(h)})\bm{)} \bm{\rangle}$
+\end{enumerate}
+
+
+\end{tcolorbox}
+
+
+\subsubsection{编码示例}
+\label{subsubsec:bfv-batch-encoding-ex}
+
+%$bfv_vector = [10, 0, 5, 13]
+%bfv_vector2 = [2, 4, 8, 6]
+
+
+在上述示例中，计算 $\bmod t$ 和 $\bmod q$ 时采用无符号模表示（例如 $[0, t-1], [0, q]$）。不过，即使使用居中模表示（例如 $[-\dfrac{t}{2}, \dfrac{t}{2})$、$[-\dfrac{q}{2}, \dfrac{q}{2})$），结果的正确性仍然成立。在许多实际的全同态加密库中，通常使用居中模运算来更有效地管理噪声增长。
+
+假设采用如下设置：
+
+$\mu = 8, \, n = \dfrac{\mu}{2} = 4, \, t = 17, \, q = 2^8 = 256, \, n^{-1} = 13, \, \Delta = \left\lfloor\dfrac{q}{t}\right\rfloor = 15$
+
+$ $
+
+$\mathcal{R}_{\langle 4, 17 \rangle} = \mathbb{Z}_{17}[X] / (X^4 + 1)$
+
+$ $
+
+$X^4 + 1 \pmod{17}$ 的根为 $X = \{2, 8, 15, 9\}$，验证如下：
+
+$2^4 \equiv 8^4 \equiv 15^4 \equiv 9^4 \equiv 16 \equiv -1 \bmod{17}$
+
+$ $
+
+定义~\ref*{subsec:cyclotomic-def}（位于 \autoref{subsec:cyclotomic-def}）指出，第 $\mu$ 个分圆多项式的根是本原 $\mu$ 次单位根。而定义~\ref*{subsec:roots-def}（位于 \autoref{subsec:roots-def}）指出，本原 $\mu$ 次单位根的阶为 $\mu$。这些定义同时适用于 $X\in\mathbb{C}$（复数）上的分圆多项式和 $X \in \mathbb{Z}_t$（环）上的分圆多项式。
+
+由于 $\{2, 8, 15, 9\}$ 是环 $\mathbb{Z}_{17}$ 上第 $(\mu=8)$ 个分圆多项式 $X^4 + 1$ 的根，因此它们也是 $\mathbb{Z}_{17}$ 的本原 $(\mu=8)$ 次单位根。所以，它们的阶（\autoref{subsec:order-def}）为 $\mu=8$，验证如下：
+
+$2^8 \equiv 8^8 \equiv 15^8 \equiv 9^8 \equiv 1 \bmod 17$
+
+$2^4 \equiv 8^4 \equiv 15^4 \equiv 9^4 \equiv 16 \not\equiv 1 \bmod 17$
+
+$ $
+
+定义~\ref*{subsec:cyclotomic-def}（位于 \autoref{subsec:cyclotomic-def}）和定理~\ref*{subsec:cyclotomic-theorem}（\autoref{subsec:cyclotomic-theorem}）还指出，对于每个本原 $\mu$ 次单位根 $\omega$，$\{\omega^k\}_{\textsf{gcd}(k, \mu) = 1}$ 生成第 $\mu$ 个分圆多项式的全部根。注意，对于第 $(\mu=8)$ 个分圆多项式 $X^4 + 1$，它的根 $\{2, 8, 15, 9\}$ 按如下方式生成全部 $(\mu=8)$ 次单位根：
+
+$\{2^1, 2^3, 2^5, 2^7\} \equiv \{8^1, 8^3, 8^5, 8^7\} \equiv \{15^1, 15^3, 15^5, 15^7\} \equiv \{9^1, 9^3, 9^5, 9^7\} \equiv \{2, 8, 15, 9\} \bmod 17$
+
+$ $
+
+在 $X^4 + 1$ 的根 $\{2, 8, 15, 9\}$ 中，选取 $\omega = 9$ 作为基础根，按如下方式构造编码矩阵 $\hathat{W}$ 和解码矩阵 $\hathat{W}^*$：
+
+$\hathat{W} = \begin{bmatrix}
+1 & 1 & 1 & 1\\
+\omega^{J(1)} & \omega^{J(0)} & \omega^{J_*(1)} & \omega^{J_*(0)}\\
+(\omega^{J(1)})^2 & (\omega^{J(0)})^2 & (\omega^{J_*(1)})^2 & (\omega^{J_*(0)})^2\\
+(\omega^{J(1)})^3 & (\omega^{J(0)})^3 & (\omega^{J_*(1)})^3 & (\omega^{J_*(0)})^3\\
+\end{bmatrix}$ \textcolor{red}{  $\rhd$ 其中 $J(h) = 5^h \bmod 8$}
+
+$ = \begin{bmatrix}
+1 & 1 & 1 & 1\\
+9^{5} & 9^{1} & 9^{3} & 9^{7}\\
+(9^{5})^2 & (9^{1})^2 & (9^{3})^2 & (9^{7})^2\\
+(9^{5})^3 & (9^{1})^3 & (9^{3})^3 & (9^{7})^3\\
+\end{bmatrix} \equiv \begin{bmatrix}
+1 & 1 & 1 & 1\\
+8 & 9 & 15 & 2\\
+13 & 13 & 4 & 4\\
+2 & 15 & 9 & 8\\
+\end{bmatrix} \bmod{17}$ 
+
+$ $ 
+
+$\hathat{W}^* = \begin{bmatrix}
+1 & \omega^{J(0)} & (\omega^{J(0)})^2 & (\omega^{J(0)})^3\\
+1 & \omega^{J(1)} & (\omega^{J(1)})^2 & (\omega^{J(1)})^3\\
+1 & \omega^{J_*(0)} & (\omega^{J_*(0)})^2 & (\omega^{J_*(0)})^3\\
+1 & \omega^{J_*(1)} & (\omega^{J_*(1)})^2 & (\omega^{J_*(1)})^3\\
+\end{bmatrix} \equiv \begin{bmatrix}
+1 & 9 & 13 & 15\\
+1 & 8 & 13 & 2\\
+1 & 2 & 4 & 8\\
+1 & 15 & 4 & 9\\
+\end{bmatrix}  \bmod{17}$
+
+$ $
+
+注意，定理~\ref*{subsec:vandermonde-euler-integer-ring}（位于 \autoref{subsec:vandermonde-euler-integer-ring}）可以验证如下：
+
+$\hathat{W}^* \cdot \hathat{W} = \begin{bmatrix}
+1 & 9 & 13 & 15\\
+1 & 8 & 13 & 2\\
+1 & 2 & 4 & 8\\
+1 & 15 & 4 & 9\\
+\end{bmatrix} \cdot \begin{bmatrix}
+1 & 1 & 1 & 1\\
+8 & 9 & 15 & 2\\
+13 & 13 & 4 & 4\\
+2 & 15 & 9 & 8\\
+\end{bmatrix} = \begin{bmatrix}
+0 & 0 & 0 & 4\\
+0 & 0 & 4 & 0\\
+0 & 4 & 0 & 0\\
+4 & 0 & 0 & 0\\
+\end{bmatrix} = n I_n^{R} \pmod{17}$
+
+$ $
+
+现在，假设要对 $\mathbb{Z}_{17}$ 中的以下两个输入向量（即输入向量槽位）进行编码：
+
+$\vec{v}_1 = (10, 3, 5, 13)$
+
+$\vec{v}_2 = (2, 4, 3, 6)$
+
+$\vec{v}_1 + \vec{v}_2 = (10, 3, 5, 13) + (2, 4, 3, 6) \equiv (12, 7, 8, 2) \bmod 17$
+
+$ $
+
+这两个向量的编码如下：
+
+$ $
+
+$\vec{m}_1 = n^{-1} \hathat{W} \cdot I_n^R \cdot \vec{v} = 13 \cdot \begin{bmatrix}
+1 & 1 & 1 & 1\\
+8 & 9 & 15 & 2\\
+13 & 13 & 4 & 4\\
+2 & 15 & 9 & 8\\
+\end{bmatrix} \cdot \begin{bmatrix}
+0 & 0 & 0 & 1\\
+0 & 0 & 1 & 0\\
+0 & 1 & 0 & 0\\
+1 & 0 & 0 & 0\\
+\end{bmatrix} \cdot \begin{bmatrix}
+10\\
+3\\
+5\\
+13\\
+\end{bmatrix} \equiv (12, 11, 12, 1)  \bmod 17$
+
+$ $
+
+$\vec{m}_2 = n^{-1} \hathat{W} \cdot I_n^R \cdot \vec{v} = 13 \cdot \begin{bmatrix}
+1 & 1 & 1 & 1\\
+8 & 9 & 15 & 2\\
+13 & 13 & 4 & 4\\
+2 & 15 & 9 & 8\\
+\end{bmatrix} \cdot \begin{bmatrix}
+0 & 0 & 0 & 1\\
+0 & 0 & 1 & 0\\
+0 & 1 & 0 & 0\\
+1 & 0 & 0 & 0\\
+\end{bmatrix} \cdot \begin{bmatrix}
+2\\
+4\\
+3\\
+6\\
+\end{bmatrix} \equiv (8, 5, 14, 6) \bmod 17$
+
+$ $
+
+$ $
+
+$\Delta M_1(X) = 15\cdot(12 + 11X + 12X^2 + 1X^3) = 180 + 165X + 180X^2 + 15X^3 \pmod{q}$ \textcolor{red}{ $\rhd$ 其中 $q = 256$}
+
+$\Delta M_2(X) = 15\cdot(8 + 5X + 14X^2 + 6X^3) = 120 + 75X + 210X^2 + 90X^3 \pmod{q}$
+
+$\Delta M_{1+2}(X) = \Delta M_1(X) + \Delta M_2(X) = \Delta (M_1(X) + M_2(X)) = 44 + 240X + 134X^2 + 105X^3 \pmod{q}$
+
+$M_{1+2}(X) =\left\lceil\dfrac{44 + 240X + 134X^2 + 105X^3}{15}\right\rfloor \bmod 17$
+
+$= \left\lceil2.933 + 16X + 8.933X^2 + 7X^3\right\rfloor \bmod 17$
+
+$3 + 16X + 9X^2 + 7X^3 \bmod 17 $
+
+$ $
+
+
+这一多项式与 $\vec{m}_{1+2}$ 的值一致，如下所示：
+
+$\vec{m}_1 + \vec{m}_2 = (12, 11, 12, 1) + (8, 5, 14, 6) = (20, 16, 26, 7) \equiv (3, 16, 9, 7) \bmod 17$
+
+$ $
+
+最后，按如下方式解码 $\vec{m}_{1+2}$：
+
+
+
+$\vec{v}_{1+2} = \hathat{W}^* \cdot \vec{m}_{1+2} = \begin{bmatrix}
+1 & 9 & 13 & 15\\
+1 & 8 & 13 & 2\\
+1 & 2 & 4 & 8\\
+1 & 15 & 4 & 9\\
+\end{bmatrix} \cdot \begin{bmatrix}3\\16\\9\\7\end{bmatrix} = (12, 7, 8, 2) \bmod{17}$
+
+$ $
+
+这一结果与预期的向量和 $\vec{v}_1 + \vec{v}_2$ 一致。
+
+
+
+
+\subsubsection{旋转示例}
+\label{subsubsec:bfv-rotation-ex}
+
+同样，在上述示例中，计算 $\bmod t$ 和 $\bmod q$ 时使用无符号模表示（例如 $[0, t-1], [0, q]$）。不过，即使使用居中模表示（例如 $[-\dfrac{t}{2}, \dfrac{t}{2})$、$[-\dfrac{q}{2}, \dfrac{q}{2})$），结果的正确性仍然成立。
+
+假设采用如下设置：
+
+$\mu = 16, n = \dfrac{\mu}{2} = 8, \text{ } t = 17, \text{ } q = 2^8 = 256, \text{ } n^{-1} = 15, \text{ } \Delta = 15$
+
+$ $
+
+$\mathcal{R}_{\langle 8, 17 \rangle} = \mathbb{Z}_{17}[X] / (X^8 + 1)$
+
+$ $
+
+$X^8 + 1 \pmod{17}$ 的根为 $X = \{3, 5, 6, 7, 10, 11, 12, 14\}$，验证如下：
+
+$3^8 \equiv 5^8 \equiv 6^8 \equiv 7^8 \equiv 10^8 \equiv 11^8 \equiv 12^8 \equiv 14^8 \equiv 16 \equiv -1 \bmod{17}$
+
+
+$ $
+
+在 $X^8 + 1$ 的根 $\{3, 5, 6, 7, 10, 11, 12, 14\}$ 中，选取 $\omega = 3$ 作为基础根，按如下方式构造编码矩阵 $\hathat{W}$ 和解码矩阵 $\hathat{W}^*$：
+
+$\hathat{W} = \begin{bmatrix}
+1 & 1 & 1 & 1 & 1 & 1 & 1 & 1\\
+\omega^{J(3)} & \omega^{J(2)} & \omega^{J(1)} & \omega^{J(0)} & \omega^{J_*(3)} & \omega^{J_*(2)} & \omega^{J_*(1)} & \omega^{J_*(0)}\\
+(\omega^{J(3)})^2 & (\omega^{J(2)})^2 & (\omega^{J(1)})^2 & (\omega^{J(0)})^2 & (\omega^{J_*(3)})^2 & (\omega^{J_*(2)})^2 & (\omega^{J_*(1)})^2 & (\omega^{J_*(0)})^2\\
+(\omega^{J(3)})^3 & (\omega^{J(2)})^3 & (\omega^{J(1)})^3 & (\omega^{J(0)})^3 & (\omega^{J_*(3)})^3 & (\omega^{J_*(2)})^3 & (\omega^{J_*(1)})^3 & (\omega^{J_*(0)})^3\\
+(\omega^{J(3)})^4 & (\omega^{J(2)})^4 & (\omega^{J(1)})^4 & (\omega^{J(0)})^4 & (\omega^{J_*(3)})^4 & (\omega^{J_*(2)})^4 & (\omega^{J_*(1)})^4 & (\omega^{J_*(0)})^4\\
+(\omega^{J(3)})^5 & (\omega^{J(2)})^5 & (\omega^{J(1)})^5 & (\omega^{J(0)})^5 & (\omega^{J_*(3)})^5 & (\omega^{J_*(2)})^5 & (\omega^{J_*(1)})^5 & (\omega^{J_*(0)})^5\\
+(\omega^{J(3)})^6 & (\omega^{J(2)})^6 & (\omega^{J(1)})^6 & (\omega^{J(0)})^6 & (\omega^{J_*(3)})^6 & (\omega^{J_*(2)})^6 & (\omega^{J_*(1)})^6 & (\omega^{J_*(0)})^6\\
+(\omega^{J(3)})^7 & (\omega^{J(2)})^7 & (\omega^{J(1)})^7 & (\omega^{J(0)})^7 & (\omega^{J_*(3)})^7 & (\omega^{J_*(2)})^7 & (\omega^{J_*(1)})^7 & (\omega^{J_*(0)})^7\\
+\end{bmatrix}$ 
+
+$ \equiv \begin{bmatrix}
+1 & 1 & 1 & 1 & 1 & 1 & 1 & 1\\
+12&14&5&3&10&11&7&6\\
+8&9&8&9&15&2&15&2\\
+11&7&6&10&14&5&3&12\\
+13&13&13&13&4&4&4&4\\
+3&12&14&5&6&10&11&7\\
+2&15&2&15&9&8&9&8\\
+7&6&10&11&5&3&12&14\\
+\end{bmatrix} \bmod{17}$ 
+
+$ $ 
+
+$\hathat{W}^* = \begin{bmatrix}
+1 & \omega^{J(0)} & (\omega^{J(0)})^2 & (\omega^{J(0)})^3 & (\omega^{J(0)})^4 & (\omega^{J(0)})^5 & (\omega^{J(0)})^6 & (\omega^{J(0)})^7\\
+1 & \omega^{J(1)} & (\omega^{J(1)})^2 & (\omega^{J(1)})^3 & (\omega^{J(1)})^4& (\omega^{J(1)})^5& (\omega^{J(1)})^6& (\omega^{J(1)})^7\\
+1 & \omega^{J(2)} & (\omega^{J(2)})^2 & (\omega^{J(2)})^3 & (\omega^{J(2)})^4 & (\omega^{J(2)})^5 & (\omega^{J(2)})^6 & (\omega^{J(2)})^7\\
+1 & \omega^{J(3)} & (\omega^{J(3)})^2 & (\omega^{J(3)})^3 & (\omega^{J(3)})^4& (\omega^{J(3)})^5& (\omega^{J(3)})^6& (\omega^{J(3)})^7\\
+1 & \omega^{J_*(0)} & (\omega^{J_*(0)})^2 & (\omega^{J_*(0)})^3 & (\omega^{J_*(0)})^4 & (\omega^{J_*(0)})^5 & (\omega^{J_*(0)})^6 & (\omega^{J_*(0)})^7\\
+1 & \omega^{J_*(1)} & (\omega^{J_*(1)})^2 & (\omega^{J_*(1)})^3 & (\omega^{J_*(1)})^4& (\omega^{J_*(1)})^5& (\omega^{J_*(1)})^6& (\omega^{J_*(1)})^7\\
+1 & \omega^{J_*(2)} & (\omega^{J_*(2)})^2 & (\omega^{J_*(2)})^3 & (\omega^{J_*(2)})^4 & (\omega^{J_*(2)})^5 & (\omega^{J_*(2)})^6 & (\omega^{J_*(2)})^7\\
+1 & \omega^{J_*(3)} & (\omega^{J_*(3)})^2 & (\omega^{J_*(3)})^3 & (\omega^{J_*(3)})^4& (\omega^{J_*(3)})^5& (\omega^{J_*(3)})^6& (\omega^{J_*(3)})^7\\
+\end{bmatrix}$
+
+$ \equiv \begin{bmatrix}
+1&3&9&10&13&5&15&11\\
+1&5&8&6&13&14&2&10\\
+1&14&9&7&13&12&15&6\\
+1&12&8&11&13&3&2&7\\
+1&6&2&12&4&7&8&14\\
+1&7&15&3&4&11&9&12\\
+1&11&2&5&4&10&8&3\\
+1&10&15&14&4&6&9&5\\
+\end{bmatrix}  \bmod{17}$
+
+$ $
+
+$ $
+
+注意，定理~\ref*{subsec:vandermonde-euler-integer-ring}（位于 \autoref{subsec:vandermonde-euler-integer-ring}）可以验证如下：
+
+$\hathat{W}^* \cdot \hathat{W} = \begin{bmatrix}
+1&3&9&10&13&5&15&11\\
+1&5&8&6&13&14&2&10\\
+1&14&9&7&13&12&15&6\\
+1&12&8&11&13&3&2&7\\
+1&6&2&12&4&7&8&14\\
+1&7&15&3&4&11&9&12\\
+1&11&2&5&4&10&8&3\\
+1&10&15&14&4&6&9&5\\
+\end{bmatrix} \cdot \begin{bmatrix}
+1 & 1 & 1 & 1 & 1 & 1 & 1 & 1\\
+12&14&5&3&10&11&7&6\\
+8&9&8&9&15&2&15&2\\
+11&7&6&10&14&5&3&12\\
+13&13&13&13&4&4&4&4\\
+3&12&14&5&6&10&11&7\\
+2&15&2&15&9&8&9&8\\
+7&6&10&11&5&3&12&14\\
+\end{bmatrix}$
+
+$ = \begin{bmatrix}
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 8\\
+0 & 0 & 0 & 0 & 0 & 0 & 8 & 0\\
+0 & 0 & 0 & 0 & 0 & 8 & 0 & 0\\
+0 & 0 & 0 & 0 & 8 & 0 & 0 & 0\\
+0 & 0 & 0 & 8 & 0 & 0 & 0 & 0\\
+0 & 0 & 8 & 0 & 0 & 0 & 0 & 0\\
+0 & 8 & 0 & 0 & 0 & 0 & 0 & 0\\
+8 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\end{bmatrix} = n I_n^{R} \pmod{17}$
+
+$ $
+
+现在，假设要对 $\mathbb{Z}_{17}$ 中的以下输入向量（即输入向量槽位）进行编码：
+
+$\vec{v} = (1, 2, 3, 4, 5, 6, 7, 8)$
+
+将这一向量向左旋转 3 个位置（即前半部分槽位与后半部分槽位分别在各自的组内循环回绕），得到一个新向量：
+
+$\vec{v}_r = (4, 1, 2, 3, 8, 5, 6, 7) \bmod 17$
+
+$ $
+
+$\vec{v}$ 的编码如下：
+
+$ $
+
+$\vec{m} = n^{-1} \hathat{W} \cdot I_n^R \cdot \vec{v} $
+
+$= 15 \cdot  \begin{bmatrix}
+1 & 1 & 1 & 1 & 1 & 1 & 1 & 1\\
+12&14&5&3&10&11&7&6\\
+8&9&8&9&15&2&15&2\\
+11&7&6&10&14&5&3&12\\
+13&13&13&13&4&4&4&4\\
+3&12&14&5&6&10&11&7\\
+2&15&2&15&9&8&9&8\\
+7&6&10&11&5&3&12&14\\
+\end{bmatrix} \cdot \begin{bmatrix}
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1\\
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0\\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0\\
+0 & 0 & 0 & 0 & 1 & 0 & 0 & 0\\
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0\\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0\\
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0\\
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\end{bmatrix} \cdot \begin{bmatrix}
+1\\
+2\\
+3\\
+4\\
+5\\
+6\\
+7\\
+8\\
+\end{bmatrix}$
+
+$ \equiv (13, 16, 10, 5, 9, 12, 7, 1)  \bmod 17$
+
+
+$ $
+
+$\Delta M(X) = 15\cdot(13 + 16X + 10X^2 + 5X^3 + 9X^4 + 12X^5 + 7X^6 + X^7)$
+
+
+$ = 195 + 240X + 150X^2 + 75X^3 + 135X^4 + 180X^5 + 105X^6 + 15X^7 \pmod{q}$ \textcolor{red}{ $\rhd$ 其中 $q = 256$}
+
+$ $
+
+这一多项式与 $\Delta M(X^{J(3)})$ 的值一致，如下所示：
+
+$\Delta M(X^{J(3)}) = \Delta M(X^{13}) $
+
+$= 195 + 180X - 150X^2 - 15X^3 + 135X^4 - 240X^5 - 105X^6 + 75X^7 \pmod{q}$
+
+$ $
+
+
+
+%Note that the coefficients of the scaled polynomials $\Delta M(X^{J(3)})$ are still within the range of the ciphertext domain $q=64$ (which must hold throughout all homomorphic computations to preserve correctness). 
+
+现在，按如下方式解码 $M(X^{J(3)})$：
+
+$\vec{m}_{J(3)} = \dfrac{\Delta \vec{m}_{J(3)}}{\Delta} = \dfrac{(195, 180, -150, -15, 135, -240, -105, 75)}{15} = (13, 12, -10, -1, 9, -16, -7, 5) \pmod{17}$
+
+$ $
+
+
+$\vec{v}_{J(3)} = \hathat{W}^* \cdot \vec{m}_{J(3)} = \begin{bmatrix}
+1&3&9&10&13&5&15&11\\
+1&5&8&6&13&14&2&10\\
+1&14&9&7&13&12&15&6\\
+1&12&8&11&13&3&2&7\\
+1&6&2&12&4&7&8&14\\
+1&7&15&3&4&11&9&12\\
+1&11&2&5&4&10&8&3\\
+1&10&15&14&4&6&9&5\\
+\end{bmatrix} \cdot \begin{bmatrix}
+13\\
+12\\
+-10\\
+-1\\
+9\\
+-16\\
+-7\\
+5\end{bmatrix}$
+
+$= (4, 1, 2, 3, 8, 5, 6, 7) \pmod{17}$
+
+$= \vec{v}_r$
+
+$ $
+
+解码得到的 $\vec{v}_{J(3)}$ 与预期的旋转后输入向量 $\vec{v}_r$ 一致。
+
+
+$ $
+
+在实际中，我们不会直接将 $\Delta M(X)$ 更新为 $\Delta M(X^{J(3)})$，因为除非持有秘密密钥 $S(X)$，否则无法访问明文多项式 $M(X)$。因此，转而将 $\textsf{ct}=\bm(A(X), B(X)\bm)$ 更新为 $\textsf{ct}^{\langle h=3 \rangle}=\bm(A(X^{J(3)}), B(X^{J(3)})\bm)$，这等价于对加密的输入向量槽位进行同态旋转。然后，对 $\textsf{ct}^{\langle h=3 \rangle}$ 解密并解码，即可输出 $\vec{v}_r$。
+
+$ $
+
+
+
+
+\para{源代码：} 运行 \href{https://github.com/fhetextbook/fhe-textbook/blob/main/source%20code/bfv.py}{\underline{这个 Python 脚本}}（BFV 加法）和 \href{https://github.com/fhetextbook/fhetextbook.github.io/blob/main/source%20code/bfv_rotation_only.py}{\underline{这个脚本}}（仅 BFV 旋转），可以执行 BFV 批量编码和同态输入向量旋转的示例。
+
+
+
+\subsection{应用：矩阵乘法}
+\label{subsec:bfv-matrix-multiplication}
+
+BFV 无法直接简洁地实现两个向量之间的同态点积（即 $\vec{v}_1 \cdot \vec{v}_2$），因为向量点积的最后一步需要对所有槽位的中间值求和（即 $v_{1,1}v_{2,1} + v_{1,2}v_{2,2} + \cdots + v_{1,n}v_{2,n}$）。然而，BFV 批量编码中的各个槽位相互独立，不能简单地跨槽位（即输入向量元素）求和。为此，需要 $n$ 份相乘后的密文，并通过多次旋转运算将其槽位正确对齐，再将它们相加。另一方面，在同态计算明文矩阵与加密向量的乘积时，可以有效利用同态输入向量槽位旋转方案。回顾给定的矩阵 $A$ 和向量 $\vec{x}$（\autoref{subsec:matrix-arithmetic} 中的定义~\ref*{subsec:matrix-arithmetic}）：
+
+$A = \begin{bmatrix}
+ a_{\langle 0, 0\rangle} & a_{\langle 0, 1\rangle} & a_{\langle 0, 2\rangle} & \cdots & a_{\langle 0, n-1\rangle}\\
+ a_{\langle 1, 0\rangle} & a_{\langle 1, 1\rangle} & a_{\langle 1, 2\rangle} & \cdots & a_{\langle 1, n-1\rangle} \\
+ a_{\langle 2, 0\rangle} & a_{\langle 2, 1\rangle} & a_{\langle 2, 2\rangle} & \cdots & a_{\langle 2, n-1\rangle} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+ a_{\langle m-1, 0\rangle} & a_{\langle m-1, 1\rangle} & a_{\langle m-1, 2\rangle} & \cdots & a_{\langle m-1, n-1\rangle} \\
+\end{bmatrix} = \begin{bmatrix} 
+\vec{a}_{\langle 0, * \rangle} \\ 
+\vec{a}_{\langle 1, * \rangle} \\ 
+\vec{a}_{\langle 2, * \rangle} \\ 
+\vdots\\
+\vec{a}_{\langle m-1, * \rangle} \\ 
+\end{bmatrix}, \text{ } \vec{x} = (x_0, x_1, \cdots, x_{n-1})$
+
+$ $
+
+$A \cdot \vec{x}$ 的结果是一个 $m$ 维向量，计算方式如下：
+
+$A \cdot \vec{x} = \Big(\vec{a}_{\langle 0, * \rangle} \cdot \vec{x}, \text{ } \vec{a}_{\langle 1, * \rangle} \cdot \vec{x}, \text{ }\cdots,\text{ } \vec{a}_{\langle m-1, * \rangle} \cdot \vec{x} \Big) = \left(\sum\limits_{i=0}^{n-1} a_{0, i} \cdot  x_i, \text{ } \sum\limits_{i=0}^{n-1}  a_{1, i} \cdot x_i, \cdots, \text{ } \sum\limits_{i=0}^{n-1} a_{m-1, i} \cdot x_i \right)$
+
+$ $
+
+将 $\vec{v}$ 向左旋转 $h$ 个位置后的结果定义为 $\rho(\vec{v}, h)$。回顾 Hadamard 乘积（\autoref{subsec:vector-arithmetic} 中的定义~\ref*{subsec:vector-arithmetic}），它定义为两个向量逐槽位相乘：
+
+$\vec{a} \odot \vec{b} = (a_0 b_0, \text{ } a_1 b_1, \text{ } \cdots, \text{ } a_{n-1} b_{n-1})$
+
+$ $
+
+从矩阵 $A$ 中提取 $n$ 个不同的对角向量 $\vec{u}_i$，定义如下：
+
+$\vec{u}_i = \{a_{\langle j \bmod m, \text{ } (i + j)\bmod n \rangle}\}_{j = 0}^{n-1}$
+
+$ $
+
+那么，原始矩阵与向量相乘的公式可以等价地构造如下：
+
+$A \cdot \vec{x} = \vec{u}_0 \odot \rho(\vec{x}, 0) \text{ } + \text{ } \vec{u}_1 \odot \rho(\vec{x}, 1) \text{ } + \text{ } \cdots \text{ } + \text{ } \vec{u}_{n-1} \odot \rho(\vec{x}, n-1)$
+
+，其计算结果等价于 $A \cdot \vec{x}$。
+上述公式可以用于同态计算，因为 BFV 支持通过输入向量的多项式编码形式之间的密文与明文相乘，计算输入向量的 Hadamard 乘积（\autoref{subsec:bfv-mult-plain}）；BFV 也支持将 $\rho(\vec{v}, h)$ 作为同态输入向量槽位旋转来计算（\autoref{subsec:bfv-rotation}）。在同态计算上述公式后，只需使用所得输入向量的前 $m$ 个槽位（共 $n$ 个槽位）来存储 $A \cdot \vec{x}$ 的结果。
+
+
+
+\subsection{噪声自举}
+\label{subsec:bfv-bootstrapping}
+
+\noindent \textbf{- 参考资料 1：}
+\href{https://eprint.iacr.org/2022/1363.pdf}{重新审视 BGV 与 BFV 的自举}~\cite{cryptoeprint:2022/1363}
+
+
+\noindent \textbf{- 参考资料 2：}
+\href{https://eprint.iacr.org/2014/873.pdf}{HELib 的自举}~\cite{10.1007/s00145-020-09368-7}
+
+\noindent \textbf{- 参考资料 3：}
+\href{https://arxiv.org/pdf/1906.02867}{关于自举中低位提取多项式的说明}~\cite{huo2019notelowerdigitsextraction}
+
+\noindent \textbf{- 参考资料 4：}
+\href{https://eprint.iacr.org/2024/1587.pdf}{采用分圆素数模数的全同态加密}~\cite{cryptoeprint:2024/1587}
+
+%\noindent \textbf{- Reference 4:} 
+%\href{https://s-space.snu.ac.kr/bitstream/10371/152893/1/000000155273.pdf}{Bootstrapping Methods for Homomorphic Encryption}
+
+%\noindent \textbf{- Reference 5:} 
+%\href{https://www.esat.kuleuven.be/cosic/publications/thesis-418.pdf}{Bootstrapping Algorithms for BGV and FV}
+
+$ $
+
+在 BFV 中，连续进行密文与密文相乘会使噪声以乘法方式增长；一旦噪声溢出到消息位，消息就会遭到破坏。自举是重置已增长噪声的过程。
+
+\subsubsection{总体思路}
+\label{subsubsec:bfv-bootstrapping-high-level}
+
+本小节假设明文模数 $t = p$ 为素数。虽然可以将 $t$ 推广为 $t = p^r$，其中 $r \in \mathbb{Z}$ 且 $r \geq 1$（\autoref{subsec:bfv-enc-dec} 中的小结~\ref*{subsec:bfv-enc-dec}），但为简便起见，先在 $t=p$ 的假设下说明 BFV 的自举，最后再将 $t$ 推广为 $t = p^r$。
+
+BFV 自举的核心思想是同态求值一个特殊多项式 $G_\varepsilon(x)$，它是模 $p^\varepsilon$ 的数位提取多项式（其中 $\varepsilon$ 为某个正整数）。$G_\varepsilon(x)$ 的输入是带噪声的模 $p^\varepsilon$ 明文值，输出则是无噪声的模 $p^\varepsilon$ 明文值，并向右移动了一个 $p$ 进制数位。在这一过程中，位于 $p$ 进制（素数进制）表示最低位的噪声被清零，再向右移位。例如，$G_\varepsilon(3p^3 + 4p^2 + 6p + 2) = 3p^2 + 4p^1 + 6 \bmod p^\varepsilon$。如果噪声占据 $p$ 进制表示中最低的 $\varepsilon-1$ 个数位，就可以连续 $\varepsilon-1$ 次递归地对 $G_\varepsilon(x)$ 进行同态求值，将输入 $x$ 的最低 $\varepsilon-1$ 个（$p$ 进制）数位清零并移除。要通过 $G_\varepsilon(x) \bmod p^\varepsilon$ 对含噪声明文进行同态求值，首先需要将明文模数从 $t$ 切换为 $p^\varepsilon$，其中 $q \gg p^{\varepsilon} > p = t$。$\varepsilon$ 越大，噪声越有可能成功清零，但计算开销也越大。如果 $\varepsilon$ 较小，计算会更快，但噪声与明文之间的数位距离会缩短，可能在自举过程中破坏明文，因为移除噪声的最高位时，也可能同时移除明文的最低位。因此，必须谨慎选择 $\varepsilon$。
+
+$ $
+
+BFV 自举过程的技术细节如下。假设有一个 RLWE 密文 $(A, B)  = \textsf{RLWE}_{S, \sigma}\bm(\Delta M\bm) \bmod q$，其中 $A\cdot S + B = \Delta M + E$，\text{ } $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$，且 $t = p$（即明文模数为素数）。
+
+\begin{enumerate}
+\item \textbf{模数切换（\boldmath$q \rightarrow p^\varepsilon$）：} 将密文模数从 $(A, B) \bmod q$ 缩小到 $\left(\left\lceil \dfrac{p^\varepsilon}{q}\cdot A\right\rfloor, \left\lceil \dfrac{p^\varepsilon}{q}\cdot B\right\rfloor\right) = (A', B') \bmod p^\varepsilon$，其中 $p^\varepsilon \ll q$。这次模数切换的目的是将明文模数改为 $p^\varepsilon$，这是使用数位提取多项式 $G_\varepsilon(x)$ 所必需的（因为需要将 $G_\varepsilon(x)$ 的输入表示为 $p$ 进制数，才能将其理解为一个 $\bmod p^\varepsilon$ 值）。注意，$\textsf{RLWE}_{S, \sigma}^{-1}\bm(\textsf{ct} = (A', B') \bm) = p^{\varepsilon-1}M + E'$，其中 $E' \approx \dfrac{p^\varepsilon}{q}\cdot E  + \left(\left\lfloor\dfrac{q}{p}\right\rfloor\cdot\dfrac{p^\varepsilon}{q} - p^{\varepsilon-1}\right)\cdot M$ \textcolor{red}{ $\rhd$ $E \rightarrow E'$ 的模数切换误差，加上明文尺度因子 $\left\lfloor\dfrac{q}{t}\right\rfloor \rightarrow p^{\varepsilon-1}$ 的模数切换误差}
+
+$ $
+
+\item \textbf{同态解密：} 假设有\textit{自举密钥} $\textsf{RLWE}_{\Delta' S, \sigma}(S) \bmod q$，它是用 $S$（自身）对秘密密钥 $S$ 进行加密得到的密文，模数为 $q$，明文尺度因子为 $\Delta'$。利用这一\textit{加密的}秘密密钥，对 $(A', B')$ 进行如下\textit{同态}解密：
+
+$A' \cdot \textsf{RLWE}_{S, \sigma}\bm(\Delta' S\bm) + B'$ \textcolor{red}{ $\rhd$ 其中，$\textsf{RLWE}_{S, \sigma}(\Delta' S)$ 是一个模 $q$ 密文，它加密的是尺度因子为 $\Delta' = \dfrac{q}{p^\varepsilon}$ 的模 $p^\varepsilon$ 明文 $S$ }
+
+$ $
+
+$= \textsf{RLWE}_{S, \sigma}\bm(\Delta' (A' \cdot S)\bm) + B'  \bmod q$
+
+$= \textsf{RLWE}_{S, \sigma}(\Delta' \cdot \bm(A'\cdot S + B')\bm) \bmod q$
+
+$ = \textsf{RLWE}_{S, \sigma}\bm(\Delta' \cdot (p^{\varepsilon-1} M  + E' + Kp^\varepsilon)\bm) \bmod q$ \textcolor{red}{ $\rhd$ $K$ 是某个整数多项式，用于表示越过 $p^\varepsilon$ 发生回绕的系数值}
+
+%$ $
+
+%$ = \textsf{RLWE}_{S, \sigma}\bm\left(\dfrac{q}{p} M  + \dfrac{q}{p^\varepsilon} E' + Kq\bm\right) \bmod q$
+
+%$ = \textsf{RLWE}_{S, \sigma}\bm\left(\dfrac{q}{p} M  + E'' + Kq\bm\right) \bmod q$ \textcolor{red}{ $\rhd$ where $E'' = \dfrac{q}{p^\varepsilon} E'$}
+
+$ $
+
+下面解释上述关系的推导过程。假设计算 $A'\cdot S + B' \bmod p^\varepsilon$，其输出为 $p^{\varepsilon-1}M + E'$。现在，不使用明文形式的秘密密钥 $S$，而是使用加密的秘密密钥 $\textsf{RLWE}_{S, \sigma}(\Delta' S)$，其中，$S$ 是模 $p^\varepsilon$ 的明文，其尺度因子为 $\Delta' = \left\lfloor\dfrac{q}{p^\varepsilon}\right\rfloor$，加密 $S$ 的密文则是模 $q$ 的。因此，同态计算 $A'\cdot \textsf{RLWE}_{S, \sigma}(\Delta' S) + B'$ 的结果将是对 $p^{\varepsilon-1}M + E' + Kp^\varepsilon$ 的加密，其中，$Kp^\varepsilon$ 表示因回绕而产生的 $p^\varepsilon$ 整数倍系数值。 %Finally, we replace $A'\cdot \textsf{RLWE}_{S, \sigma}(S)$ with $\langle \textsf{Decomp}^{\beta, l}(A'), \textsf{RLev}_{S, \sigma}^{\beta, l}(S)\rangle$, which is computationally equivalent to $A' \cdot \textsf{RLWE}_{S, \sigma}(S)$ but the noise becomes much smaller (we will explain why later in \autoref{subsubsec:bfv-bootstrapping-homomorphic-decryption}).
+
+注意，同态解密过程中并未对 $Kp^\varepsilon$ 进行模 $p^\varepsilon$ 约减（不执行模 $q$ 约减），因为这样的同态模约减无法直接完成。我们将在后面的数位提取步骤中处理 $Kp^\varepsilon$。
+
+
+为简洁起见，记 $Z = p^{\varepsilon-1} M + E' \bmod p^\varepsilon$。
+
+$ $
+
+\item \textbf{\textsf{CoeffToSlot}：} 将（加密的）多项式 $Z$ 的系数 $z_0, z_i, \cdots, z_{n-1}$ 移到 RLWE 密文的输入向量槽位中。具体通过以下计算完成：
+
+$\textsf{RLWE}_{S, \sigma}(Z) \cdot n^{-1}\cdot \hathat{W}\cdot I_R^n$
+
+，其中，$n^{-1}\cdot \hathat{W}\cdot I_R^n$ 是将输入向量槽位值转换为多项式系数的批量编码矩阵（\autoref{subsubsec:bfv-rotation-summary} 中的小结~\ref*{subsubsec:bfv-rotation-summary}）。
+
+$ $
+
+\item \textbf{数位提取：} 我们设计多项式 $G_\varepsilon(x)$（即数位提取多项式），使其在模 $p^{\varepsilon}$ 下将最低的一个或多个 $p$ 进制数位清零。数位提取过程对输入 $x$ 递归应用 $G_{2} \circ G_{3} \circ \cdots \circ G_{\varepsilon-1} \circ G_\varepsilon(x)$，消除输入 $x$ 最低的 $\varepsilon-2$ 个（$p$ 进制）数位，并向右移位。对于输入 $x$，假设噪声位于最低的 $\varepsilon-2$ 个（$p$ 进制）数位，而消息 $m$ 位于模 $p^{\varepsilon}$ 表示中较高的 $p$ 进制数位。因此，数位提取的效果是将 $p^{\varepsilon-1}m + e$ 的 $p$ 进制表示中最低的 $\varepsilon-1$ 个数位清零并删除（即向右移位）。这一数位提取以同态方式执行。在整个数位提取过程中，密文输入向量槽位中存储的带噪声缩放明文消息从 $p^{\varepsilon-1} M  + E' + Kp^\varepsilon$ 更新为 $M  + K'p$。数位提取还使用一种称为尺度因子重新解释的特殊方法：每轮数位提取时，在概念上将尺度因子 $\Delta'=\left\lfloor\dfrac{q}{p^\varepsilon}\right\rfloor$ 增大为 $\left\lfloor\dfrac{q}{p^\varepsilon-1}\right\rfloor, \left\lfloor\dfrac{q}{p^\varepsilon-2}\right\rfloor, \ldots, \left\lfloor\dfrac{q}{p}\right\rfloor$，这在概念上等价于将明文槽位中存储的缩放消息与噪声除以 $p$（即向右移动一个 $p$ 进制数位），如下所示：
+
+\textbf{输入：} $\left\lfloor\dfrac{q}{p^{\varepsilon}}\right\rfloor \cdot \left (p^{\varepsilon-1}M + E' + K p^{\varepsilon}\right )$
+
+\textbf{第 1 轮：} $\left\lfloor\dfrac{q}{p^{\varepsilon - 1}}\right\rfloor \cdot \left (p^{\varepsilon-2}M + \left\lfloor\dfrac{E'}{p}\right\rfloor + K p^{\varepsilon-1}\right )$
+
+\textbf{第 2 轮：} $\left\lfloor\dfrac{q}{p^{\varepsilon - 2}}\right\rfloor \cdot \left (p^{\varepsilon-3}M + \left\lfloor\dfrac{E'}{p^2}\right\rfloor + K p^{\varepsilon-2}\right )$
+
+$\vdots$
+
+\textbf{第 $\varepsilon-1$ 轮：} $\left\lfloor\dfrac{q}{p}\right\rfloor \cdot (M + K p)$
+
+
+$ $
+
+关键在于，尺度因子的重新解释不需要任何实际计算，只需改变解释密文的方式。稍后将对此进行详细说明。
+
+
+$ $
+
+
+\item \textbf{\textsf{SlotToCoeff}：} 以同态方式将每个输入向量槽位中的值移回（加密的）多项式系数位置。具体做法是将解码矩阵 $\hathat{W}^*$ 与密文同态相乘（\autoref{subsubsec:bfv-rotation-summary} 中的小结~\ref*{subsubsec:bfv-rotation-summary}）。这一步最终输出 $ = \textsf{RLWE}_{S, \sigma}\left(\left\lfloor\dfrac{q}{p}\right\rfloor M  + E^{\langle b \rangle}\right)$，其中，$E^{\langle \text{b} \rangle}$ 是在 \textsf{CoeffToSlot}、数位提取和 \textsf{SlotToCoeff} 的同态运算期间新产生的小噪声项。$E^{\langle \text{b} \rangle}$ 的大小固定，并小于 $E$ 和 $E'$。
+
+\end{enumerate}
+
+
+接下来将更详细地说明各个步骤。
+
+\subsubsection{模数切换}
+\label{subsubsec:bfv-bootstrapping-modulus-switch}
+
+BFV 自举的第一步是将模数从 $q$ 切换为某个素数幂模数 $p^\varepsilon$，其中 $p^\varepsilon \ll q$。假设自举前，加密的含噪声明文为 $\Delta M + E \bmod q$。按 $q \rightarrow p^\varepsilon$ 进行模数切换后，明文会缩小为 $p^{\varepsilon-1}M + E' \bmod p^\varepsilon$，其中，$E'$ 大致包含 $\left\lceil\dfrac{p^\varepsilon}{q} E\right\rfloor$ 与明文尺度因子 $\Delta \rightarrow p^{\varepsilon-1}$ 的模数切换噪声之和。BFV 自举的目标就是将噪声 $E'$ 清零。
+
+\subsubsection{同态解密}
+\label{subsubsec:bfv-bootstrapping-homomorphic-decryption}
+
+将模数切换后的含噪声明文记为 $Z = p^{\varepsilon-1}M + E' \bmod p^\varepsilon$。进一步将多项式 $Z$ 各次项的系数 $z_i$ 表示为如下 $p$ 进制数：
+
+$z_i = z_{i, \varepsilon-1}p^{\varepsilon-1} + z_{i, \varepsilon-2}p^{\varepsilon-2} + \cdots + z_{i,1}p + z_{i,0} \bmod p^\varepsilon$
+
+$ $
+
+那么，$z_i \bmod p^\varepsilon$ 是一个由 $\varepsilon$ 个数位构成的 $p$ 进制数：$\{z_{i,\varepsilon-1}, z_{i,\varepsilon-2}, \cdots, z_{i,0}\}$
+
+
+假设噪声的最高 $p$ 进制数位索引为 $\varepsilon-2$，它对应于噪声预算；纯明文部分仅位于 $p$ 进制数位索引 $\varepsilon-1$ 处（即模 $p^\varepsilon$ 表示中的最高 $p$ 进制数位）。在这一假设下，可通过以下计算提取无噪声明文：
+
+$\left\lceil \dfrac{z_i}{p^{\varepsilon-1}} \right\rfloor \bmod p = z_{i,\varepsilon-1}$ \textcolor{red}{ $\rhd$ 其中，假设噪声小于 $\dfrac{p^{\varepsilon-1}}{2}$}
+
+上述公式等价于将 $p$ 进制数 $z_i$ 向右移动 $\varepsilon-1$ 个数位（并对小数值进行舍入）。不过，回顾前文，除非拥有秘密密钥 $S$ 来解密存储该明文的密文，否则不能直接访问多项式 $Z = p^{\varepsilon-1}M + E' \bmod p^\varepsilon$。我们只能得到加密形式的 $Z$。具体而言，可以使用\textit{加密的}秘密密钥 $\textsf{RLWE}_{S, \sigma}(\Delta' S)$ 作为\textit{自举密钥}，对模数切换后的密文 $(A', B')$ 进行\textit{同态}解密。对于密文 $\textsf{RLWE}_{S, \sigma}(\Delta' S)$，其明文模数为 $p^\varepsilon$，明文尺度因子为 $\Delta' = \dfrac{q}{p^\varepsilon}$，密文模数为 $q$。利用加密秘密密钥 $S$，可对加密的 $Z$ 进行如下同态解密：
+
+
+$\left(\left\lceil \dfrac{p^\varepsilon}{q}\cdot A\right\rfloor, \left\lceil \dfrac{p^\varepsilon}{q}\cdot B\right\rfloor\right) = (A', B') \bmod p^\varepsilon$ 
+
+$ $
+
+$A' \cdot \textsf{RLWE}_{S, \sigma}\bm(\Delta' S\bm) + B' \bmod q$
+
+
+$= \textsf{RLWE}_{S, \sigma}\bm(\Delta' (A' \cdot S)\bm) + B' \bmod q$
+
+$= \textsf{RLWE}_{S, \sigma}(\Delta' \cdot \bm(A'\cdot S + B')\bm) \bmod q$
+
+$ = \textsf{RLWE}_{S, \sigma}\bm(\Delta' \cdot (p^{\varepsilon-1} M  + E' + Kp^\varepsilon)\bm) \bmod q$ \textcolor{red}{ $\rhd$ $K$ 是某个整数多项式，用于表示模 $p^\varepsilon$ 回绕所产生的 $p^\varepsilon$ 整数倍系数值}
+
+$ $
+
+$ = \textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm) \bmod q$
+
+$ $
+
+在这一同态解密过程中，我们并未对明文结果进行模 $p^\varepsilon$ 约减，因为同态解密使用 $A'$ 和 $B'$ 作为明文（明文模数为 $p^e$），使用 $\textsf{RLWE}_{S, \sigma}(\Delta' S)$ 作为密文（密文模数为 $q$），在密文模数 $q$ 下而非 $p^{\varepsilon}$ 下执行密文与明文相乘、相加。因此，同态解密后的明文中仍然保留回绕项 $Kp^\varepsilon$；我们将在自举的后续阶段处理这一项。还要注意，计算 $A'\cdot \textsf{RLWE}_{S, \sigma}(\Delta' S)$ 不会产生太多噪声，因为 $A'$ 是模 $p^\varepsilon$ 的明文，所以密文与明文相乘产生的新噪声为 $A' \cdot E_s$（其中，$E_s$ 是 $\textsf{RLWE}_{S, \sigma}(\Delta' S)$ 的加密噪声）。由于密文模数 $q \gg p^\varepsilon$，因此 $q \gg A' \cdot E_s$。
+
+得到 $\textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm)$ 后，接下来需要去除 $0 \leq i \leq n - 1$ 中每个 $z_i$ 的低 $\varepsilon-1$ 个数位（以 $p$ 进制表示）中的噪声。这等价于将含噪声的 $\textsf{RLWE}_{S, \sigma}(\Delta' Z) = \textsf{RLWE}_{S, \sigma}\bm(\Delta' \cdot (p^{\varepsilon-1} M  + E' + Kp^\varepsilon)\bm)$ 转换为无噪声的 $\textsf{RLWE}_{S, \sigma}\bm (\Delta M)\bm )$，其中 $\Delta = \dfrac{q}{p}$。BFV 为此设计一个 $p$ 次多项式函数，使其计算结果在逻辑上与 $\left\lceil \dfrac{z_i}{p^{\varepsilon-1}} \right\rfloor \bmod p$ 相同。稍后将介绍如何利用数位提取多项式 $G_\varepsilon(x)$（\autoref{subsubsec:bfv-bootstrapping-digit-extraction}）设计这一多项式。
+
+
+然而，给定密文 $\textsf{RLWE}_{S, \sigma}(\Delta' Z)$，为了在每个系数 $z_i$ 处对这一多项式进行\textit{同态}求值，需要将多项式 $Z$ 的每个系数 $z_i$ 移到 RLWE 密文的输入向量槽位中。这是因为，BFV 的同态批量 $(+, \cdot)$ 运算以密文的输入向量槽位为操作数。因此，需要基于密文输入向量槽位中存储的值来求值去噪多项式 $G_\varepsilon(x)$。
+
+下一小节将介绍 \textsf{CoeffToSlot} 过程，即以\textit{同态}方式将多项式系数移入密文输入向量槽位的过程。
+
+\subsubsection{\textsf{CoeffToSlot} 与 \textsf{SlotToCoeff}}
+\label{subsubsec:bfv-bootstrapping-coefftoslot}
+
+\textsf{CoeffToSlot} 步骤的目标是以同态方式将多项式 $Z$ 的系数 $z_i$ 移入输入向量槽位。
+
+
+在小结~\ref*{subsubsec:bfv-rotation-summary}（位于 \autoref{subsubsec:bfv-rotation-summary}）中，我们了解到，将输入槽位向量 $\vec{v}$ 转换为多项式系数向量 $\vec{m}$ 的编码公式为 $\vec{m} = n^{-1}\cdot\hathat{W} \cdot I_n^R \cdot \vec{v}$，其中，$\hathat{W}$ 是按如下方式构造的 $n$ 维向量空间的一组基：
+
+$\hathat{W} = \begin{bmatrix}
+1 & 1 & \cdots & 1 & 1 & 1 & \cdots & 1\\
+(\omega^{J(\frac{n}{2} - 1)}) & (\omega^{J(\frac{n}{2} - 2)}) & \cdots & (\omega^{J(0)}) & (\omega^{J_*(\frac{n}{2} - 1)}) & (\omega^{J_*(\frac{n}{2} - 2)}) & \cdots & (\omega^{J_*(0)})\\
+(\omega^{J(\frac{n}{2} - 1)})^2 & (\omega^{J(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J(0)})^2 & (\omega^{J_*(\frac{n}{2} - 1)})^2 & (\omega^{J_*(\frac{n}{2} - 2)})^2 & \cdots & (\omega^{J_*(0)})^2 \\
+\vdots & \vdots & \ddots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+(\omega^{J(\frac{n}{2} - 1)})^{n-1} & (\omega^{J(\frac{n}{2} - 2)})^{n-1} & \cdots & (\omega^{J(0)})^{n-1} & (\omega^{J_*(\frac{n}{2} - 1)})^{n-1} & (\omega^{J_*(\frac{n}{2} - 2)})^{n-1} & \cdots  & (\omega^{J_*(0)})^{n-1}
+\end{bmatrix}$
+
+$ $
+
+\textcolor{red}{ $\rhd$ 其中，旋转辅助函数为 $J(h) = 5^h \bmod 2n$}
+
+$ $
+
+因此，对于输入密文 $\textsf{ct} = \textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm) \bmod q$，可以将其输入向量槽位理解为存储了某些值，对它们乘以 $n^{-1}\cdot\hathat{W} \cdot I_n^R$ 后就得到多项式 $Z$ 的系数 $z_i$。这意味着，如果对 $\textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm)$ 的输入向量槽位\textit{同态}乘以 $n^{-1}\cdot\hathat{W} \cdot I_n^R$，那么所得密文的 $n$ 个输入向量槽位将包含 $Z$ 的 $n$ 个系数，等价于将 $Z$ 的系数移入输入向量槽位。因此，\textsf{CoeffToSlot} 步骤等价于同态计算 $n^{-1}\cdot\hathat{W} \cdot I_n^R \cdot \textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm)$。可以使用 \autoref{subsec:bfv-matrix-multiplication} 中介绍的技术同态计算矩阵与向量相乘。
+
+在 \textsf{CoeffToSlot} 步骤之后，可以通过对去噪多项式进行同态求值，消除每个 $z_i$ 的低 $\varepsilon-1$ 个（$p$ 进制）数位中的噪声；下一小节将介绍这一多项式。
+
+得到 $Z$ 的无噪声系数后，需要将它们从输入向量槽位移回原来的系数位置。这一步称为 \textsf{SlotToCoeff}，它恰好是 \textsf{CoeffToSlot} 的逆过程。由小结~\ref*{subsubsec:bfv-rotation-summary}（位于 \autoref{subsubsec:bfv-rotation-summary}）还可知，$n^{-1}\cdot\hathat{W} \cdot I_n^R$ 的逆矩阵为 $\hathat{W}^*$，其中：
+
+$\hathat{W}^* = \begin{bmatrix}
+1 & (\omega^{J(0)}) & (\omega^{J(0)})^2 & \cdots & (\omega^{J(0)})^{n-1}\\
+1 & (\omega^{J(1)}) & (\omega^{J(1)})^2 & \cdots & (\omega^{J(1)})^{n-1}\\
+1 & (\omega^{J(2)}) & (\omega^{J(2)})^2 & \cdots & (\omega^{J(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J(\frac{n}{2}-1)}) & (\omega^{J(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J(\frac{n}{2}-1)})^{n-1}\\
+1 & (\omega^{J_*(0)}) & (\omega^{J_*(0)})^2 & \cdots & (\omega^{J_*(0)})^{n-1}\\
+1 & (\omega^{J_*(1)}) & (\omega^{J_*(1)})^2 & \cdots & (\omega^{J_*(1)})^{n-1}\\
+1 & (\omega^{J_*(2)}) & (\omega^{J_*(2)})^2 & \cdots & (\omega^{J_*(2)})^{n-1}\\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & (\omega^{J_*(\frac{n}{2}-1)}) & (\omega^{J_*(\frac{n}{2}-1)})^2 & \cdots & (\omega^{J_*(\frac{n}{2}-1)})^{n-1}\\
+\end{bmatrix}$
+
+因此，\textsf{SlotToCoeff} 步骤等价于将去噪多项式求值的输出同态乘以 $\hathat{W}^*$。
+
+下一小节将学习如何基于数位提取多项式 $G_\varepsilon(x)$，设计 BFV 的核心算法——去噪多项式。
+
+
+\subsubsection{数位提取}
+\label{subsubsec:bfv-bootstrapping-digit-extraction}
+
+
+回顾前文，将多项式 $Z$ 定义为缩放后的含噪声明文：$Z = p^{\varepsilon-1}M + E' + Kp^\varepsilon \equiv p^{\varepsilon-1}M + E' \bmod p^\varepsilon$，每个 $z_i$ 是 $Z$ 的第 $i$ 个系数（其中 $0 \leq i \leq n -1$）。数位提取步骤的目标是以同态方式将每个 $z_i$ 的低 $\varepsilon-1$ 个（$p$ 进制）数位清零并删除（即向右移位），这些数位中存放着噪声。%, and shift the resulting number by 1 digit to the right.
+
+首先，始终将 $z_i$ 视为如下 $p$ 进制表示（因为它是一个模 $p^\varepsilon$ 值）：
+
+$z_i = z_{i, \varepsilon-1}p^{\varepsilon-1} + z_{i, \varepsilon-2}p^{\varepsilon-2} + \cdots + z_{i, 2}p^2 + z_{i, 1}p + z_{i, 0} \bmod p^\varepsilon$
+
+$ $
+
+接下来，定义一种新记法，以另一种方式表示 $z_i$：
+
+$z_i = d_0 + d_*p^{\varepsilon'}$
+
+，其中，$d_0 \in \mathbb{Z}_p$，且 $d_* \in \mathbb{Z}$；$\varepsilon'$ 是 $z_i$ 在索引 0 之后，最低非零 $p$ 进制数位的索引。因此，每个 $z_i \in \mathbb{Z}_{p^\varepsilon}$ 都对应一组唯一的 $(d_0, d_*, \varepsilon')$。
+
+
+接下来，根据 $z_i$ 及其对应的 $(d_0, d_*, \varepsilon')$，定义\textit{提升}多项式 $F_{\varepsilon'}$：
+
+$F_{\varepsilon'}(z_i) \equiv d_0 \bmod p^{\varepsilon'+1}$
+
+%, where $F_{\varepsilon'}(z_i)$ satisfies the above relation for all $\varepsilon'$ values such that $1 \leq \varepsilon' \leq e - 1$. 
+用文字解释，$F_{\varepsilon'}(z_i)$ 按如下方式处理 $z_i$：保持 $z_{i,0}$（即 $z_{i}$ 在 $p$ 进制数位索引 0 处的值）不变，然后找到下一个最低非零 $p$ 进制数位（其索引记为 $\varepsilon'$）并将其清零。在此过程中，其后更高的 $p$ 进制数位可能被更新为任意值（即该函数不关心 $p$ 进制数位索引高于 $\varepsilon'$ 的那些值，因为它们已超出模 $p^{\varepsilon' + 1}$ 的范围）。
+
+下面通过一个例子，说明对 $z_i$ 连续递归应用 $F_{\varepsilon'}$ 函数共 $\varepsilon-1$ 次时，它将如何更新：
+
+$\underbrace{F_{\varepsilon-1} \cdots F_{3} \circ F_{2} \circ  F_{1}}_{\varepsilon-1 \text{ 次}}(z_i)$
+
+$ $
+
+\para{第 1 次递归：} $F_{1}(z_i) = c_{i,\varepsilon-1}p^{\varepsilon-1} + c_{i,\varepsilon-2}p^{\varepsilon-2} + \cdots + c_{i, 2}p^2 + 0p + z_{i, 0} \bmod p^\varepsilon$
+
+\textcolor{red}{ $\rhd$ $F_{1}(z_i) \equiv z_{i,0} \bmod p^2$}
+
+$ $
+
+\para{第 2 次递归：} $F_{2} \circ F_{1}(z_i) = c'_{i,\varepsilon-1}p^{\varepsilon-1} + c'_{i,\varepsilon-2}p^{\varepsilon-2} + \cdots + 0p^2 + 0p + z_{i, 0} \bmod p^\varepsilon$
+
+\textcolor{red}{ $\rhd$ $F_{1} \circ F_{2}(z_i) \equiv z_{i,0} \bmod p^3$} 
+
+$ $
+
+\para{第 3 次递归：} $F_{3} \circ F_{2} \circ F_{1}(z_i) = c''_{i,\varepsilon-1}p^{\varepsilon-1} + c''_{i,\varepsilon-2}p^{\varepsilon-2} + \cdots + 0p^3 + 0p^2 + 0p + z_{i, 0} \bmod p^\varepsilon$
+
+\textcolor{red}{ $\rhd$ $F_{3} \circ F_{2} \circ F_{1}(z_i) \equiv z_{i,0} \bmod p^4$} 
+
+$\vdots$
+
+\para{第 $\bm{(\varepsilon-1)}$ 次递归：} $\underbrace{F_{\varepsilon-1}  \circ \cdots \circ F_{3} \circ F_{2} \circ F_{1}}_{\varepsilon-1 \text{ 次}}(z_i) = 0p^{\varepsilon-1} + 0p^{\varepsilon-2} + \cdots + 0p^2 + 0p + z_{i, 0} \bmod p^\varepsilon$
+
+\textcolor{red}{ $\rhd$ $F_{\varepsilon-1} \cdots F_{3} \circ F_{2} \circ F_{1}(z_i) \equiv z_{i,0} \bmod p^\varepsilon$} 
+
+$ $
+
+
+
+在上述递归计算中，注意函数 $F_{\varepsilon'}$ 的使用顺序特意选为 $F_{1} \rightarrow F_{2} \rightarrow F_{3} \rightarrow \cdots \rightarrow F_{\varepsilon -1}$。之所以选择这一顺序，是因为假设对于初始输入 $z_i$，我们不知道其对应的 $\varepsilon'$ 值（即索引 0 之后最低非零 $p$ 进制数位的索引）。选择顺序 $F_{1} \rightarrow F_{2} \rightarrow F_{3} \rightarrow \cdots \rightarrow F_{\varepsilon -1}$ 后，无论 $z_i$ 取何值，都能统一保证最终输出为 $z_{i,0} \bmod p^\varepsilon$（即 $p$ 进制数位索引 0 处的值）。
+
+$ $
+
+现在，将数位提取函数 $G_{\varepsilon, v}(z_i)$ 定义如下：
+
+$G_{\varepsilon}(z_i) = \left\lfloor\dfrac{z_i}{p}\right\rfloor_p = (z_i - (\underbrace{F_{\varepsilon-1}  \circ F_{\varepsilon-2}  \circ F_{\varepsilon-3}  \cdots \circ F_{3} \cdots \circ F_{2}  \cdots \circ F_{1}}_{\varepsilon - 1 \text{ 次}}(z_i)) \cdot |p^{-1}|_{q} $
+
+
+，其中，$\left\lfloor\right\rfloor_p$ 表示除以 $p$，再向下舍入到最近的 $p$ 的整数倍。用文字解释，$G_{\varepsilon, v}(z_i)$ 等价于将 $z_i$ 最低的 $p$ 进制数位清零，再向右移动一个 $p$ 进制数位。移位通过乘以 $p$ 的逆元（即 $|p^{-1}|_{q}$）完成。注意，$z_i - (F_{\varepsilon-1}  \circ F_{\varepsilon-2}  \circ F_{\varepsilon-3}  \cdots \circ F_{1}(z_i))$ 的最后一个 $p$ 进制数位为 0，因此可以被 $p$ 整除。于是，乘以逆元 $p$ 具有精确除法的效果（即将整个 $p$ 进制表示向右移动一个数位）。逆元 $p$ 采用模 $q$，是因为当前处于 BFV 密文关系 $\textsf{CoeffToSlot}\bm((A', B')\bm) = (A^{\langle c\rightarrow s \rangle}, B^{\langle c\rightarrow s \rangle}) \bmod q$ 下，其明文槽位存储 $\Delta' \cdot (p^{\varepsilon - 1}M + E' + K^{\langle 1 \rangle}p^{\varepsilon}) \bmod q$ 的系数。在第 1 轮数位提取中同态计算 $(z_i - (F_{\varepsilon-1}  \circ F_{\varepsilon-2}  \circ F_{\varepsilon-3}  \cdots \circ F_{3} \cdots \circ F_{2}  \cdots \circ F_{1})$ 后，密文更新为 $(A^{\langle g_1 \rangle}, B^{\langle g_1 \rangle}) \bmod q$，其明文槽位存储 $\Delta' \cdot (p^{\varepsilon - 1}M + \lfloor E' \rfloor_p + K^{\langle 1 \rangle}p^{\varepsilon}) \bmod q$ 的系数，其中，$\lfloor E' \rfloor_p$ 等价于将 $E'$ 向下舍入到最近的 $p$ 的整数倍。此时（即第 1 轮乘以 $p$ 的逆元之前），密文满足以下关系：
+
+$A^{\langle g_1 \rangle}\cdot S  + B^{\langle g_1 \rangle} = \Delta' \cdot (p^{\varepsilon - 1}M + \left\lfloor{E'}\right\rfloor_p + K^{\langle 1 \rangle}p^{\varepsilon}) + E^{\langle g_1 \rangle} \bmod q$
+
+
+$ $
+
+，其中，$E^{\langle g_1 \rangle}$ 是 \textsf{SlotToCoeff} 步骤与第 1 轮数位提取前半部分的合并噪声。可以考虑将关系两边同时乘以 $|p^{-1}|_q$，从而把 $p^{\varepsilon - 1}M, \left\lfloor{E'}\right\rfloor_p,$ 和 $K^{\langle 1 \rangle}p^{\varepsilon}$ 缩小 $p$ 倍。然而，这会导致噪声爆炸，因为这一缩放也会作用于 $E^{\langle g_1 \rangle}$ 项，而 $|p^{-1}|_qE^{\langle g_1 \rangle}$ 是一个巨大的值。为了只对所需项选择性地应用 $p$ 的逆元乘法，我们采用尺度因子重新解释技术。
+
+$ $
+
+
+\para{尺度因子重新解释：} 虽然此前说明 $G_{\varepsilon}$ 涉及乘以 $|p^{-1}|_{q}$，但实际实现时会跳过这一乘法，转而在 $\varepsilon-1$ 轮数位提取期间，从概念上将尺度因子 $\Delta'$ 重新解释为 $\left\lfloor\dfrac{q}{p^\varepsilon}\right\rfloor \rightarrow \left\lfloor\dfrac{q}{p^\varepsilon-1}\right\rfloor \rightarrow \left\lfloor\dfrac{q}{p^\varepsilon-2}\right\rfloor \rightarrow \cdots, \left\lfloor\dfrac{q}{p}\right\rfloor$。在这一重新解释过程中，每一步在尺度因子分母中减少的 $p$，会在概念上重新放回括号内。采用尺度因子重新解释后，数位提取过程如下（每轮无需显式乘以 $|p^{-1}|_q$）：
+
+
+\textbf{输入：} $\left\lfloor\dfrac{q}{p^{\varepsilon}}\right\rfloor \cdot (p^{\varepsilon - 1}M + E' + Kp^{\varepsilon}) \bmod q$
+
+\textbf{第 1 轮：} $G_{\varepsilon}(z_i) \xRightarrow{\text{效果}} \left\lfloor\dfrac{q}{p^{\varepsilon-1}}\right\rfloor \cdot (p^{\varepsilon - 2}M + \left\lfloor\dfrac{E'}{p}\right\rfloor + K^{\langle 1 \rangle}p^{\varepsilon-1}) \bmod q$
+
+\textbf{第 2 轮：} $G_{\varepsilon-1} \circ G_{\varepsilon}(z_i) \xRightarrow{\text{效果}} \left\lfloor\dfrac{q}{p^{\varepsilon-2}}\right\rfloor \cdot (p^{\varepsilon - 3}M + \left\lfloor\dfrac{E'}{p^2}\right\rfloor + K^{\langle 2 \rangle}p^{\varepsilon-2}) \bmod q$
+
+\textbf{第 3 轮：} $G_{\varepsilon-2} \circ G_{\varepsilon-1} \circ G_{\varepsilon}(z_i)  \xRightarrow{\text{效果}} \left\lfloor\dfrac{q}{p^{\varepsilon-3}}\right\rfloor \cdot (p^{\varepsilon - 4}M + \left\lfloor\dfrac{E'}{p^3}\right\rfloor + K^{\langle 3 \rangle}p^{\varepsilon-3}) \bmod q$
+
+$\vdots$
+
+\textbf{第 $\bm{\varepsilon - 1}$ 轮：} $G_{2}\circ \cdots \circ G_{\varepsilon} (z_i) \xRightarrow{\text{效果}} \left\lfloor\dfrac{q}{p}\right\rfloor \cdot (M + K^{\langle \varepsilon - 1 \rangle}p)  \bmod q$
+
+
+
+$ $
+
+
+
+$ $
+
+
+注意，尺度因子重新解释不涉及任何实际计算，只改变我们解释尺度因子的方式。最后一轮结束时，明文尺度因子变为 $\left\lfloor\dfrac{q}{p}\right\rfloor$，恰好是标准 BFV 密文所需的明文尺度因子。因此，尺度因子重新解释有三个好处：（1）每轮都可以跳过显式乘以 $|p^{-1}|_q$ 的操作；（2）避免噪声爆炸；（3）所有轮次结束时，明文尺度因子恰好变为标准 BFV 密文所需的值，从而顺利完成自举过程。
+
+同时，有两点需要注意。首先，第 $i$ 轮尺度因子重新解释会由于差值 $\epsilon_i = p^{-1}\cdot \left\lfloor\dfrac{q}{p^{\varepsilon - i}}\right\rfloor - \left\lfloor\dfrac{q}{p^{\varepsilon - i + 1}}\right\rfloor$ 而在尺度因子中产生一个小的漂移误差，其中 $0 \leq \epsilon_{i} < p$。因此，第 $i$ 轮会产生额外的漂移误差 $E_i^{\langle \text{re} \rangle}$；它足够小，满足如下界限：
+
+$E_i^{\langle \text{re} \rangle} \leq \epsilon_i\cdot (p^{\varepsilon - i-1}M + \left\lfloor\dfrac{E'}{p^{i}}\right\rfloor + K^{\langle i \rangle} p^{\varepsilon - i}) < p^{\varepsilon-1}M + \left\lfloor\dfrac{E'}{p}\right\rfloor + K^{\langle i \rangle}p^{\varepsilon + 1} \ll \left\lfloor\dfrac{q}{p^{\varepsilon}}\right\rfloor$
+
+$ $
+
+其次，在第 $i$ 轮数位提取中，密文与明文同态运算所使用的明文操作数，应按照该轮解释得到的特定尺度因子 $\Delta_i' = \left\lfloor\dfrac{q}{p^{\varepsilon-i+1}}\right\rfloor$ 对数值进行编码。
+
+$ $
+
+现在，最后剩下的任务是设计实际的\textit{提升}多项式 $F_{\varepsilon'}(z_i)$，使其实现 $G_{\varepsilon}$。
+
+$ $
+
+\para{设计 \boldmath$F_{\varepsilon'}(z_i)$：} 按以下步骤推导 $F_{\varepsilon'}(z_i)$。
+
+\begin{enumerate}
+\item \textbf{\textit{断言：}} $z_i^{p} \equiv z_{i,0} \bmod p$
+
+\begin{proof}
+$z_i \equiv z_{i,0} \bmod p$ 成立。费马小定理指出，对所有 $a \in \mathbb{Z}_p$ 和素数 $p$，都有 $a^{p} \equiv a \bmod p$。因此，$z_i \equiv z_{i,0} \equiv z_{i,0}^{p} \equiv z^{p} \bmod p$。
+\end{proof}
+
+\item \textbf{\textit{断言：}} $z_i^p \equiv z_{i, 0}^p \bmod p^{\varepsilon'+1}$
+
+\begin{myproof}
+$(z_{i,0} + kp^{\varepsilon'})^p \bmod p^{\varepsilon'+1}= \sum\limits_{j=0}^{p}  \binom{p}{j}\cdot  z_{i,0}^{j} \cdot (kp^{\varepsilon'})^{p-j} \bmod p^{\varepsilon'+1}$ \textcolor{red}{ $\rhd$ 二项式展开公式}
+
+$ \equiv z_{i,0}^{p} \bmod p^{\varepsilon' + 1}$ \textcolor{red}{ $\rhd$ 满足 $j < p$ 的所有项均为 $0 \bmod p^{\varepsilon' + 1}$}
+\end{myproof}
+
+$ $
+
+\item \textbf{\textit{断言：}} 给定固定的 $p$ 和 $\varepsilon'$，存在 $\varepsilon'+1$ 个多项式 $f_0, f_1, f_2, \cdots, f_{\varepsilon'}$（每个多项式至多为 $p-1$ 次），使得任意 $z_i$（即其 $p$ 进制表示中，$p$ 进制数位索引大于 0、小于 $\varepsilon'$ 的位置均为 0 的任意数）都可以表示为以下公式：
+
+$z_i^p \equiv \sum\limits_{j=0}^{\varepsilon'}f_j(z_{i,0})\cdot p^j \bmod p^{\varepsilon'+1}$ 
+
+
+
+\begin{myproof}
+$z_i^p \bmod p^{\varepsilon'+1}$ 可以表示为如下 $p$ 进制数：
+
+$z_i^p \bmod p^{\varepsilon'+1} = c_0 + c_1p + c_2p^2 + \cdots + c_{\varepsilon'}p^{\varepsilon'}$
+
+$ $
+
+根据第 3 步的断言（$z_i^p \equiv z_{i, 0}^p \bmod p^{\varepsilon'+1}$），可知在 $p$ 和 $\varepsilon'$ 固定时，$z_i^p \bmod p^{\varepsilon' + 1}$ 的值仅取决于 $z_{i,0}$。因此，可以设想存在某个函数 $f(z_{i,0})$，输入为 $z_{i,0} \in [0, p-1]$，输出为 $z_i^p \in [0, p^{\varepsilon'+1} - 1]$。或者，可以设想存在 $\varepsilon'+1$ 个不同的函数 $f_0, f_1, \cdots, f_{\varepsilon'}$，其中每个 $f_j$ 都是输入为 $z_{i,0} \in [0, p-1]$、输出为 $c_i \in [0, p-1]$ 的多项式，且 $z_i^p \equiv \sum\limits_{j=0}^{\varepsilon'}f_j(z_{i,0})\cdot p^j \bmod p^{\varepsilon'+1}$。此时，每个多项式 $f_j$ 的输入域与输出域均为 $[0, p - 1]$。因此，可以将每个 $f_j$ 设计为 $(p-1)$ 次多项式，并利用 $p$ 个坐标值，通过多项式插值（\autoref{sec:polynomial-interpolation}）求出每个 $f_j$。
+
+注意，每当将 $\varepsilon'$ 增加为 $\varepsilon' + 1$ 时，就会增加一个新的多项式 $f_{\varepsilon' + 1}$。不过，之前的多项式 $f_0, f_1, \cdots, f_{\varepsilon'}$ 保持不变，因为将 $\varepsilon'$ 增加 1，只会在最高 $p$ 进制数位增加一个新的 $p$ 进制常数 $c_{\varepsilon' + 1}$，而低位常数 $c_0, c_1, \cdots, c_{\varepsilon'}$ 保持不变。因此，分别计算 $c_0, c_1, \cdots, c_{\varepsilon'}$ 的多项式 $f_0, f_1, \cdots, f_{\varepsilon'}$ 也都保持不变。
+
+\end{myproof}
+
+\item \textbf{\textit{断言：}} 第 4 步断言中的公式可以进一步具体化为：
+
+$z_i^p \equiv z_{i,0} + \sum\limits_{j=1}^{\varepsilon'}f_j(z_{i,0})\cdot p^j \bmod p^{\varepsilon'+1}$
+
+\begin{myproof}
+根据第 2 步的断言（$z_i^{p} \equiv z_{i,0} \bmod p$），可知 $z_i^p$ 的如下 $p$ 进制表示：
+
+$z_i^p \equiv c_0 + c_1p + c_2p^2 + \cdots + c_{\varepsilon'}p^{\varepsilon'} \bmod p^{\varepsilon'+1} $
+
+$ $
+
+将变为：
+
+$z_i^p \equiv z_{i,0} + c_1p + c_2p^2 + \cdots + c_{\varepsilon'}p^{\varepsilon'} \bmod p^{\varepsilon'+1} $
+
+$ $
+
+，因为第 2 步的断言表明，$z_i^p$ 的 $p$ 进制表示中最低的 $p$ 进制数位始终为 $z_{i,0}$。因此，第 4 步断言中的公式：
+
+$z_i^p \equiv \sum\limits_{j=0}^{\varepsilon'}f_j(z_{i,0})\cdot p^j \bmod p^{\varepsilon'+1}$
+
+$ $
+
+可以进一步具体化为：
+
+$ $
+
+$z_i^p \equiv z_{i,0} + \sum\limits_{j=1}^{\varepsilon'}f_j(z_{i,0})\cdot p^j \bmod p^{\varepsilon'+1}$
+
+\end{myproof}
+
+\item \textbf{\textit{断言：}} $z_i^p - \sum\limits_{j=1}^{\varepsilon'}f_j(z_i)\cdot p^j \equiv z_{i,0} \bmod p^{\varepsilon'+1}$
+
+\begin{myproof}
+
+\item 回顾第 1 步，将 $z_i$ 定义为 $z_i = z_{i,0} + \sum\limits_{j=\varepsilon'}^{\varepsilon-1} z_{i,j}p^j$。因此，$z_i \bmod p^{\varepsilon'} = z_{i,0}$。这意味着对于每个多项式 $f_j$，均有：
+
+$f_j(z_{i,0}) \equiv f_j(z_i) \bmod p^{\varepsilon'}$
+
+$ $
+
+接下来，推导得到：
+
+$f_j(z_{i,0})\cdot p^j \equiv f_j(z_i)\cdot p^j \bmod p^{\varepsilon' + 1}$（其中 $j \geq 1$）
+
+$ $
+
+上述关系成立的原因如下：
+
+$f_j(z_{i,0}) \equiv f_j(z_i) \bmod p^{\varepsilon'}$
+
+$f_j(z_{i,0}) = f_j(z_i) + q\cdot p^{\varepsilon'}$（对于某个整数 $q$）
+
+$f_j(z_{i,0})\cdot p^j = f_j(z_i)\cdot p^j + q\cdot p^{\varepsilon'}\cdot p^j$ \textcolor{red}{ $\rhd$ 两边同时乘以 $p^j$}
+
+$f_j(z_{i,0})\cdot p^j = f_j(z_i)\cdot p^j + q\cdot p^{j-1} \cdot p^{\varepsilon'+1}$ \textcolor{red}{ $\rhd$ $f_j(z_{i,0})\cdot p^j$ 与 $f_j(z_i)\cdot p^j$ 相差 $p^{\varepsilon' + 1}$ 的某个整数倍}
+
+$ $
+
+因此，$f_j(z_{i,0})\cdot p^j \equiv f_j(z_i)\cdot p^j \bmod p^{\varepsilon' + 1}$。
+
+$ $
+
+现在，依据第 5 步的断言（$z_i^p \equiv z_{i,0} + \sum\limits_{j=1}^{\varepsilon'}f_j(z_{i,0})\cdot p^j \bmod p^{\varepsilon'+1}$），可以推导出：
+
+$z_i^p - \sum\limits_{j=1}^{\varepsilon'}f_j(z_{i})\cdot p^j \bmod p^{\varepsilon' + 1}$
+
+$\equiv (z_{i,0} + \sum\limits_{j=1}^{\varepsilon'}f_j(z_{i,0})\cdot p^j) - \sum\limits_{j=1}^{\varepsilon'}f_j(z_{i})\cdot p^j \bmod p^{\varepsilon' + 1}$ \textcolor{red}{ $\rhd$ 应用第 5 步的断言}
+
+$\equiv (z_{i,0} + \sum\limits_{j=1}^{\varepsilon'}f_j(z_i)\cdot p^j) - \sum\limits_{j=1}^{\varepsilon'}f_j(z_i)\cdot p^j \bmod p^{\varepsilon' + 1}$ \textcolor{red}{ $\rhd$ 应用 $f_j(z_{i,0})\cdot p^j \equiv f_j(z_i)\cdot p^j \bmod p^{\varepsilon' + 1}$}
+
+$\equiv z_{i,0} \bmod p^{\varepsilon' + 1}$
+
+\end{myproof}
+
+\item 最后，将提升多项式 $F_{\varepsilon'}(z_i)$ 定义如下：
+
+$F_{\varepsilon'}(z_i) = z_i^p - \sum\limits_{j=1}^{\varepsilon'}f_j(z_i)\cdot p^j$
+
+$\textcolor{white}{F_{\varepsilon'}(z_i) } \equiv z_{i,0} \bmod p^{\varepsilon' + 1}$
+
+
+上述关系意味着，$F_{\varepsilon'}(x) \bmod p^{\varepsilon'+1}$ 等价于 $x$ 最低的 $p$ 进制数位（根据第 6 步的断言）。因此，如果将 $z_i$ 代入 $F_{\varepsilon'}(x)$，并取 $\varepsilon' = 1$，输出将是一个最低 $p$ 进制数位为 $z_{i,0} \bmod p^2$、次低 $p$ 进制数位为 $0 \bmod p^2$ 的数。将输出递归地重新代入 $F_{\varepsilon'}(x)$，并将 $\varepsilon'$ 每次增加 1，就会依次将第 2 个最低 $p$ 进制数位、第 3 个最低 $p$ 进制数位等清零。重复这一过程 $\varepsilon-1$ 次，将高 $\varepsilon-1$ 个 $p$ 进制数位清零，仅保持最低数位不变（即 $z_{i,0}$）。因此，$F_{\varepsilon'}(x)$ 是有效的提升多项式，可以迭代使用以提取 $z_i \bmod p^\varepsilon$ 的最低数位。
+
+
+\end{enumerate}
+
+我们将 $F_{\varepsilon'}(x)$ 用作数位提取函数 $G_{\varepsilon}(z_i)$ 内部的辅助函数，该函数总共调用 $F_{\varepsilon'}(x)$ 共 $v-1$ 次。
+
+
+\subsubsection{小结}
+\label{subsubsec:bfv-bootstrapping-summary}
+
+将 BFV 自举过程总结如下（推广到 $t = p^r$）：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:bfv-bootstrapping-summary}} BFV 自举}}]
+
+假设有 RLWE 密文 $(A, B)  = \textsf{RLWE}_{S, \sigma}\bm(\Delta M + E\bm) \bmod q$，其中 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$ 且 $t = p^r$（即明文模数为某个素数的幂），$r \in \mathbb{Z}$，且 $r \geq 1$。
+
+$ $
+
+\begin{enumerate}
+\item \textbf{\underline{模数切换}（按 \boldmath$q \rightarrow p^\varepsilon$ 切换）：} 将密文从 $(A, B)$ 缩小为 $\left(\left\lceil \dfrac{p^\varepsilon}{q}\cdot A\right\rfloor, \left\lceil \dfrac{p^\varepsilon}{q}\cdot B\right\rfloor\right) = (A', B')$ \textcolor{red}{ $\rhd$ 其中 $p^\varepsilon \ll q$}
+
+$ $
+
+$A'S + B' = p^{\varepsilon-r}M + E' \bmod p^\varepsilon$ \textcolor{red}{ $\rhd$ 其中 $E' \approx \dfrac{p^\varepsilon}{q}\cdot E  + \left(\left\lfloor\dfrac{q}{p^r}\right\rfloor\cdot\dfrac{p^\varepsilon}{q} - p^{\varepsilon-r}\right)\cdot M$，它是模数切换噪声，加上按 $\Delta=\left\lfloor\dfrac{q}{p^r}\right\rfloor \approx \dfrac{q}{p^r}$ 处理所引入的舍入噪声。}
+
+$ $
+
+\item \textbf{\underline{同态解密}：} 利用自举密钥 $\textsf{RLWE}_{S, \sigma}(\Delta' S) \bmod q$，对 $(A', B') \bmod p^\varepsilon$ 进行如下同态解密：
+
+$A' \cdot \textsf{RLWE}_{S, \sigma}(\Delta' S)  + B' = \textsf{RLWE}_{S, \sigma}\bm(\Delta' \cdot (p^{\varepsilon-r} M + E' + Kp^\varepsilon)\bm) \bmod q$ \textcolor{red}{ $\rhd$ 其中 $\Delta' = \left\lfloor\dfrac{q}{p^\varepsilon}\right\rfloor$}
+
+$ $
+
+现在，将模数切换后的含噪声明文多项式记为 $Z = p^{\varepsilon-r} M + E' + Kp^\varepsilon$。
+
+$ $
+
+\item \textbf{\textsf{\underline{CoeffToSlot}}：} 将（加密的）多项式 $Z$ 的系数 $z_0, z_i, \cdots, z_{n-1}$ 移入输入向量槽位。具体通过以下计算完成：
+
+$\textsf{RLWE}_{S, \sigma}(\Delta' Z) \cdot n^{-1}\cdot \hathat{W}\cdot I_R^n$
+
+$= \textsf{RLWE}_{S, \sigma}(\Delta' Z^{\langle1\rangle})$
+
+，其中，$n^{-1}\cdot \hathat{W}\cdot I_R^n$ 是批量编码矩阵（\autoref{subsubsec:bfv-rotation-summary} 中的小结~\ref*{subsubsec:bfv-rotation-summary}）。
+
+$ $
+
+\item \textbf{\underline{数位提取}：} 按如下方式设计多项式 $G_{\varepsilon}(z_i)$（数位提取多项式）：
+
+$z_i = d_0 + \left(\sum\limits_{j=\varepsilon'}^{\varepsilon-r} d_* p^j\right)$ \textcolor{red}{ $\rhd$ 其中 $d_0 \in \mathbb{Z}_{p}$，且 $\varepsilon'$ 是 $z_i$ 在索引 0 之后的第一个最低非零 $p$ 进制数位的索引，也是 $F_{\varepsilon'}(Z_i)$ 函数当前处理的数位索引}
+
+$F_{\varepsilon'}(z_i) \equiv d_0 \bmod p^{\varepsilon'+1}$ \textcolor{red}{ $\rhd$ 通过递归使用这一 $(p-1)$ 次多项式，最终提取值 $d_0 \bmod p^{\varepsilon}$}
+
+$G_{\varepsilon}(z_i) \equiv (z_i - \underbrace{F_{\varepsilon-1} \circ F_{\varepsilon-2} \circ F_{\varepsilon-3} \cdots F_{r}}_{\varepsilon - r \text{ 次}} (z_i)) \cdot |p^{-1}|_q \bmod p^\varepsilon$
+
+$ $
+
+
+
+对输入向量槽位中存储的 $Z$ 的每个系数 $z_i$，递归进行总共 $\varepsilon-r$ 次数位提取多项式 $G_{\varepsilon}$ 的同态求值，将 $z_i$ 最低的 $\varepsilon-r$ 个（$p$ 进制）数位清零并向右移位，如下所示：
+
+$G_{r + 1} \circ G_{r + 2} \circ \cdots \circ G_{\varepsilon-1} \circ G_{\varepsilon} (z_i)$
+
+$= m_i + k_i'p$
+
+$ $
+
+，前提是 $E'$ 的每个系数都小于 $\left\|\dfrac{p^{\varepsilon-r}}{2}\right\|$。此时，每个输入向量槽位包含去噪后的系数 $m_i + k_i^{\langle \varepsilon - r - 1\rangle}p$。
+
+\para{\underline{尺度因子重新解释}：} 在第 $i$ 轮数位提取中，不显式乘以 $|p^{-1}|_q$ 来执行除以 $p$ 的操作，而是在概念上从明文尺度因子 $\Delta'$ 的分母中借用这一项，将尺度因子在概念上更新为 $\left\lfloor\dfrac{q}{p^{\varepsilon-i}}\right\rfloor$。这意味着，在第 $i$ 轮数位提取中，密文与明文同态运算所使用的明文操作数，应使用尺度因子 $\left\lfloor\dfrac{q}{p^{\varepsilon-i}}\right\rfloor$ 对其值进行编码。数位提取结束时，明文尺度因子变为 $\Delta' = \Delta = \left\lfloor\dfrac{q}{p^r}\right\rfloor$。
+
+
+$ $
+
+\item \textbf{\textsf{\underline{SlotToCoeff}}：} 以同态方式将每个输入向量槽位中的值 $m_i + k_i^{\langle \varepsilon - r - 1\rangle}p^\varepsilon$ 移回（加密的）多项式系数位置。具体做法是将数位提取步骤输出的密文乘以 $\hathat{W}^*$，其中，$\hathat{W}^*$ 是解码矩阵（\autoref{subsubsec:bfv-rotation-summary} 中的小结~\ref*{subsubsec:bfv-rotation-summary}）。这一计算的输出为 $\textsf{RLWE}_{S, \sigma}\bm(\Delta\cdot (M + K^{\langle \varepsilon - r - 1\rangle}p) + E^{\langle \text{b} \rangle}) \bm) = \textsf{RLWE}_{S, \sigma}\bm(\Delta\cdot (M + E^{\langle \text{final} \rangle}) \bm) \bmod q$，其中，$E^{\langle \text{b} \rangle}$ 是自举过程中（第 $3\sim 5$ 步）新产生的噪声。
+
+
+
+
+\end{enumerate}
+
+
+
+\end{tcolorbox}
+
+\para{同态解密的目的：} 其目的是暂时调整密文的尺度因子，以保证自举的正确性。同态解密之前，密文加密的是 $p^{\varepsilon-r} M$，它是尺度因子为 $p^{\varepsilon-r}$ 的消息。同态解密之后，密文加密的是 $\Delta' p^{\varepsilon-r} M$，即尺度因子为 $\Delta' = \left\lfloor\dfrac{q}{p^{\varepsilon}}\right\rfloor$ 的消息 $p^{\varepsilon-r} M$。这一特定调整是每轮数位提取进行尺度因子重新解释所必需的，使其能够在概念上除以 $p$（即乘以 $|p^{-1}|_q$），并最终将尺度因子恢复为标准 BFV 密文原来的形式 $\left\lfloor\dfrac{q}{p^r}\right\rfloor$。
+

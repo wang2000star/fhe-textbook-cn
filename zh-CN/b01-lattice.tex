@@ -1,0 +1,155 @@
+\textbf{- 参考资料：}
+\href{https://mysite.science.uottawa.ca/mnevins/papers/StephenHarrigan2017LWE.pdf}{格密码与
+带误差学习问题}~\cite{lattice-crypto}
+
+
+$ $
+
+格密码通常被视为能够抵抗量子计算机攻击的后量子密码。本节介绍后续所讨论的格密码体制所依赖的数学困难问题，包括 LWE（带误差学习）、RLWE（环带误差学习）、GLWE（广义带误差学习）、GLev 和 GGSW 密码体制。
+
+
+
+
+
+\subsection{概述}
+\label{subsec:lattice-overview}
+
+假设有一个未知的 $k$ 维向量 $\vec{s}$ 作为秘密密钥，以及许多公开已知的 $k$ 维向量 $\vec{a}^{\langle i \rangle}$。
+
+再假设有大量如下点积 $\vec{s} \cdot \vec{a}^{\langle i \rangle}$：
+
+$\vec{s} \cdot \vec{a}^{\langle 0 \rangle} = s_0\cdot a_{0}^{\langle 0 \rangle} + s_1\cdot a_{1}^{\langle 0 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 0 \rangle} = b^{\langle 0 \rangle}$
+
+$\vec{s} \cdot \vec{a}^{\langle 1 \rangle} = s_0\cdot a_{0}^{\langle 1 \rangle} + s_1\cdot a_{1}^{\langle 1 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 1 \rangle} = b^{\langle 1 \rangle}$
+
+$\vec{s} \cdot \vec{a}^{\langle 2 \rangle} = s_0\cdot a_{0}^{\langle 2 \rangle} + s_1\cdot a_{1}^{\langle 2 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 2 \rangle} = b^{\langle 2 \rangle}$
+
+\text{ } $\vdots$
+
+$ $
+
+假设所有二元组 $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$ 都公开已知。攻击者只需 $k$ 个这样的二元组，就可以求出秘密向量 $\vec{s}$。具体来说，由于共有 $k$ 个未知变量，即 $s_0, s_1, \cdots, s_{k-1}$，攻击者可以利用线性代数，从 $k$ 个方程中求解这 $k$ 个变量。
+
+但是，如果在上述每个方程中都随机加入一个未知的小噪声 $e^{\langle i \rangle}$，即误差，得到：
+
+$\vec{s} \cdot \vec{a}^{\langle 0 \rangle} = s_0\cdot a_{0}^{\langle 0 \rangle} + s_1\cdot a_{1}^{\langle 0 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 0 \rangle} + e^{\langle 0 \rangle} \approx b^{\langle 0 \rangle}$
+
+$\vec{s} \cdot \vec{a}^{\langle 1 \rangle} = s_0\cdot a_{0}^{\langle 1 \rangle} + s_1\cdot a_{1}^{\langle 1 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 1 \rangle} + e^{\langle 1 \rangle} \approx b^{\langle 1 \rangle}$
+
+$\vec{s} \cdot \vec{a}^{\langle 2 \rangle} = s_0\cdot a_{0}^{\langle 2 \rangle} + s_1\cdot a_{1}^{\langle 2 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 2 \rangle} + e^{\langle 2 \rangle} \approx b^{\langle 2 \rangle}$
+
+\text{ } $\vdots$
+
+
+$ $
+
+即使攻击者获得足够多的二元组 $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$，也难以求出 $s_0, s_1, \cdots, s_{k-1}$，因为每个方程中加入的少量噪声阻碍了通过线性代数直接求解未知变量。对于每个方程，攻击者需要考虑 $e^{\langle i \rangle}$ 的各种可能取值。例如，如果每个噪声 $e^{\langle i \rangle}$ 有 $r$ 种可能值，则要对这 $k$ 个方程应用线性代数，攻击者需要暴力搜索的空间为 $\overbrace{r \times r \times r \times \cdots \times r}^{\text{k 次}} = r^k$。因此，随着含噪方程数量增加，所有 $e^{\langle i \rangle}$ 的联合取值可能性呈指数增长，攻击者的攻击成本也随之呈指数增长。
+
+基于这一直观认识，格密码所依赖的数学困难问题可描述如下：
+
+$ $
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:lattice-overview}} LWE（带误差学习）与 RLWE 问题}}]
+\textbf{\underline{LWE 问题}}
+
+考虑如下形式的样本：$b = \vec{s} \cdot\vec{a} + e$，其中 $e$ 是后面将介绍的小噪声。
+
+每次加密时，都在 $\{0, 1, \cdots, q - 1\}$ 中重新采样一个随机 $k$ 维向量 $\vec{a} \in \mathbb{Z}_q^k$ 以及一个小噪声值 $e \in \mathbb{Z}_q$，其中 $q$ 为密文域的大小。而所有加密过程都使用相同的 $k$ 维秘密向量 $\vec{s}$。假设获得了足够多的密文二元组：
+
+$(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle})$，其中 $b^{\langle 1 \rangle} = \vec{s} \cdot \vec{a}^{\langle 1 \rangle} + e^{\langle 1 \rangle}$
+
+$(\vec{a}^{\langle 2 \rangle}, b^{\langle 2 \rangle})$，其中 $b^{\langle 2 \rangle} = \vec{s} \cdot \vec{a}^{\langle 2 \rangle} + e^{\langle 2 \rangle}$
+
+$(\vec{a}^{\langle 3 \rangle}, b^{\langle 3 \rangle})$，其中 $b^{\langle 3 \rangle} = \vec{s} \cdot \vec{a}^{\langle 3 \rangle} + e^{\langle 3 \rangle}$
+
+\text{ } $\vdots$
+
+假设攻击者拥有大量二元组 $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$。在这一设定下，以下困难问题构成 LWE（带误差学习）密码体制的安全基础：
+
+$ $
+
+\begin{itemize}
+\item \textbf{搜索困难问题：}攻击者无法使用高效算法求出秘密密钥向量 $\vec{s}$。
+\item \textbf{判定困难问题：}构造一个黑盒系统，可配置为以下两种模式之一：(1) 所有 $b^{\langle i\rangle}$ 值均完全随机生成；(2) 所有 $b^{\langle i\rangle}$ 值均通过 $\vec{s} \cdot \vec{a}^{\langle i\rangle} + e^{\langle i\rangle}$ 计算得到，所使用的输入为随机选取且公开已知的（对称加密中的）公开量 $\vec{a}^{\langle i \rangle}$、随机选取且未知的噪声 $e^{\langle i\rangle}$，以及固定且未知的秘密向量 $\vec{s}$。即使获得该黑盒生成的足够多的二元组 $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$，攻击者也没有高效算法判定黑盒采用了哪种模式。
+\end{itemize}
+
+$ $
+
+这两个问题可以相互转换。
+
+$ $
+
+\textbf{\underline{RLWE 问题}}
+
+对于 RLWE（环带误差学习）问题，区别在于将 $\vec{a}$、$b$、$\vec{s}$ 和 $e$ 分别替换为 $\mathbb{Z}_q[X] / (x^n + 1)$ 中的 $(n-1)$ 次多项式 $A$、$B$、$S$ 和 $E$；相应的搜索困难问题，就是求出秘密多项式 $S$ 的 $n$ 个未知系数。
+
+\end{tcolorbox}
+
+
+
+
+\subsection{LWE 密码体制}
+\label{subsec:lattice-scheme}
+
+LWE 密码体制使用加密公式 $b = \vec{s} \cdot \vec{a} + \Delta \cdot m + e$，其中 $\vec{s}$ 为秘密密钥，$\vec{a}$ 为每次加密时选取的公开随机向量，$m$ 为明文，$e$ 为每次加密时从正态分布中随机选取的小噪声，$b$ 为密文。$\Delta$ 是明文 $M$ 的尺度因子，相当于将 $m$ 向左移动 $\text{log}_2\Delta$ 个二进制位。加密前，先将明文左移若干位，即 $\text{log}_2\Delta$ 位，为低位中的误差预留足够空间。
+
+\begin{figure}[h!]
+    \centering
+  \includegraphics[width=0.8\linewidth]{figures/TFHE-fig1.pdf}
+  \caption{LWE 中的明文缩放与加噪示意图：$\Delta \cdot m + e \in \mathbb{Z}_q$}
+  \label{fig:scaling}
+\end{figure}
+
+\autoref{fig:scaling} 直观展示了 $\Delta \cdot m + e$：将明文 $m$ 左移 $\text{log}_2\Delta$ 位，并加入噪声 $e$。实际的加密和解密公式如下：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:lattice-scheme}} 基于格的 LWE 密码体制}}]
+\begin{itemize}
+    \item \textbf{\underline{加密}：}$b^{\langle i \rangle} = \vec{s} \cdot \vec{a}^{\langle i \rangle} + \Delta \cdot m^{\langle i \rangle} + e^{\langle i \rangle}$，其中 $b^{\langle i \rangle}$ 和 $\vec{a}^{\langle i \rangle}$ 对攻击者也是公开已知的，而 $\vec{s}, m^{\langle i \rangle}, e^{\langle i \rangle}$ 则未知，仅秘密密钥持有者知晓。
+
+    $ $
+    
+    \item \textbf{\underline{解密}：}$ \dfrac{\lceil b^{\langle i \rangle} - \vec{s} \cdot \vec{a}^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = \dfrac{\lceil \Delta m^{\langle i \rangle} + e^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = m^{\langle i \rangle}$ $\Big($，前提是 $|e^{\langle i \rangle}| < \dfrac{\Delta}{2}\Big)$。
+\end{itemize}
+\end{tcolorbox}
+
+$\lfloor \rceil_\Delta$ 表示将数舍入到最接近的 $\Delta$ 的整数倍。例如，$\lfloor 16 \rceil_{10} = 20$ 表示将 16 舍入到最接近的 10 的整数倍。再如，$\lfloor 17 \rceil_{8} = 16$ 表示将 17 舍入到最接近的 8 的整数倍；由于 17 更接近 16 而非 24，因此结果为 16。
+
+
+$ $
+
+\noindent \textbf{正确性：}在解密过程中，计算 $b^{\langle i \rangle} - \vec{s} \cdot \vec{a}^{\langle i \rangle}$ 得到 $\Delta \cdot m^{\langle i \rangle}+ e^{\langle i \rangle}$，如 \autoref{fig:scaling} 所示。随后计算 $\lceil \Delta \cdot m^{\langle i \rangle} + e^{\langle i \rangle} \rfloor_{\Delta}$，即将数值舍入到最接近的 $\Delta$ 的整数倍；只要所加噪声满足 $|e^{\langle i \rangle}| < \frac{\Delta}{2}$，就会得到 $\Delta \cdot m^{\langle i \rangle}$。也就是说，如果噪声小于 $\frac{\Delta}{2}$，它就会在舍入过程中被消去。最后，将 $\Delta \cdot m^{\langle i \rangle}$ 右移 $\text{log}_2 \Delta$ 位，即可得到 $m^{\langle i \rangle}$。因此，只要保证 $|e^{\langle i \rangle}| < \frac{\Delta}{2}$，也就是噪声 $e^{\langle i \rangle}$ 必须小于相应阈值，就能够在解密的舍入过程中消去 $e^{\langle i \rangle}$，恢复原始的 $\Delta \cdot m^{\langle i \rangle}$。将 $m^{\langle i \rangle}$ 按 $\Delta$ 缩放有两个目的：(i) 加密时在低位为 $e^{\langle i \rangle}$ 留出空间，使噪声位与明文位不相互干扰，避免破坏明文；(ii) 解密时消去低位中的噪声 $e^{\langle i \rangle}$，同时保持明文 $m^{\langle i \rangle}$ 不受损。
+
+$ $
+
+\noindent \textbf{安全性：}即使攻击者获得大量 $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$，也就是许多密文，由于每次加密都会加入随机噪声 $e^{\langle i \rangle}$，仍难以求出 $\vec{s}$；这就是 \autoref{subsec:lattice-overview} 描述的搜索困难问题。原因是，哪怕加入很小的未知噪声 $e^{\langle i \rangle}$，也会显著改变满足全部 $b^{\langle i \rangle} = \vec{s} \cdot \vec{a}^{\langle i \rangle} + \Delta \cdot m^{\langle i \rangle} + e^{\langle i \rangle}$ 方程的 $\vec{s}$ 的数学解。
+
+%$Y = S \cdot X$
+
+即使攻击者获得针对同一个 $m^{\langle i \rangle}$ 生成的大量 $(\vec{a}^{(j)}, b^{(j)})$，其中每个密文都使用不同的 $\vec{a}^{(j)}$ 和 $e^{(j)}$ 加密相同的 $m^{\langle i \rangle}$，也仍难以求出 $m^{\langle i \rangle}$。这是因为每个 $(\vec{a}^{(j)}, b^{(j)})$ 都使用重新随机选取的不同噪声 $e^{(j)}$，而这些噪声在联合分析多份密文时，使求解 $\vec{s}$ 所涉及的线性代数问题呈指数级复杂化。此外，在实际密码体制（\autoref{sec:lwe}）中，公开随机向量 $\vec{a}^{\langle i \rangle}$ 与秘密密钥 $\vec{s}$ 都不是单个数，而是由许多随机数组成的长向量。因此，将 $\vec{a}^{\langle i \rangle }\cdot \vec{s}$ 加入 $\Delta m^{\langle i \rangle} + e^{\langle i \rangle}$，提高了攻击者所面对的随机性熵。
+
+$ $
+
+概括而言，格密码通过在明文中加入加密项 $\vec{s} \cdot \vec{a}$ 和小随机噪声 $e$ 来隐藏明文。解密时，秘密密钥持有者利用 $\vec{s}$ 重新计算加密项 $\vec{a} \cdot \vec{s}$ 并将其减去，再通过舍入消去噪声 $e$，最后将剩余的 $\Delta m$ 右移 $\text{log}_2 \Delta$ 位，得到 $m$。
+
+\subsection{RLWE 密码体制}
+\label{subsec:lattice-scheme2}
+
+RLWE 密码体制使用与 \tboxlabel{\ref*{subsec:lattice-scheme}} 相同的公式，但将 $\vec{s}, \vec{a}^{\langle i \rangle}, b^{\langle i \rangle}, m^{\langle i \rangle}, e^{\langle i \rangle}$ 替换为多项式 $S, A^{\langle i \rangle}, B^{\langle i \rangle}, M^{\langle i \rangle}, E^{\langle i \rangle}$，如下所示：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:lattice-scheme2}} 基于格的 RLWE 密码体制}}]
+\begin{itemize}
+    \item \textbf{\underline{加密}：}$B^{\langle i \rangle} = S \cdot A^{\langle i \rangle} + \Delta \cdot M^{\langle i \rangle} + E^{\langle i \rangle}$，其中 $B^{\langle i \rangle}$ 和 $A^{\langle i \rangle}$ 对攻击者也是公开已知的，而 $S, M^{\langle i \rangle}, E^{\langle i \rangle}$ 则未知，仅秘密密钥持有者知晓。
+
+    $ $
+    
+    \item \textbf{\underline{解密}：}$ \dfrac{\lceil B^{\langle i \rangle} - S \cdot A^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = \dfrac{\lceil \Delta M^{\langle i \rangle} + E^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = M^{\langle i \rangle}$ \\$\Big($前提是 $||E^{\langle i \rangle}||_{\infty} < \dfrac{\Delta}{2}$，即 $E^{\langle i \rangle}$ 的每个系数的绝对值都小于 $\dfrac{\Delta}{2}\Big)$    
+
+    $ $
+
+    $\lceil  \rfloor_{\Delta}$ 表示对多项式每一项的系数分别进行舍入。
+
+\end{itemize}
+
+
+
+\end{tcolorbox}

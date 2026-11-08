@@ -1,0 +1,62 @@
+\textbf{- 参考资料：}
+\href{https://e.math.cornell.edu/people/belk/numbertheory/CyclotomicPolynomials.pdf}{域与分圆多项式}~\cite{cyclotomic-polynomial}
+
+\subsection{定义}
+\label{subsec:order-def}
+
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:order-def}} 阶的定义}}]
+$\bm{\textsf{ord}_{\mathbb{F}}(a)}$：对于 $a \in \mathbb{F}^{\times}$（一个有限域，见 \autoref{subsec:field-def}），$a$ 的阶是使 $a^k = 1$ 成立的最小正整数 $k$。
+\end{tcolorbox}
+
+\subsection{定理}
+\label{subsec:order-theorem}
+
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:order-theorem}.1} 阶的性质（I）}}]
+对于 $a \in \mathbb{F}^{\times}$ 和 $n \geq 1$，$a^n = 1$ 当且仅当 \textbf{\textsf{ord}}$_{\mathbb{F}}(a) \text{ } \mid \text{ } n$
+
+（即 $\textsf{ord}_{\mathbb{F}}(a)$ 整除 $n$）。
+\end{tcolorbox}
+
+\begin{myproof}
+    \begin{enumerate}
+    \item \textit{正向证明：}若 $\textsf{ord}_{\mathbb{F}}(a) \text{ } | \text{ } n$，则对于 $\textsf{ord}_{\mathbb{F}}(a) = k$，其中 $k$ 为 $a$ 的阶，存在某个整数 $l$ 使得 $n = lk$。
+    
+    因此，$a^n = a^{lk} = (a^k)^l = 1^l = 1$。
+    \item \textit{反向证明：}若 $a^n = 1$ 且 $\textsf{ord}_{\mathbb{F}}(a)=k$，将其写为 $n=qk+r$，其中 $0 \le r < k$。于是 $1=a^n=a^{qk+r}=(a^k)^q a^r=a^r$。由 $k$ 的最小性可知，必有 $r=0$，从而 $k \mid n$。
+    \end{enumerate}
+\end{myproof}
+
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:order-theorem}.2} 阶的性质（II）}}]
+若 $\textsf{ord}_{\mathbb{F}}(a) = k$，则对于任意 $n \geq 1$，都有 $\textsf{ord}_{\mathbb{F}}(a^n) = \dfrac{k} {\gcd(k, n)}$。
+\end{tcolorbox}
+\begin{myproof}
+    \begin{enumerate}
+    \item $a^k, a^{2k}, a^{3k}, \ldots = 1$. 
+    \item 已知 $\textsf{ord}_{\mathbb{F}}(a^n) = m$，有 $(a^n)^m, (a^n)^{2m}, (a^n)^{3m}, \ldots = 1$。
+    \item 根据阶的定义，$x=k$ 是满足 $a^x$ = 1 的最小值。因此，给定 $\textsf{ord}_{\mathbb{F}}(a^n) = m$，$m$ 就是使 $(a^n)^m = 1$ 成立的最小整数。注意，$(a^n)^m$ 应当是 $a^k$ 的倍数，也就是说，$mn$ 应当是 $k$ 的倍数。使 $mn$ 成为 $k$ 的倍数的最小整数 $m$ 为 $m = \dfrac{k}{\gcd(k, n)}$。
+    \end{enumerate}
+\end{myproof}
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:order-theorem}.3} 阶的性质（III）}}]
+假设 $k$ 整除 $n$。则 $\textsf{ord}_{\mathbb{F}}(a) = kn$ 当且仅当 $\textsf{ord}_{\mathbb{F}}(a^k) = n$。
+\end{tcolorbox}
+\begin{myproof}
+\begin{enumerate}
+    \item \textit{正向证明：}已知 $\textsf{ord}_{\mathbb{F}}(a) = kn$，由定理~\ref*{subsec:order-theorem}.2 可得 $\textsf{ord}_{\mathbb{F}}(a^k) = \dfrac{nk}{\gcd(k, nk)} = \dfrac{nk}{k} = n$。
+    \item \textit{反向证明：}已知 $\textsf{ord}_{\mathbb{F}}(a^k)=n$，并令 $\textsf{ord}_{\mathbb{F}}(a)=m$。由定理~\ref*{subsec:order-theorem}.2 得到 $\textsf{ord}_{\mathbb{F}}(a^k)=\dfrac{m}{\gcd(m,k)}=n$，因此 $m=n\cdot\gcd(m,k)$（即 $m$ 是 $n$ 的某个倍数）。但由于 $k$ 整除 $n$，所以 $k$ 也整除 $m$。这意味着 $\gcd(m,k) = k$。因此，$\textsf{ord}_{\mathbb{F}}(a)=m=n\cdot\gcd(m,k)=nk$。
+\end{enumerate}
+\end{myproof}
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:order-theorem}.4} 费马小定理}}]
+给定素数 $|\mathbb{F}| = p$ 和 $a \in \mathbb{F}$，有 $a^p = a$。
+\end{tcolorbox}
+\begin{myproof}
+    \begin{enumerate}
+    \item 若 $a=0$，则 $a^p=a=0$。
+    \item 若 $a\ne 0$，则 $a \in \mathbb{F}^{\times}$，即属于该域的乘法群，其大小为 $|\mathbb{F}^{\times}|=p-1$。
+    根据拉格朗日定理（在有限群 $G$ 中，任意元素的阶都整除 $|G|$），$a$ 的阶整除 $p-1$，因此 $a^{p-1}=1$，从而 $a^p=a$。
+    \end{enumerate}
+\end{myproof}

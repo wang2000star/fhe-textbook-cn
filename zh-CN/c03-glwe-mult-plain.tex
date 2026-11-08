@@ -1,0 +1,129 @@
+\textbf{- 参考资料：}
+\href{https://www.zama.ai/post/tfhe-deep-dive-part-2}{深入理解 TFHE（二）：编码与线性分层运算}~\cite{tfhe-2}
+
+$ $
+
+假设有一个 GLWE 密文 \textsf{ct}：
+
+$\textsf{ct} = \textsf{GLWE}_{S, \sigma}(\Delta M + E) = ( A_0, A_1, \ldots, A_{k-1}, B) \in \mathcal{R}_{\langle n,q \rangle}^{k + 1}$
+
+$ $
+
+\noindent 以及如下新的明文多项式 $\Lambda$：
+
+$\Lambda = \sum\limits_{i=0}^{n-1}(\Lambda_i \cdot X_i) \in \mathcal{R}_{\langle n, q \rangle}$
+
+$ $
+
+\noindent 定义如下密文与明文乘法运算：
+
+$\Lambda \cdot \textsf{ct} = (\Lambda \cdot A_0, \Lambda \cdot A_1, \ldots, \Lambda \cdot A_{k-1}, \Lambda \cdot B)$
+
+$ $
+
+\noindent 假设始终使用 NTT 技术（\autoref{sec:ntt}），以 $O(n \log n)$ 的复杂度高效计算多项式乘法。则有以下结论：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{sec:glwe-mult-plain}} GLWE 密文与明文的乘法}}]
+$\Lambda \cdot \textsf{GLWE}_{S, \sigma}(\Delta M + E)$
+
+$= \Lambda \cdot (\{A_i^{\langle 1 \rangle}\}_{i=0}^{k-1}, \text{ } B^{\langle 1 \rangle})$
+
+$= (\{\Lambda\cdot A_i^{\langle 1 \rangle}\}_{i=0}^{k-1}, \text{ } \Lambda \cdot B^{\langle 1 \rangle})$
+
+$= \textsf{GLWE}_{S, \sigma}(\Delta (M \cdot \Lambda) + \Lambda\cdot E )$
+\end{tcolorbox}
+
+这意味着，将明文多项式 $\Lambda$ 与加密 $M$ 的 GLWE 密文相乘，再解密所得密文，便得到 $M \cdot \Lambda$。
+
+$ $
+
+%\noindent \textbf{\underline{Proof}}
+\begin{myproof}
+\begin{enumerate}
+\item 定义以下记号： \\
+$A_0' = \Lambda \cdot A_0$ \\
+$A_1' = \Lambda \cdot A_1$ \\
+$\vdots$ \\
+$A_{k-1}' = \Lambda \cdot A_{k-1}$ \\
+$E' = \Lambda \cdot E$ \\
+$B' = \Lambda \cdot B$ \\
+\item 可推导得： \\
+$B' = \Lambda \cdot B$ \\
+$= \Lambda \cdot (\sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E)$ 
+$= \sum\limits_{i=0}^{k-1}{(\Lambda \cdot A_i \cdot S_i)} + \Delta \cdot \Lambda \cdot M + \Lambda \cdot E$ \\ \textcolor{red}{ $\rhd$ 由多项式环的分配律} \\
+$= \sum\limits_{i=0}^{k-1}{((\Lambda \cdot A_i) \cdot S_i)} + \Delta \cdot (\Lambda \cdot M) + (\Lambda \cdot E)$  \\
+$= \sum\limits_{i=0}^{k-1}{(A_i' \cdot S_i)} + \Delta \cdot (\Lambda \cdot M) + (E')$ \\
+\item 由于 $B' = \sum\limits_{i=0}^{k-1}{(A_i' \cdot S_i)} + \Delta \cdot (\Lambda \cdot M) + (E')$，
+
+$(A_0', A_1', \ldots, A_{k-1}'
+, B')$ 构成密文 $\textsf{GLWE}_{S, \sigma}(\Delta \cdot \Lambda \cdot M)$。
+\item 因此， \\
+$\Lambda \cdot \textsf{GLWE}_{S, \sigma}(\Delta M + E)$ \\
+$ = (\Lambda \cdot A_0, \text { } \Lambda \cdot A_1, \ldots, \Lambda \cdot A_{k-1}, \text { } \Lambda \cdot B)$ \\
+$ = ( \{A'_{i}\}_{i=0}^{k-1}, \text { } \Lambda \cdot B)$ \\
+$= \textsf{GLWE}_{S, \sigma}(\Delta (M \cdot \Lambda) + \Lambda \cdot E)$
+
+%\begin{flushright}
+%\qedsymbol{} 
+%\end{flushright}
+\end{enumerate}
+\end{myproof}
+
+使用 $S$ 解密 $\textsf{GLWE}_{S, \sigma}(\Delta \cdot \Lambda \cdot M + \Lambda \cdot E)$，即可得到明文 $\Lambda \cdot M$。与此同时，无论加密时随机采样的值为何，$A_0', A_1', \ldots, A_{k-1}', E'$ 都会在解密及舍入过程中被消去。
+
+此时噪声问题更加突出，因为解密时原密文 \textsf{ct} 中的噪声已由 $E$ 增大为 $E' = \Lambda \cdot E$。这意味着，如果继续执行乘法而不通过解密消除噪声 $E'$，噪声就会不断增大，最终使 $B$ 中低位区域的噪声溢出到放大后的明文区域。一旦发生这种情况，噪声 $E'$ 便无法在解密时被消除，最终破坏明文 $M$。因此，当常量 $\Lambda$ 较大时，建议使用下一小节介绍的 gadget 分解（\autoref{subsec:gadget-decomposition}）。
+
+\subsection{利用 gadget 分解抑制噪声}
+\label{subsubsec:gadget-decomposition-noise-suppression}
+
+在密文与明文乘法 $\Lambda \cdot \textsf{GLWE}_{S, \sigma}(\Delta M)$ 中，噪声 $E$ 增长为 $E' = \Lambda \cdot E$。为限制这种增长，可以对 $\Lambda$ 进行分解（\autoref{subsec:number-decomp}），并使用 $M$ 的 GLev 加密（\autoref{subsec:glev-enc}），具体如下：
+
+
+$\Lambda = \Lambda_1 \dfrac{q}{\beta^1} + \Lambda_2 \dfrac{q}{\beta^2} + \cdots + \Lambda_l \dfrac{q}{\beta^l} \longrightarrow \textsf{Decomp}^{\beta, l}(\Lambda) = (\Lambda_1, \Lambda_2, \cdots, \Lambda_l)$
+
+$ $
+
+$\textsf{GLev}_{S, \sigma}^{\beta, l}(\Delta M) = \Bigg\{ \textsf{GLWE}_{S, \sigma}\left(\Delta M \dfrac{q}{\beta^1} + E_1\right), \textsf{GLWE}_{S, \sigma}\left(\Delta M \dfrac{q}{\beta^2} + E_2\right), \cdots \textsf{GLWE}_{S, \sigma}\left(\Delta M \dfrac{q}{\beta^l} + E_l\right) \Bigg\}$
+
+$ $
+
+
+将明文 $M$ 加密为 $\textsf{GLev}_{S, \sigma}^{\beta, l}(\Delta M)$，而非 $\textsf{GLWE}_{S, \sigma}(\Delta M)$；相应地，计算 $\textsf{Decomp}^{\beta, l}(\Lambda) \cdot \textsf{GLev}_{S, \sigma}^{\beta, l}(\Delta M)$，而非 $\Lambda \cdot \textsf{GLWE}_{S, \sigma}(\Delta M)$。注意，两种计算得到的明文结果相同，如下所示：
+
+$\textsf{Decomp}^{\beta, l}(\Lambda) \cdot \textsf{GLev}_{S, \sigma}^{\beta, l}(\Delta M)$
+
+$= (\Lambda_1, \Lambda_2, \cdots, \Lambda_l) \cdot \left (\textsf{GLWE}_{S, \sigma}\left(\dfrac{q}{\beta} \Delta M + E_1\right), \text{ } \textsf{GLWE}_{S, \sigma}\left(\dfrac{q}{\beta^2} \Delta M + E_2\right), \text{ } \cdots, \text{ } \textsf{GLWE}_{S, \sigma}\left(\dfrac{q}{\beta^l} \Delta M + E_l\right) \right )$
+
+$= \Lambda_1\cdot\textsf{GLWE}_{S, \sigma}\left(\dfrac{q}{\beta} \Delta M + E_1\right) +  \Lambda_2\cdot\textsf{GLWE}_{S, \sigma}\left(\dfrac{q}{\beta^2} \Delta M + E_2\right) + \cdots + \Lambda_l\cdot\textsf{GLWE}_{S, \sigma}\left(\dfrac{q}{\beta^l} \Delta M + E_l\right)$
+
+$= \textsf{GLWE}_{S, \sigma}\left(\Lambda_1\cdot\dfrac{q}{\beta}\Delta M + \Lambda_1 E_1\right) +\textsf{GLWE}_{S, \sigma}\left(\Lambda_2\cdot\dfrac{q}{\beta^2}\Delta M + \Lambda_2 E_2\right)+ \cdots + \textsf{GLWE}_{S, \sigma}\left(\Lambda_l\cdot\dfrac{q}{\beta^l}\Delta M + \Lambda_l E_l\right)$
+
+$= \textsf{GLWE}_{S, \sigma}\left(\Lambda_1\cdot\dfrac{q}{\beta} \Delta M + \Lambda_2\cdot\dfrac{q}{\beta^2} \Delta M + \cdots + \Lambda_l\cdot\dfrac{q}{\beta^l} \Delta M\right)$
+
+$= \textsf{GLWE}_{S, \sigma}\left(\left(\Lambda_1\cdot\dfrac{q}{\beta} + \Lambda_2\cdot\dfrac{q}{\beta^2} + \cdots + \Lambda_l\cdot\dfrac{q}{\beta^l}\right)\cdot \Delta M  + E_{\textit{all}} \right)$ \textcolor{red}{ $\rhd$ 其中 $E_{\textit{all}} = \sum\limits_{i=1}^l \Lambda_iE_i$}
+
+$= \textsf{GLWE}_{S, \sigma}\left(\Lambda \cdot \Delta M + E_{\textit{all}}\right)$ \textcolor{red}{ $\rhd$ 解密结果为 $\Lambda\cdot M$}
+
+$ $
+
+尽管解密结果相同，但由于将 $\Lambda$ 分解成了较小的明文多项式 $\Lambda_1, \Lambda_2, \cdots, \Lambda_l$，$l$ 次明文与密文乘法各自产生的噪声都更小。设 GLev 密文中每个 GLWE 密文的噪声为 $E_i$，则最终密文与明文乘法的噪声为 $E_{\textit{all}} = \sum\limits_{i=1}^{l}\Lambda_i\cdot E_i$，远小于 $\Lambda \cdot E$，因为
+每个分解后多项式 $\Lambda_i$ 的系数都显著小于 $\Lambda$ 的系数（即
+$\|\Lambda_i\|_\infty \le \beta/2$，而 $\|\Lambda\|_\infty$ 可以达到 $q/2$）。\autoref{fig:decomp2} 对此进行了直观说明。
+
+\begin{figure}[h!]
+    \centering
+  \includegraphics[width=0.8\linewidth]{figures/decomp2.pdf}
+  \caption{利用 gadget 分解降低密文与明文乘法中的噪声。}
+  \label{fig:decomp2}
+\end{figure}
+
+\subsubsection{讨论}
+\label{subsubsec:glwe-mult-plain-discuss}
+
+
+分解技术还具有重要用途：在 GLWE 密钥切换（\autoref{sec:glwe-key-switching}）中，我们将介绍如何将分解后的掩码多项式 $\textsf{Decomp}^{\beta,l}(A_i)$
+与预先计算的密钥切换密钥
+$\textsf{KSK}_i=\textsf{GLev}^{\beta,l}_{S',\sigma}(S_i)$,
+结合起来实现密钥切换。因此，尽管每次操作输出的都是普通 GLWE 密文，gadget 分解仍可在多次密钥切换调用中反复使用。
+
+对于反复重新初始化普通密文噪声 $E$ 的技术，我们将在 \autoref{subsec:tfhe-noise-bootstrapping} 介绍 TFHE 的噪声自举。

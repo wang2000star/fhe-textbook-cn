@@ -1,0 +1,59 @@
+假设有一个 GLWE 密文 \textsf{ct} 和一个新的明文多项式 $\Lambda$，如下所示：
+
+
+$\textsf{ct} = \textsf{GLWE}_{S, \sigma}(\Delta M + E) = ( A_0, A_1, \ldots, A_{k-1}, B) \in \mathcal{R}_{\langle n,q \rangle}^{k + 1}$
+
+$\Lambda$：新的明文多项式
+
+$\Delta \Lambda$：按 $\Delta$ 放大后的新明文多项式
+
+$ $
+
+\noindent 定义如下密文与明文加法运算：
+
+$\textsf{ct} + \Delta\Lambda = ( A_0, \text{ } A_1, \ldots, A_{k-1}, \text{ } B + \Delta \Lambda)$
+
+$ $
+
+\noindent 则有以下结论：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{sec:glwe-add-plain}} GLWE 密文与明文的同态加法}}]
+$\textsf{GLWE}_{S, \sigma}(\Delta M + E) + \Delta\Lambda $
+
+$=  (\{A_i\}_{i=0}^{k-1}, \text{ } B) + \Delta\Lambda$
+
+$=  (\{A_i\}_{i=0}^{k-1}, \text{ } B + \Delta\Lambda)$
+
+$= \textsf{GLWE}_{S, \sigma}(\Delta (M + \Lambda) + E)$
+\end{tcolorbox}
+
+
+这意味着，将按 $\Delta$ 放大后的明文多项式 $\Lambda$ 加到加密 $M$ 的 GLWE 密文上，再解密所得密文，便得到 $M + \Lambda$。
+
+
+
+
+\begin{myproof}
+
+\begin{enumerate}
+\item 由于 $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E$，
+
+$B + \Delta \cdot \Lambda = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E + \Delta \cdot \Lambda = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot (M + \Lambda) + E$  \\
+
+这意味着 $(A_0, A_1, ... \text{ } A_{k-1}
+, B + \Delta \Lambda)$ 构成密文 $\textsf{GLWE}_{S, \sigma}(\Delta (\Lambda + M) + E)$。
+\item 因此， \\
+$\textsf{GLWE}_{S, \sigma}(\Delta M + E) + \Delta\Lambda$ \\
+$ = (A_0, \text { } A_1, ... \text{ } A_{k-1}, \text { } B + \Delta \Lambda)$ \\
+$ = (\{A_i\}_{i=0}^{k-1}, \text { } B + \Delta \Lambda)$ \\
+$= \textsf{GLWE}_{S, \sigma}(\Delta (M + \Lambda) + E)$
+
+%\begin{flushright}
+%\qedsymbol{} 
+%\end{flushright}
+\end{enumerate}
+
+\end{myproof}
+
+
+\para{噪声增长：} 注意，解密时密文 $\textsf{ct} +\Delta\Lambda$ 中的噪声 $E$ 与原来相同。这意味着密文与明文的加法不会增大噪声。

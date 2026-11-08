@@ -1,0 +1,46 @@
+\textbf{- 参考资料：}
+\href{https://e.math.cornell.edu/people/belk/numbertheory/CyclotomicPolynomials.pdf}{域与分圆多项式}~\cite{cyclotomic-polynomial}
+
+\subsection{定义}
+\label{subsec:field-def}
+
+\begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:field-def}} 域的定义}}]
+\begin{itemize}
+\item \textbf{环：}集合 $R$ 在加法 $(+)$ 下构成阿贝尔群，同时定义有封闭且满足结合律的乘法 $(\cdot)$，并且乘法对加法满足左右分配律：对于所有 $a,b,c\in R$，都有 $a\cdot(b+c)=a\cdot b+a\cdot c$ 和 $(a+b)\cdot c=a\cdot c+b\cdot c$。（乘法不一定满足交换律，例如矩阵乘法；除非特别说明是“含幺环”，否则不要求 $(\cdot)$ 的单位元存在。）
+\item \textbf{域：}集合 $F$ 在 $(+)$ 下构成阿贝尔群，其非零元素 $F^\times=F\setminus\{0\}$ 在 $(\cdot)$ 下构成阿贝尔群，且乘法对加法满足分配律。
+\item \textbf{伽罗瓦域（$\mathrm{GF}(p^n)$）：}具有 $p^n$ 个元素的域，其中 $p$ 为素数，$n$ 为正整数。
+\item \textbf{$\mathbb{Z}_p$（$\mathbb{Z}/p\mathbb{Z}$）：}对于素数 $p$，集合 $\{0,1,\ldots,p-1\}$ 配备模 $p$ 的加法和乘法后构成有限域。更一般地，对于任意整数 $m\ge 2$，$\mathbb{Z}_m$ 是交换环；它构成域，当且仅当 $m$ 为素数。\end{itemize}
+\end{tcolorbox}
+
+$ $
+
+\subsection{示例}
+\label{subsec:field-ex}
+
+$\mathbb{Z}$（全体整数的集合）是环，但不是域，因为并非它的所有元素都有乘法逆元（如 \autoref{subsec:group-ex} 所示）。
+
+$ $
+
+\noindent $\mathbb{R}$（全体实数的集合）是域。如 \autoref{subsec:group-ex} 所示，它在 $(+)$ 下构成阿贝尔群；其非零元素在 $(\cdot)$ 下构成阿贝尔群，且乘法对加法满足分配律。
+
+$ $
+
+\noindent $\mathbb{Z}_7 = \{0, 1, 2, 3, 4, 5, 6\}$ 是有限域，因为：
+\begin{itemize}
+\item \textbf{封闭性：}对于任意 $a,b \in \mathbb{Z}_7$，存在 $c_1,c_2 \in \mathbb{Z}_7$ 使得 $a+b \equiv c_1 \pmod{7}$ 且 $a\cdot b \equiv c_2 \pmod{7}$。
+\item \textbf{结合律：}对于任意 $a,b,c \in \mathbb{Z}_7$，有 $(a+b)+c=a+(b+c)$ 和 $(a\cdot b)\cdot c=a\cdot(b\cdot c)$。
+\item \textbf{交换律：}对于任意 $a,b \in \mathbb{Z}_7$，有 $a+b=b+a$ 和 $a\cdot b=b\cdot a$。
+\item \textbf{分配律：}对于任意 $a,b,c \in \mathbb{Z}_7$，有 $(a+b)\cdot c=a\cdot c+b\cdot c$ 和 $a\cdot(b+c)=a\cdot b+a\cdot c$。
+\item \textbf{单位元：}加法单位元为 $0$，乘法单位元为 $1$。
+\item \textbf{逆元：}对于任意 $a \in \mathbb{Z}_7$，存在 $a' \in \mathbb{Z}_7$ 使得 $a+a' \equiv 0 \pmod{7}$（例如，$3$ 的加法逆元为 $4$，因为 $3+4\equiv0 \pmod{7}$）。对于任意 $a \in \mathbb{Z}_7^\times=\{1,\dots,6\}$，存在 $b \in \mathbb{Z}_7^{\times}$ 使得 $ab \equiv 1 \pmod{7}$（例如，$3\cdot5=15\equiv1 \pmod{7}$）。
+\end{itemize}
+
+\subsection{定理}
+\label{subsec:field-theorem}
+
+\begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:field-theorem}} 域的相关定理}}]
+\begin{enumerate}
+\item \textbf{有限域的大小：}每个有限域（也称为伽罗瓦域）都具有 $p^n$ 个元素，其中 $p$ 为素数，$n$ 为正整数。反之，对于每个这样的素数幂 $p^n$，都存在阶为 $p^n$ 的有限域，并且在同构意义下唯一。
+\item \textbf{同构域：}任意两个元素个数相同的有限域 $\mathbb{F}_1$ 和 $\mathbb{F}_2$ 都同构，即存在一个双射 $f:\mathbb{F}_1\to\mathbb{F}_2$，使得对于所有 $a,b\in\mathbb{F}_1$，都有 $f(a+b)=f(a)+f(b)$ 和 $f(ab)=f(a)f(b)$。
+\end{enumerate}
+\end{tcolorbox}

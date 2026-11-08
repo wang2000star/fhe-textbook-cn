@@ -1,0 +1,240 @@
+GLWE 密码体制是同时涵盖 LWE 与 RLWE 的一般化形式。GLWE 密文是元组 $(\{A_i\}_{i=0}^{k-1}, B)$，其中 $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E$。公开量 $\{A_i\}_{i=0}^{k-1}$ 和秘密密钥 $\{S_i\}_{i=0}^{k-1}$ 都是由 $k$ 个 $(n-1)$ 次多项式组成的列表；消息 $M$ 与噪声 $E$ 各为一个 $(n-1)$ 次多项式。与 LWE 和 RLWE 类似，每个密文都使用新的公开随机掩码 $A$，而所有密文使用相同的秘密密钥 $S$。为简化记号，本节将每个密文实例记为 $(\{A_i\}_{i=0}^{k-1}, B)$，而不使用 $(\{A_i\}_{i=0}^{k-1, \langle j \rangle}, B^{\langle j \rangle})$。
+
+
+
+
+\subsection{参数设置}
+设 $t$ 为明文空间大小，$q$ 为密文空间大小，其中 $t < q$，即 $t$ 远小于 $q$，且 $t | q$，即 $t$ 整除 $q$。随机选取由 $k$ 个 $(n-1)$ 次多项式构成的列表作为秘密密钥，其中每个系数都是从 $\{-1, 0, 1\}$ 中随机选取的三元数，即 $\{S_i\}_{i=0}^{k-1} \xleftarrow{\$} \mathcal{R}_{\langle n, \textit{tern} \rangle}^k$。令明文尺度因子为 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$。
+
+GLWE 的设置参数与 RLWE 类似。区别在于，$S$ 不再是包含 $n$ 个秘密系数的单个 $(n-1)$ 次多项式，而是由 $k$ 个这样的 $(n-1)$ 次多项式组成的列表，总共包含 $n \cdot k$ 个秘密系数。
+
+
+\subsection{加密}
+\label{subsec:glwe-enc}
+
+假设有一个 $(n-1)$ 次多项式 $M \in \mathcal{R}_{\langle n, t \rangle}$，其系数表示要加密的明文数值。
+
+
+\begin{enumerate}
+\item 随机选取由 $k$ 个 $(n-1)$ 次多项式组成的列表 $\{A_i\}_{i=0}^{k-1} \xleftarrow{\$} \mathcal{R}_{\langle n,q \rangle}^{k}$，作为一次性的公开随机量。
+\item 随机选取小系数多项式 $E \xleftarrow{\chi_\sigma} \mathcal{R}_{\langle n,q \rangle}$ 作为一次性噪声，其 $n$ 个系数都是 $\mathbb{Z}_q$ 中从高斯分布 $\chi_\sigma$ 随机采样的小数值。
+\item 将 $M$ 按 $\Delta$ 缩放，即计算 $\Delta \cdot M$。这将 $M \in \mathcal{R}_{\langle n, t \rangle}$ 转换为 $\Delta \cdot M \in \mathcal{R}_{\langle n,q \rangle}$。
+\item 计算 $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E \in \mathcal{R}_{\langle n,q \rangle}$。
+\end{enumerate}
+
+$ $
+
+GLWE 加密公式汇总如下：
+
+$ $
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:glwe-enc}} GLWE 加密}}]
+
+\textbf{\underline{初始设置}：}$\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$，$\{S_i\}_{i=0}^{k-1} \xleftarrow{\$} \mathcal{R}_{\langle n, \textit{tern} \rangle}^k$
+
+$ $
+
+$ $
+
+\textbf{\underline{加密输入}：}$M \in \mathcal{R}_{\langle n, t \rangle}$，$\{A_i\}_{i=0}^{k-1} \xleftarrow{\$} \mathcal{R}_{\langle n,q \rangle}^{k}$，$E \xleftarrow{\chi_\sigma} \mathcal{R}_{\langle n,q \rangle}$
+
+$ $
+
+\begin{enumerate}
+
+\item 向上缩放 $M \longrightarrow \Delta M \text { } \in \mathcal{R}_{\langle n, q\rangle}$
+
+\item 计算 $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta  M + E \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
+
+\item $\textsf{GLWE}_{S,\sigma}(\Delta M + E) = (\{A_i\}_{i=0}^{k-1}, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^{k + 1}$ 
+
+
+
+\end{enumerate}
+
+\end{tcolorbox}
+
+\subsection{解密}
+\label{subsec:glwe-dec}
+
+\begin{enumerate}
+\item 给定密文 $(\{A_i\}_{i=0}^{k-1}, B)$，其中 $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E \in \mathcal{R}_{\langle n,q \rangle}$，计算 $B - \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} = \Delta \cdot M + E$。
+\item 将多项式 $\Delta \cdot M + E \in \mathcal{R}_{\langle n,q \rangle}$ 的每个系数舍入到最接近的 $\Delta$ 的整数倍，即按基数 $\Delta$ 舍入，记为 $\lceil \Delta \cdot M + E \rfloor_{\Delta}$。这一操作可以成功消去 $E$，得到 $\Delta \cdot M$。需要注意的是，$E$ 的每个系数 $e_i$ 都必须满足 $|e_i| < \dfrac{\Delta}{2}$，才能在舍入时被消去。否则，$e_i$ 的部分高位会与明文 $m_i$ 系数的低位重叠，无法在解密时消去，从而破坏明文 $m_1$。
+\item 计算 $\dfrac{\Delta \cdot M} {\Delta}$，等价于将 $\Delta \cdot M$ 的每个多项式系数按 $\Delta$ 向下缩放。
+\end{enumerate}
+
+$ $
+
+GLWE 解密公式汇总如下：
+
+$ $
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:glwe-dec}} GLWE 解密}}]
+\textbf{\underline{解密输入}：}$\textsf{ct} = (\{A_i\}_{i=0}^{k-1}, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^{k + 1}$
+
+\begin{enumerate}
+\item $\textsf{GLWE}^{-1}_{S,\sigma}(\textsf{ct}) = B - \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} = \Delta  M + E \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
+
+\item 向下缩放
+$\Bigl\lceil \dfrac{ \Delta  M + E }{\Delta}\Bigr\rfloor \bmod t = M \text{ } \in \mathcal{R}_{\langle n, t \rangle}$
+
+\end{enumerate}
+
+为了正确解密，噪声多项式 $E$ 的每个系数 $e_i$ 都应满足 $|e_i| < \dfrac{\Delta}{2}$。
+
+\end{tcolorbox}
+
+
+\subsubsection{讨论}
+\begin{enumerate}
+\item \textbf{LWE} 是多项式环次数参数为 $n = 1$ 时的 GLWE 特例。此时，$\{A_i\}_{i=0}^{k-1}, \{S_i\}_{i=0}^{k-1}, E$ 和 $M$ 中的所有多项式都是零次常数多项式，而 $A_i$ 和 $S_i$ 分别含有 $k$ 个这样的常数，因此各自构成一个向量。
+\item \textbf{RLWE} 是 $k = 1$ 时的 GLWE 特例。此时，秘密密钥 $S$ 是单个多项式 $S_0$，每次加密也只使用单个多项式 $A_0$ 作为公开量。
+\item \textbf{$\bm{n}$ 的大小：}增大多项式次数 $n$，会增加秘密密钥的系数项数，即 $S_i = s_{i,0} + s_{i,1}X + \cdots + s_{i, n-1}X^{n-1} $，从而使完整秘密密钥更难猜测。噪声多项式 $E$ 与公开多项式 $A_i$ 也同样增大，使搜索困难问题（\autoref{subsec:lattice-overview}）更难求解。此外，次数更高的多项式可以在同一个明文多项式 $M$ 中编码更多明文数值，提高密文处理的吞吐量。
+%\item \textbf{Size of $\bm{q}$:} Increasing $q$ increases the ciphertext molulus space, making it hard to attack the cryptosystem. 
+%Also, a large modulo space creates an enough separation between the plaintext bits and the noise bits in the ciphertext, which reduces the growth rate of the noise bits across ciphertext multiplications (will be discussed in \autoref{subsubsec:glwe-mult-plain-discussion}) and thus we can do a more number of ciphertext multiplications before the noise bits overflow to the plaintext bit area. 
+\item \textbf{$\bm{k}$ 的大小：}较大的 $k$ 会增加秘密密钥多项式 $(S_0, S_1, \ldots, S_k)$ 和一次性公开多项式 $(A_0, A_1,\ldots, A_k)$ 的数量，使攻击者更难猜测完整秘密密钥。但是，无论 $k$ 大小如何，每个 GLWE 密文中都只有一个 $M$ 多项式和一个 $E$ 多项式。
+\item \textbf{减小密文大小：}每个密文都需要生成公开随机量 $\{A_i\}_{i=0}^{k-1}$，其大小较大。为了压缩大小，可以在每个密文中仅保存用于伪随机数生成哈希函数 $H$ 的种子 $d$。这样，在加密和解密时，可按 $\{H(s), H(H(s)), H(H(H(s)), \ldots \}$ 动态计算 $k-1$ 次以生成公开量。给定相同的初始随机种子 $d$，$H$ 总会产生相同的数列。
+\end{enumerate}
+
+\subsection{GLWE 的另一种形式}
+\label{subsec:glwe-alternative}
+
+下面给出 \tboxlabel{\ref*{subsec:glwe-enc}} 的另一种形式，在加密与解密公式中翻转每个 $A_iS_i$ 的符号：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:glwe-alternative}} GLWE 密码体制的另一种形式}}]
+
+\textbf{\underline{初始设置}：}$\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$，$\{S_i\}_{i=0}^{k-1} \xleftarrow{\$} \mathcal{R}_{\langle n, \textit{tern} \rangle}^k$
+
+$ $
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\textbf{\underline{加密输入}：}$M \in \mathcal{R}_{\langle n, t \rangle}$，$\{A_i\}_{i=0}^{k-1} \xleftarrow{\$} \mathcal{R}_{\langle n,q \rangle}^{k}$，$E \xleftarrow{\chi_\sigma} \mathcal{R}_{\langle n,q \rangle}$
+
+$ $
+
+\begin{enumerate}
+\item 向上缩放 $M \longrightarrow \Delta M \text { } \in \mathcal{R}_{\langle n, q\rangle}$
+
+\item 计算 $B = \textcolor{red}{-\sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)}} + \Delta  M + E \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
+
+\item $\textsf{GLWE}_{S,\sigma}(\Delta M + E) = (\{A_i\}_{i=0}^{k-1}, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^{k + 1}$ 
+
+\end{enumerate}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+
+\textbf{\underline{解密输入}：}$\textsf{ct} = (\{A_i\}_{i=0}^{k-1}, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^{k + 1}$
+
+\begin{enumerate}
+\item $\textsf{GLWE}^{-1}_{S,\sigma}(\textsf{ct}) = B \text{ } \textcolor{red}{ + \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)}} = \Delta  M + E \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
+
+\item 向下缩放
+$\Bigl\lceil \dfrac{ \Delta  M + E }{\Delta}\Bigr\rfloor = M  \text{ } \in \mathcal{R}_{\langle n, t \rangle}$
+
+\end{enumerate}
+
+为了正确解密，噪声多项式 $E$ 的每个系数 $e_i$ 都应满足 $|e_i| < \dfrac{\Delta}{2}$。
+
+\end{tcolorbox}
+
+即使 $A_iS_i$ 项的符号发生翻转，解密阶段也会通过加上相反符号的对应项将其抵消，因此仍保持与原形式相同的解密正确性。
+
+
+
+
+
+\subsection{公钥加密}
+\label{subsec:glwe-public-key-enc}
+
+
+\autoref{subsec:glwe-enc} 中的加密方案假设，每个明文都由秘密密钥持有者加密。本节介绍公钥加密方案：生成与秘密密钥相对应的公钥后，任何知道公钥的人都可以加密明文，而只有秘密密钥持有者能够解密。其基本思路是在初始化阶段预先计算部分加密所需的分量，并作为公钥公开。在实际加密阶段，将公钥乘以额外的随机量 $U$，再加入额外噪声 $E_1, \vec{E}_2$，为每个密文产生不可预测的随机性。具体方案如下：
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:glwe-public-key-enc}} GLWE 公钥加密}}]
+
+\textbf{\underline{初始设置}：}
+\begin{itemize}
+\item 尺度因子 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$
+\item 秘密密钥 $\vec{S} = \{S_i\}_{i=0}^{k-1} \xleftarrow{\$} \mathcal{R}_{\langle n, \textit{tern} \rangle}^k$
+\item 按如下方式生成公钥对 $(\mathit{PK}_1, \vv{\mathit{PK}}_2) \in \mathcal{R}_{\langle n, q \rangle}^{k+1}$：
+
+$\vec{A} = \{A_i\}_{i=0}^{k-1} \xleftarrow{\$} \mathcal{R}_{\langle n, q \rangle}^k$, \text{ } $E \xleftarrow{\chi_{\sigma}} \mathcal{R}_{\langle n, q \rangle}$
+
+$\mathit{PK}_1 = \vec{A} \cdot \vec{S} + E \in \mathcal{R}_{\langle n, q \rangle}$
+
+$\vv{\mathit{PK}}_2 = \vec{A} \in \mathcal{R}_{\langle n, q \rangle}^{k}$
+
+\end{itemize}
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{\underline{加密输入}：}$M \in \mathcal{R}_{\langle n, t \rangle}$，\text{ }$U \xleftarrow{\$} \mathcal{R}_{\langle n,\textit{tern} \rangle}, \text{ } E_1 \xleftarrow{\chi_{\sigma}} \mathcal{R}_{\langle n,q \rangle}, \text{ } \vec{E}_2 \xleftarrow{\chi_{\sigma}} \mathcal{R}_{\langle n,q \rangle}^k$
+
+$ $
+
+\begin{enumerate}
+
+\item 向上缩放 $M \longrightarrow \Delta M \text { } \in \mathcal{R}_{\langle n, q\rangle}$
+
+\item 计算：
+
+$B = \mathit{PK}_1\cdot U + \Delta  M + E_1 \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
+
+$\vec{D} = \vv{{\mathit{PK}}}_2 \cdot U + \vec{E}_2 \in \mathcal{R}_{\langle n,q \rangle}^{k}$ \textcolor{red}{ $\rhd$ $\vv{\mathit{PK}}_2 \cdot U$ 将 $\vv{\mathit{PK}}_2$ 的每个元素乘以 $U$}
+
+\item $\textsf{GLWE}_{S,\sigma}(\Delta M + E_{\mathit{all}}) = (\vec{D}, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^{k+1}$ \textcolor{red}{ $\rhd$ 其中 $E_{\mathit{all}} = E \cdot U + E_1 - \vec{E}_2\cdot\vec{S}$}
+
+
+
+\end{enumerate}
+
+
+\par\noindent\rule{\textwidth}{0.4pt}
+
+\textbf{\underline{解密输入}：}$\textsf{ct} = (\vec{D}, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^{k + 1}$
+
+\begin{enumerate}
+\item $\textsf{GLWE}^{-1}_{S,\sigma}(\textsf{ct}) = B - \vec{D} \cdot \vec{S} = \Delta  M + E_{\mathit{all}} \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
+
+\item 向下缩放
+$\Bigl\lceil \dfrac{ \Delta  M + E_{\mathit{all}} }{\Delta}\Bigr\rfloor = M  \text{ } \in \mathcal{R}_{\langle n, t \rangle}$
+
+\end{enumerate}
+
+为了正确解密，噪声多项式 $E_{\mathit{all}}$ 的每个系数 $e_i$ 都应满足 $|e_i| < \dfrac{\Delta}{2}$。
+
+\end{tcolorbox}
+
+
+解密过程第一步中的等式推导如下：
+
+$\textsf{GLWE}^{-1}_{S,\sigma}\bm{(}\text{ } \textsf{ct} = (\vec{D}, B) \text{ }\bm{)} = B - \vec{D}\cdot\vec{S}$
+
+$ = (\mathit{PK}_1\cdot U + \Delta  M + E_1) - (\vv{\mathit{PK}}_2 \cdot U + \vec{E}_2)\cdot \vec{S} $
+
+$=  (\vec{A} \cdot \vec{S} + E)\cdot U + \Delta M + E_1 - (\vec{A}\cdot U)\cdot \vec{S} - \vec{E}_2\cdot\vec{S}$
+
+$=  (U\cdot\vec{A}) \cdot \vec{S} + E \cdot U + \Delta M + E_1 - (U\cdot \vec{A}) \cdot \vec{S} - \vec{E}_2\cdot\vec{S}$
+
+$= \Delta M + E \cdot U + E_1 - \vec{E}_2\cdot\vec{S}$
+
+$= \Delta M + E_{\mathit{all}}$ \textcolor{red}{ $\rhd$ 其中 $E_{\mathit{all}} = E \cdot U + E_1 - \vec{E}_2\cdot\vec{S}$}
+
+
+$ $
+
+\para{安全性：}GLWE 加密方案的加密公式（见 \autoref{subsec:glwe-enc} 中的总结~\ref{subsec:glwe-enc}）为：
+
+$\textsf{GLWE}_{S, \sigma}(\Delta M + E) = \bm{(} \text{ } \vec{A}, \text{ } B = \vec{A}\cdot\vec{S} + \Delta M + E \text{ }\bm{)}$
+
+$ $
+
+其中，每次加密都会随机选取 $\vec{A}$ 和 $E$，LWE 与 RLWE 问题的困难性保证了猜测 $\vec{S}$ 的难度。另一方面，公钥加密方案为：
+
+$\textsf{GLWE}_{S, \sigma}(\Delta M  + E_{\textit{all}}) = \bm{(} \text{ } \vec{D} = \vv{{\mathit{PK}}}_2 \cdot U + \vec{E}_2, \text{ } B = \mathit{PK}_1\cdot U + \Delta  M + E_1 \text{ } \bm{)}$
+
+$ $
+
+其中，$\mathit{PK}_1$、$\vv{\mathit{PK}}_2$ 固定不变，而 $U$、$E_1$、$\vec{E}_2$ 在每次加密时随机选取。当多项式次数 $n$ 足够大时，两种方案提供相当的问题求解难度。

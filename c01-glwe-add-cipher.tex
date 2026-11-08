@@ -1,3 +1,5 @@
+Both inputs must have the same secret key, ring, modulus $q$, and scale $\Delta=q/t$, with $t\mid q$ for the stated plaintext arithmetic modulo $t$. Throughout these operation chapters, $\textsf{GLWE}_{S,\sigma}(\text{phase})$ is shorthand for a ciphertext with that phase; an evaluated ciphertext need not have the same fresh Gaussian distribution or standard deviation $\sigma$. All noise bounds use integer lifts before coefficient reduction.
+
 \textbf{- Reference:} 
 \href{https://www.zama.ai/post/tfhe-deep-dive-part-2}{TFHE Deep Dive - Part II - Encodings and linear leveled operations}~\cite{tfhe-2}
 
@@ -31,7 +33,7 @@ $= \textsf{GLWE}_{S, \sigma}(\Delta(M^{\langle 1 \rangle} + M^{\langle 2 \rangle
 \end{tcolorbox}
 
 
-This means that adding two GLWE ciphertexts (each of which encrypts $M^{\langle 1 \rangle}$ and $M^{\langle 2 \rangle}$) and decrypting the resulting ciphertext yields $M^{\langle 1 \rangle} + M^{\langle 2 \rangle}$. 
+The phase identity is unconditional algebraically. Decoding returns $M^{\langle1\rangle}+M^{\langle2\rangle}\bmod t$ provided $\|E^{\langle1\rangle}+E^{\langle2\rangle}\|_\infty<\Delta/2$; for example, the sum of the two input noise bounds being less than $\Delta/2$ suffices.
 
 $ $
 
@@ -70,14 +72,14 @@ $= \textsf{GLWE}_{S, \sigma}(\Delta (M^{\langle 1 \rangle} + M^{\langle 2 \rangl
 \subsection{Discussion}
 \label{subsubsec:glwe-add-cipher-discuss} 
 
-\para{Noise Elimination:} If we decrypt $\textsf{GLWE}_{S, \sigma}(\Delta(M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) + E^{\langle 3 \rangle})$ by using the secret key $S$, then we get the plaintext $M^{\langle 1 \rangle} + M^{\langle 2 \rangle}$. Meanwhile, $A_1^{\langle 3 \rangle}, A_2^{\langle 3 \rangle}, \ldots,  A_{k-1}^{\langle 3 \rangle}, E^{\langle 3 \rangle}$ gets eliminated by decryption (with rounding), regardless of whatever their randomly sampled values were during encryption.
+\para{Noise Elimination:} Secret-key subtraction removes the mask products exactly. Rounding removes the resulting error only while its coefficient magnitudes remain below $\Delta/2$. Valid inputs can add to an invalid output if the combined error exceeds that bound.
 
 $ $
 
-\para{Noise Growth:} Note that after decryption, the original ciphertext $C$'s noise has increased from $E^{\langle 1 \rangle}$ and $E^{\langle 2 \rangle}$ to $E^{\langle 3 \rangle} = E^{\langle 1 \rangle} + E^{\langle 2 \rangle}$. However, if the noise is sampled from a Gaussian distribution with the mean $\mu = 0$, then the noise variance grows linearly with the number of additions and eventually consumes the budget $\Delta/2$. However, this growth rate is significantly lower than that of homomorphic multiplication, where noise typically grows multiplicatively.
+\para{Noise Growth:} The new error is $E^{\langle3\rangle}=E^{\langle1\rangle}+E^{\langle2\rangle}$. For independent zero-mean errors, variances add; with equal variance $\sigma^2$, summing $h$ independent samples gives variance $h\sigma^2$. Zero mean alone is insufficient. In general, $\operatorname{Var}(e_1+e_2)=\operatorname{Var}(e_1)+\operatorname{Var}(e_2)+2\operatorname{Cov}(e_1,e_2)$. Adding a ciphertext to itself produces $2e$ and variance $4\sigma^2$, not $2\sigma^2$. A deterministic coefficient bound uses the triangle inequality and requires no independence assumption.
 
 $ $
 
-\para{Hard Threshold on the Plaintext's Value Without Modulo Reduction $t$:} During homomorphic operations (e.g., addition or multiplication) and decryption, the $AS$ and $B$ terms in the $B = AS + \Delta M + E + vq$ relation are allowed to wrap around modulo $q$ indefinitely, because regardless of whatever their wrapping count is, the final decryption step will always subtract $B$ by $AS$, outputting $\Delta M + E + v'q = \Delta M + E \pmod q$, and the $v'q$ term is always exactly eliminated by modulo reduction by $q$. After that, we can correctly recover $M$ by computing $\left\lceil \dfrac{\Delta M + E \bmod q}{\Delta}\right\rfloor$, eliminating the noise $E$. However, as we learned in Summary~\ref*{subsubsec:lwe-noise-bound} (in \autoref{subsubsec:lwe-noise-bound}), if the error bound $|-\epsilon v t + e| < \dfrac{\Delta}{2}$ breaks (where $e$ can be any coefficient of $E$), then modulo reduction by $q$ starts to contaminate the scaled plaintext bits. This violation of the error bound occurs when the noise $e$ grows too much over homomorphic operations, or the ciphertext modulus $q$ is not sufficiently larger than the plaintext modulus $t$. If $q \gg t$, the scheme can take on a big $vt$ value (i.e., the plaintext value can wrap around the plaintext modulus $t$ many times across its homomorphic operations). The error bound constraint  $\dfrac{vt + e}{\lfloor\frac{q}{t}\rfloor} < \dfrac{1}{2}$ is used in the BFV scheme.  %This requirement on the valid range of the plaintext term is needed also to accomplish correct modulus switch of FHE ciphertexts to be later explained in \autoref{sec:modulus-rescaling}.  
+\para{Plaintext Overflow when $t\nmid q$:} Mask products and ciphertext components are always interpreted modulo $q$. When $t\mid q$, plaintext wrap-around modulo $t$ is compatible with multiplication by $\Delta=q/t$. When $t\nmid q$ and $\Delta=\lfloor q/t\rfloor$, write each unreduced plaintext coefficient as $m=m'+vt$ with centered $m'$. The effective error is $e-(q\bmod t)v$. Under the assumptions of \autoref{subsubsec:lwe-noise-bound}, require $|e-(q\bmod t)v|<\Delta/2$. This condition depends on the overflow $v$; $q\gg t$ alone does not ensure it. The subsequent reduction modulo $t$ is part of message decryption.
 
  

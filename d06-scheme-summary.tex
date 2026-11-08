@@ -1,447 +1,287 @@
-%\subsection{Scheme Comparison}
-%\label{subsec:scheme-comparison}
+The following tables summarize the ring versions discussed in this book, rather than every variant of these scheme families. Set $R=\mathbb Z[X]/(X^n+1)$ and $R_q=R/qR$, with power-of-two $n$. Write $[x]_q$ for a centered representative and $\lfloor x\rceil$ for nearest-integer rounding; Rounding, modular reduction, and coefficient bounds are interpreted coefficientwise; polynomial multiplication is in the stated quotient ring.
 
-We summarize and compare TFHE, BFV, CKKS, and BGV as follows:
-
-\begin{comment}
-\clearpage
-
-
-
-\end{comment}
+We use the plus-phase convention $b+\langle\vec a,\vec s\rangle$ or $B+AS$ throughout these tables. The TFHE chapter uses the equivalent minus convention, obtained by negating the public mask; blind-rotation and key-switching signs must follow that choice. Evaluated ciphertext errors are not assumed to retain the distribution or standard deviation of fresh encryption. A summary formula is subject to its decoding bound, compatible parameters, and evaluation-key assumptions. In particular, publishing encryptions of a secret under a related secret may require a circular/KDM-security assumption or an appropriate key hierarchy.
 
 \captionsetup{justification=raggedright,singlelinecheck=false,labelfont=bf}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\textbf{Hard Problem Basis}\\\hline\hline
-\textbf{TFHE}&LWE\\\hline
-\textbf{BFV}&\\
-\textbf{CKKS}&RLWE\\
-\textbf{BGV}&\\\hline
-\end{tabular}
+\textbf{TFHE}&LWE for scalar ciphertexts; GLWE/RLWE for ring ciphertexts and evaluation keys.\\\hline
+\textbf{BFV / CKKS / BGV}&RLWE for the ring versions discussed here. Security depends on the ring, dimensions, moduli, secret/error distributions, and released evaluation keys.\\\hline
+\end{tabularx}
 \caption{\textbf{Hard Problem Basis}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\textbf{Unit Data Type}\\\hline\hline
-\textbf{TFHE}&Vector\\\hline
-\textbf{BFV}&\\
-\textbf{CKKS}&Polynomial\\
-\textbf{BGV}&\\\hline
-\end{tabular}
-\caption{\textbf{Unit Data Type}}
+\textbf{TFHE}&Scalar interface: $(\vec a,b)\in\mathbb Z_q^{k+1}$. Blind rotation uses GLWE/GGSW ring ciphertexts internally.\\\hline
+\textbf{BFV / CKKS / BGV}&A relinearized ciphertext is $(A,B)\in R_q^2$. Multiplication temporarily produces three components.\\\hline
+\end{tabularx}
+\caption{\textbf{Ciphertext Representation}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Plaintext}}\\\hline\hline
-\textbf{TFHE}&Number $m \in \mathbb{Z}_t$ \text{ } \textcolor{red}{ $\rhd$ $t$ is a power of 2}\\\hline
-\textbf{BFV}&Polynomial $M \in \mathbb{Z}_t[X]/X^n+1$ \text{ } \textcolor{red}{ $\rhd$ $t$ is a prime, and $n$ is a power of 2}\\\hline
-\textbf{CKKS}&Polynomial $M \in \mathbb{R}[X]/X^n+1$ \text{ }\textcolor{red}{ $\rhd$ $n$ is a power of 2}\\\hline
-\textbf{BGV}&Polynomial $M \in \mathbb{Z}_t[X]/X^n+1$ \text{ } \textcolor{red}{ $\rhd$ $t$ is a prime, and $n$ is a power of 2}\\\hline
-\end{tabular}
-\caption{\textbf{Plaintext}}
+\textbf{TFHE}&A finite message alphabet, often $m\in\mathbb Z_t$, embedded in the torus. Power-of-two $t$ is an encoding choice, not a universal requirement.\\\hline
+\textbf{BFV / BGV}&$M\in R_t$. The modulus $t$ need not be prime. Full scalar batching commonly uses prime $t\equiv1\pmod{2n}$; other choices may yield extension-ring slots.\\\hline
+\textbf{CKKS}&Up to $n/2$ complex slots, encoded approximately as an integer polynomial. Real/complex semantic values are not exact finite-ring elements.\\\hline
+\end{tabularx}
+\caption{\textbf{Plaintext and Slot Domain}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Secret Key}}\\\hline\hline
-\textbf{TFHE}&Vector $\vec{s} \xleftarrow{\$} \mathbb{Z}_2^k$ sampled from $\{0, 1\}$ \textcolor{red}{ $\rhd$ $\$$ is a uniform random distribution}\\\hline
-\textbf{BFV}&\\
-\textbf{CKKS}&Polynomial $S \xleftarrow{\$} \mathbb{Z}_3[X]/X^n+1$, where $\mathbb{Z}_3 = \{-1, 0, 1\}$\\
-\textbf{BGV}&\\\hline
-\end{tabular}
+\textbf{TFHE}&Here $s_i\in\{0,1\}$. A separate GLWE secret is used in blind rotation.\\\hline
+\textbf{BFV / CKKS / BGV}&A small polynomial $S\in R$, often with coefficients in $\{-1,0,1\}$, embedded into $R_q$. This is not multiplication in $R_3$.\\\hline
+\end{tabularx}
 \caption{\textbf{Secret Key}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Ciphertext}}\\\hline\hline
-\textbf{TFHE}&(Vector $\vec{a}$, Number $b$) = $(\vec{a} \xleftarrow{\$} \mathbb{Z}_q^k$, $\text{ } b \in \mathbb{Z}_q)$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$, and $t$ divides $q$}\\\hline
-\textbf{BFV}&\\
-\textbf{CKKS}&(Polynomial $A, B$) = $(A \xleftarrow{\$} \mathbb{Z}_q[X]/X^n+1$, \text{ }  $B \in \mathbb{Z}_q[X]/X^n+1)$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$}\\
-\textbf{BGV}&\\\hline
-\end{tabular}
-\caption{\textbf{Ciphertext}}
+\textbf{TFHE}&Fresh mask $\vec a\leftarrow\mathbb Z_q^k$; scalar $b\in\mathbb Z_q$. The simple integer encoding below assumes $t\mid q$.\\\hline
+\textbf{BFV / CKKS / BGV}&Fresh mask $A\leftarrow R_q$; $B\in R_q$. An evaluated ciphertext need not have the distribution of a fresh encryption.\\\hline
+\end{tabularx}
+\caption{\textbf{Ciphertext and Fresh Randomness}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Noise}}\\\hline\hline
-\textbf{TFHE}&Number $e \xleftarrow{\chi} \mathbb{Z}_q$ \text{ } \textcolor{red}{ $\rhd$ $\chi$ is a Gaussian random distribution}\\\hline
-\textbf{BFV}&\\
-\textbf{CKKS}&Polynomial $E \xleftarrow{\chi} \mathbb{Z}_q[X]/X^n+1$\\
-\textbf{BGV}&\\\hline
-\end{tabular}
+\textbf{All schemes}&Fresh error is sampled from a specified small distribution. Discrete Gaussian, bounded, and other distributions require their own parameter analysis.\\\hline
+\textbf{Evaluation}&For independent centered errors, $\operatorname{Var}(e_1+e_2)=\operatorname{Var}(e_1)+\operatorname{Var}(e_2)$. Reusing one ciphertext gives error $2e$, not two independent samples.\\\hline
+\end{tabularx}
 \caption{\textbf{Noise}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Scaling Factor}}\\\hline\hline
-\textbf{TFHE}&Used for $\Delta m$, \text{ } where $\Delta = \dfrac{q}{t}$ \text{ } \textcolor{red}{ $\rhd$ $t$ divides $q$}\\\hline
-\textbf{BFV}&Used for $\Delta M$, \text{ } where $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$  \text{ } \textcolor{red}{ $\rhd$ $t$ is a prime}\\\hline
-\textbf{CKKS}&Used for $\Delta M$, \text{ } where $\Delta \cdot ||M||_\infty \ll q_0$\\
-& \text{ } \textcolor{red}{ $\rhd$ $q_0$ is the lowest multiplicative level's ciphertext modulus}\\\hline
-\textbf{BGV}&Used for $\Delta E$, \text{ } where $\Delta = t$ \text{ } \textcolor{red}{ $\rhd$$t$ is a prime}\\\hline
-\end{tabular}
+\textbf{TFHE}&$\Delta=q/t$ in this integer encoding, with $t\mid q$.\\\hline
+\textbf{BFV}&$\Delta=\lfloor q/t\rfloor$; write $r=q-t\Delta$. The remainder $r$ enters the correctness bounds.\\\hline
+\textbf{CKKS}&Actual scale $\Delta$ is metadata and changes during multiplication/rescaling. Require the entire phase, including error, to fit the current modulus.\\\hline
+\textbf{BGV}&Plaintext is unscaled; the error is a multiple of $t$. Writing $\Delta=t$ for the error factor does not identify it with the BFV/CKKS plaintext scale.\\\hline
+\end{tabularx}
 \caption{\textbf{Scaling Factor}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Encryption}}\\\hline\hline
-\textbf{TFHE}&$(\vec{a}, b)$ \text{ } where $\vec{a} \xleftarrow{\$} \mathbb{Z}_q^k$, $\text{ } b = \Delta m + e - a\cdot s \bmod q$, \text{ } $e \xleftarrow{\chi} \mathbb{Z}_q$\\
-&\text{ } \text{ } \textcolor{red}{ $\rhd$ After using $e$ each time, throw it away}\\\hline
-\textbf{BFV}&$(A, B)$ \text{ } where $A \xleftarrow{\$} \mathbb{Z}_q[X] / (X^n + 1)$, $\text{ } B = \Delta M + E - A\cdot S \bmod q$, \text{ } $E \xleftarrow{\chi} \mathbb{Z}_q[X]/(X^n+1)$\\
-\textbf{CKKS}&\text{ } \text{ }\textcolor{red}{ $\rhd$ After using $E$ each time, throw it away}\\\hline
-\textbf{BGV}&$(A, B)$ \text{ } where $A \xleftarrow{\$} \mathbb{Z}_q[X] / (X^n + 1)$, $\text{ } B = M + \Delta E - A\cdot S \bmod q$, \text{ } $E \xleftarrow{\chi} \mathbb{Z}_q[X]/(X^n+1)$\\
-&\text{ } \text{ }\textcolor{red}{ $\rhd$ After using $E$ each time, throw it away}\\\hline
-\end{tabular}
-\caption{\textbf{Encryption}}
+\textbf{TFHE}&$b=[\Delta m+e-\langle\vec a,\vec s\rangle]_q$. Sample a fresh mask and error for each encryption.\\\hline
+\textbf{BFV}&$B=[\Delta M+E-AS]_q$.\\\hline
+\textbf{CKKS}&$B=[\lfloor\Delta M\rceil+E_{\rm enc}-AS]_q$. Below $E$ includes encoding and encryption error.\\\hline
+\textbf{BGV}&$B=[M+tE-AS]_q$.\\\hline
+\end{tabularx}
+\caption{\textbf{Symmetric Encryption}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Cryptographic Relation}}\\\hline\hline
-\textbf{TFHE}&$b + a\cdot s = \Delta m + e \pmod q$, \text{ } where $\Delta = \dfrac{q}{t}$  \text{ } \textcolor{red}{ $\rhd$ $t$ divides $q$}\\\hline
-\textbf{BFV}&$B + A\cdot S = \Delta M + E \pmod q$, \text{ } where $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$ \text{ } \textcolor{red}{ $\rhd$ $t$ is a prime}\\\hline
-\textbf{CKKS}&$B + A\cdot S = \Delta M + E \pmod q$, \text{ } where $\Delta \cdot ||M||_\infty \ll q_0$\\
-& \text{ } \textcolor{red}{ $\rhd$ $q_0$ is the lowest multiplicative level's ciphertext modulus}\\\hline
-\textbf{BGV}&$B + A\cdot S = M + \Delta E \pmod q$, \text{ } where $\Delta = t$  \text{ } \textcolor{red}{ $\rhd$ $t$ is a prime}\\\hline
-\end{tabular}
-\caption{\textbf{Cryptographic Relation}}
+\textbf{TFHE}&$\phi=b+\langle\vec a,\vec s\rangle\equiv\Delta m+e\pmod q$.\\\hline
+\textbf{BFV / CKKS}&$\Phi=B+AS\equiv\Delta M+E\pmod q$.\\\hline
+\textbf{BGV}&$\Phi=B+AS\equiv M+tE\pmod q$.\\\hline
+\end{tabularx}
+\caption{\textbf{Phase Relation}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Decryption Formula}}\\\hline\hline
-\textbf{TFHE}&$m = \left\lceil\dfrac{(b + a\cdot s \bmod q)}{\Delta}\right\rfloor \bmod t$\\
-&$\textcolor{white}{m} = \left\lceil\dfrac{(\Delta m + e)}{\Delta}\right\rfloor \bmod t$ \text{ } \textcolor{red}{ $\rhd$ $e$ gets eliminated if $e < \dfrac{\Delta}{2}$}\\\hline
-\textbf{BFV}&$M = \left\lceil\dfrac{(B + A\cdot S \bmod q)}{\Delta}\right\rfloor  \bmod t$\\
-&$\textcolor{white}{M} = \left\lceil\dfrac{(\Delta M + E)}{\Delta}\right\rfloor  \bmod t$ \text{ } \textcolor{red}{ $\rhd$ $E$ gets eliminated if $||E||_\infty < \dfrac{\Delta}{2}$}\\\hline
-\textbf{CKKS}&$M = \left\lceil\dfrac{(B + A\cdot S \bmod q)}{\Delta}\right\rfloor_{\frac{1}{\Delta}}$\\
-&$\textcolor{white}{M} = \left\lceil\dfrac{\Delta M + E}{\Delta}\right\rfloor_{\frac{1}{\Delta}}$ \text{ } \textcolor{red}{ $\rhd$ The final noise remains as $\dfrac{E}{\Delta}$ (increase $\Delta$ to reduce it)}\\\hline
-\textbf{BGV}&$M = (B + A\cdot S \bmod q) \bmod t$\\
-&$\textcolor{white}{M} = (M + \Delta E) \bmod t$ \text{ } \textcolor{red}{ $\rhd$ $E$ gets removed if $\Delta E < q$}\\\hline
-\end{tabular}
-\caption{\textbf{Decryption Formula}}
+\textbf{TFHE}&$m=\lfloor[\phi]_q/\Delta\rceil\bmod t$ if $|e|<\Delta/2$.\\\hline
+\textbf{BFV}&$M=\lfloor(t/q)[\Phi]_q\rceil\bmod t$. For a chosen integer lift of $M$, a sufficient condition is $\|tE-rM\|_\infty<q/2$, where $r=q-t\Delta$.\\\hline
+\textbf{CKKS}&Decode $[\Phi]_q/\Delta$ through the canonical embedding. If $\|\Delta M+E\|_\infty<q/2$, coefficient error is $E/\Delta$; slot error must be bounded after embedding.\\\hline
+\textbf{BGV}&$M=[\Phi]_q\bmod t$. A sufficient no-wrap condition is $\|M+tE\|_\infty<q/2$.\\\hline
+\end{tabularx}
+\caption{\textbf{Decryption and Sufficient Correctness Conditions}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Ciphertext Modulus}}\\\hline\hline
-\textbf{TFHE}&A single number $q$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$, and $t$ divides $q$}\\\hline
-\textbf{BFV}&A single number $q$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$}\\\hline
-\textbf{CKKS}&An $L$-multiplicative-level modulus chain $\{q_0, q_1, \cdots, q_L\}$\\
-& \text{ } \textcolor{red}{ $\rhd$ each $q_i = \prod\limits_{j=0}^{l}w_j$, and each $w_j$ is a CRT modulus}\\
-&\text{ } \text{ } \text{ } \textcolor{red}{ having the property: $w_0 \gg \Delta \cdot ||M||_{\infty}, \text{ } w_j \approx \Delta$ (for $1 \leq j \leq L$)}\\\hline
-\textbf{BGV}&An $L$-multiplicative-level modulus chain $\{q_0, q_1, \cdots, q_L\}$\\
-&\text{ } \textcolor{red}{ $\rhd$ each $q_i = \prod\limits_{j=0}^{l}w_j$, and each $w_j$ is a CRT modulus}\\
-&\text{ } \text{ } \text{ } \textcolor{red}{ having the property: $w_0 \equiv w_1 \equiv \cdots \equiv w_L \bmod t$}\\\hline
-\end{tabular}
+\textbf{TFHE / BFV}&A fixed modulus $q$ is sufficient for the basic presentation; RNS and modulus-switching variants also exist.\\\hline
+\textbf{CKKS}&$q_i=\prod_{j=0}^{i}w_j$ with pairwise coprime factors. Dropping $w_l=q_l/q_{l-1}$ by rescaling changes scale by exactly $1/w_l$, even when $w_l\approx\Delta$.\\\hline
+\textbf{BGV}&$q_i=\prod_{j=0}^{i}w_j$ with factors coprime to $t$. Taking every $w_j\equiv1\pmod t$ permits a simple residue-preserving convention; other chains require correction factors.\\\hline
+\end{tabularx}
 \caption{\textbf{Ciphertext Modulus}}
 \end{table}
 
-
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Ciphertext-to-Ciphertext Addition}}\\\hline\hline
-\textbf{TFHE}&- Ciphertext $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
-&- Ciphertext $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_2) = (\vec{a}_2, b_2) = (a_{2,0}, a_{2, 1}, \cdots, a_{2, k-1}, b_2) \bmod q$\\
-&$\textsf{LWE}_{\vec{s}, \sigma}(\Delta (m_1 + m_2)) = (\vec{a}_1+\vec{a}_2, b_1+b_2) \bmod q$\\\hline
-\textbf{BFV}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q$\\
-&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2) \bmod q$\\
-&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + M_2)) =(A_1+A_2,B_1+B_2) \bmod q$\\\hline
-\textbf{CKKS}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q_l$\\
-&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2) \bmod q_l$\\
-&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + M_2)) =(A_1+A_2,B_1+B_2) \bmod q_l$\\\hline
-\textbf{BGV}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1) \bmod q_l$\\
-&- Ciphertext $\textsf{RLWE}_{S, \sigma}(M_2) = (A_2, B_2) \bmod q_l$\\
-&$\textsf{RLWE}_{S, \sigma}(M_1 + M_2) =(A_1+A_2,B_1+B_2) \bmod q_l$\\\hline
-\end{tabular}
+\textbf{All schemes}&Add corresponding components: $(A_1+A_2,B_1+B_2)$, or $(\vec a_1+\vec a_2,b_1+b_2)$. Keys and moduli must match; CKKS scales must also be aligned.\\\hline
+\textbf{Error}&The lifted phase errors add: $E_{\rm out}=E_1+E_2$. For BFV, re-expressing a wrapped sum as a representative in $R_t$ also introduces the $q-t\Delta$ carry correction.\\\hline
+\end{tabularx}
 \caption{\textbf{Ciphertext-to-Ciphertext Addition}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Ciphertext-to-Plaintext Addition}}\\\hline\hline
-\textbf{TFHE}&- Ciphertext $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
-&- Plaintext number $c \in \mathbb{Z}_t$\\
-&$\textsf{LWE}_{\vec{s}, \sigma}(\Delta (m_1 + c)) = (\vec{a}_1, b_1+\Delta c) \bmod q$\\\hline
-\textbf{BFV}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q$\\
-&- Plaintext polynomial $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
-&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + C)) =(A_1,B_1+\Delta C) \bmod q$\\\hline
-\textbf{CKKS}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q_l$\\
-&- Plaintext polynomial $C \in \mathbb{R}[X]/(X^n + 1)$\\
-&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + C)) =(A_1,B_1+\Delta C) \bmod q_l$\\\hline
-\textbf{BGV}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1) \bmod q_l$\\
-&- Plaintext polynomial $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
-&$\textsf{RLWE}_{S, \sigma}(M_1 + C) =(A_1,B_1+C) \bmod q_l$\\\hline
-\end{tabular}
+\textbf{TFHE / BFV}&Add $\Delta c$ to $b$, or $\Delta C$ to $B$, using the agreed integer representatives.\\\hline
+\textbf{CKKS}&Add the integer encoding $\lfloor\Delta C\rceil$ to $B$; encoding error is included in the precision budget.\\\hline
+\textbf{BGV}&Add $C$ to $B$ modulo the ciphertext modulus.\\\hline
+\end{tabularx}
 \caption{\textbf{Ciphertext-to-Plaintext Addition}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Ciphertext-to-Plaintext Multiplication}}\\\hline\hline
-\textbf{TFHE}&- Ciphertext $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
-&- Plaintext number $c \in \mathbb{Z}_t$\\
-&$\textsf{LWE}_{\vec{s}, \sigma}(\Delta (m_1 \cdot c)) = (\vec{a}_1 \cdot c, \text{ } b_1 \cdot c) \bmod q$\\\hline
-\textbf{BFV}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q$\\
-&- Plaintext polynomial $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
-&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 \cdot C)) =(A_1 \cdot C, \text{ } B_1 \cdot C)$\\\hline
-\textbf{CKKS}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q_l$\\
-&- Plaintext polynomial $C \in \mathbb{R}[X]/(X^n + 1)$\\
-&1. \underline{Basic Multiplication}\\
-&\textcolor{white}{1. } $\textsf{ct} = \textsf{RLWE}_{S, \sigma}(\Delta^2 (M_1 \cdot C)) =(A_1 \cdot \Delta C, \text{ } B_1 \cdot \Delta  C)  \bmod q_l$\\
-&2. \underline{Rescaling} by $\dfrac{1}{\Delta}$: $\left\lceil\dfrac{\textsf{ct}}{\Delta}\right\rfloor = \textsf{RLWE}_{S, \sigma}(\Delta M_1 C) \bmod q_{l-1}$\\\hline
-\textbf{BGV}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1) \bmod q_l$\\
-&- Plaintext polynomial $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
-&$\textsf{RLWE}_{S, \sigma}(M_1 \cdot C) =(A_1 \cdot C, \text{ } B_1\cdot C)  \bmod q_l$\\\hline
-\end{tabular}
+\textbf{TFHE / BFV / BGV}&Multiply both components by the unscaled plaintext $c$ or $C$. The phase error becomes $ce$ or $CE$, plus any representative correction. In $R$, $\|CE\|_\infty\leq\|C\|_1\|E\|_\infty$.\\\hline
+\textbf{CKKS}&Multiply by an integer encoding at scale $\Delta_C$. If rescaling removes $w_l$, the output scale is $\Delta_{\rm out}=\Delta\Delta_C/w_l$. Component rounding contributes $\rho_B+\rho_A S$ with $\|\rho_A\|_\infty,\|\rho_B\|_\infty\leq1/2$.\\\hline
+\end{tabularx}
 \caption{\textbf{Ciphertext-to-Plaintext Multiplication}}
 \end{table}
 
-
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Ciphertext-to-Ciphertext Multiplication}}\\\hline\hline
-\textbf{TFHE}&- Ciphertext $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
-&- Ciphertext $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_2) = (\vec{a}_2, b_2) = (a_{2,0}, a_{2, 1}, \cdots, a_{2, k-1}, b_2)  \bmod q$\\
-&1. \underline{Programmable Bootstrapping}:\\ 
-&\textcolor{white}{1. } Convert $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_2)$ into $\textsf{GSW}_{\vec{s}, \sigma}^{\beta, l}(m_2)$.\\
-&2. \underline{Homomorphic Multiplication}:\\
-&\textcolor{white}{2. } Compute $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) \cdot \textsf{GSW}_{\vec{s}, \sigma}^{\beta, l}(m_2)$\\
-&\text{ }$ = \sum\limits_{i=0}^{k-1} \langle \textsf{Decomp}^{\beta, l}(a_{1,i}),  \textsf{Lev}_{\vec{s}, \sigma}^{\beta, l}(-s_i\cdot m_2) \rangle + \langle \textsf{Decomp}^{\beta, l}(b_{1}),  \textsf{Lev}_{\vec{s}, \sigma}^{\beta, l}(m_2) \rangle$ \\
-&\text{ } $ = \textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1 m_2)$\\\hline
-\textbf{BFV}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q$\\
-&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2)  \bmod q$\\
-&1. \underline{\textsf{ModRaise}} from $q$ to $Q = q \cdot \Delta$\\
-&\textcolor{white}{1. } - Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod Q$\\
-&\textcolor{white}{1. } - Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2)  \bmod Q$\\
-&2. \underline{Polynomial Multiplication}: \\
-& \textcolor{white}{1. } $(A_1A_2, \text{ } A_1B_2 + A_2B_1, \text{ } B_1B_2) \equiv (D_2, D_1, D_0) \pmod Q$\\
-&3. \underline{Relinearization}: $\textsf{ct}_\alpha = (D
-_1, D_0),$\text{ } $\textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$\\
-&\textcolor{white}{3. Relinearization: } $\textsf{ct}_\alpha + \textsf{ct}_\beta = \textsf{ct}_{\alpha + \beta} = \textsf{RLWE}_{S, \sigma}(\Delta^2 M_1 M_2) \bmod Q$\\
-&4. \underline{Rescaling} by $\dfrac{1}{\Delta}$: $\left\lceil\dfrac{\textsf{ct}_{\alpha+\beta}}{\Delta}\right\rfloor = \textsf{RLWE}_{S, \sigma}(\Delta M_1 M_2) \bmod q$\\\hline
-\textbf{CKKS}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q_l$\\
-&- Ciphertext $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2)  \bmod q_l$\\
-&1. \underline{Polynomial Multiplication}: \\
-& \textcolor{white}{1. } $(A_1A_2, \text{ } A_1B_2 + A_2B_1, \text{ } B_1B_2) \equiv (D_2, D_1, D_0) \pmod{q_l}$\\
-&2. \underline{Relinearization}: $\textsf{ct}_\alpha = (D
-_1, D_0),$\text{ } $\textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$\\
-&\textcolor{white}{3. Relinearization: } $\textsf{ct}_\alpha + \textsf{ct}_\beta = \textsf{ct}_{\alpha + \beta} = \textsf{RLWE}_{S, \sigma}(\Delta^2 M_1 M_2) \bmod q_l$\\
-&3. \underline{Rescaling} by $\dfrac{1}{\Delta}$: $\left\lceil\dfrac{\textsf{ct}_{\alpha+\beta}}{\Delta}\right\rfloor = \textsf{RLWE}_{S, \sigma}(\Delta M_1 M_2) \bmod q_{l-1}$\\\hline
-\textbf{BGV}&- Ciphertext $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1)  \bmod q_l$\\
-&- Ciphertext $\textsf{RLWE}_{S, \sigma}( M_2) = (A_2, B_2)  \bmod q_l$\\
-&1. \underline{Polynomial Multiplication}: \\
-& \textcolor{white}{1. } $(A_1A_2, \text{ } A_1B_2 + A_2B_1, \text{ } B_1B_2) \equiv (D_2, D_1, D_0) \pmod{q_l}$\\
-&2. \underline{Relinearization}: $\textsf{ct}_\alpha = (D
-_1, D_0),$\text{ } $\textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$\\
-&\textcolor{white}{3. Relinearization: } $\textsf{ct}_\alpha + \textsf{ct}_\beta = \textsf{ct}_{\alpha + \beta} = \textsf{RLWE}_{S, \sigma}( M_1 M_2) \bmod q_l$\\
-&3. (Optional) \underline{Rescaling} by $\dfrac{1}{\Delta}$: $\left\lceil\dfrac{\textsf{ct}_{\alpha+\beta}}{\Delta}\right\rfloor_t = \textsf{RLWE}_{S, \sigma}(M_1 M_2) \bmod q_{l-1}$\\
-&\textcolor{red}{ $\rhd$ $\lceil\rfloor_t$ means rounding to the nearest multiple of $t$}\\
-&\textcolor{red}{ $\rhd$ The future noise growth rate gets reduced if the ciphertext is rescaled}\\\hline
-\end{tabular}
+\textbf{TFHE}&External products require a compatible GSW/GGSW encryption of one operand. Converting an LWE ciphertext to such a representation uses circuit bootstrapping, not ordinary PBS alone. Noise includes decomposition and evaluation-key errors.\\\hline
+\textbf{BFV}&In the standard FV multiplication, form the integer negacyclic products $(D_2,D_1,D_0)=(A_1A_2,A_1B_2+A_2B_1,B_1B_2)$, scale components by $t/q$ and round, then relinearize modulo $q$. Do not reduce products modulo $q$ before scaling. The chapter also analyzes a separately specified $1/\Delta$ teaching variant.\\\hline
+\textbf{CKKS}&Tensor multiplication, relinearization, and (when scheduled) rescaling. With input scales $\Delta_1,\Delta_2$, multiplication gives scale $\Delta_1\Delta_2$; after rescaling it is $\Delta_1\Delta_2/w_l$. Relinearization and rounding add error.\\\hline
+\textbf{BGV}&Tensor multiplication and relinearization preserve the message modulo $t$ when the noise bound holds. Optional modulus switching uses the ratio $q_{l-1}/q_l$ and residue correction. It is not division by $t$ followed by rounding to a multiple of $t$.\\\hline
+\end{tabularx}
 \caption{\textbf{Ciphertext-to-Ciphertext Multiplication}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Maximum Possible Multiplications (without Bootstrapping)}}\\\hline\hline
-\textbf{TFHE}&Unlimited with programming bootstrapping (but not possible without it)\\\hline
-\textbf{BFV}&Unlimited\\\hline
-\textbf{CKKS}&As many times as the length of the modulus chain\\\hline
-\textbf{BGV}&As many times as the length of the modulus chain\\\hline
-\end{tabular}
-\caption{\textbf{Maximum Possible Multiplications (without Bootstrapping)}}
+\textbf{TFHE}&Leveled operations have a finite noise budget. Gate/PBS evaluation performs bootstrapping and therefore does not belong in a claim about computation without bootstrapping.\\\hline
+\textbf{BFV}&Fixed parameters permit a bounded circuit family determined by noise growth. A fixed ciphertext modulus does not imply unlimited multiplication.\\\hline
+\textbf{CKKS / BGV}&The modulus chain and noise/precision budget constrain multiplicative depth and level consumption, not the total number of parallel multiplication gates. Refreshing requires a valid bootstrapping configuration.\\\hline
+\end{tabularx}
+\caption{\textbf{Computation Budget without Bootstrapping}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Key Switching}}\\\hline\hline
-\textbf{TFHE}& Key-switching from $\vec{s} \rightarrow \vec{s}_{'}$:\\
-&$\textsf{LWE}_{\vec{s}_{'},\sigma}(\Delta m) = b + a\cdot \textsf{LWE}_{\vec{s}_{'}, \sigma}(s)$\\
-&\textcolor{white}{$\textsf{LWE}_{\vec{s}_{'},\sigma}(\Delta m) $} $ = b + \bm{\langle} \textsf{Decomp}^{\beta, l}(\vec{a}), \text{ } \textsf{Lev}_{\vec{s}_{'}, \sigma}^{\beta, l}(\vec{s}) \bm{\rangle}$\\\hline
-\textbf{BFV}& Key-switching from $S \rightarrow S'$:\\
-\textbf{CKKS}&$\textsf{RLWE}_{S',\sigma}(\Delta M) = B + A\cdot \textsf{RLWE}_{S', \sigma}(S)$\\
-&\textcolor{white}{$\textsf{RLWE}_{S',\sigma}(\Delta M) $} $ = B + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$\\\hline
-\textbf{BGV}& Key-switching from $S \rightarrow S'$:\\
-&$\textsf{RLWE}_{S',\sigma}(M) = B + A\cdot \textsf{RLWE}_{S', \sigma}(S)$\\
-&\textcolor{white}{$\textsf{RLWE}_{S',\sigma}(M) $} $ = B + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$\\\hline
-\end{tabular}
+\textbf{Ring form}&Let $A=\sum_i d_i g_i$ be an exact gadget decomposition. Evaluation-key components $K_i$ have phase $g_iS+\varepsilon_i$ under $S'$. Then $c'=(0,B)+\sum_i d_iK_i$ has phase $B+AS+\sum_i d_i\varepsilon_i$ under $S'$.\\\hline
+\textbf{Conditions}&TFHE uses the corresponding vector formula. Approximate decomposition adds a residual term. BGV evaluation-key errors must be multiples of $t$. A scalar added to a ciphertext means addition to its body component only.\\\hline
+\end{tabularx}
 \caption{\textbf{Key Switching}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Modulus Drop (\textsf{ModDrop})}}\\\hline\hline
-\textbf{CKKS}&- Ciphertext with the multiplicative level $l$: $\textsf{RLWE}_{S, \sigma}(\Delta M) = (A, B)  \bmod q_l$\\
-\textbf{BGV}& - Ciphertext with the multiplicative level $l-1$:\\ 
-&\textcolor{white}{ - } $\textsf{RLWE}_{S, \sigma}(\Delta M) = (A', B') = (A \bmod q_{l-1}, B \bmod q_{l-1})$\\\hline
-\end{tabular}
-\caption{\textbf{Modulus Drop (\textsf{ModDrop})}}
+\textbf{ModDrop}&For $q'\mid q$, reduce components modulo $q'$ without scaling. CKKS scale metadata stays unchanged; preserving the represented value requires the remaining phase to fit. BGV plaintext is preserved if $\|M+tE\|_\infty<q'/2$; arbitrary wraparound may change it modulo $t$.\\\hline
+\textbf{BGV switch}&In the convention $q\equiv q'\pmod t$, choose each $c'\equiv c\pmod t$ close to $(q'/q)c$. Scaling changes absolute noise and modulus together, and adds rounding error; it does not sample a fresh noise distribution.\\\hline
+\end{tabularx}
+\caption{\textbf{Modulus Drop and Modulus Switching}}
 \end{table}
 
-
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Encoding and Decoding the Plaintext}}\\\hline\hline
-\textbf{TFHE}&No need, because each plaintext is a single number\\\hline
-\textbf{BFV}&Must convert the input slots into polynomial coefficients to support batch processing:\\
-\textbf{CKKS}&- Encoding input slots $\vec{v}$ into polynomial coefficients: $\vec{m} = n^{-1}\cdot\vec{v}\cdot I_n^R \cdot \hathat W$\\
-\textbf{BGV}&- Decoding polynomial coefficients $\vec{m}$ into input slots:  $\vec{v} = \vec{m} \cdot \hathat W^{*}$\\\hline
-\end{tabular}
+\textbf{TFHE}&Even a scalar requires an encoding such as $m\mapsto\Delta m$ and a decoding/noise margin. LUT padding and the valid input interval must be specified.\\\hline
+\textbf{BFV / BGV}&Batch encoding is a polynomial CRT map over the plaintext ring, under the required factorization assumptions. It is optional when working directly with polynomial messages.\\\hline
+\textbf{CKKS}&Canonical embedding and its inverse relate conjugate-symmetric complex evaluations to real coefficients; scaling and integer rounding then produce a finite encoding.\\\hline
+\end{tabularx}
 \caption{\textbf{Encoding and Decoding the Plaintext}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Input Slot Rotation}}\\\hline\hline
-\textbf{TFHE}&Not applicable, because its plaintext is a single number (i.e., a single slot)\\\hline
-\textbf{BFV}&Given $\textsf{ct} = \textsf{RLWE}_{S(X), \sigma}\bm(\Delta M(X)\bm) = \bm(A(X), B(X)\bm)$,\\
-&\text{ } to rotate the input slots by $h$ positions to the left:\\
-\textbf{CKKS}&1. Update $\textsf{ct}$ to $ \textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(\Delta M(X^{J(h)})\bm) = \bm(A(X^{J(h)})$, $B(X^{J(h)})\bm)$\\
-&\text{ } \text{ } (where $J(h) = 5^h \bmod 2n$)\\
-&2. Key-switch $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(\Delta M(X^{J(h)})\bm)$ to $\textsf{RLWE}_{S(X), \sigma}\bm(\Delta M(X^{J(h)})\bm)$. \\\hline
-\textbf{BGV}&Given $\textsf{ct} = \textsf{RLWE}_{S(X), \sigma}\bm(M(X)\bm) = \bm(A(X), B(X)\bm)$,\\
-&\text{ } to rotate the input slots by $h$ positions to the left:\\
-&1. Update $\textsf{ct}$ to $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(M(X^{J(h)})\bm) = \bm(A(X^{J(h)})$, $B(X^{J(h)})\bm)$\\
-&2. Key-switch $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm( M(X^{J(h)})\bm)$ to $\textsf{RLWE}_{S(X), \sigma}\bm( M(X^{J(h)})\bm)$. \\\hline
-\end{tabular}
+\textbf{Ring schemes}&Apply the automorphism $X\mapsto X^j$, then key-switch from $S(X^j)$ to $S(X)$. With the usual ordering, $j=5^h\bmod2n$ rotates CKKS complex slots or each of the two BFV/BGV rows; it is not one cycle through all $n$ scalar slots.\\\hline
+\textbf{TFHE}&The scalar LWE interface has no SIMD slot rotation. Packed GLWE constructions have other polynomial operations and should be distinguished from this interface.\\\hline
+\end{tabularx}
 \caption{\textbf{Input Slot Rotation}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Bootstrapping Goal}}\\\hline\hline
-\textbf{TFHE}&To reset the noise.\\
-\textbf{BFV}&\\\hline
-\textbf{CKKS}&To reset the ciphertext modulus from $q_0 \rightarrow q_L$ (technically, to $q_{l'}$ where $q_0 < q_{l'} < q_L$).\\
-\textbf{BGV}&\\\hline
-\end{tabular}
+\textbf{TFHE / BFV / BGV}&Obtain an encryption of the same message (or a specified LUT output) with a usable new noise budget. The output still contains noise and may use another key or parameter set.\\\hline
+\textbf{CKKS}&Refresh usable levels while controlling additional approximation error. Previously accumulated error in the represented value is not generally removed.\\\hline
+\end{tabularx}
 \caption{\textbf{Bootstrapping Goal}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Bootstrapping Details}}\\\hline\hline
-\textbf{TFHE}&1. \underline{Modulus Switch} from $q \rightarrow 2n$ to convert $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m) \rightarrow \textsf{LWE}_{\vec{s}, \sigma}(\hat\Delta m) = ( \vec{\hat a}, \hat b) \bmod 2n $,\\
-&\text{ } \text{ } where $\hat\Delta = \dfrac{2n}{t}$. \text{ } \textcolor{red}{ $\rhd$ where $t$ divides $2n$}\\
-&2. \underline{Blind Rotation}: Homomorphically rotate the GLWE-encrypted look-up table\\
-&\text{ } \text{ }   polynomial $\textsf{GLWE}_{\vec{S},\sigma}(\Delta V)$ by $\Delta m + e$ positions to the left. This is done by\\
-&\text{ } \text{ }  by homomorphically deriving $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_k)$ as follows:\\
-&\text{ } \text{ } $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_0) = \textsf{GLWE}_{\vec{S},\sigma}(\Delta V) \cdot X^{-\hat b}$\\
-&\text{ } \text{ } $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_i) = \textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1}) \cdot X^{\hat a_i s_{i-1}}$\\
-&\text{ } \text{ } \text{ } $ = \textsf{GGSW}_{\vec{S},\sigma}^{\beta, l}(s_{i-1})\cdot \bm(\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1}) \cdot X^{\hat{a}_{i-1}} - \textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1})\bm) + \textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1})$\\
-&3. \underline{Coefficient Extraction}: The rotated encrypted polynomial $V_k$'s constant term value is \\
-&\text{ } \text{ }  $\Delta m$. Extract this encrypted constant term as $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m)$ from $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_k)$.\\\hline
-\textbf{BFV}&1. \underline{Modulus Switch} from $q \rightarrow p^\varepsilon$ to convert $\textsf{RLWE}_{S, \sigma}(\Delta M) \rightarrow \textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1} M) \bmod p^\varepsilon$\\
-&2. \underline{Homomorphic Decryption}:\\
-&\text{ } \text{ } $B + A\cdot \textsf{RLWE}_{S, \sigma}(\Delta' S) = \textsf{RLWE}_{S, \sigma}(\Delta' \cdot(p^{\varepsilon-1}M + E + Kp^\varepsilon)) \bmod q$, where $\Delta' = \left\lfloor\dfrac{q}{p^\varepsilon}\right\rfloor$\\
-&3. \underline{\textsf{CoeffToSlot}}: Multiply to the ciphertext by $n^{-1}\cdot I_n^R \cdot \hathat W$ to move\\
-& \text{ } \text{ } the plaintext coefficients of $p^{\varepsilon-1} M + E + Kp^\varepsilon$ to the input slots.\\
-&4. \underline{Digit Extraction}: Given the digit extraction polynomial $G_{\varepsilon}(x)$,\\
-&\text{ } \text{ }  homomorphically compute:\\
-&\text{ } \text{ } $G_{2} \circ G_{3}\circ \cdots \circ G_{\varepsilon-1} (p^{\varepsilon-1} M + E + Kp^\varepsilon)$\\
-&\text{ } \text{ }, and then the output $M + K^{\langle \varepsilon - 1 \rangle}p$ is stored in the plaintext slots.\\
-&\text{ } \text{ } Use scaling factor re-interpretation to handle inverse-$p$ multiplications.\\
-&5. \underline{\textsf{SlotToCoeff}}: Multiply to the ciphertext by $\hathat W^*$ to move $M + K^{\langle \varepsilon - 1 \rangle}p$ to the \\
-&\text{ } \text{ } polynomial coefficient positions and get $\textsf{RLWE}_{S, \sigma}(\Delta'\cdot(M + K^{\langle \varepsilon - 1 \rangle}p)) \bmod q$\\
-&\text{ } \text{ } $  = \textsf{RLWE}_{S, \sigma}(\Delta M) \bmod q$\\
-\hline
-\end{tabular}
+\textbf{TFHE}&Modulus-switch to $2n$. With the plus-phase convention used here, the effective rotation error is $\hat e=(2n/q)e+\delta_b+\sum_i s_i\delta_{a_i}$. Initialize a GLWE accumulator encrypting $\Delta_{\rm out}V$, where $V$ is the unscaled LUT polynomial. Rotate first by $X^{-\hat b}$, then use encrypted secret bits to apply $X^{-\hat a_i s_i}$. Extract the constant term, which encodes $f(m)$ for the chosen LUT. The extraction key is derived from the GLWE secret; key-switch if needed.\\\hline
+\textbf{TFHE conditions}&Define the unscaled lookup by $F(j)=\operatorname{coeff}_0(VX^{-j})$. It must be constant over the total error interval and respect negacyclic anti-periodicity $F(j+n)=-F(j)$. Arbitrary functions require a suitable restricted/padded input domain or an extended construction.\\\hline
+\textbf{BFV}&For plaintext modulus $p^r$, transform decryption into rounding modulo $p^e$: $M=[\lfloor[c_0'+c_1' S]_{p^e}/p^{e-r}\rceil]_{p^r}$, under the modulus-switch error bound. Homomorphically evaluate the inner product using an encrypted secret; the constant body must be encoded at the new scale too. CoeffToSlot, digit extraction with exact divisions, and SlotToCoeff implement the remaining map. For odd $p$ use balanced digits; for $p=2$ include the half-unit rounding offset before deleting low bits. The CRT slot route requires $\gcd(p,2n)=1$; a binary bootstrap therefore needs a different compatible cyclotomic ring or construction. Their parameters and extension-slot layout are essential; see \cite{cryptoeprint:2022/1363}.\\\hline
+\end{tabularx}
 \caption{\textbf{Bootstrapping Details: TFHE, BFV}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Bootstrapping Details}}\\\hline\hline
-\textbf{CKKS}&1. \underline{\textsf{ModRaise}:} View the ciphertext $(A, B) \bmod q_0$ as $(A, B) \bmod q_L$ \\
-%&2. \underline{Homomorphic Decryption } (without scaling down by $\Delta$): \\
-%&\text{ } \text{ } $B + A \cdot \textsf{RLWE}_{S, \sigma}(S) \bmod q_L = B + \langle \textsf{Decomp}^{\beta, l}(A), \textsf{RLev}_{S, \sigma}^{\beta, l}(S) \rangle$\\
-%&$\text{ } \text{ } = \textsf{RLWE}_{S, \sigma}(\Delta M + E + Kq_0) \bmod q_L$\\
-&2. \underline{\textsf{CoeffToSlot}}: Move the coefficients of $\Delta M + E + Kq_0$ to the input slots.\\
-&3. \underline{\textsf{EvalExp}}: Homomorphically evaluate the polynomial approximation of\\
-&\text{ } \text{ } the sine function with period $q_0$ at $\Delta M + E + Kq_0$,\\
-& \text{ } \text{ } which outputs an encryption of $\Delta M + E$ in the plaintext slots.\\
-&4. \underline{\textsf{SlotToCoeff}}: Move $\Delta M + E$ to the polynomial coefficient positions\\
-&\text{ } \text{ } to get $\textsf{RLWE}_{S, \sigma}(\Delta M + E)$.\\\hline
-\textbf{BGV}&1. \underline{Modulus Switch} from $q_{l} \rightarrow \hat{q}$ to convert\\
-&\text{ } \text{ } $\textsf{RLWE}_{S, \sigma}(M) = (A, B) \bmod q_l \rightarrow \textsf{RLWE}_{S, \sigma}(M) = (\hat{A}, \hat{B}) \bmod \hat{q}$\\ 
-&\text{ } \text{ }, where $\hat{q} \equiv 1 \bmod p^\varepsilon$\\
-&2. \underline{Ciphertext Coefficient Multiplication by $p^{\varepsilon-1}$}:\\
-& \text{ } \text{ } Compute $(p^{\varepsilon-1}\hat{A}, p^{\varepsilon-1}\hat{B}) = (A', B') \bmod \hat{q}$ (where $\hat{q} \equiv 1 \bmod p^\varepsilon$)\\
-& \text{ } \text{ }, which the ciphertext $\textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1}M) \bmod \hat{q}$ with noise $p^\varepsilon E$.\\
-&3. \underline{\textsf{ModRaise}}: $(A', B') \bmod \hat{q} \rightarrow (A', B') \bmod q_L$\\
-& \text{ } \text{ } , which is the ciphertext $\textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1}M + p^\varepsilon E + K'\hat{q}) \bmod q_L$.\\
-&4. \underline{\textsf{CoeffToSlot}}: Multiply to the ciphertext by $n^{-1}\cdot I_n^R \cdot \hathat W$ to move\\
-& \text{ } \text{ } the plaintext coefficients of $p^{\varepsilon-1}M + p^\varepsilon E + K'\hat{q}$ to the input slots.\\
-&5. \underline{Digit Extraction}: Given the digit extraction polynomial $G_{\varepsilon}(x)$, \\
-&\text{ } \text{ }  homomorphically compute:\\
-&\text{ } \text{ } $\bm(\text{ } G_{2} \circ G_{3}\circ \cdots \circ G_{\varepsilon} (p^{\varepsilon-1} M + p^\varepsilon E + K'\hat{q})\text{ } \bm)$\\
-&\text{ } \text{ } , and then the output $M + K''p$ is stored in the plaintext slots.\\
-&\text{ } \text{ } To handle inverse-$p$ multiplication in each $i$-th round, multiply $|p^{-1}|_{q^{\langle i \rangle}}$ to all\\
-&\text{ } \text{ }  ciphertext polynomial coefficients to update their plaintext portion from\\
-&\text{ } \text{ }  $Mp^{\varepsilon - i} + K'''p^{\varepsilon - i + 1} \pmod{q^{\langle i \rangle}}$ to $M^{\varepsilon - i - 1} + K^{\langle i \rangle}p^{\varepsilon - i} \pmod{q^{\langle i \rangle}}$\\
-&\text{ } \text{ }   \textcolor{red}{ $\rhd$ where $q^{\langle i \rangle}$ is the ciphertext modulus at each specific round}\\
-&6. \underline{\textsf{SlotToCoeff}}: Multiply to the ciphertext by $\hathat W^*$ to move $M + K^{\langle \varepsilon - 1 \rangle}p$ to the \\
-&\text{ } \text{ } polynomial coefficient positions to get $\textsf{RLWE}_{S, \sigma}(M + K^{\langle \textit{last} \rangle}p)$\\
-&\text{ } \text{ } $ = \textsf{RLWE}_{S, \sigma}(M + \Delta K^{\langle \textit{last} \rangle}) \bmod q_{l'}$ \textcolor{red}{ $\rhd$ where $\Delta = p$, and the final noise is $K^{\langle \textit{last} \rangle}$}\\\hline
-\end{tabular}
+\textbf{CKKS}&Modulus raising exposes a lifted phase $\Delta M+E+Kq_0$. CoeffToSlot is a homomorphic linear transform. EvalMod is a nonlinear approximation to modular reduction on a specified bounded input set. SlotToCoeff returns the result to coefficient form; all transforms consume budget and add error.\\\hline
+\textbf{CKKS error}&The illustrative map $g(x)=q_0\sin(2\pi x/q_0)/(2\pi)$ satisfies $g(r+Kq_0)=r+\varepsilon_{\sin}$, with $|\varepsilon_{\sin}|\leq(2\pi)^2|r|^3/(6q_0^2)$. It is not an exact remainder operation; polynomial approximation and homomorphic evaluation add further errors.\\\hline
+\textbf{BGV}&Transform the decryption relation, evaluate the secret-key inner product homomorphically, use CoeffToSlot and digit extraction to remove the unwanted digits, then apply SlotToCoeff. The CRT coprimality condition, odd-prime balanced digits, and binary rounding caveat are as in the BFV row. Exact division by $p$ changes plaintext modulus $p^j\to p^{j-1}$ and requires a divisibility invariant. Merely viewing a small-modulus ciphertext at a larger modulus does not perform this computation; see \cite{cryptoeprint:2022/1363}.\\\hline
+\end{tabularx}
 \caption{\textbf{Bootstrapping Details: CKKS, BGV}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{Noise Management}}\\\hline\hline
-\textbf{TFHE}&Their bootstrapping resets the noise.\\
-\textbf{BFV}&\\\hline
-\textbf{CKKS}&- The noise grows without stopping, because its bootstrapping resets only the\\
-& modulus chain. To slow down the noise growth, we should increase the plaintext's\\
-&  scaling factor $\Delta$.\\
-&- CKKS's \textsf{EvalExp} cannot use the digit extraction polynomial to remove the noise, \\
-&because CKKS's plaintext is not in a modulus ring, but is a real number.\\\hline
-\textbf{BGV}&BGV's modulus switch has the special property of resetting the noise, and BGV's\\
-& bootstrapping resets the modulus chain to enable indefinite modulus switches.\\\hline
-\end{tabular}
-\caption{\textbf{Noise Management}}
+\textbf{TFHE / BFV / BGV}&Track a bound on the complete phase error and the probability of exceeding the decoding margin. Bootstrapping creates a new bounded error; it does not set error to zero.\\\hline
+\textbf{CKKS}&Track scale, magnitude, and slot error at each level. Increasing scale can reduce relative rounding error but consumes modulus capacity; it is not a cost-free or universal cure. Error need not increase monotonically in every circuit.\\\hline
+\textbf{BGV}&Modulus switching reduces absolute phase magnitude while lowering the modulus and adding correction error. It is a noise-management step, not an independent refresh operation.\\\hline
+\end{tabularx}
+\caption{\textbf{Noise and Precision Management}}
 \end{table}

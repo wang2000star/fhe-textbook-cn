@@ -28,13 +28,14 @@ def fhe_decrypt(a: Polynomial, b: Polynomial, N, Q_BASE, s, scale, expected_dec:
 	"""
 	Decrypt:
 	  v = b + a*s  (mod x^n+1, q)  ~= scale*m + e
-	  m_hat = round(v/scale)
+	  m_hat = v/scale (approximate coefficients; no integer rounding)
 	  (optionally centered mod p if p was stored by fhe_encrypt)
 	"""
 	Q = math.prod(Q_BASE)
 	v = poly_add(b, poly_mult(a, s, N, Q), N, Q)
 	m_hat = [c / scale for c in v.coef]
 
+	max_abs = None  # No reference plaintext was supplied for a diagnostic.
 	if expected_dec is not None:
 		e = poly_sub(m_hat, expected_dec, N, Q)
 		max_abs = float(np.max(np.abs(e.coef))) if len(e.coef) else 0.0
@@ -53,6 +54,9 @@ def fhe_add_cipher_plain(a1, b1, p2, N, Q_BASE, scale):
 	return (a1, b3) 
 
 def fhe_mult_cipher_plain(a1, b1, p2, N, Q_BASE, scale):
+   """Multiply and rescale, mutating Q_BASE. Track scale**2 / dropped prime."""
+   if len(Q_BASE) < 2:
+       raise ValueError("CKKS rescaling requires at least two modulus factors")
    # 1. Scale the plaintext (Delta * m)
    # Use integer rounding to keep it in the ring
    p2_scaled = round_polynomial(Polynomial(np.array([c * scale for c in p2.coef], dtype=object)))
@@ -96,15 +100,17 @@ def fhe_conjugate(a1, b1, N, Q_BASE, conjugate_key):
 def fhe_mult_cipher_cipher(a1, b1, a2, b2, N, Q_BASE, scale, relin_key):
 	"""
 	CKKS ct×ct with gadget decomposition relinearization.
+	Mutates Q_BASE. The output scale is scale**2 / the removed prime.
 	"""
-	# Use the plaintext modulus from the relin key bundle if you store it elsewhere.
+	if len(Q_BASE) < 2:
+		raise ValueError("CKKS rescaling requires at least two modulus factors")
 	Q = math.prod(Q_BASE)
 
 	# Ensure inputs are centered in R_Q
 	a1 = poly_mod(a1, N, Q); b1 = poly_mod(b1, N, Q)
 	a2 = poly_mod(a2, N, Q); b2 = poly_mod(b2, N, Q)
 
-	# ---- Raw products in big integers (no mod Q yet) ----
+	# ---- Tensor product modulo the current ciphertext modulus ----
 	d0_raw = poly_mult(b1, b2, N, Q)  # b1*b2
 	d1_raw = poly_add(
 		poly_mult(b1, a2, N, Q),
@@ -113,7 +119,7 @@ def fhe_mult_cipher_cipher(a1, b1, a2, b2, N, Q_BASE, scale, relin_key):
 	)  # b1*a2 + a1*b2
 	d2_raw = poly_mult(a1, a2, N, Q)  # a1*a2
 
-	# ---- CKKS rescale: round(P/Q * ·) and reduce mod Q ----
+	# ---- CKKS rescale: divide each component by the removed prime ----
 	q_last = Q_BASE.pop()
 	Q = Q // q_last
 	d0 = Polynomial(np.array([round_div(c, q_last) for c in d0_raw.coef], dtype=object)) 
@@ -134,4 +140,10 @@ def fhe_mult_cipher_cipher(a1, b1, a2, b2, N, Q_BASE, scale, relin_key):
 
 
 def fhe_bootstrapping(a1, b1, N, Q):
-	return 0
+	raise NotImplementedError("CKKS bootstrapping is not implemented in this educational demo")
+
+def ckks_rescaled_scale(scale_left, scale_right, dropped_modulus):
+    """Return the actual output scale; nearby primes are not exactly equal to scale."""
+    if scale_left <= 0 or scale_right <= 0 or dropped_modulus <= 0:
+        raise ValueError("scales and the dropped modulus must be positive")
+    return scale_left * scale_right / dropped_modulus

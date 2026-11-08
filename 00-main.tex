@@ -268,12 +268,12 @@
 \clearpage
 
 \section*{Preface}
-Fully Homomorphic Encryption (FHE) is a cryptographic scheme that enables computations to be performed directly on encrypted data, as if the data were in plaintext. After all computations are performed on the encrypted data, it can be decrypted to reveal the result. The decrypted value matches the result that would have been obtained if the same computations had been applied to the plaintext data.
+Fully Homomorphic Encryption (FHE) is a cryptographic scheme that enables computations to be performed directly on encrypted data, as if the data were in plaintext. After all computations are performed on the encrypted data, it can be decrypted to reveal the result. Correct decryption requires the selected parameters and evaluated circuit to satisfy the scheme's noise and failure-probability bounds. Exact schemes compute in their specified finite plaintext ring; CKKS returns an approximation whose error must be tracked, rather than an exact real-number result.
 
-FHE supports basic operations such as addition and multiplication on encrypted numbers. Using these fundamental operations, more complex computations can be constructed, including subtraction, division, logic gates (e.g., AND, OR, XOR, NAND, MUX), and even advanced mathematical functions such as ReLU, sigmoid, and trigonometric functions (e.g., sin, cos). These functions can be implemented either as exact formulas or as approximations, depending on the trade-off between computational efficiency and accuracy. 
+FHE supports basic operations such as addition and multiplication on encrypted numbers. Using these fundamental operations, more complex computations can be constructed, including subtraction, division, logic gates (e.g., AND, OR, XOR, NAND, MUX), and even advanced mathematical functions such as ReLU, sigmoid, and trigonometric functions (e.g., sin, cos). The interpretation and implementation depend on the plaintext domain and allowed input range. For example, division in a finite ring requires an invertible denominator, while real-valued reciprocal and activation functions typically use a bounded-domain approximation or a suitable discretized circuit.
 
-FHE enables privacy-preserving machine learning by allowing a server to process the client’s data in its encrypted form through an ML model. With FHE, the server learns neither the plaintext version of the input features nor the inference results. Only the client, using their secret key, can decrypt and access the results at the end of the service protocol.
-FHE can also be applied to confidential blockchain services, ensuring that sensitive data in smart contracts remains encrypted and confidential while maintaining the transparency and integrity of the execution process.
+FHE enables privacy-preserving machine learning by allowing a server to process the client’s data in its encrypted form through an ML model. Under the security assumptions and a correctly designed protocol, an evaluator without the decryption key cannot recover the encrypted inputs or outputs from the ciphertexts. Protocol metadata, deliberately released outputs, and access patterns require separate analysis.
+FHE can also help keep smart-contract data confidential. FHE alone does not prove that an evaluator executed the requested computation correctly; integrity and verifiability require additional protocol mechanisms.
 Other applications of FHE include secure outsourcing of data analytics, encrypted database queries, privacy-preserving searches, efficient multi-party computation for digital signatures, and more.
 
 This book is designed to help the reader understand how FHE works at the mathematical level. The book comprises the following four parts: 
@@ -297,8 +297,9 @@ $ $
 
 %$ $
 
-This book is available both as an \href{https://arxiv.org/abs/2503.05136}{\textbf{arXiv PDF}} and on an \href{https://fhetextbook.github.io} {\textbf{auto-generated dynamic website}} (powered by \href{https://www.kodymirus.cz/overleaf-html-sample/main.html}{make4ht}). We provide a Python Demo FHE library (TFHE, BFV, BGV, CKKS) for educational purposes, which is available at \href{https://github.com/fhetextbook/fhe-textbook}{\texttt{https://github.com/fhetextbook/fhe-textbook}}.
-Please report any errors regarding the book draft on the \href{https://github.com/fhetextbook/fhe-textbook/issues}{\textbf{Issues Board}}.
+This book is available both as an \href{https://arxiv.org/abs/2503.05136}{\textbf{arXiv PDF}} and on an \href{https://fhetextbook.github.io} {\textbf{auto-generated dynamic website}} (powered by \href{https://www.kodymirus.cz/overleaf-html-sample/main.html}{make4ht}). We provide a Python Demo FHE library (TFHE, BFV, BGV, CKKS) for educational purposes, which is available at \href{https://github.com/fhetextbook/fhetextbook.github.io}{\texttt{https://github.com/fhetextbook/fhetextbook.github.io}}.
+This bilingual fork includes a documented academic review in \texttt{audit/ACADEMIC\_REVIEW.md}; confirmed corrections have been applied to both editions. The review records its scope and remaining limitations.
+Please report any errors regarding the book draft on the \href{https://github.com/fhetextbook/fhetextbook.github.io/issues}{\textbf{Issues Board}}.
 
 
 

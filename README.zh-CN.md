@@ -2,7 +2,7 @@
 
 本仓库为 Ronny Ko 的 **The Beginner's Textbook for Fully Homomorphic Encryption** 增加可独立编译的中文版本。中文稿覆盖原书全部 34 个章节文件，包括数学基础、格密码与 LWE/RLWE/GLWE、通用同态运算，以及 TFHE、BFV、CKKS、BGV 和 RNS。
 
-**当前为完整中文初译，尚未完成逐式学术审校。** 公式、章节结构、交叉引用及参考文献与英文源码对应；图中已经嵌入的英文、专名、算法标识和参考文献原题保留。翻译基线、术语与待核对的原文问题见 [TRANSLATION.md](TRANSLATION.md)。
+**中文全文已完成初译，并对英文基线进行了逐项学术审校。** 已确认的技术勘误同步修正中英文，完整记录见 [学术审校报告](audit/ACADEMIC_REVIEW.md)，包括逐项位置、依据、反例、覆盖清单和未验证边界。审校不等同于完整形式化证明或安全认证。图中嵌入的英文、专名及算法标识继续保留；翻译维护规则见 [TRANSLATION.md](TRANSLATION.md)。
 
 原书：[arXiv 论文](https://arxiv.org/abs/2503.05136) · [英文动态网站](https://fhetextbook.github.io) · [英文说明与 Python 示例](README.md)
 
@@ -111,7 +111,7 @@ docker run --rm -v "$PWD:/work" -w /work \
 
 ## GitHub Actions
 
-工作流 [Textbook PDFs](.github/workflows/pdf.yml) 在 `main` 或 `chinese-edition` 分支推送、面向 `main` 的 Pull Request 时执行结构和公式一致性检查，再编译中英文 PDF。工作流进入默认分支后，也可通过 `workflow_dispatch` 手动运行。
+工作流 [Textbook PDFs](.github/workflows/pdf.yml) 在 `main` 或 `chinese-edition` 分支推送、面向 `main` 的 Pull Request 时执行学术反例回归、结构和公式一致性检查，再编译中英文 PDF。工作流进入默认分支后，也可通过 `workflow_dispatch` 手动运行。
 
 编译步骤使用 `xu-cheng/texlive-action@v3` 并指定 `texlive_version: '2025'`，对应官方 `texlive-historic-alpine:2025` 快照。
 
@@ -123,6 +123,12 @@ docker run --rm -v "$PWD:/work" -w /work \
 | `fhe-textbook-en` | 英文 PDF |
 
 该 PDF 工作流只上传构建产物。现有英文网站由独立的 [English website](.github/workflows/main.yml) 工作流构建，其自动发布仅在 `main` 分支推送时触发。
+
+## 学术审校与代码验证
+
+审校报告位于 `audit/`。Python 演示的真实能力、模拟自举和未实现功能在 [README](README.md#implemented-operations-and-simulations) 中逐项说明。安装演示依赖后可运行 `python3 audit/check_python.py`；只含有理数及有限反例的检查使用 Python 标准库。
+
+修正数学内容时，同时修改英文与中文；保留明确的原文位置、推导、文献依据和可复现反例。不要把公式一致性或编译通过当作正确性的证明。
 
 ## 校订与维护
 

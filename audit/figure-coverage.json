@@ -1,0 +1,248 @@
+[
+  {
+    "file": "figures/TFHE-fig1.pdf",
+    "sha256": "ceda0ba004c750437b28acd70b0e377d4453cba0c652d07d4bc35b7088f68769",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "b01-lattice.tex",
+        "line": 102
+      }
+    ],
+    "review": "LWE 消息间距与噪声的示意；有效性依赖中心代表元和解码误差界，不能从图推导安全位数。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/TFHE-fig2.pdf",
+    "sha256": "ec891e6b4f07c65cd8e940ba5040869aa10a9b48b7a8949c354d272eb3c09041",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "b05-glev.tex",
+        "line": 18
+      }
+    ],
+    "review": "GLev 的逐层尺度示意；正文明确精确 gadget 权重或截断余项。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/TFHE-fig3.pdf",
+    "sha256": "00e4f0b8a1d7fc4302ae9a3b4d6da1da26e7c6e56bde85251c3b36eb705ebab7",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "b06-ggsw.tex",
+        "line": 13
+      }
+    ],
+    "review": "GGSW 的矩阵/分量示意；实际加密等式按正文的小误差处理。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/arc-sine.png",
+    "sha256": "a1b4834bdd0c150ab1b1eba3a407ada7a5742608fb07b4ac565a150bf43f30c9",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "d03-ckks.tex",
+        "line": 1155
+      }
+    ],
+    "review": "arcsin(sin x) 的分段线性图；仅在指定分支区间等于 x，近似求值还有多项式误差。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/cyclotomic-polynomial.pdf",
+    "sha256": "b3fe8300d28f52128455c3f8f15cabbba56dc19446b1cdab605e65aa77711008",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "a11-matrix.tex",
+        "line": 697
+      }
+    ],
+    "review": "X^4+1 的四个复根为八次单位根的奇数幂；未把图推广为任意有限域分裂结论。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/decomp.pdf",
+    "sha256": "99bdfc6ba9d4f05d15ad89d0bc1f04028cc01943f880edbbd8a68a984d1dd665",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "a06-decomp.tex",
+        "line": 18
+      }
+    ],
+    "review": "递减 gadget 的数位示意；精确分解限制为 q=beta^ell，图本身不能替代整除和完备性条件。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/decomp2.pdf",
+    "sha256": "3debe90cb9bc88be883486dbed5692d3b5bcaafee961bf2aa9750a93857da83a",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "c03-glwe-mult-plain.tex",
+        "line": 125
+      }
+    ],
+    "review": "GLWE/GLWE 分解后明文外积的尺度示意；截断残差和卷积噪声见 C3。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/decomp3.pdf",
+    "sha256": "ef1c6e1fada5496a17a973f7fb6cdbbeb2faed3fb003d4b55afc9053b47ecf58",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "a06-decomp.tex",
+        "line": 122
+      }
+    ],
+    "review": "截断低位的近似分解示意；误差按中心化环绕距离解释。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/euler-formula.png",
+    "sha256": "205a4bc3c4025907769f3a455c5d1c5cb7efc84c2519eebf143a6adf593e8bb9",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "a07-roots-of-unity.tex",
+        "line": 44
+      },
+      {
+        "file": "a12-euler.tex",
+        "line": 85
+      }
+    ],
+    "review": "单位圆、实虚部及欧拉公式一致；透明背景已在白底上检查。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/modulo-reduction-sine.png",
+    "sha256": "886da82fe89d375ed9309274bfdb424d648b8421f26a7aab0dc5e344d2565f26",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "d03-ckks.tex",
+        "line": 935
+      }
+    ],
+    "review": "正弦对局部模约减的近似；正文明确尺度常数和立方误差，不是精确模函数。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/modulus-switching.pdf",
+    "sha256": "d8ff96a5885c47478c461f405073a96d1756624e12174c7c59d3741ce4601e05",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "c04-glwe-modulus-switch.tex",
+        "line": 209
+      }
+    ],
+    "review": "仅显示数值尺度缩小；正文另列分量舍入引入的 delta_b-sum(delta_a_i*s_i)。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/mux.pdf",
+    "sha256": "0b989aa9c0a948be309bdb9e1bc8494bf616508411d527195605ccfe49cbed82",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "d01-tfhe.tex",
+        "line": 706
+      }
+    ],
+    "review": "CMux 的布尔选择结构；控制值及密文类型按正文约定。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/neural-network.pdf",
+    "sha256": "c2bf2c31fedb26c321c9633bfe548d3012ba6af6f16db2ed42a0c056dfac899c",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "d01-tfhe.tex",
+        "line": 1056
+      }
+    ],
+    "review": "普通神经元 y=sum(x_i*w_i)+b 的示意。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/nn-homomorphic.pdf",
+    "sha256": "3671b423b35e0b317e8f5fa24c06b4585637bac33f2bad1ba8dddf74f79db5b5",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "d01-tfhe.tex",
+        "line": 1063
+      }
+    ],
+    "review": "同态神经元示意；图中偏置 b 须解释为已编码偏置，正文说明量化、LUT 和噪声范围。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/orthogonal-projection.png",
+    "sha256": "d2a86d40c77556db7ffdee80b7d4a33ba587c0579278addff9579291fc6cea7d",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "a11-matrix.tex",
+        "line": 287
+      }
+    ],
+    "review": "正交投影几何示意；正文区分投影算子与基变换矩阵，补齐非正交基条件。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/pythagorean-identity.png",
+    "sha256": "000e0c789e1a3e87a0d53c82e1df7f48d04f49e658222b910a3143fa6d9d200b",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "a12-euler.tex",
+        "line": 15
+      }
+    ],
+    "review": "直角三角形边及角的几何关系一致；透明背景已在白底上检查。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/pythagorean-theorem.png",
+    "sha256": "6337052a613802fb992a41c08d4ae42dcfbf303b5ac0b527234737260959695e",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "a12-euler.tex",
+        "line": 10
+      }
+    ],
+    "review": "勾股定理面积示意与直角条件一致。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/torus-gate.png",
+    "sha256": "b5bd5343a574868169627fa68446d5205d2d9416c941b404c1239eaaa8a630da",
+    "status": "reviewed_unused_asset",
+    "active_english_references": [],
+    "review": "该资源在正文中的 includegraphics 被注释，仅审查现存图形；没有据此验证门实现。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  },
+  {
+    "file": "figures/vector-projection.png",
+    "sha256": "2551a12e000b9908941819ab6aa53caad8e5f991d2680e3e4a665c6378cf9fbe",
+    "status": "reviewed_in_context",
+    "active_english_references": [
+      {
+        "file": "a11-matrix.tex",
+        "line": 282
+      }
+    ],
+    "review": "向量分解为沿 b 与垂直 b 的分量；投影系数允许负号。",
+    "limitation": "图形语义与正文条件核对；未将示意图当作密码学证明。"
+  }
+]

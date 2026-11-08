@@ -1,0 +1,1192 @@
+[
+  {
+    "id": "FND-001",
+    "title": "模代表元与整数乘法群的边界",
+    "report": "foundations-review.md",
+    "files": [
+      "a01-modulo.tex",
+      "a02-group.tex"
+    ]
+  },
+  {
+    "id": "FND-002",
+    "title": "元素阶的定义域与整除推导",
+    "report": "foundations-review.md",
+    "files": [
+      "a04-order.tex"
+    ]
+  },
+  {
+    "id": "FND-003",
+    "title": "商环求值必须同时尊重系数模数和多项式模数",
+    "report": "foundations-review.md",
+    "files": [
+      "a05-polynomial-ring.tex",
+      "a11-matrix.tex"
+    ]
+  },
+  {
+    "id": "FND-004",
+    "title": "多项式运算的次数上界和旋转范围",
+    "report": "foundations-review.md",
+    "files": [
+      "a05-polynomial-ring.tex"
+    ]
+  },
+  {
+    "id": "FND-005",
+    "title": "$\\beta^l\\mid q$ 不足以保证精确 gadget 分解",
+    "report": "foundations-review.md",
+    "files": [
+      "a06-decomp.tex",
+      "b05-glev.tex"
+    ]
+  },
+  {
+    "id": "FND-006",
+    "title": "截断分解必须保留环绕、残差和整数权重条件",
+    "report": "foundations-review.md",
+    "files": [
+      "a06-decomp.tex"
+    ]
+  },
+  {
+    "id": "FND-007",
+    "title": "单位根计数的 $n=1$、$k=0$ 边界",
+    "report": "foundations-review.md",
+    "files": [
+      "a07-roots-of-unity.tex"
+    ]
+  },
+  {
+    "id": "FND-008",
+    "title": "分圆多项式整数系数的原证明不成立",
+    "report": "foundations-review.md",
+    "files": [
+      "a08-cyclotomic-polynomial.tex"
+    ]
+  },
+  {
+    "id": "FND-009",
+    "title": "$\\Phi_{nk}(X)=\\Phi_n(X^k)$ 的根映射不是双射",
+    "report": "foundations-review.md",
+    "files": [
+      "a08-cyclotomic-polynomial.tex"
+    ]
+  },
+  {
+    "id": "FND-010",
+    "title": "有限域中的分圆根需要拆分域和特征条件",
+    "report": "foundations-review.md",
+    "files": [
+      "a09-cyclotomic-polynomial-integer-ring.tex"
+    ]
+  },
+  {
+    "id": "FND-011",
+    "title": "投影长度、非正交投影和基坐标混淆",
+    "report": "foundations-review.md",
+    "files": [
+      "a11-matrix.tex"
+    ]
+  },
+  {
+    "id": "FND-012",
+    "title": "整数多项式商环是模，不是以整数为域的向量空间",
+    "report": "foundations-review.md",
+    "files": [
+      "a11-matrix.tex"
+    ]
+  },
+  {
+    "id": "FND-013",
+    "title": "求值双射不自动成为指定商环的环同构",
+    "report": "foundations-review.md",
+    "files": [
+      "a11-matrix.tex"
+    ]
+  },
+  {
+    "id": "FND-014",
+    "title": "共轭对称空间是实代数，满射性须单独证明",
+    "report": "foundations-review.md",
+    "files": [
+      "a11-matrix.tex"
+    ]
+  },
+  {
+    "id": "FND-015",
+    "title": "Vandermonde 的节点顺序、转置和几何和例外",
+    "report": "foundations-review.md",
+    "files": [
+      "a12-euler.tex"
+    ]
+  },
+  {
+    "id": "FND-016",
+    "title": "$VV^T=nJ$ 并不要求 $n$ 为二幂",
+    "report": "foundations-review.md",
+    "files": [
+      "a12-euler.tex"
+    ]
+  },
+  {
+    "id": "FND-017",
+    "title": "缩放舍入表中的“近似当且仅当”不成立",
+    "report": "foundations-review.md",
+    "files": [
+      "a13-modulus-rescaling.tex"
+    ]
+  },
+  {
+    "id": "FND-018",
+    "title": "CRT 的两两互素、求和下标和 RNS 坐标模数",
+    "report": "foundations-review.md",
+    "files": [
+      "a14-chinese-remainder.tex"
+    ]
+  },
+  {
+    "id": "FND-019",
+    "title": "Taylor 有限截断误差不保证随次数单调下降",
+    "report": "foundations-review.md",
+    "files": [
+      "a15-taylor-series.tex"
+    ]
+  },
+  {
+    "id": "FND-020",
+    "title": "FFT/NTT 的乘法目标、根条件与复杂度模型",
+    "report": "foundations-review.md",
+    "files": [
+      "a16-ntt.tex"
+    ]
+  },
+  {
+    "id": "FND-021",
+    "title": "LWE 枚举成本不是安全下界，搜索/判定等价有参数条件",
+    "report": "foundations-review.md",
+    "files": [
+      "b01-lattice.tex"
+    ]
+  },
+  {
+    "id": "FND-022",
+    "title": "解密要先最近整数舍入，噪声界要取绝对值",
+    "report": "foundations-review.md",
+    "files": [
+      "b01-lattice.tex",
+      "b02-lwe.tex",
+      "b03-rlwe.tex",
+      "b04-glwe.tex"
+    ]
+  },
+  {
+    "id": "FND-023",
+    "title": "$t\\nmid q$ 时“$q\\gg t$”不足以控制任意消息溢出",
+    "report": "foundations-review.md",
+    "files": [
+      "b02-lwe.tex",
+      "b03-rlwe.tex",
+      "c01-glwe-add-cipher.tex"
+    ]
+  },
+  {
+    "id": "FND-024",
+    "title": "B04 的通用 GLWE 公钥安全性断言可被三次枚举攻破",
+    "report": "foundations-review.md",
+    "files": [
+      "b04-glwe.tex"
+    ]
+  },
+  {
+    "id": "FND-025",
+    "title": "密文种子不应定义成秘密的公开散列，维数不能单独代表安全级别",
+    "report": "foundations-review.md",
+    "files": [
+      "b04-glwe.tex"
+    ]
+  },
+  {
+    "id": "FND-026",
+    "title": "GLev 第一个分量通常只直接解出 $M\\bmod\\beta$",
+    "report": "foundations-review.md",
+    "files": [
+      "b05-glev.tex",
+      "b06-ggsw.tex"
+    ]
+  },
+  {
+    "id": "FND-027",
+    "title": "非零秘密多项式未必可逆",
+    "report": "foundations-review.md",
+    "files": [
+      "b06-ggsw.tex"
+    ]
+  },
+  {
+    "id": "FND-028",
+    "title": "密文相加不自动保持可解密；均值为零不推出方差相加",
+    "report": "foundations-review.md",
+    "files": [
+      "c01-glwe-add-cipher.tex"
+    ]
+  },
+  {
+    "id": "FND-029",
+    "title": "明文加法的“噪声不变”须指定消息提升",
+    "report": "foundations-review.md",
+    "files": [
+      "c02-glwe-add-plain.tex"
+    ]
+  },
+  {
+    "id": "FND-030",
+    "title": "明文多项式乘法遗漏误差项及卷积因子",
+    "report": "foundations-review.md",
+    "files": [
+      "c03-glwe-mult-plain.tex"
+    ]
+  },
+  {
+    "id": "FND-031",
+    "title": "gadget “降噪”需要额外密文、正确数字界和残差项",
+    "report": "foundations-review.md",
+    "files": [
+      "c03-glwe-mult-plain.tex"
+    ]
+  },
+  {
+    "id": "FND-032",
+    "title": "模数切换必须控制总误差，CLT 不能补上遗漏的条件",
+    "report": "foundations-review.md",
+    "files": [
+      "c04-glwe-modulus-switch.tex"
+    ]
+  },
+  {
+    "id": "FND-033",
+    "title": "模数切换数值例子原本写成 $13=14$",
+    "report": "foundations-review.md",
+    "files": [
+      "c04-glwe-modulus-switch.tex"
+    ]
+  },
+  {
+    "id": "FND-034",
+    "title": "密钥切换不能把未知明文秘密乘积直接从密文向量减掉",
+    "report": "foundations-review.md",
+    "files": [
+      "c05-glwe-key-switching.tex"
+    ]
+  },
+  {
+    "id": "FND-035",
+    "title": "尚不能据本书基础章节确认的安全性结论",
+    "report": "foundations-review.md",
+    "files": [
+      "b01-lattice.tex",
+      "b04-glwe.tex",
+      "c05-glwe-key-switching.tex"
+    ]
+  },
+  {
+    "id": "FND-036",
+    "title": "矩阵不交换及不保持乘积不能写成逐输入恒不等",
+    "report": "foundations-review.md",
+    "files": [
+      "a11-matrix.tex"
+    ]
+  },
+  {
+    "id": "TB-001",
+    "title": "解密界缺绝对值，二元密钥和密钥切换符号说明不准确",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-002",
+    "title": "零均值不推出同态加法噪声不增长",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-003",
+    "title": "外积证明漏分解残差、求值密钥噪声，并有因子括号错误",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-004",
+    "title": "自举密钥的对象与密文尺寸混淆",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-005",
+    "title": "模数切换不能只缩放旧误差",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-006",
+    "title": "最近舍入 LUT 必须以消息为中心，并满足负循环约束",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-007",
+    "title": "自举数值示例的误差、尺度和输出类型不一致",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-008",
+    "title": "AND 门仿射常数缺尺度，误差界对象不清",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-009",
+    "title": "可编程自举不等于形式化的函数加密",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-010",
+    "title": "环面表示仍需要编码间距，也不要求浮点实现",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-011",
+    "title": "神经网络与除法应用缺少有限域、量化和尺度条件",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex"
+    ]
+  },
+  {
+    "id": "TB-012",
+    "title": "单值二进制多项式编码只在无回绕条件下保持整数算术",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-013",
+    "title": "标量批编码需要分裂条件，不能对任意素数幂套用 t−1 指数",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-014",
+    "title": "编码矩阵中的缺项、指数终点和环同构对象",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-015",
+    "title": "原 BFV 解码式与规范 FV 不同，删除内层模约减的证明不成立",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-016",
+    "title": "明文模约减产生余数误差，加法和明文乘法也须计入",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-017",
+    "title": "ModRaise 不是保持小噪声的同一明文加密，也不保证中间相位不回绕",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-018",
+    "title": "1/Δ 乘法变体漏掉关键余数项和分量舍入，可在无噪声时解错",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-019",
+    "title": "多项式噪声界漏卷积维数和分量舍入的密钥作用",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-020",
+    "title": "重线性化 gadget 权重和误差不完整，S² 不是平方根",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-021",
+    "title": "重线性化与重缩放不能把同一密钥和参数不加改动地交换",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-022",
+    "title": "BFV 式 LWE 张量乘法需显式转换 TFHE 相位约定",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-023",
+    "title": "旋转矩阵局部笔误及密钥切换后的分量对象混用",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-024",
+    "title": "两个半行的旋转不是矩阵对角法需要的全槽循环旋转",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-025",
+    "title": "自举模数切换漏分量舍入，也没有自动改变明文模数",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-026",
+    "title": "自举同态解密少乘 Δ′，并遗漏求值密钥误差与明文余数",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-027",
+    "title": "简单 CoeffToSlot 矩阵没有覆盖任意 p，包括二进制明文",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-028",
+    "title": "删除普通非负低位实现 floor，不是自举所需的最近舍入",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-029",
+    "title": "数字删除中的除 p 不是明文环逆元，也不是单个普通多项式",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-030",
+    "title": "提升多项式需要正确精度的插值；最终次数是 p，索引是已知精度",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-031",
+    "title": "尺度重新解释的指数、漂移系数与明文操作尺度错误",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-032",
+    "title": "从 t=p 推广到 p^r 时内层复合起点和最终模数错误",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "TB-033",
+    "title": "精确运算和“无限乘法”须附噪声预算、失败概率和安全假设",
+    "report": "tfhe-bfv-review.md",
+    "files": [
+      "d01-tfhe.tex",
+      "d02-bfv.tex"
+    ]
+  },
+  {
+    "id": "CBR-001",
+    "title": "原生明文语义、环的概念及整数编码",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-002",
+    "title": "典范嵌入、矩阵朝向与槽位数",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-003",
+    "title": "四维编码例子的具体计算错误",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-004",
+    "title": "CKKS 解密不会舍掉一般噪声；系数界不等于槽位精度",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-005",
+    "title": "乘法相位必须保留全部交叉误差",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-006",
+    "title": "同一组 gadget 数位不能同时使用两套权重",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-007",
+    "title": "扩展模数重线性化的舍入推导不成立",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-008",
+    "title": "实际重缩放尺度、舍入误差与 RNS 安全参数",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex",
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-009",
+    "title": "乘法层级与噪声的无条件论断",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-010",
+    "title": "ModDrop 的相位条件及用途",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-011",
+    "title": "旋转方向、共轭根序和旋转后的秘密密钥",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex",
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-012",
+    "title": "稀疏打包逆命题的证明缺口",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-013",
+    "title": "CKKS 自举不能用 Enc/Dec 恒等消去说明",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex",
+      "d04-bgv.tex"
+    ]
+  },
+  {
+    "id": "CBR-014",
+    "title": "EvalExp 的复杂度、输入归一化与漏乘常数",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-015",
+    "title": "稀疏自举漏掉 PartialSum；系数计数和复制轮数错误",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex",
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-016",
+    "title": "Meta-BTS 纠错符号和尺度对齐错误",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-017",
+    "title": "arcsin 的主值区间与固定“三层”论断",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d03-ckks.tex"
+    ]
+  },
+  {
+    "id": "CBR-018",
+    "title": "BGV 打包的素数条件与整数代表元",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d04-bgv.tex"
+    ]
+  },
+  {
+    "id": "CBR-019",
+    "title": "BGV 解密需要完整的中心化相位界",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d04-bgv.tex"
+    ]
+  },
+  {
+    "id": "CBR-020",
+    "title": "模数切换必须保持明文同余，并留出纠正误差的空间",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d04-bgv.tex"
+    ]
+  },
+  {
+    "id": "CBR-021",
+    "title": "固定的 $t$、乘法误差与 BGV 求值密钥",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d04-bgv.tex",
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-022",
+    "title": "自举溢出项 $K'$ 的界不是无条件 $n+1$",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d04-bgv.tex",
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-023",
+    "title": "负数数位提取与精确除法后的明文模数",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d04-bgv.tex",
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-024",
+    "title": "BGV 自举的原 ModRaise 推导没有建立完整正确性",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d04-bgv.tex",
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-025",
+    "title": "FastBConv 的共同 CRT 提升及误差界的证明",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-026",
+    "title": "SmallMont 不能丢掉辅助剩余类，且需要量化条件",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-027",
+    "title": "ModRaise 的分量误差不等于相位误差",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-028",
+    "title": "裸 ModDrop 不能一般地保持 BFV 明文",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-029",
+    "title": "RNS ModSwitch 的误差应相对于理想舍入定义",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-030",
+    "title": "BFV RNS 解密的尺度、符号和半区间纠正门槛",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-031",
+    "title": "BGV RNS 切换不能把目标模数当成 BFV 明文模数",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-032",
+    "title": "FastBConvEx 是有范围条件的精确算法，不是 SmallMont",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-033",
+    "title": "RNS gadget 的整数提升与 $(A,B)$ 分量顺序",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-034",
+    "title": "BFV RNS 乘法缺失辅助范围、近似缩放与秘密相关误差",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-035",
+    "title": "素数幂可以是一个 RNS 模数；原 BFV RNS 自举替代流程未证明",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-036",
+    "title": "RNS CKKS 自举流程与完整溢出界",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-037",
+    "title": "RNS BGV 自举不能重复除法，也不能把任意基转换叫 ModRaise",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "CBR-038",
+    "title": "RNS 噪声分类、适用范围与原语命名混淆",
+    "report": "ckks-bgv-rns-review.md",
+    "files": [
+      "d05-rns.tex"
+    ]
+  },
+  {
+    "id": "SUM-001",
+    "title": "前言将近似计算和计算完整性泛化为 FHE 自身保证",
+    "report": "summary-review.md",
+    "files": [
+      "00-main.tex"
+    ]
+  },
+  {
+    "id": "SUM-002",
+    "title": "安全基础与密文表示遗漏环层和评估密钥假设",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-003",
+    "title": "明文素数条件与 CKKS 定义域混淆",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-004",
+    "title": "三元密钥采样集被写成模 3 运算环",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-005",
+    "title": "同态结果沿用相同 σ，自举或模切换被说成消除/重置噪声",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-006",
+    "title": "BFV 解密把除以 floor(q/t) 当作一般规范式，并无条件去掉 mod q",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-007",
+    "title": "BGV 正确性界漏绝对值、明文项与中心化范围",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-008",
+    "title": "模数链乘积上界和 BGV 同余条件错误",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-009",
+    "title": "CKKS 把近似尺度匹配当精确等式，并漏舍入误差",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-010",
+    "title": "LWE→GSW 转换误称普通可编程自举",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-011",
+    "title": "BFV 模数提升被解释成保持原相位的小噪声加密",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-012",
+    "title": "BGV 模切换不能舍入到 t 的倍数",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-013",
+    "title": "“无自举无限乘法”与链长度等于总乘法次数",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-014",
+    "title": "密钥切换摘要缺少密文类型、误差和分解余量",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-015",
+    "title": "ModDrop 被无条件解释成保持同一明文",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-016",
+    "title": "TFHE 标量被说成完全不需要编码",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-017",
+    "title": "5^h 自同构不是贯穿 n 个标量槽的单个旋转",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-018",
+    "title": "TFHE 自举摘要的符号、索引、输出和提取密钥不一致",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-019",
+    "title": "BFV 自举的内积常数、线性变换和数位操作不严谨",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-020",
+    "title": "CKKS 正弦近似被写成精确模约减",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-021",
+    "title": "BGV 自举精确除法与明文模数变化被省略",
+    "report": "summary-review.md",
+    "files": [
+      "d06-scheme-summary.tex"
+    ]
+  },
+  {
+    "id": "SUM-022",
+    "title": "BGV 引文键误指向另一位作者的同名论文",
+    "report": "summary-review.md",
+    "files": [
+      "z-bibfile.bib"
+    ]
+  },
+  {
+    "id": "CODE-001",
+    "title": "模拟 PBS / 电路自举包含明文秘密密钥",
+    "report": "python-review.md",
+    "files": [
+      "d07-python-demo-library.tex",
+      "source code/tfhe_example.py",
+      "source code/tfhe_lib.py"
+    ]
+  },
+  {
+    "id": "CODE-002",
+    "title": "三个自举空实现返回数字 0",
+    "report": "python-review.md",
+    "files": [
+      "d07-python-demo-library.tex",
+      "source code/bfv_lib.py",
+      "source code/bgv_lib.py",
+      "source code/ckks_lib.py"
+    ]
+  },
+  {
+    "id": "CODE-003",
+    "title": "BFV t/q 缩放前错误使用 q·floor(q/t) 截断",
+    "report": "python-review.md",
+    "files": [
+      "source code/bfv_lib.py",
+      "source code/common.py"
+    ]
+  },
+  {
+    "id": "CODE-004",
+    "title": "CKKS 示例解密时没有更新实际尺度",
+    "report": "python-review.md",
+    "files": [
+      "source code/ckks_example.py",
+      "source code/ckks_lib.py"
+    ]
+  },
+  {
+    "id": "CODE-005",
+    "title": "旧实验脚本采用了错误的多项式约减符号",
+    "report": "python-review.md",
+    "files": [
+      "source code/bfv.py",
+      "source code/bfv_rotation_only.py",
+      "source code/bgv.py",
+      "source code/ckks.py",
+      "source code/rns.py"
+    ]
+  },
+  {
+    "id": "CODE-006",
+    "title": "RNS 精确基转换不能正常调用，模切换依赖外部全局基",
+    "report": "python-review.md",
+    "files": [
+      "source code/rns.py"
+    ]
+  },
+  {
+    "id": "CODE-007",
+    "title": "负数的二进制分解不精确且截断静默发生",
+    "report": "python-review.md",
+    "files": [
+      "source code/common.py",
+      "source code/tfhe_lib.py"
+    ]
+  },
+  {
+    "id": "CODE-008",
+    "title": "四种解密 API 的可选参数实际不可省略",
+    "report": "python-review.md",
+    "files": [
+      "source code/bfv_lib.py",
+      "source code/bgv_lib.py",
+      "source code/ckks_lib.py",
+      "source code/tfhe_lib.py"
+    ]
+  },
+  {
+    "id": "CODE-009",
+    "title": "命令行参数与错误退出状态掩盖失败",
+    "report": "python-review.md",
+    "files": [
+      "source code/bfv_example.py",
+      "source code/bgv_example.py",
+      "source code/ckks_example.py",
+      "source code/tfhe_example.py"
+    ]
+  },
+  {
+    "id": "CODE-010",
+    "title": "示例测试域没有覆盖模明文回绕，精度说明误称百分比",
+    "report": "python-review.md",
+    "files": [
+      "source code/ckks_example.py",
+      "source code/tfhe_example.py"
+    ]
+  },
+  {
+    "id": "CODE-011",
+    "title": "大整数模数转换经过浮点数丢失决定舍入的位",
+    "report": "python-review.md",
+    "files": [
+      "source code/bgv.py",
+      "source code/rns.py"
+    ]
+  },
+  {
+    "id": "CODE-012",
+    "title": "旧 CKKS 编码器混用实例与全局参数",
+    "report": "python-review.md",
+    "files": [
+      "source code/ckks.py"
+    ]
+  },
+  {
+    "id": "CODE-013",
+    "title": "非正数被视为 2 的幂，密钥切换注释相位相反",
+    "report": "python-review.md",
+    "files": [
+      "source code/bfv.py",
+      "source code/bfv_rotation_only.py",
+      "source code/ckks.py",
+      "source code/common.py",
+      "source code/tfhe_lib.py"
+    ]
+  },
+  {
+    "id": "CODE-014",
+    "title": "教学参数、采样与完整实现的边界不清",
+    "report": "python-review.md",
+    "files": [
+      "d07-python-demo-library.tex",
+      "source code/bfv_j_matrix_inverse_proof.py",
+      "source code/common.py"
+    ]
+  }
+]

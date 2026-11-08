@@ -1,0 +1,4453 @@
+{
+  "schema_version": 1,
+  "scope": "A01-A16, B01-B06, C01-C05",
+  "baseline_commit": "2a901038078fe054371e53089c86caaaa1112209",
+  "pre_audit_translation_commit": "330b96f38f2d3b6982e4b30f3943ff428fd47a0c",
+  "english_files_identical_between_baselines": true,
+  "review_date": "2026-11-08",
+  "method": "每条标题、定理及无标题正文已经实际阅读；程序仅抽取位置。checks是人工核查依据。",
+  "status_definitions": {
+    "corrected": "已确认问题并同步修正中英文；推导的结论受写明条件约束。",
+    "checked_under_stated_conditions": "实际核查，未发现该项在写明条件下的确定错误；不是全局安全证明。",
+    "corrected_with_pending_security": "已修正确认问题，但参数族、分布或评估密钥安全性仍有FND-035待证内容。"
+  },
+  "location_policy": "heading和baseline_line保留原基线标题与行号；current_heading/current_line对应审校时源码。新加标题的baseline_line为null。",
+  "summary": {
+    "files": 27,
+    "records": 171,
+    "headings": 114,
+    "baseline_headings": 113,
+    "theorems": 30,
+    "chapters": 27,
+    "status_counts": {
+      "checked_under_stated_conditions": 43,
+      "corrected": 117,
+      "corrected_with_pending_security": 11
+    }
+  },
+  "primary_sources": {
+    "algebra": "https://www.maths.ox.ac.uk/system/files/attachments/lectures%20rings%20and%20modules.pdf",
+    "cyclotomic": "https://e.math.cornell.edu/people/belk/numbertheory/CyclotomicPolynomials.pdf",
+    "finite_fields": "https://kconrad.math.uconn.edu/blurbs/galoistheory/finitefields.pdf",
+    "crt": "https://kconrad.math.uconn.edu/blurbs/ugradnumthy/crt.pdf",
+    "projection": "https://ocw.mit.edu/courses/18-06sc-linear-algebra-fall-2011/00e9c8f0eafedeab21a3d079a17ed3d8_MIT18_06SCF11_Ses2.2sum.pdf",
+    "taylor": "https://dlmf.nist.gov/1.4.vi",
+    "fft": "https://web.cecs.pdx.edu/~maier/cs584/Lectures/lect07b-11-MG.pdf",
+    "regev": "https://cims.nyu.edu/~regev/papers/qcrypto.pdf",
+    "lpr": "https://web.eecs.umich.edu/~cpeikert/pubs/ideal-lwe.pdf",
+    "tfhe": "https://imec-publications.be/bitstreams/92b4e945-9e22-4bc6-899c-c0baa9f7b4e9/download",
+    "bgv": "https://eccc.weizmann.ac.il/report/2011/111/download"
+  },
+  "source_snapshots": [
+    {
+      "file": "a01-modulo.tex",
+      "english_sha256": "1abf1059438aa92a5f2b2496dbb4f2d914df8bf512b11571817bff33c0fe555a",
+      "chinese_sha256": "893dcc01659c5f207784306296ecfd90d86c3559ffa9c7fbfc5b5e64bb63eb3c",
+      "headings": 5,
+      "baseline_headings": 5,
+      "theorems": 2
+    },
+    {
+      "file": "a02-group.tex",
+      "english_sha256": "0c809a2172b8f4dab7abbb05e1738434f26b176eae4861abebee920e7a9421e3",
+      "chinese_sha256": "43234b10af449df7eb8c0ea814f35a6d4e3c67656cc3768b984272bdab07fad7",
+      "headings": 2,
+      "baseline_headings": 2,
+      "theorems": 0
+    },
+    {
+      "file": "a03-field.tex",
+      "english_sha256": "79c9d0cc8aaf338ed1a3a805e8c8940e4d39beda9526db4a536cd5d22ffd36b3",
+      "chinese_sha256": "c557deeb75a672349ca046efef5a5caa722bdc9d1ad1a85ed41a051c4e7a476f",
+      "headings": 3,
+      "baseline_headings": 3,
+      "theorems": 1
+    },
+    {
+      "file": "a04-order.tex",
+      "english_sha256": "d3709d648f48745cadcb78f58e3cd677c09afaf5d8ba3bdc67a94f9544ee7b81",
+      "chinese_sha256": "ebc3a7dd2462d58afb0946a3d7866294e6d15c32ab3811d8aa909090191524e4",
+      "headings": 2,
+      "baseline_headings": 2,
+      "theorems": 4
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "english_sha256": "5c48739ce4f6902409b9f717417ecffd4df800c7daaf7ed2aa89bc144debaa66",
+      "chinese_sha256": "879da3bcaa1f16e7e2fc340c1b0f2b16fc9d31753f3cf47e01be834359e82af2",
+      "headings": 8,
+      "baseline_headings": 8,
+      "theorems": 0
+    },
+    {
+      "file": "a06-decomp.tex",
+      "english_sha256": "a70191564fab881f8aef0fd566ae5c76b9f19847be2c1f6598c3dc7117d51e19",
+      "chinese_sha256": "fe4437b97d410d8b3f8d3be25487e1de482935b2a3de6abac9023a154fbd0c95",
+      "headings": 7,
+      "baseline_headings": 7,
+      "theorems": 0
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "english_sha256": "632caf938a8b4f946fd04c591dfa0b6b8cdc682d99c81de0d58a1ba4e8f810b6",
+      "chinese_sha256": "b13bfa408c21ca6701bea3557f3b63c805fa1effee82db6e548957547055e24e",
+      "headings": 2,
+      "baseline_headings": 2,
+      "theorems": 5
+    },
+    {
+      "file": "a08-cyclotomic-polynomial.tex",
+      "english_sha256": "25fe2c0f1eb3c112bc13a2a4939b697f6b57778c891fcc44537718bf07f06a82",
+      "chinese_sha256": "290eb61c62a6a4109e2baa4d8b6e62a7f287f118e9094183a814eeeb005df675",
+      "headings": 2,
+      "baseline_headings": 2,
+      "theorems": 4
+    },
+    {
+      "file": "a09-cyclotomic-polynomial-integer-ring.tex",
+      "english_sha256": "68a973c83eca0ab9e185f96c5450e3c074b514068c8d0e3f2e297cefbb690854",
+      "chinese_sha256": "0afe79058af78c9715dc9e5a945f7c3fd1e423d437c1de46cdfe7892cedb8dbf",
+      "headings": 0,
+      "baseline_headings": 0,
+      "theorems": 0
+    },
+    {
+      "file": "a10-polynomial-interpolation.tex",
+      "english_sha256": "2a52c97e0d136a31ca18b6509415be8340aa082e9e8bc026ab0919958e89b3fc",
+      "chinese_sha256": "562f84cd737593594abc988073d18c72e2ef669bd587b7daab8249b6b3af122b",
+      "headings": 1,
+      "baseline_headings": 1,
+      "theorems": 2
+    },
+    {
+      "file": "a11-matrix.tex",
+      "english_sha256": "66311f90d731d771839335106a1b3254606638d547e256f1877aba6462336d8c",
+      "chinese_sha256": "63a7e1dfa96390d6bce023d8930ccffbbcbd929a65a65ca9d5035e1d374080b0",
+      "headings": 24,
+      "baseline_headings": 24,
+      "theorems": 5
+    },
+    {
+      "file": "a12-euler.tex",
+      "english_sha256": "dddb674f76b23009a90b5bc3bea55ef5e2b0c2c3da829a34635ab19409c0165a",
+      "chinese_sha256": "6bb8348cbf3bca03e339cc20de4698894dda080f8c8dc99d035516603c0eaa30",
+      "headings": 7,
+      "baseline_headings": 7,
+      "theorems": 4
+    },
+    {
+      "file": "a13-modulus-rescaling.tex",
+      "english_sha256": "8576dfe1721f748b72f198d7a34082127d2fbeb7248ef530a6b3ba863a86bf9c",
+      "chinese_sha256": "f95433d4df9260648f8d62ad2bf5ac7440b97e498940e0e415a0967807f6243f",
+      "headings": 2,
+      "baseline_headings": 2,
+      "theorems": 0
+    },
+    {
+      "file": "a14-chinese-remainder.tex",
+      "english_sha256": "805090192ed4f88aee91915aa370a8d98d1788a84086670943c37318ffbc1161",
+      "chinese_sha256": "d2f3b3efb9d9f5f9bcc4911cbec26e6fc2b0c436d7ac609b436d614ad440791d",
+      "headings": 1,
+      "baseline_headings": 1,
+      "theorems": 2
+    },
+    {
+      "file": "a15-taylor-series.tex",
+      "english_sha256": "c59b242f5497949d8d71a0a2be832e396f8757507b53853e48222a5926ff16e3",
+      "chinese_sha256": "1ad0ec9a90bd7b53b64d47c30463ca0016848516a041a8a3ace8499085395e07",
+      "headings": 0,
+      "baseline_headings": 0,
+      "theorems": 0
+    },
+    {
+      "file": "a16-ntt.tex",
+      "english_sha256": "09cc3c31020befefcc2f98a5f239c70d8ad21c597ab44a771fd8e1ea3f3d0749",
+      "chinese_sha256": "4b52d8c3e2109d60bd442e785832c08e993743953b992be264cbe2a2285507cc",
+      "headings": 10,
+      "baseline_headings": 10,
+      "theorems": 1
+    },
+    {
+      "file": "b01-lattice.tex",
+      "english_sha256": "5f0675de35316e51b76e142cac44f80e9fb52c01482beba725c12a1265f5a55f",
+      "chinese_sha256": "9279b8b229ef1e754ce42a1af9a55b4d43216d6fb12bd5ae920d63cd8d610d40",
+      "headings": 3,
+      "baseline_headings": 3,
+      "theorems": 0
+    },
+    {
+      "file": "b02-lwe.tex",
+      "english_sha256": "3ff8846ca10fd96e17d78718100b6bdb29a3f8d336761f185ea0b116bb056879",
+      "chinese_sha256": "8211da2883a525c9dd6412757b77b35d4e7113aaa4cd05e318e186b78be29e82",
+      "headings": 4,
+      "baseline_headings": 4,
+      "theorems": 0
+    },
+    {
+      "file": "b03-rlwe.tex",
+      "english_sha256": "8de78d4376755b0e17fa93b90513c9f52dcca396aae9421508255b826936ea79",
+      "chinese_sha256": "ca53b263e79b60b1be8d689a95ae842015eb7fca74075c6b93f53b89e86abdec",
+      "headings": 3,
+      "baseline_headings": 3,
+      "theorems": 0
+    },
+    {
+      "file": "b04-glwe.tex",
+      "english_sha256": "341860bc975e35c5e4fbc240eb713c518aa8af0ab70c10d365d3fdc383763d22",
+      "chinese_sha256": "3f7fc76d4a86b8a4be0c9b11fcd6b3d9551f53c0361bab19fee13d10893916b4",
+      "headings": 7,
+      "baseline_headings": 7,
+      "theorems": 0
+    },
+    {
+      "file": "b05-glev.tex",
+      "english_sha256": "63fc9cdb83807e8772b301ffcbda73a41822eeff3347651729e584b43266a149",
+      "chinese_sha256": "bd9b470aac2c3be0775d1e8680576210cda34dd11a7ab9b62ab1cb84fbe5756f",
+      "headings": 3,
+      "baseline_headings": 3,
+      "theorems": 0
+    },
+    {
+      "file": "b06-ggsw.tex",
+      "english_sha256": "2fabdd01e908695d1f89c0daa04b02c924d9b3f7f7f70c9d8b3767bddff91cad",
+      "chinese_sha256": "320cb648de68a7e9e5d9fbfce0d07b215d9f442c19815d135e8f7db599a0309d",
+      "headings": 3,
+      "baseline_headings": 3,
+      "theorems": 0
+    },
+    {
+      "file": "c01-glwe-add-cipher.tex",
+      "english_sha256": "6ad32e2533bae8943c533a6b15bf99fc70b350c07b08122106a9c993ed47850e",
+      "chinese_sha256": "b2afd7038f05d81405c5190e7dd8192d07488b7eac1565aa04168ce0affa7422",
+      "headings": 4,
+      "baseline_headings": 4,
+      "theorems": 0
+    },
+    {
+      "file": "c02-glwe-add-plain.tex",
+      "english_sha256": "47c8b52a139423741a9a06c64295df381cba6bf1a1982cad25d30dce56e5ba62",
+      "chinese_sha256": "c63795f810f6d299424c2afbaa05b327cd3629f9f371a2812b0adf75a51feb8b",
+      "headings": 1,
+      "baseline_headings": 1,
+      "theorems": 0
+    },
+    {
+      "file": "c03-glwe-mult-plain.tex",
+      "english_sha256": "55628cdccc5b16c0c4d5a76ee2a78f2a948265c069e987ea06ecf0af8f05145e",
+      "chinese_sha256": "32ae550da14aa6374ee654cefba7c1725cf6562f1b8c80ca4f11498fb5ed9cc5",
+      "headings": 2,
+      "baseline_headings": 2,
+      "theorems": 0
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "english_sha256": "cc677e6e525caa6a8543cf3611b50de562aef27a1ec833cbe411d10fa90c11fc",
+      "chinese_sha256": "63440114854e4830f467e8a6b4f51142065161724e57957367d587cfbd1fdf76",
+      "headings": 7,
+      "baseline_headings": 7,
+      "theorems": 0
+    },
+    {
+      "file": "c05-glwe-key-switching.tex",
+      "english_sha256": "c5230630d0bb7206f56e8ef05ff6727954c9662428b8f38c9bd34877fa24e7fe",
+      "chinese_sha256": "cc752e861bdcb9c7aa11a15a732a4dfcf2b8bb18185d061db4c3b3210a9d092d",
+      "headings": 1,
+      "baseline_headings": 0,
+      "theorems": 0
+    }
+  ],
+  "records": [
+    {
+      "file": "a01-modulo.tex",
+      "chinese_file": "zh-CN/a01-modulo.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A01-CHAPTER",
+      "kind": "chapter",
+      "heading": "Modulo Arithmetic",
+      "current_heading": "Modulo Arithmetic",
+      "label": "sec:modulo",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 373,
+      "status": "corrected",
+      "findings": [
+        "FND-001"
+      ],
+      "checks": [
+        "核查全章模算术与代表元，核心消去律已正确；仅边界表述修正。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a01-modulo.tex",
+      "chinese_file": "zh-CN/a01-modulo.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A01-HEADING-001",
+      "kind": "subsection",
+      "heading": "Overview",
+      "current_heading": "Overview",
+      "label": "subsec:modulo-overview",
+      "current_label": "subsec:modulo-overview",
+      "parent_label": "subsec:modulo-overview",
+      "baseline_line": 7,
+      "current_line": 7,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-001"
+      ],
+      "checks": [
+        "核查剩余类、规范代表元及多次加减模数；明确整数模数至少为2。"
+      ]
+    },
+    {
+      "file": "a01-modulo.tex",
+      "chinese_file": "zh-CN/a01-modulo.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A01-HEADING-002",
+      "kind": "subsection",
+      "heading": "Modulo Arithmetic",
+      "current_heading": "Modulo Arithmetic",
+      "label": "subsec:modulo-arithmetic",
+      "current_label": "subsec:modulo-arithmetic",
+      "parent_label": "subsec:modulo-arithmetic",
+      "baseline_line": 43,
+      "current_line": 45,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "逐式核查加减乘同余、分配律及消去律；消去因子不互素时模数缩为q/gcd。"
+      ]
+    },
+    {
+      "file": "a01-modulo.tex",
+      "chinese_file": "zh-CN/a01-modulo.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A01-HEADING-003",
+      "kind": "subsection",
+      "heading": "Inverse",
+      "current_heading": "Inverse",
+      "label": "subsec:modulo-inverse",
+      "current_label": "subsec:modulo-inverse",
+      "parent_label": "subsec:modulo-inverse",
+      "baseline_line": 138,
+      "current_line": 140,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查逆元存在当且仅当与模数互素，逆元的唯一剩余类及示例。"
+      ]
+    },
+    {
+      "file": "a01-modulo.tex",
+      "chinese_file": "zh-CN/a01-modulo.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A01-HEADING-004",
+      "kind": "subsection",
+      "heading": "Modulo Division",
+      "current_heading": "Modulo Division",
+      "label": "subsec:modulo-division",
+      "current_label": "subsec:modulo-division",
+      "parent_label": "subsec:modulo-division",
+      "baseline_line": 155,
+      "current_line": 157,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查模除法由乘以单位逆元定义，非单位不能任意作除法。"
+      ]
+    },
+    {
+      "file": "a01-modulo.tex",
+      "chinese_file": "zh-CN/a01-modulo.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A01-HEADING-005",
+      "kind": "subsection",
+      "heading": "Centered Residue Representation",
+      "current_heading": "Centered Residue Representation",
+      "label": "subsec:modulo-centered",
+      "current_label": "subsec:modulo-centered",
+      "parent_label": "subsec:modulo-centered",
+      "baseline_line": 160,
+      "current_line": 162,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-001"
+      ],
+      "checks": [
+        "核查中心代表元半开区间、偶数模数边界与任意整数的约减。"
+      ]
+    },
+    {
+      "file": "a01-modulo.tex",
+      "chinese_file": "zh-CN/a01-modulo.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A01-THEOREM-001",
+      "kind": "theorem",
+      "heading": "Properties of Modulo Operations",
+      "current_heading": "Properties of Modulo Operations",
+      "label": "subsec:modulo-arithmetic",
+      "theorem_number_tex": "\\ref*{subsec:modulo-arithmetic}.1",
+      "parent_label": "subsec:modulo-arithmetic",
+      "baseline_line": 48,
+      "current_line": 50,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查加减乘的代表元独立性，用整数倍q逐式证明。"
+      ]
+    },
+    {
+      "file": "a01-modulo.tex",
+      "chinese_file": "zh-CN/a01-modulo.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A01-THEOREM-002",
+      "kind": "theorem",
+      "heading": "Properties of Modulo Arithmetic",
+      "current_heading": "Properties of Modulo Arithmetic",
+      "label": "subsec:modulo-arithmetic",
+      "theorem_number_tex": "\\ref*{subsec:modulo-arithmetic}.2",
+      "parent_label": "subsec:modulo-arithmetic",
+      "baseline_line": 112,
+      "current_line": 114,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查交换结合分配及消去式；非单位消去后模数缩为q/gcd。"
+      ]
+    },
+    {
+      "file": "a02-group.tex",
+      "chinese_file": "zh-CN/a02-group.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A02-CHAPTER",
+      "kind": "chapter",
+      "heading": "Group",
+      "current_heading": "Group",
+      "label": "sec:group",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 379,
+      "status": "corrected",
+      "findings": [
+        "FND-001"
+      ],
+      "checks": [
+        "核查四公理与全部例子；整数乘法的零逆元例外已修。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a02-group.tex",
+      "chinese_file": "zh-CN/a02-group.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A02-HEADING-001",
+      "kind": "subsection",
+      "heading": "Definitions",
+      "current_heading": "Definitions",
+      "label": "subsec:group-def",
+      "current_label": "subsec:group-def",
+      "parent_label": "subsec:group-def",
+      "baseline_line": 4,
+      "current_line": 4,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "逐项检查封闭性、结合律、单位元、逆元及群与幺半群的区别。"
+      ]
+    },
+    {
+      "file": "a02-group.tex",
+      "chinese_file": "zh-CN/a02-group.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A02-HEADING-002",
+      "kind": "subsection",
+      "heading": "Examples",
+      "current_heading": "Examples",
+      "label": "subsec:group-ex",
+      "current_label": "subsec:group-ex",
+      "parent_label": "subsec:group-ex",
+      "baseline_line": 43,
+      "current_line": 43,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-001"
+      ],
+      "checks": [
+        "核查加法群、非零有理数乘法群、模加法/单位群；修正整数乘法零例外。"
+      ]
+    },
+    {
+      "file": "a03-field.tex",
+      "chinese_file": "zh-CN/a03-field.tex",
+      "primary_sources": [
+        "finite_fields",
+        "algebra"
+      ],
+      "id": "A03-CHAPTER",
+      "kind": "chapter",
+      "heading": "Field",
+      "current_heading": "Field",
+      "label": "sec:field",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 386,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "全章定义、例子和有限域定理已逐项核查，未发现本轮确定错误。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a03-field.tex",
+      "chinese_file": "zh-CN/a03-field.tex",
+      "primary_sources": [
+        "finite_fields",
+        "algebra"
+      ],
+      "id": "A03-HEADING-001",
+      "kind": "subsection",
+      "heading": "Definitions",
+      "current_heading": "Definitions",
+      "label": "subsec:field-def",
+      "current_label": "subsec:field-def",
+      "parent_label": "subsec:field-def",
+      "baseline_line": 4,
+      "current_line": 4,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查域的加法阿贝尔群、非零乘法群和分配律；零不属于乘法群。"
+      ]
+    },
+    {
+      "file": "a03-field.tex",
+      "chinese_file": "zh-CN/a03-field.tex",
+      "primary_sources": [
+        "finite_fields",
+        "algebra"
+      ],
+      "id": "A03-HEADING-002",
+      "kind": "subsection",
+      "heading": "Examples",
+      "current_heading": "Examples",
+      "label": "subsec:field-ex",
+      "current_label": "subsec:field-ex",
+      "parent_label": "subsec:field-ex",
+      "baseline_line": 17,
+      "current_line": 17,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查有理、实、复数与素数模数域；一般复合模数剩余环不是域。"
+      ]
+    },
+    {
+      "file": "a03-field.tex",
+      "chinese_file": "zh-CN/a03-field.tex",
+      "primary_sources": [
+        "finite_fields",
+        "algebra"
+      ],
+      "id": "A03-HEADING-003",
+      "kind": "subsection",
+      "heading": "Theorems",
+      "current_heading": "Theorems",
+      "label": "subsec:field-theorem",
+      "current_label": "subsec:field-theorem",
+      "parent_label": "subsec:field-theorem",
+      "baseline_line": 38,
+      "current_line": 38,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查有限域阶为素数幂、每个素数幂存在有限域、同阶有限域同构，以及Z_p与F_{p^r}区分。"
+      ]
+    },
+    {
+      "file": "a03-field.tex",
+      "chinese_file": "zh-CN/a03-field.tex",
+      "primary_sources": [
+        "finite_fields",
+        "algebra"
+      ],
+      "id": "A03-THEOREM-001",
+      "kind": "theorem",
+      "heading": "Field Theorems",
+      "current_heading": "Field Theorems",
+      "label": "subsec:field-theorem",
+      "theorem_number_tex": "\\ref*{subsec:field-theorem}",
+      "parent_label": "subsec:field-theorem",
+      "baseline_line": 41,
+      "current_line": 41,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查有限域存在/分类、素数幂阶、同阶同构及素数模域结论。"
+      ]
+    },
+    {
+      "file": "a04-order.tex",
+      "chinese_file": "zh-CN/a04-order.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "finite_fields"
+      ],
+      "id": "A04-CHAPTER",
+      "kind": "chapter",
+      "heading": "Order",
+      "current_heading": "Order",
+      "label": "sec:order",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 392,
+      "status": "corrected",
+      "findings": [
+        "FND-002"
+      ],
+      "checks": [
+        "全章四个阶定理逐证明核查，修正定义域及指数整除。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a04-order.tex",
+      "chinese_file": "zh-CN/a04-order.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "finite_fields"
+      ],
+      "id": "A04-HEADING-001",
+      "kind": "subsection",
+      "heading": "Definitions",
+      "current_heading": "Definitions",
+      "label": "subsec:order-def",
+      "current_label": "subsec:order-def",
+      "parent_label": "subsec:order-def",
+      "baseline_line": 4,
+      "current_line": 4,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-002"
+      ],
+      "checks": [
+        "把元素阶放在群中有限阶元素的正确定义域；复数单位根可用，一般复数元素可无限阶。"
+      ]
+    },
+    {
+      "file": "a04-order.tex",
+      "chinese_file": "zh-CN/a04-order.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "finite_fields"
+      ],
+      "id": "A04-HEADING-002",
+      "kind": "subsection",
+      "heading": "Theorems",
+      "current_heading": "Theorems",
+      "label": "subsec:order-theorem",
+      "current_label": "subsec:order-theorem",
+      "parent_label": "subsec:order-theorem",
+      "baseline_line": 11,
+      "current_line": 13,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-002"
+      ],
+      "checks": [
+        "逐项验证阶整除指数、幂阶gcd公式、有限群/域阶关系及费马小定理；修正指数整除措辞。"
+      ]
+    },
+    {
+      "file": "a04-order.tex",
+      "chinese_file": "zh-CN/a04-order.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "finite_fields"
+      ],
+      "id": "A04-THEOREM-001",
+      "kind": "theorem",
+      "heading": "Order Property (I)",
+      "current_heading": "Order Property (I)",
+      "label": "subsec:order-theorem",
+      "theorem_number_tex": "\\ref*{subsec:order-theorem}.1",
+      "parent_label": "subsec:order-theorem",
+      "baseline_line": 16,
+      "current_line": 18,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "阶k的元素满足a^m=1当且仅当k|m，最小正指数证明成立。"
+      ]
+    },
+    {
+      "file": "a04-order.tex",
+      "chinese_file": "zh-CN/a04-order.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "finite_fields"
+      ],
+      "id": "A04-THEOREM-002",
+      "kind": "theorem",
+      "heading": "Order Property (II)",
+      "current_heading": "Order Property (II)",
+      "label": "subsec:order-theorem",
+      "theorem_number_tex": "\\ref*{subsec:order-theorem}.2",
+      "parent_label": "subsec:order-theorem",
+      "baseline_line": 32,
+      "current_line": 34,
+      "status": "corrected",
+      "findings": [
+        "FND-002"
+      ],
+      "checks": [
+        "以k|mn推导幂阶k/gcd(k,n)，修正把指数倍数误说成元素倍数。"
+      ]
+    },
+    {
+      "file": "a04-order.tex",
+      "chinese_file": "zh-CN/a04-order.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "finite_fields"
+      ],
+      "id": "A04-THEOREM-003",
+      "kind": "theorem",
+      "heading": "Order Property (III)",
+      "current_heading": "Order Property (III)",
+      "label": "subsec:order-theorem",
+      "theorem_number_tex": "\\ref*{subsec:order-theorem}.3",
+      "parent_label": "subsec:order-theorem",
+      "baseline_line": 43,
+      "current_line": 45,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "有限域非零元素阶整除乘法群阶，前提与零排除均核查。"
+      ]
+    },
+    {
+      "file": "a04-order.tex",
+      "chinese_file": "zh-CN/a04-order.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "finite_fields"
+      ],
+      "id": "A04-THEOREM-004",
+      "kind": "theorem",
+      "heading": "Fermat's Little Theorem",
+      "current_heading": "Fermat's Little Theorem",
+      "label": "subsec:order-theorem",
+      "theorem_number_tex": "\\ref*{subsec:order-theorem}.4",
+      "parent_label": "subsec:order-theorem",
+      "baseline_line": 53,
+      "current_line": 55,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "素数模数的费马小定理，核查非零/互素条件及证明。"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "chinese_file": "zh-CN/a05-polynomial-ring.tex",
+      "primary_sources": [
+        "algebra",
+        "finite_fields"
+      ],
+      "id": "A05-CHAPTER",
+      "kind": "chapter",
+      "heading": "Polynomial Ring",
+      "current_heading": "Polynomial Ring",
+      "label": "sec:polynomial-ring",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 400,
+      "status": "corrected",
+      "findings": [
+        "FND-003",
+        "FND-004"
+      ],
+      "checks": [
+        "核查商环约减例子、运算表、求值和负循环旋转全部公式。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "chinese_file": "zh-CN/a05-polynomial-ring.tex",
+      "primary_sources": [
+        "algebra",
+        "finite_fields"
+      ],
+      "id": "A05-HEADING-001",
+      "kind": "subsection",
+      "heading": "Overview",
+      "current_heading": "Overview",
+      "label": "subsec:poly-ring-overview",
+      "current_label": "subsec:poly-ring-overview",
+      "parent_label": "subsec:poly-ring-overview",
+      "baseline_line": 7,
+      "current_line": 7,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查系数环、多项式模数与商环代表元、加减乘约减。"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "chinese_file": "zh-CN/a05-polynomial-ring.tex",
+      "primary_sources": [
+        "algebra",
+        "finite_fields"
+      ],
+      "id": "A05-HEADING-002",
+      "kind": "subsubsection",
+      "heading": "Example",
+      "current_heading": "Example",
+      "label": "subsubsec:poly-ring-ex",
+      "current_label": "subsubsec:poly-ring-ex",
+      "parent_label": "subsubsec:poly-ring-ex",
+      "baseline_line": 67,
+      "current_line": 67,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-003"
+      ],
+      "checks": [
+        "逐系数重算模7及模X²+1的示例；区分整数提升值与商环元素。"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "chinese_file": "zh-CN/a05-polynomial-ring.tex",
+      "primary_sources": [
+        "algebra",
+        "finite_fields"
+      ],
+      "id": "A05-HEADING-003",
+      "kind": "subsubsection",
+      "heading": "Discussion",
+      "current_heading": "Discussion",
+      "label": "subsubsec:polynomial-ring-discuss",
+      "current_label": "subsubsec:polynomial-ring-discuss",
+      "parent_label": "subsubsec:polynomial-ring-discuss",
+      "baseline_line": 84,
+      "current_line": 84,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-003",
+        "FND-004"
+      ],
+      "checks": [
+        "检查比较表次数上界、等价类和求值目标；原表上界及求值解释已修。"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "chinese_file": "zh-CN/a05-polynomial-ring.tex",
+      "primary_sources": [
+        "algebra",
+        "finite_fields"
+      ],
+      "id": "A05-HEADING-004",
+      "kind": "para",
+      "heading": "Congruency:",
+      "current_heading": "Congruency:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsubsec:polynomial-ring-discuss",
+      "baseline_line": 137,
+      "current_line": 139,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查同余类归一化不改变商环元素；不将代表元普通数值相等与同余混为一谈。"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "chinese_file": "zh-CN/a05-polynomial-ring.tex",
+      "primary_sources": [
+        "algebra",
+        "finite_fields"
+      ],
+      "id": "A05-HEADING-005",
+      "kind": "para",
+      "heading": "Polynomial Evaluation:",
+      "current_heading": "Polynomial Evaluation:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsubsec:polynomial-ring-discuss",
+      "baseline_line": 139,
+      "current_line": 141,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-003"
+      ],
+      "checks": [
+        "用同特征目标代数消去系数模数项和多项式模数项；根阶应为2n，二幂时本原。"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "chinese_file": "zh-CN/a05-polynomial-ring.tex",
+      "primary_sources": [
+        "algebra",
+        "finite_fields"
+      ],
+      "id": "A05-HEADING-006",
+      "kind": "para",
+      "heading": "Number Ring \\& Polynomial Ring:",
+      "current_heading": "Number Ring \\& Polynomial Ring:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsubsec:polynomial-ring-discuss",
+      "baseline_line": 147,
+      "current_line": 149,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-004"
+      ],
+      "checks": [
+        "按输入系数个数重算和/积最高索引，明确零补齐及后续约减。"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "chinese_file": "zh-CN/a05-polynomial-ring.tex",
+      "primary_sources": [
+        "algebra",
+        "finite_fields"
+      ],
+      "id": "A05-HEADING-007",
+      "kind": "subsection",
+      "heading": "Coefficient Rotation",
+      "current_heading": "Coefficient Rotation",
+      "label": "subsec:coeff-rotation",
+      "current_label": "subsec:coeff-rotation",
+      "parent_label": "subsec:coeff-rotation",
+      "baseline_line": 150,
+      "current_line": 152,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-004"
+      ],
+      "checks": [
+        "展开X^h乘法的负循环符号，限定0≤h<n；一般整数移位由X^{2n}=1处理。"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "chinese_file": "zh-CN/a05-polynomial-ring.tex",
+      "primary_sources": [
+        "algebra",
+        "finite_fields"
+      ],
+      "id": "A05-HEADING-008",
+      "kind": "subsubsection",
+      "heading": "Example",
+      "current_heading": "Example",
+      "label": "subsec:coeff-rotation-ex",
+      "current_label": "subsec:coeff-rotation-ex",
+      "parent_label": "subsec:coeff-rotation-ex",
+      "baseline_line": 194,
+      "current_line": 198,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "逐项检查旋转示例的前后系数位置及越过n后的负号。"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "chinese_file": "zh-CN/a06-decomp.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "A06-CHAPTER",
+      "kind": "chapter",
+      "heading": "Decomposition",
+      "current_heading": "Decomposition",
+      "label": "sec:decomp",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 406,
+      "status": "corrected",
+      "findings": [
+        "FND-005",
+        "FND-006"
+      ],
+      "checks": [
+        "核查整数与多项式精确/近似分解全部等式及数字范围。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a06-decomp.tex",
+      "chinese_file": "zh-CN/a06-decomp.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "A06-HEADING-001",
+      "kind": "subsection",
+      "heading": "Number Decomposition",
+      "current_heading": "Number Decomposition",
+      "label": "subsec:number-decomp",
+      "current_label": "subsec:number-decomp",
+      "parent_label": "subsec:number-decomp",
+      "baseline_line": 3,
+      "current_line": 3,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-005"
+      ],
+      "checks": [
+        "证明递减整数gadget精确表示全部剩余类须q=β^l；反例q16、β2、l2。"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "chinese_file": "zh-CN/a06-decomp.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "A06-HEADING-002",
+      "kind": "subsubsection",
+      "heading": "Example",
+      "current_heading": "Example",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:number-decomp",
+      "baseline_line": 35,
+      "current_line": 35,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-005"
+      ],
+      "checks": [
+        "按给定radix位数逐项重组整数，位移实现另须二幂参数。"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "chinese_file": "zh-CN/a06-decomp.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "A06-HEADING-003",
+      "kind": "subsection",
+      "heading": "Polynomial Decomposition",
+      "current_heading": "Polynomial Decomposition",
+      "label": "subsec:poly-decomp",
+      "current_label": "subsec:poly-decomp",
+      "parent_label": "subsec:poly-decomp",
+      "baseline_line": 48,
+      "current_line": 48,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-005"
+      ],
+      "checks": [
+        "将标量分解逐系数推广到多项式，精确恒等式沿用q=β^l。"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "chinese_file": "zh-CN/a06-decomp.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "A06-HEADING-004",
+      "kind": "subsubsection",
+      "heading": "Example",
+      "current_heading": "Example",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-decomp",
+      "baseline_line": 80,
+      "current_line": 80,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "逐系数检查例中数字多项式和各权重的乘积还原。"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "chinese_file": "zh-CN/a06-decomp.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "A06-HEADING-005",
+      "kind": "subsubsection",
+      "heading": "Discussion",
+      "current_heading": "Discussion",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-decomp",
+      "baseline_line": 112,
+      "current_line": 112,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-005"
+      ],
+      "checks": [
+        "核查分解只是表示变换；其数字范围和完整性不能由β^l整除q自动推出。"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "chinese_file": "zh-CN/a06-decomp.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "A06-HEADING-006",
+      "kind": "subsection",
+      "heading": "Approximate Decomposition",
+      "current_heading": "Approximate Decomposition",
+      "label": "subsec:approx-decomp",
+      "current_label": "subsec:approx-decomp",
+      "parent_label": "subsec:approx-decomp",
+      "baseline_line": 117,
+      "current_line": 117,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-006"
+      ],
+      "checks": [
+        "最近整数倍量化需模q环绕，残差绝对值≤q/(2β^l)，权重须为整数。"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "chinese_file": "zh-CN/a06-decomp.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "A06-HEADING-007",
+      "kind": "subsection",
+      "heading": "Gadget Decomposition",
+      "current_heading": "Gadget Decomposition",
+      "label": "subsec:gadget-decomposition",
+      "current_label": "subsec:gadget-decomposition",
+      "parent_label": "subsec:gadget-decomposition",
+      "baseline_line": 138,
+      "current_line": 135,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-006"
+      ],
+      "checks": [
+        "区分递减/递增整数gadget；一般q可用普通进制递增权重，不能混用位分解。"
+      ]
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "chinese_file": "zh-CN/a07-roots-of-unity.tex",
+      "primary_sources": [
+        "cyclotomic"
+      ],
+      "id": "A07-CHAPTER",
+      "kind": "chapter",
+      "heading": "Roots of Unity",
+      "current_heading": "Roots of Unity",
+      "label": "sec:roots",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 413,
+      "status": "corrected",
+      "findings": [
+        "FND-007"
+      ],
+      "checks": [
+        "五个单位根定理逐证明核查，补两个边界情形。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "chinese_file": "zh-CN/a07-roots-of-unity.tex",
+      "primary_sources": [
+        "cyclotomic"
+      ],
+      "id": "A07-HEADING-001",
+      "kind": "subsection",
+      "heading": "Definitions",
+      "current_heading": "Definitions",
+      "label": "subsec:roots-def",
+      "current_label": "subsec:roots-def",
+      "parent_label": "subsec:roots-def",
+      "baseline_line": 5,
+      "current_line": 5,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查复数单位根、本原根及阶的定义；n为正整数。"
+      ]
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "chinese_file": "zh-CN/a07-roots-of-unity.tex",
+      "primary_sources": [
+        "cyclotomic"
+      ],
+      "id": "A07-HEADING-002",
+      "kind": "subsection",
+      "heading": "Theorems",
+      "current_heading": "Theorems",
+      "label": "subsec:roots-theorem",
+      "current_label": "subsec:roots-theorem",
+      "parent_label": "subsec:roots-theorem",
+      "baseline_line": 18,
+      "current_line": 18,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-007"
+      ],
+      "checks": [
+        "逐项核查五个定理的显式根、阶、按因子分拆、本原判据与计数；补n1/k0边界。"
+      ]
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "chinese_file": "zh-CN/a07-roots-of-unity.tex",
+      "primary_sources": [
+        "cyclotomic"
+      ],
+      "id": "A07-THEOREM-001",
+      "kind": "theorem",
+      "heading": "Formula for $\\bm{n}$-th Root of Unity",
+      "current_heading": "Formula for $\\bm{n}$-th Root of Unity",
+      "label": "subsec:roots-theorem",
+      "theorem_number_tex": "\\ref*{subsec:roots-theorem}.1",
+      "parent_label": "subsec:roots-theorem",
+      "baseline_line": 22,
+      "current_line": 22,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查e^{2πik/n}的n个互异根，次数界保证无其他根。"
+      ]
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "chinese_file": "zh-CN/a07-roots-of-unity.tex",
+      "primary_sources": [
+        "cyclotomic"
+      ],
+      "id": "A07-THEOREM-002",
+      "kind": "theorem",
+      "heading": "Order of the Root of Unity",
+      "current_heading": "Order of the Root of Unity",
+      "label": "subsec:roots-theorem",
+      "theorem_number_tex": "\\ref*{subsec:roots-theorem}.2",
+      "parent_label": "subsec:roots-theorem",
+      "baseline_line": 50,
+      "current_line": 50,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查单位根的阶整除n及最小正指数论证。"
+      ]
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "chinese_file": "zh-CN/a07-roots-of-unity.tex",
+      "primary_sources": [
+        "cyclotomic"
+      ],
+      "id": "A07-THEOREM-003",
+      "kind": "theorem",
+      "heading": "Set of All $\\bm{n}$-th Roots of Unity",
+      "current_heading": "Set of All $\\bm{n}$-th Roots of Unity",
+      "label": "subsec:roots-theorem",
+      "theorem_number_tex": "\\ref*{subsec:roots-theorem}.3",
+      "parent_label": "subsec:roots-theorem",
+      "baseline_line": 63,
+      "current_line": 63,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "按每个根的唯一有限阶分解为d|n的本原根集合并集。"
+      ]
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "chinese_file": "zh-CN/a07-roots-of-unity.tex",
+      "primary_sources": [
+        "cyclotomic"
+      ],
+      "id": "A07-THEOREM-004",
+      "kind": "theorem",
+      "heading": "Condition for Primitive $\\bm{n}$-th Roots of Unity",
+      "current_heading": "Condition for Primitive $\\bm{n}$-th Roots of Unity",
+      "label": "subsec:roots-theorem",
+      "theorem_number_tex": "\\ref*{subsec:roots-theorem}.4",
+      "parent_label": "subsec:roots-theorem",
+      "baseline_line": 76,
+      "current_line": 76,
+      "status": "corrected",
+      "findings": [
+        "FND-007"
+      ],
+      "checks": [
+        "利用幂阶公式证明本原 iff gcd(k,n)=1，补k0和n1。"
+      ]
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "chinese_file": "zh-CN/a07-roots-of-unity.tex",
+      "primary_sources": [
+        "cyclotomic"
+      ],
+      "id": "A07-THEOREM-005",
+      "kind": "theorem",
+      "heading": "The number of Primitive $\\bm{n}$-th Roots of Unity",
+      "current_heading": "The number of Primitive $\\bm{n}$-th Roots of Unity",
+      "label": "subsec:roots-theorem",
+      "theorem_number_tex": "\\ref*{subsec:roots-theorem}.5",
+      "parent_label": "subsec:roots-theorem",
+      "baseline_line": 87,
+      "current_line": 87,
+      "status": "corrected",
+      "findings": [
+        "FND-007"
+      ],
+      "checks": [
+        "计数欧拉函数，n1唯一根为1，修正计数区间边界。"
+      ]
+    },
+    {
+      "file": "a08-cyclotomic-polynomial.tex",
+      "chinese_file": "zh-CN/a08-cyclotomic-polynomial.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "algebra"
+      ],
+      "id": "A08-CHAPTER",
+      "kind": "chapter",
+      "heading": "Cyclotomic Polynomial",
+      "current_heading": "Cyclotomic Polynomial",
+      "label": "sec:cyclotomic",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 419,
+      "status": "corrected",
+      "findings": [
+        "FND-008",
+        "FND-009"
+      ],
+      "checks": [
+        "核查定义表和四个定理；两处原证明有缺口但结论保留。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a08-cyclotomic-polynomial.tex",
+      "chinese_file": "zh-CN/a08-cyclotomic-polynomial.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "algebra"
+      ],
+      "id": "A08-HEADING-001",
+      "kind": "subsection",
+      "heading": "Definitions",
+      "current_heading": "Definitions",
+      "label": "subsec:cyclotomic-def",
+      "current_label": "subsec:cyclotomic-def",
+      "parent_label": "subsec:cyclotomic-def",
+      "baseline_line": 4,
+      "current_line": 4,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查首一根乘积定义、前十个分圆多项式以及二幂时Phi_{2n}=X^n+1。"
+      ]
+    },
+    {
+      "file": "a08-cyclotomic-polynomial.tex",
+      "chinese_file": "zh-CN/a08-cyclotomic-polynomial.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "algebra"
+      ],
+      "id": "A08-HEADING-002",
+      "kind": "subsection",
+      "heading": "Theorems",
+      "current_heading": "Theorems",
+      "label": "subsec:cyclotomic-theorem",
+      "current_label": "subsec:cyclotomic-theorem",
+      "parent_label": "subsec:cyclotomic-theorem",
+      "baseline_line": 44,
+      "current_line": 44,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-008",
+        "FND-009"
+      ],
+      "checks": [
+        "逐项核查四个定理；整数系数以首一除法归纳证明，代换公式用根阶而非错误双射。"
+      ]
+    },
+    {
+      "file": "a08-cyclotomic-polynomial.tex",
+      "chinese_file": "zh-CN/a08-cyclotomic-polynomial.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "algebra"
+      ],
+      "id": "A08-THEOREM-001",
+      "kind": "theorem",
+      "heading": "Roots of the $M$-th Cyclotomic Polynomial",
+      "current_heading": "Roots of the $M$-th Cyclotomic Polynomial",
+      "label": "subsec:cyclotomic-theorem",
+      "theorem_number_tex": "\\ref*{subsec:cyclotomic-theorem}.1",
+      "parent_label": "subsec:cyclotomic-theorem",
+      "baseline_line": 48,
+      "current_line": 48,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "由定义核查第M分圆多项式的根恰为本原M次根。"
+      ]
+    },
+    {
+      "file": "a08-cyclotomic-polynomial.tex",
+      "chinese_file": "zh-CN/a08-cyclotomic-polynomial.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "algebra"
+      ],
+      "id": "A08-THEOREM-002",
+      "kind": "theorem",
+      "heading": "Polynomial Decomposition into Cyclotomic Polynomials",
+      "current_heading": "Polynomial Decomposition into Cyclotomic Polynomials",
+      "label": "subsec:cyclotomic-theorem",
+      "theorem_number_tex": "\\ref*{subsec:cyclotomic-theorem}.2",
+      "parent_label": "subsec:cyclotomic-theorem",
+      "baseline_line": 60,
+      "current_line": 60,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "按根的阶分拆X^n−1，所有根简单且乘积首一。"
+      ]
+    },
+    {
+      "file": "a08-cyclotomic-polynomial.tex",
+      "chinese_file": "zh-CN/a08-cyclotomic-polynomial.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "algebra"
+      ],
+      "id": "A08-THEOREM-003",
+      "kind": "theorem",
+      "heading": "Integer Coefficients of Cyclotomic Polynomials",
+      "current_heading": "Integer Coefficients of Cyclotomic Polynomials",
+      "label": "subsec:cyclotomic-theorem",
+      "theorem_number_tex": "\\ref*{subsec:cyclotomic-theorem}.3",
+      "parent_label": "subsec:cyclotomic-theorem",
+      "baseline_line": 69,
+      "current_line": 69,
+      "status": "corrected",
+      "findings": [
+        "FND-008"
+      ],
+      "checks": [
+        "原首项系数推理不足，替换为整数首一长除及强归纳。"
+      ]
+    },
+    {
+      "file": "a08-cyclotomic-polynomial.tex",
+      "chinese_file": "zh-CN/a08-cyclotomic-polynomial.tex",
+      "primary_sources": [
+        "cyclotomic",
+        "algebra"
+      ],
+      "id": "A08-THEOREM-004",
+      "kind": "theorem",
+      "heading": "Formula for $\\bm{\\Phi_{nk}(x)}$",
+      "current_heading": "Formula for $\\bm{\\Phi_{nk}(x)}$",
+      "label": "subsec:cyclotomic-theorem",
+      "theorem_number_tex": "\\ref*{subsec:cyclotomic-theorem}.4",
+      "parent_label": "subsec:cyclotomic-theorem",
+      "baseline_line": 83,
+      "current_line": 79,
+      "status": "corrected",
+      "findings": [
+        "FND-009"
+      ],
+      "checks": [
+        "k|n时从ord(z^k)等价ord(z)=nk证明代换公式，根映射不是双射。"
+      ]
+    },
+    {
+      "file": "a09-cyclotomic-polynomial-integer-ring.tex",
+      "chinese_file": "zh-CN/a09-cyclotomic-polynomial-integer-ring.tex",
+      "primary_sources": [
+        "finite_fields"
+      ],
+      "id": "A09-CHAPTER",
+      "kind": "chapter",
+      "heading": "Roots of Unity and Cyclotomic Polynomial over Ring",
+      "current_heading": "Roots of Unity and Cyclotomic Polynomial over Ring",
+      "label": "sec:cyclotomic-polynomial-integer-ring",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 425,
+      "status": "corrected",
+      "findings": [
+        "FND-010"
+      ],
+      "checks": [
+        "全章无小标题，逐项核查复数/有限域比较表，明确拆分与特征条件。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a10-polynomial-interpolation.tex",
+      "chinese_file": "zh-CN/a10-polynomial-interpolation.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A10-CHAPTER",
+      "kind": "chapter",
+      "heading": "Lagrange's Polynomial Interpolation",
+      "current_heading": "Lagrange's Polynomial Interpolation",
+      "label": "sec:polynomial-interpolation",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 431,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查两个插值定理的节点函数、唯一性证明和域条件，未发现本轮需改错误。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a10-polynomial-interpolation.tex",
+      "chinese_file": "zh-CN/a10-polynomial-interpolation.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A10-HEADING-001",
+      "kind": "subsection",
+      "heading": "The Field Condition for Unique Interpolation",
+      "current_heading": "The Field Condition for Unique Interpolation",
+      "label": "subsec:polynomial-interpolation-field-condition",
+      "current_label": "subsec:polynomial-interpolation-field-condition",
+      "parent_label": "subsec:polynomial-interpolation-field-condition",
+      "baseline_line": 40,
+      "current_line": 40,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "复核Lagrange分母可逆条件与复合模数反例；在域中不同节点保证唯一插值，原文此处已正确。"
+      ]
+    },
+    {
+      "file": "a10-polynomial-interpolation.tex",
+      "chinese_file": "zh-CN/a10-polynomial-interpolation.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A10-THEOREM-001",
+      "kind": "theorem",
+      "heading": "Lagrange's Polynomial Interpolation",
+      "current_heading": "Lagrange's Polynomial Interpolation",
+      "label": "sec:polynomial-interpolation",
+      "theorem_number_tex": "\\ref*{sec:polynomial-interpolation}",
+      "parent_label": "sec:polynomial-interpolation",
+      "baseline_line": 4,
+      "current_line": 4,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "逐项代入Lagrange基函数得δ_ij，核查次数≤n；两解之差的根数给唯一性。"
+      ]
+    },
+    {
+      "file": "a10-polynomial-interpolation.tex",
+      "chinese_file": "zh-CN/a10-polynomial-interpolation.tex",
+      "primary_sources": [
+        "algebra"
+      ],
+      "id": "A10-THEOREM-002",
+      "kind": "theorem",
+      "heading": "The Field Condition for Unique Interpolation",
+      "current_heading": "The Field Condition for Unique Interpolation",
+      "label": "subsec:polynomial-interpolation-field-condition",
+      "theorem_number_tex": "\\ref*{subsec:polynomial-interpolation-field-condition}",
+      "parent_label": "subsec:polynomial-interpolation-field-condition",
+      "baseline_line": 44,
+      "current_line": 44,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "域中不同节点使分母单位，复合模数反例验证条件不可任意删。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-CHAPTER",
+      "kind": "chapter",
+      "heading": "Vector and Matrix",
+      "current_heading": "Vector and Matrix",
+      "label": "sec:matrix",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 437,
+      "status": "corrected",
+      "findings": [
+        "FND-011",
+        "FND-012",
+        "FND-013",
+        "FND-014",
+        "FND-036"
+      ],
+      "checks": [
+        "逐项核查实/复线性代数、投影、模块和三类求值/坐标变换。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-001",
+      "kind": "subsection",
+      "heading": "Vector Arithmetic",
+      "current_heading": "Vector Arithmetic",
+      "label": "subsec:vector-arithmetic",
+      "current_label": "subsec:vector-arithmetic",
+      "parent_label": "subsec:vector-arithmetic",
+      "baseline_line": 3,
+      "current_line": 3,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-011"
+      ],
+      "checks": [
+        "区分实点积与Hermitian内积，逐项核查线性、共轭与范数；复杂数时使用共轭正定形式。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-002",
+      "kind": "subsection",
+      "heading": "Various Types of Matrix",
+      "current_heading": "Various Types of Matrix",
+      "label": "subsec:vandermonde",
+      "current_label": "subsec:vandermonde",
+      "parent_label": "subsec:vandermonde",
+      "baseline_line": 74,
+      "current_line": 76,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查Vandermonde行列索引、单位/逆序矩阵和对角矩阵的形状与定义。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-003",
+      "kind": "subsection",
+      "heading": "Matrix Arithmetic",
+      "current_heading": "Matrix Arithmetic",
+      "label": "subsec:matrix-arithmetic",
+      "current_label": "subsec:matrix-arithmetic",
+      "parent_label": "subsec:matrix-arithmetic",
+      "baseline_line": 144,
+      "current_line": 146,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-036"
+      ],
+      "checks": [
+        "核查矩阵加法、线性分配和类型；一般不交换不是所有输入均不等，不能比较标量与矩阵。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-004",
+      "kind": "subsection",
+      "heading": "Projection",
+      "current_heading": "Projection",
+      "label": "subsec:projection",
+      "current_label": "subsec:projection",
+      "parent_label": "subsec:projection",
+      "baseline_line": 270,
+      "current_line": 270,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-011"
+      ],
+      "checks": [
+        "核查实标量、非零方向、投影长度和正交/非正交基的作用。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-005",
+      "kind": "para",
+      "heading": "Vector Projection:",
+      "current_heading": "Vector Projection:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:projection",
+      "baseline_line": 293,
+      "current_line": 295,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-011"
+      ],
+      "checks": [
+        "用a=-b核查长度应含绝对值；有符号分量与投影向量分开。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-006",
+      "kind": "para",
+      "heading": "Orthogonal Projection:",
+      "current_heading": "Orthogonal Projection:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:projection",
+      "baseline_line": 295,
+      "current_line": 301,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-011"
+      ],
+      "checks": [
+        "正交非零基下逐方向投影求和，等于到其张成子空间的正交投影。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-007",
+      "kind": "para",
+      "heading": "Orthogonal Basis:",
+      "current_heading": "Orthogonal Basis:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:projection",
+      "baseline_line": 341,
+      "current_line": 347,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-011"
+      ],
+      "checks": [
+        "n个非零两两正交向量在n维实空间张成全空间；投影唯一且为自身。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-008",
+      "kind": "para",
+      "heading": "Non-orthogonal Basis:",
+      "current_heading": "Non-orthogonal Basis:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:projection",
+      "baseline_line": 343,
+      "current_line": 349,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-011"
+      ],
+      "checks": [
+        "非正交基仍可正交投影；行基坐标为(P^T)^−1v，投影矩阵为Q(Q^TQ)^−1Q^T。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-009",
+      "kind": "subsection",
+      "heading": "Basis of a Polynomial Ring",
+      "current_heading": "Basis of a Polynomial Ring",
+      "label": "subsec:polynomial-ring-basis",
+      "current_label": "subsec:polynomial-ring-basis",
+      "parent_label": "subsec:polynomial-ring-basis",
+      "baseline_line": 356,
+      "current_line": 362,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-012"
+      ],
+      "checks": [
+        "整数系数商环是自由Z模；用零关系定义线性无关，不能只用不可互相生成。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-010",
+      "kind": "subsection",
+      "heading": "Isomorphism between Polynomials and Vectors over Integers (and Ring)",
+      "current_heading": "Isomorphism between Polynomials and Vectors over Integers (and Ring)",
+      "label": "subsec:poly-vector-transformation",
+      "current_label": "subsec:poly-vector-transformation",
+      "parent_label": "subsec:poly-vector-transformation",
+      "baseline_line": 370,
+      "current_line": 376,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-013"
+      ],
+      "checks": [
+        "在素数域、根节点和拆分条件下证明求值同构；任意不同节点只保证代表元的线性双射。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-011",
+      "kind": "para",
+      "heading": "Bijective:",
+      "current_heading": "Bijective:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-vector-transformation",
+      "baseline_line": 385,
+      "current_line": 391,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-013"
+      ],
+      "checks": [
+        "次数<n加n个不同域节点，由Lagrange唯一性给双射；沿用已补的根/域条件。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-012",
+      "kind": "para",
+      "heading": "Homomorphic:",
+      "current_heading": "Homomorphic:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-vector-transformation",
+      "baseline_line": 389,
+      "current_line": 395,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-013"
+      ],
+      "checks": [
+        "分别展开加法与乘法的求值；Hadamard乘法保持需模多项式在节点消失。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-013",
+      "kind": "para",
+      "heading": "Polynomial Ring Reduction:",
+      "current_heading": "Polynomial Ring Reduction:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-vector-transformation",
+      "baseline_line": 468,
+      "current_line": 474,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-013"
+      ],
+      "checks": [
+        "核查乘积商余分解与模多项式根处求值相等；高次代表元不唯一但商环类唯一。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-014",
+      "kind": "para",
+      "heading": "Polynomial Coefficient Modulo Reduction:",
+      "current_heading": "Polynomial Coefficient Modulo Reduction:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-vector-transformation",
+      "baseline_line": 492,
+      "current_line": 498,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-003",
+        "FND-013"
+      ],
+      "checks": [
+        "系数约减和求值在同一特征域内相容，不能将有限域等式作为复数提升恒等式。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-015",
+      "kind": "para",
+      "heading": "Summary:",
+      "current_heading": "Summary:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-vector-transformation",
+      "baseline_line": 514,
+      "current_line": 520,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-013"
+      ],
+      "checks": [
+        "总结中的环同构限于已声明的素数域和全部互异根节点。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-016",
+      "kind": "subsubsection",
+      "heading": "Finding Appropriate Modulus $t$",
+      "current_heading": "Finding Appropriate Modulus $t$",
+      "label": "subsubsec:poly-vector-transformation-modulus",
+      "current_label": "subsubsec:poly-vector-transformation-modulus",
+      "parent_label": "subsubsec:poly-vector-transformation-modulus",
+      "baseline_line": 520,
+      "current_line": 526,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-013"
+      ],
+      "checks": [
+        "构造生成元g及阶2n元素；核查最小正指数、二幂的真因子条件和ω/c笔误。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-017",
+      "kind": "subsection",
+      "heading": "Isomorphism between Polynomials and Vectors over Complex Numbers",
+      "current_heading": "Isomorphism between Polynomials and Vectors over Complex Numbers",
+      "label": "subsec:poly-vector-transformation-complex",
+      "current_label": "subsec:poly-vector-transformation-complex",
+      "parent_label": "subsec:poly-vector-transformation-complex",
+      "baseline_line": 598,
+      "current_line": 604,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-014"
+      ],
+      "checks": [
+        "明确n偶且实标量域；目标共轭对称空间不是一般复向量空间。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-018",
+      "kind": "subsubsection",
+      "heading": "Isomorphism between $\\mathbb{C}^{\\frac{n}{2}}$ and $\\hat{\\mathbb{C}}^{n}$",
+      "current_heading": "Isomorphism between $\\mathbb{C}^{\\frac{n}{2}}$ and $\\hat{\\mathbb{C}}^{n}$",
+      "label": "subsec:poly-vector-transformation-complex-isomorphism1",
+      "current_label": "subsec:poly-vector-transformation-complex-isomorphism1",
+      "parent_label": "subsec:poly-vector-transformation-complex-isomorphism1",
+      "baseline_line": 610,
+      "current_line": 618,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-014"
+      ],
+      "checks": [
+        "核查追加逆序共轭是实线性及逐分量乘法同构，维数按实数计算。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-019",
+      "kind": "para",
+      "heading": "Bijective:",
+      "current_heading": "Bijective:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-vector-transformation-complex-isomorphism1",
+      "baseline_line": 627,
+      "current_line": 635,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "追加与删去后半坐标互逆，逐个核查定义域和值域。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-020",
+      "kind": "para",
+      "heading": "Homomorphic:",
+      "current_heading": "Homomorphic:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-vector-transformation-complex-isomorphism1",
+      "baseline_line": 629,
+      "current_line": 637,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-014"
+      ],
+      "checks": [
+        "核查加法/Hadamard闭合及实数乘法；零向量是标量iff命题的例外。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-021",
+      "kind": "subsubsection",
+      "heading": "Isomorphism between $\\hat{\\mathbb{C}}^{n}$ and $\\mathbb{R}[X] / (X^n + 1)$",
+      "current_heading": "Isomorphism between $\\hat{\\mathbb{C}}^{n}$ and $\\mathbb{R}[X] / (X^n + 1)$",
+      "label": "subsec:poly-vector-transformation-complex-isomorphism2",
+      "current_label": "subsec:poly-vector-transformation-complex-isomorphism2",
+      "parent_label": "subsec:poly-vector-transformation-complex-isomorphism2",
+      "baseline_line": 678,
+      "current_line": 686,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-014"
+      ],
+      "checks": [
+        "核查实系数商环到共轭对称复坐标的求值同构。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-022",
+      "kind": "para",
+      "heading": "Bijective:",
+      "current_heading": "Bijective:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-vector-transformation-complex-isomorphism2",
+      "baseline_line": 692,
+      "current_line": 700,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-014"
+      ],
+      "checks": [
+        "补充对任意共轭对称数据插值再共轭的满射证明；原单射论证不足。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-023",
+      "kind": "para",
+      "heading": "Homomorphic:",
+      "current_heading": "Homomorphic:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:poly-vector-transformation-complex-isomorphism2",
+      "baseline_line": 710,
+      "current_line": 718,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查加法、乘法及实标量保持，先使用模多项式根关系。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-HEADING-024",
+      "kind": "subsection",
+      "heading": "Transforming Basis between Polynomial Ring and Vector Space of Complex Vectors with Real Scalars",
+      "current_heading": "Transforming Basis between Polynomial Ring and Vector Space of Complex Vectors with Real Scalars",
+      "label": "subsec:poly-vector-basis-transfer",
+      "current_label": "subsec:poly-vector-basis-transfer",
+      "parent_label": "subsec:poly-vector-basis-transfer",
+      "baseline_line": 733,
+      "current_line": 741,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-014"
+      ],
+      "checks": [
+        "固定标量域的线性同构保持独立与张成；核查W=V^T的行基约定。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-THEOREM-001",
+      "kind": "theorem",
+      "heading": "Matrix Arithmetic Properties",
+      "current_heading": "Matrix Arithmetic Properties",
+      "label": "subsec:matrix-arithmetic",
+      "theorem_number_tex": "\\ref*{subsec:matrix-arithmetic}",
+      "parent_label": "subsec:matrix-arithmetic",
+      "baseline_line": 221,
+      "current_line": 223,
+      "status": "corrected",
+      "findings": [
+        "FND-036"
+      ],
+      "checks": [
+        "核查线性恒等式与乘积类型，纠正把一般不交换写成每次不等。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-THEOREM-002",
+      "kind": "theorem",
+      "heading": "Uniqueness of Transformed Vectors",
+      "current_heading": "Uniqueness of Transformed Vectors",
+      "label": "subsec:projection",
+      "theorem_number_tex": "\\ref*{subsec:projection}",
+      "parent_label": "subsec:projection",
+      "baseline_line": 345,
+      "current_line": 351,
+      "status": "corrected",
+      "findings": [
+        "FND-011"
+      ],
+      "checks": [
+        "投影唯一性与基坐标分开，行基坐标用(P^T)^−1而非P。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-THEOREM-003",
+      "kind": "theorem",
+      "heading": "Isomorphism between Polynomials and Vectors over Integers (Ring)",
+      "current_heading": "Isomorphism between Polynomials and Vectors over Integers (Ring)",
+      "label": "subsubsec:poly-vector-transformation-modulus",
+      "theorem_number_tex": "\\ref*{subsubsec:poly-vector-transformation-modulus}",
+      "parent_label": "subsubsec:poly-vector-transformation-modulus",
+      "baseline_line": 564,
+      "current_line": 570,
+      "status": "corrected",
+      "findings": [
+        "FND-013"
+      ],
+      "checks": [
+        "总结定理逐条加入素数域、拆分根、生成元阶和同态定义条件。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-THEOREM-004",
+      "kind": "theorem",
+      "heading": "Isomorphism between Polynomials and Vectors over Complex Numbers",
+      "current_heading": "Isomorphism between Polynomials and Vectors over Complex Numbers",
+      "label": "subsec:poly-vector-transformation-complex",
+      "theorem_number_tex": "\\ref*{subsec:poly-vector-transformation-complex}",
+      "parent_label": "subsec:poly-vector-transformation-complex",
+      "baseline_line": 717,
+      "current_line": 725,
+      "status": "corrected",
+      "findings": [
+        "FND-014"
+      ],
+      "checks": [
+        "复数同构按实标量解释，满射性由共轭插值唯一性补全。"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "chinese_file": "zh-CN/a11-matrix.tex",
+      "primary_sources": [
+        "algebra",
+        "projection",
+        "finite_fields",
+        "lpr"
+      ],
+      "id": "A11-THEOREM-005",
+      "kind": "theorem",
+      "heading": "Transforming Basis between Polynomial Ring and Vector Space",
+      "current_heading": "Transforming Basis between Polynomial Ring and Vector Space",
+      "label": "subsec:poly-vector-transformation-complex",
+      "theorem_number_tex": "\\ref*{subsec:poly-vector-transformation-complex}",
+      "parent_label": "subsec:poly-vector-transformation-complex",
+      "baseline_line": 794,
+      "current_line": 802,
+      "status": "corrected",
+      "findings": [
+        "FND-014"
+      ],
+      "checks": [
+        "基转换用相同标量域的线性同构证明，独立和张成分别保持。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-CHAPTER",
+      "kind": "chapter",
+      "heading": "Euler's Formula",
+      "current_heading": "Euler's Formula",
+      "label": "sec:euler",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 443,
+      "status": "corrected",
+      "findings": [
+        "FND-015",
+        "FND-016"
+      ],
+      "checks": [
+        "核查Euler基础及两个Vandermonde推导，重算节点、反对角恒等式与求值方向。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-HEADING-001",
+      "kind": "subsection",
+      "heading": "Pythagorean Identity",
+      "current_heading": "Pythagorean Identity",
+      "label": "subsec:pythagorean",
+      "current_label": "subsec:pythagorean",
+      "parent_label": "subsec:pythagorean",
+      "baseline_line": 2,
+      "current_line": 2,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查单位圆/勾股关系及从几何到sin²+cos²=1的论证。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-HEADING-002",
+      "kind": "subsection",
+      "heading": "Imaginary Number",
+      "current_heading": "Imaginary Number",
+      "label": null,
+      "current_label": "subsec:imaginary",
+      "parent_label": "subsec:imaginary",
+      "baseline_line": 44,
+      "current_line": 44,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查i²=−1、复数实虚部及共轭算术，适用域为复数。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-HEADING-003",
+      "kind": "subsection",
+      "heading": "Euler's Formula",
+      "current_heading": "Euler's Formula",
+      "label": "subsec:euler",
+      "current_label": "subsec:euler",
+      "parent_label": "subsec:euler",
+      "baseline_line": 71,
+      "current_line": 71,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查Euler公式与复单位根表达及共轭指数关系。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-HEADING-004",
+      "kind": "subsection",
+      "heading": "Vandermonde Matrix with Roots of Cyclotomic Polynomial over Complex Numbers",
+      "current_heading": "Vandermonde Matrix with Roots of Cyclotomic Polynomial over Complex Numbers",
+      "label": "subsec:vandermonde-euler",
+      "current_label": "subsec:vandermonde-euler",
+      "parent_label": "subsec:vandermonde-euler",
+      "baseline_line": 92,
+      "current_line": 92,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-015"
+      ],
+      "checks": [
+        "逐项核查行节点Vandermonde求值、VV^T反对角恒等式和逆矩阵；修正转置与节点索引。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-HEADING-005",
+      "kind": "para",
+      "heading": "Condition for $\\bm \\mu$:",
+      "current_heading": "Condition for $\\bm \\mu$:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:vandermonde-euler",
+      "baseline_line": 235,
+      "current_line": 235,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-016"
+      ],
+      "checks": [
+        "核查复数恒等式只需按序奇数2n次根，不需n二幂；保留已正确的基线结论。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-HEADING-006",
+      "kind": "subsection",
+      "heading": "Vandermonde Matrix with Roots of Cyclotomic Polynomial over Ring ($\\mathbb{Z}_p$)",
+      "current_heading": "Vandermonde Matrix with Roots of Cyclotomic Polynomial over Ring ($\\mathbb{Z}_p$)",
+      "label": "subsec:vandermonde-euler-integer-ring",
+      "current_label": "subsec:vandermonde-euler-integer-ring",
+      "parent_label": "subsec:vandermonde-euler-integer-ring",
+      "baseline_line": 254,
+      "current_line": 254,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-015",
+        "FND-016"
+      ],
+      "checks": [
+        "在素数域和2n|p−1下重算几何和、n可逆与求值方向；排除公比为1的例外。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-HEADING-007",
+      "kind": "para",
+      "heading": "Condition for $\\bm \\mu$:",
+      "current_heading": "Condition for $\\bm \\mu$:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:vandermonde-euler-integer-ring",
+      "baseline_line": 376,
+      "current_line": 378,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-016"
+      ],
+      "checks": [
+        "n3、p7、ω3直接反驳非二幂失效说法，分清分圆身份与矩阵恒等式条件。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-THEOREM-001",
+      "kind": "theorem",
+      "heading": "Pythagorean Identity",
+      "current_heading": "Pythagorean Identity",
+      "label": "subsec:pythagorean",
+      "theorem_number_tex": "\\ref*{subsec:pythagorean}",
+      "parent_label": "subsec:pythagorean",
+      "baseline_line": 22,
+      "current_line": 22,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "单位圆/勾股得到sin²+cos²=1，图示和代数一致。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-THEOREM-002",
+      "kind": "theorem",
+      "heading": "Vandermonde Matrix with the Roots of  \\text{(power-of-2)}-th Cyclotomic Polynomial over Complex Numbers",
+      "current_heading": "Vandermonde Matrix with the Roots of  \\text{(power-of-2)}-th Cyclotomic Polynomial over Complex Numbers",
+      "label": "subsec:vandermonde-euler",
+      "theorem_number_tex": "\\ref*{subsec:vandermonde-euler}",
+      "parent_label": "subsec:vandermonde-euler",
+      "baseline_line": 101,
+      "current_line": 101,
+      "status": "corrected",
+      "findings": [
+        "FND-015"
+      ],
+      "checks": [
+        "按行根节点推导VV^T=nJ，修正求值转置并明确根索引。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-THEOREM-003",
+      "kind": "theorem",
+      "heading": "Geometric Sum Formula",
+      "current_heading": "Geometric Sum Formula",
+      "label": "subsec:vandermonde-euler",
+      "theorem_number_tex": "\\ref*{subsec:vandermonde-euler}.1",
+      "parent_label": "subsec:vandermonde-euler",
+      "baseline_line": 176,
+      "current_line": 176,
+      "status": "corrected",
+      "findings": [
+        "FND-015"
+      ],
+      "checks": [
+        "几何级数公比不为1才能除以1−r，明确排除反对角例外m=n。"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "chinese_file": "zh-CN/a12-euler.tex",
+      "primary_sources": [
+        "finite_fields",
+        "cyclotomic"
+      ],
+      "id": "A12-THEOREM-004",
+      "kind": "theorem",
+      "heading": "Vandermonde Matrix with Roots of  \\text{(power-of-2)}-th Cyclotomic Polynomial over Ring ($\\mathbb{Z}_p$)",
+      "current_heading": "Vandermonde Matrix with Roots of  \\text{(power-of-2)}-th Cyclotomic Polynomial over Ring ($\\mathbb{Z}_p$)",
+      "label": "subsec:vandermonde-euler-integer-ring",
+      "theorem_number_tex": "\\ref*{subsec:vandermonde-euler-integer-ring}",
+      "parent_label": "subsec:vandermonde-euler-integer-ring",
+      "baseline_line": 260,
+      "current_line": 262,
+      "status": "corrected",
+      "findings": [
+        "FND-015",
+        "FND-016"
+      ],
+      "checks": [
+        "在Fp、2n|p−1下同一证明成立且n可逆，不要求n为二幂。"
+      ]
+    },
+    {
+      "file": "a13-modulus-rescaling.tex",
+      "chinese_file": "zh-CN/a13-modulus-rescaling.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "A13-CHAPTER",
+      "kind": "chapter",
+      "heading": "Modulo Rescaling",
+      "current_heading": "Modulo Rescaling",
+      "label": "sec:modulus-rescaling",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 449,
+      "status": "corrected",
+      "findings": [
+        "FND-017"
+      ],
+      "checks": [
+        "重新证明缩放舍入的单向同余保持，反驳双向及逐项误差遗漏。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a13-modulus-rescaling.tex",
+      "chinese_file": "zh-CN/a13-modulus-rescaling.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "A13-HEADING-001",
+      "kind": "subsection",
+      "heading": "Rescaling Modulo of Congruence Relations",
+      "current_heading": "Rescaling Modulo of Congruence Relations",
+      "label": "subsec:modulo-rescaling",
+      "current_label": "subsec:modulo-rescaling",
+      "parent_label": "subsec:modulo-rescaling",
+      "baseline_line": 2,
+      "current_line": 2,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-017"
+      ],
+      "checks": [
+        "从整数平移证明缩放舍入精确单向保持同余；删除错误双向等价，明确分别舍入的误差。"
+      ]
+    },
+    {
+      "file": "a13-modulus-rescaling.tex",
+      "chinese_file": "zh-CN/a13-modulus-rescaling.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "A13-HEADING-002",
+      "kind": "subsubsection",
+      "heading": "Example",
+      "current_heading": "Example",
+      "label": "subsec:modulo-rescaling-ex",
+      "current_label": "subsec:modulo-rescaling-ex",
+      "parent_label": "subsec:modulo-rescaling-ex",
+      "baseline_line": 165,
+      "current_line": 36,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-017"
+      ],
+      "checks": [
+        "重算30到3示例；此例无舍入误差不能说明反向同余或一般逐项运算成立。"
+      ]
+    },
+    {
+      "file": "a14-chinese-remainder.tex",
+      "chinese_file": "zh-CN/a14-chinese-remainder.tex",
+      "primary_sources": [
+        "crt"
+      ],
+      "id": "A14-CHAPTER",
+      "kind": "chapter",
+      "heading": "Chinese Remainder Theorem",
+      "current_heading": "Chinese Remainder Theorem",
+      "label": "sec:chinese-remainder",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 455,
+      "status": "corrected",
+      "findings": [
+        "FND-018"
+      ],
+      "checks": [
+        "无标题主定理的存在/唯一证明及RNS应用全部核查，修正互素与下标/模数。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a14-chinese-remainder.tex",
+      "chinese_file": "zh-CN/a14-chinese-remainder.tex",
+      "primary_sources": [
+        "crt"
+      ],
+      "id": "A14-HEADING-001",
+      "kind": "subsection",
+      "heading": "Application: Residue Number System (RNS)",
+      "current_heading": "Application: Residue Number System (RNS)",
+      "label": "subsec:crt-application",
+      "current_label": "subsec:crt-application",
+      "parent_label": "subsec:crt-application",
+      "baseline_line": 121,
+      "current_line": 121,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-018"
+      ],
+      "checks": [
+        "按各自n_i作坐标运算，核查CRT环同构与重构公式，不能用总N作每个坐标模数。"
+      ]
+    },
+    {
+      "file": "a14-chinese-remainder.tex",
+      "chinese_file": "zh-CN/a14-chinese-remainder.tex",
+      "primary_sources": [
+        "crt"
+      ],
+      "id": "A14-THEOREM-001",
+      "kind": "theorem",
+      "heading": "Chinese Remainder Theorem",
+      "current_heading": "Chinese Remainder Theorem",
+      "label": "sec:chinese-remainder",
+      "theorem_number_tex": "\\ref*{sec:chinese-remainder}.1",
+      "parent_label": "sec:chinese-remainder",
+      "baseline_line": 9,
+      "current_line": 9,
+      "status": "corrected",
+      "findings": [
+        "FND-018"
+      ],
+      "checks": [
+        "核查N_i逆元存在、幂等坐标构造和模N唯一性，修正求和下标及两两互素。"
+      ]
+    },
+    {
+      "file": "a14-chinese-remainder.tex",
+      "chinese_file": "zh-CN/a14-chinese-remainder.tex",
+      "primary_sources": [
+        "crt"
+      ],
+      "id": "A14-THEOREM-002",
+      "kind": "theorem",
+      "heading": "Application of the Chinese Remainder Theorem",
+      "current_heading": "Application of the Chinese Remainder Theorem",
+      "label": "sec:chinese-remainder",
+      "theorem_number_tex": "\\ref*{sec:chinese-remainder}.2",
+      "parent_label": "sec:chinese-remainder",
+      "baseline_line": 150,
+      "current_line": 150,
+      "status": "corrected",
+      "findings": [
+        "FND-018"
+      ],
+      "checks": [
+        "RNS逐坐标环运算模各n_i，CRT逆向重构保证模N乘加相容。"
+      ]
+    },
+    {
+      "file": "a15-taylor-series.tex",
+      "chinese_file": "zh-CN/a15-taylor-series.tex",
+      "primary_sources": [
+        "taylor"
+      ],
+      "id": "A15-CHAPTER",
+      "kind": "chapter",
+      "heading": "Taylor Series",
+      "current_heading": "Taylor Series",
+      "label": "sec:taylor-series",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 461,
+      "status": "corrected",
+      "findings": [
+        "FND-019"
+      ],
+      "checks": [
+        "全章Taylor定义、有限余项和误差解释核查，给非单调误差反例。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-CHAPTER",
+      "kind": "chapter",
+      "heading": "Efficient Polynomial Multiplication by FFT and NTT",
+      "current_heading": "Efficient Polynomial Multiplication by FFT and NTT",
+      "label": "sec:ntt",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 469,
+      "status": "corrected",
+      "findings": [
+        "FND-020"
+      ],
+      "checks": [
+        "全章FFT分治、几何和与逆变换逐式核查，区分普通/负循环卷积。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-HEADING-001",
+      "kind": "subsection",
+      "heading": "Background and Motivation",
+      "current_heading": "Background and Motivation",
+      "label": "subsec:ntt-motivation",
+      "current_label": "subsec:ntt-motivation",
+      "parent_label": "subsec:ntt-motivation",
+      "baseline_line": 4,
+      "current_line": 4,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-020"
+      ],
+      "checks": [
+        "区分普通卷积最高次2n−2与模X^n+1负循环乘法，说明域运算复杂度模型。"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-HEADING-002",
+      "kind": "subsection",
+      "heading": "Forward FFT (or NTT)",
+      "current_heading": "Forward FFT (or NTT)",
+      "label": "subsec:ntt-forward",
+      "current_label": "subsec:ntt-forward",
+      "parent_label": "subsec:ntt-forward",
+      "baseline_line": 35,
+      "current_line": 37,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-020"
+      ],
+      "checks": [
+        "固定n=2^L及复/有限域的阶2n根；有限域需素数p和2n|p−1。"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-HEADING-003",
+      "kind": "subsubsection",
+      "heading": "High-level Idea",
+      "current_heading": "High-level Idea",
+      "label": "subsec:ntt-forward-overview",
+      "current_label": "subsec:ntt-forward-overview",
+      "parent_label": "subsec:ntt-forward-overview",
+      "baseline_line": 46,
+      "current_line": 50,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-020"
+      ],
+      "checks": [
+        "偶奇系数分拆A0(X²)+XA1(X²)，平方节点只剩n/2个互异值。"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-HEADING-004",
+      "kind": "subsubsection",
+      "heading": "Details",
+      "current_heading": "Details",
+      "label": "subsec:ntt-forward-details",
+      "current_label": "subsec:ntt-forward-details",
+      "parent_label": "subsec:ntt-forward-details",
+      "baseline_line": 63,
+      "current_line": 67,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-020"
+      ],
+      "checks": [
+        "逐层核查分治树、节点幂和复用，未将奇数根约定推广到所有FFT。"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-HEADING-005",
+      "kind": "para",
+      "heading": "FFT Level $\\bm{l = 1}$:",
+      "current_heading": "FFT Level $\\bm{l = 1}$:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:ntt-forward-details",
+      "baseline_line": 113,
+      "current_line": 117,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "n8示例中四次幂只有ω4和ω12两个值，核查每条等式。"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-HEADING-006",
+      "kind": "para",
+      "heading": "FFT Level $\\bm{l = 2}$:",
+      "current_heading": "FFT Level $\\bm{l = 2}$:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:ntt-forward-details",
+      "baseline_line": 118,
+      "current_line": 122,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "n8示例中平方节点只有四值，核查多项式数量和常数规模合并。"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-HEADING-007",
+      "kind": "para",
+      "heading": "FFT Level $\\bm{l = 3}$:",
+      "current_heading": "FFT Level $\\bm{l = 3}$:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:ntt-forward-details",
+      "baseline_line": 122,
+      "current_line": 126,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "最后层八个互异节点，核查从两子多项式合并结果。"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-HEADING-008",
+      "kind": "para",
+      "heading": "Generalization:",
+      "current_heading": "Generalization:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:ntt-forward-details",
+      "baseline_line": 126,
+      "current_line": 130,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-020"
+      ],
+      "checks": [
+        "每层2^{L-l}个多项式乘2^l个点等于n，总L层；复杂度是域运算数。"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-HEADING-009",
+      "kind": "subsection",
+      "heading": "Point-wise Multiplication",
+      "current_heading": "Point-wise Multiplication",
+      "label": "subsec:pointwise-multiplication",
+      "current_label": "subsec:pointwise-multiplication",
+      "parent_label": "subsec:pointwise-multiplication",
+      "baseline_line": 135,
+      "current_line": 139,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-020"
+      ],
+      "checks": [
+        "频域逐点乘法对应求值同态，逆变换恢复商环负循环积。"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-HEADING-010",
+      "kind": "subsection",
+      "heading": "Inverse FFT (or NTT)",
+      "current_heading": "Inverse FFT (or NTT)",
+      "label": "subsec:ntt-backward",
+      "current_label": "subsec:ntt-backward",
+      "parent_label": "subsec:ntt-backward",
+      "baseline_line": 140,
+      "current_line": 144,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-020"
+      ],
+      "checks": [
+        "核查逆变换几何和和n^−1、向量y与标量y_i类型、节点阶与末项索引。"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "chinese_file": "zh-CN/a16-ntt.tex",
+      "primary_sources": [
+        "fft",
+        "finite_fields"
+      ],
+      "id": "A16-THEOREM-001",
+      "kind": "theorem",
+      "heading": "Geometric Sum Formula",
+      "current_heading": "Geometric Sum Formula",
+      "label": "subsec:ntt-backward",
+      "theorem_number_tex": "\\ref*{subsec:ntt-backward}",
+      "parent_label": "subsec:ntt-backward",
+      "baseline_line": 199,
+      "current_line": 203,
+      "status": "corrected",
+      "findings": [
+        "FND-020"
+      ],
+      "checks": [
+        "核查逆变换的几何和，零频为n，非零频为0；有限域要求n可逆。"
+      ]
+    },
+    {
+      "file": "b01-lattice.tex",
+      "chinese_file": "zh-CN/b01-lattice.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B01-CHAPTER",
+      "kind": "chapter",
+      "heading": "Lattice-based Cryptography",
+      "current_heading": "Lattice-based Cryptography",
+      "label": "sec:lattice",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 512,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-021",
+        "FND-022",
+        "FND-035"
+      ],
+      "checks": [
+        "独立审查LWE/RLWE假设、归约边界和解码；具体参数安全性不标已证。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "b01-lattice.tex",
+      "chinese_file": "zh-CN/b01-lattice.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B01-HEADING-001",
+      "kind": "subsection",
+      "heading": "Overview",
+      "current_heading": "Overview",
+      "label": "subsec:lattice-overview",
+      "current_label": "subsec:lattice-overview",
+      "parent_label": "subsec:lattice-overview",
+      "baseline_line": 14,
+      "current_line": 14,
+      "added_during_audit": false,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-021",
+        "FND-035"
+      ],
+      "checks": [
+        "重查LWE输入/噪声、无噪声可逆性、r^k非下界、样本数作用及搜索/判定归约前提。"
+      ]
+    },
+    {
+      "file": "b01-lattice.tex",
+      "chinese_file": "zh-CN/b01-lattice.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B01-HEADING-002",
+      "kind": "subsection",
+      "heading": "LWE Cryptosystem",
+      "current_heading": "LWE Cryptosystem",
+      "label": "subsec:lattice-scheme",
+      "current_label": "subsec:lattice-scheme",
+      "parent_label": "subsec:lattice-scheme",
+      "baseline_line": 91,
+      "current_line": 93,
+      "added_during_audit": false,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-021",
+        "FND-022",
+        "FND-035"
+      ],
+      "checks": [
+        "核查判定LWE混合论证的条件性、相位/解码区别、t|q与最近整数/最终模t。"
+      ]
+    },
+    {
+      "file": "b01-lattice.tex",
+      "chinese_file": "zh-CN/b01-lattice.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B01-HEADING-003",
+      "kind": "subsection",
+      "heading": "RLWE Cryptosystem",
+      "current_heading": "RLWE Cryptosystem",
+      "label": "subsec:lattice-scheme2",
+      "current_label": "subsec:lattice-scheme2",
+      "parent_label": "subsec:lattice-scheme2",
+      "baseline_line": 134,
+      "current_line": 132,
+      "added_during_audit": false,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-021",
+        "FND-022",
+        "FND-035"
+      ],
+      "checks": [
+        "核查RLWE独立假设、环乘法与系数解码；不从LWE直接推任意RLWE安全。"
+      ]
+    },
+    {
+      "file": "b02-lwe.tex",
+      "chinese_file": "zh-CN/b02-lwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B02-CHAPTER",
+      "kind": "chapter",
+      "heading": "LWE Cryptosystem",
+      "current_heading": "LWE Cryptosystem",
+      "label": "sec:lwe",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 518,
+      "status": "corrected",
+      "findings": [
+        "FND-022",
+        "FND-023"
+      ],
+      "checks": [
+        "核查全套标量加解密和非整除长证明，显式补误差/舍入/溢出条件。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "b02-lwe.tex",
+      "chinese_file": "zh-CN/b02-lwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B02-HEADING-001",
+      "kind": "subsection",
+      "heading": "Setup",
+      "current_heading": "Setup",
+      "label": null,
+      "current_label": null,
+      "parent_label": "sec:lwe",
+      "baseline_line": 12,
+      "current_line": 12,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-022"
+      ],
+      "checks": [
+        "参数和整数误差提升明确；基本解码先设t|q，随机尾事件不是确定有限支撑。"
+      ]
+    },
+    {
+      "file": "b02-lwe.tex",
+      "chinese_file": "zh-CN/b02-lwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B02-HEADING-002",
+      "kind": "subsection",
+      "heading": "Encryption",
+      "current_heading": "Encryption",
+      "label": "subsec:lwe-enc",
+      "current_label": "subsec:lwe-enc",
+      "parent_label": "subsec:lwe-enc",
+      "baseline_line": 15,
+      "current_line": 17,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-022"
+      ],
+      "checks": [
+        "逐步核查A均匀、b=<a,s>+Δm+e的环类型和左移/缩放关系。"
+      ]
+    },
+    {
+      "file": "b02-lwe.tex",
+      "chinese_file": "zh-CN/b02-lwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B02-HEADING-003",
+      "kind": "subsection",
+      "heading": "Decryption",
+      "current_heading": "Decryption",
+      "label": "subsec:lwe-dec",
+      "current_label": "subsec:lwe-dec",
+      "parent_label": "subsec:lwe-dec",
+      "baseline_line": 53,
+      "current_line": 55,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-022"
+      ],
+      "checks": [
+        "相位减掩码后取中心代表元、最近整数再模t；|e|而非单边e界，不能直接右移。"
+      ]
+    },
+    {
+      "file": "b02-lwe.tex",
+      "chinese_file": "zh-CN/b02-lwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B02-HEADING-004",
+      "kind": "subsubsection",
+      "heading": "In the Case of $t$ not Dividing $q$",
+      "current_heading": "In the Case of $t$ not Dividing $q$",
+      "label": "subsubsec:lwe-noise-bound",
+      "current_label": "subsubsec:lwe-noise-bound",
+      "parent_label": "subsubsec:lwe-noise-bound",
+      "baseline_line": 89,
+      "current_line": 93,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-023"
+      ],
+      "checks": [
+        "推导m=m′+vt和有效误差e−(q mod t)v，核查长证明与q1024/t3反例。"
+      ]
+    },
+    {
+      "file": "b03-rlwe.tex",
+      "chinese_file": "zh-CN/b03-rlwe.tex",
+      "primary_sources": [
+        "lpr"
+      ],
+      "id": "B03-CHAPTER",
+      "kind": "chapter",
+      "heading": "RLWE Cryptosystem",
+      "current_heading": "RLWE Cryptosystem",
+      "label": "sec:rlwe",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 524,
+      "status": "corrected",
+      "findings": [
+        "FND-022",
+        "FND-023"
+      ],
+      "checks": [
+        "逐系数检查RLWE环加解密、次数约定、噪声与非整除条件。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "b03-rlwe.tex",
+      "chinese_file": "zh-CN/b03-rlwe.tex",
+      "primary_sources": [
+        "lpr"
+      ],
+      "id": "B03-HEADING-001",
+      "kind": "subsection",
+      "heading": "Setup",
+      "current_heading": "Setup",
+      "label": null,
+      "current_label": null,
+      "parent_label": "sec:rlwe",
+      "baseline_line": 5,
+      "current_line": 5,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-022"
+      ],
+      "checks": [
+        "核查n维多项式系数、次数至多n−1、整数误差提升与参数位置。"
+      ]
+    },
+    {
+      "file": "b03-rlwe.tex",
+      "chinese_file": "zh-CN/b03-rlwe.tex",
+      "primary_sources": [
+        "lpr"
+      ],
+      "id": "B03-HEADING-002",
+      "kind": "subsection",
+      "heading": "Encryption",
+      "current_heading": "Encryption",
+      "label": "subsec:rlwe-enc",
+      "current_label": "subsec:rlwe-enc",
+      "parent_label": "subsec:rlwe-enc",
+      "baseline_line": 12,
+      "current_line": 12,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "展开负循环乘法下B=AS+ΔM+E，核查明文/密文环。"
+      ]
+    },
+    {
+      "file": "b03-rlwe.tex",
+      "chinese_file": "zh-CN/b03-rlwe.tex",
+      "primary_sources": [
+        "lpr"
+      ],
+      "id": "B03-HEADING-003",
+      "kind": "subsection",
+      "heading": "Decryption",
+      "current_heading": "Decryption",
+      "label": "subsec:rlwe-dec",
+      "current_label": "subsec:rlwe-dec",
+      "parent_label": "subsec:rlwe-dec",
+      "baseline_line": 48,
+      "current_line": 50,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-022",
+        "FND-023"
+      ],
+      "checks": [
+        "逐系数最近整数解码与无噪声抵消；非整除情形依赖溢出有效误差界。"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "chinese_file": "zh-CN/b04-glwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B04-CHAPTER",
+      "kind": "chapter",
+      "heading": "GLWE Cryptosystem",
+      "current_heading": "GLWE Cryptosystem",
+      "label": "sec:glwe",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 530,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-022",
+        "FND-024",
+        "FND-025",
+        "FND-035"
+      ],
+      "checks": [
+        "核查GLWE、替代符号、种子压缩、公钥构造及其反例；安全参数族待证。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "b04-glwe.tex",
+      "chinese_file": "zh-CN/b04-glwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B04-HEADING-001",
+      "kind": "subsection",
+      "heading": "Setup",
+      "current_heading": "Setup",
+      "label": null,
+      "current_label": null,
+      "parent_label": "sec:glwe",
+      "baseline_line": 6,
+      "current_line": 6,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-022"
+      ],
+      "checks": [
+        "核查GLWE向量长度k和环维n、消息尺度与整数误差。"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "chinese_file": "zh-CN/b04-glwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B04-HEADING-002",
+      "kind": "subsection",
+      "heading": "Encryption",
+      "current_heading": "Encryption",
+      "label": "subsec:glwe-enc",
+      "current_label": "subsec:glwe-enc",
+      "parent_label": "subsec:glwe-enc",
+      "baseline_line": 12,
+      "current_line": 12,
+      "added_during_audit": false,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-025",
+        "FND-035"
+      ],
+      "checks": [
+        "逐项核查公开掩码、独立种子展开和索引；不采用公开H(S)作为安全压缩依据。"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "chinese_file": "zh-CN/b04-glwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B04-HEADING-003",
+      "kind": "subsection",
+      "heading": "Decryption",
+      "current_heading": "Decryption",
+      "label": "subsec:glwe-dec",
+      "current_label": "subsec:glwe-dec",
+      "parent_label": "subsec:glwe-dec",
+      "baseline_line": 57,
+      "current_line": 59,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-022"
+      ],
+      "checks": [
+        "相位抵消逐系数核查；末端模t及噪声界补齐，纠正索引/消息系数笔误。"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "chinese_file": "zh-CN/b04-glwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B04-HEADING-004",
+      "kind": "subsubsection",
+      "heading": "Discussion",
+      "current_heading": "Discussion",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:glwe-dec",
+      "baseline_line": 88,
+      "current_line": 90,
+      "added_during_audit": false,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-025",
+        "FND-035"
+      ],
+      "checks": [
+        "k与n的直观关系不能代替安全估计；维数、模数、噪声、秘密和样本联合决定假设。"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "chinese_file": "zh-CN/b04-glwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B04-HEADING-005",
+      "kind": "subsection",
+      "heading": "An Alternative Version of GLWE",
+      "current_heading": "An Alternative Version of GLWE",
+      "label": "subsec:glwe-alternative",
+      "current_label": "subsec:glwe-alternative",
+      "parent_label": "subsec:glwe-alternative",
+      "baseline_line": 99,
+      "current_line": 103,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-022"
+      ],
+      "checks": [
+        "核查负号版本中B=−AS+ΔM+E和解密加AS相容，最终最近整数再模t。"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "chinese_file": "zh-CN/b04-glwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B04-HEADING-006",
+      "kind": "subsection",
+      "heading": "Public Key Encryption",
+      "current_heading": "Public Key Encryption",
+      "label": "subsec:glwe-public-key-enc",
+      "current_label": "subsec:glwe-public-key-enc",
+      "parent_label": "subsec:glwe-public-key-enc",
+      "baseline_line": 149,
+      "current_line": 153,
+      "added_during_audit": false,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-024",
+        "FND-035"
+      ],
+      "checks": [
+        "反驳n1任意k下三候选U的通用公钥安全断言，限制为有适当假设的k1 RLWE结构。"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "chinese_file": "zh-CN/b04-glwe.tex",
+      "primary_sources": [
+        "regev",
+        "lpr"
+      ],
+      "id": "B04-HEADING-007",
+      "kind": "para",
+      "heading": "Security:",
+      "current_heading": "Security:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:glwe-public-key-enc",
+      "baseline_line": 228,
+      "current_line": 234,
+      "added_during_audit": false,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-024",
+        "FND-035"
+      ],
+      "checks": [
+        "区分代数抵消正确性与保密性；量化U0概率1/3及枚举攻击，三元分布具体归约待证。"
+      ]
+    },
+    {
+      "file": "b05-glev.tex",
+      "chinese_file": "zh-CN/b05-glev.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "B05-CHAPTER",
+      "kind": "chapter",
+      "heading": "GLev",
+      "current_heading": "GLev",
+      "label": "sec:glev",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 536,
+      "status": "corrected",
+      "findings": [
+        "FND-005",
+        "FND-026"
+      ],
+      "checks": [
+        "核查gadget行尺度、可恢复消息范围和Lev/RLev维数。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "b05-glev.tex",
+      "chinese_file": "zh-CN/b05-glev.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "B05-HEADING-001",
+      "kind": "subsection",
+      "heading": "Encryption",
+      "current_heading": "Encryption",
+      "label": "subsec:glev-enc",
+      "current_label": "subsec:glev-enc",
+      "parent_label": "subsec:glev-enc",
+      "baseline_line": 7,
+      "current_line": 7,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-005",
+        "FND-026"
+      ],
+      "checks": [
+        "核查递减gadget各行加密、整数权重条件与完整分解q=β^l。"
+      ]
+    },
+    {
+      "file": "b05-glev.tex",
+      "chinese_file": "zh-CN/b05-glev.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "B05-HEADING-002",
+      "kind": "subsection",
+      "heading": "Decryption",
+      "current_heading": "Decryption",
+      "label": null,
+      "current_label": null,
+      "parent_label": "sec:glev",
+      "baseline_line": 25,
+      "current_line": 25,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-026"
+      ],
+      "checks": [
+        "第i行最多直接恢复M mod β^i且需误差阈值，首行恢复原M需消息范围条件。"
+      ]
+    },
+    {
+      "file": "b05-glev.tex",
+      "chinese_file": "zh-CN/b05-glev.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "B05-HEADING-003",
+      "kind": "subsection",
+      "heading": "Lev and RLev",
+      "current_heading": "Lev and RLev",
+      "label": null,
+      "current_label": null,
+      "parent_label": "sec:glev",
+      "baseline_line": 29,
+      "current_line": 29,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查n1得到Lev、k1得到RLev的维数特例，保持相同gadget约定。"
+      ]
+    },
+    {
+      "file": "b06-ggsw.tex",
+      "chinese_file": "zh-CN/b06-ggsw.tex",
+      "primary_sources": [
+        "tfhe",
+        "algebra"
+      ],
+      "id": "B06-CHAPTER",
+      "kind": "chapter",
+      "heading": "GGSW",
+      "current_heading": "GGSW",
+      "label": "sec:ggsw",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 542,
+      "status": "corrected",
+      "findings": [
+        "FND-026",
+        "FND-027"
+      ],
+      "checks": [
+        "核查GGSW块结构、最后块解码及非零多项式不等于单位。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "b06-ggsw.tex",
+      "chinese_file": "zh-CN/b06-ggsw.tex",
+      "primary_sources": [
+        "tfhe",
+        "algebra"
+      ],
+      "id": "B06-HEADING-001",
+      "kind": "subsection",
+      "heading": "Encryption",
+      "current_heading": "Encryption",
+      "label": "subsec:ggsw-enc",
+      "current_label": "subsec:ggsw-enc",
+      "parent_label": "subsec:ggsw-enc",
+      "baseline_line": 4,
+      "current_line": 4,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查k个秘密乘积块加一个消息块的GGSW形状及GLev行数量。"
+      ]
+    },
+    {
+      "file": "b06-ggsw.tex",
+      "chinese_file": "zh-CN/b06-ggsw.tex",
+      "primary_sources": [
+        "tfhe",
+        "algebra"
+      ],
+      "id": "B06-HEADING-002",
+      "kind": "subsection",
+      "heading": "Decryption",
+      "current_heading": "Decryption",
+      "label": null,
+      "current_label": null,
+      "parent_label": "sec:ggsw",
+      "baseline_line": 19,
+      "current_line": 19,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-026",
+        "FND-027"
+      ],
+      "checks": [
+        "最后块解码须B05条件；其他块逆乘要求秘密为对应明文商环的单位。"
+      ]
+    },
+    {
+      "file": "b06-ggsw.tex",
+      "chinese_file": "zh-CN/b06-ggsw.tex",
+      "primary_sources": [
+        "tfhe",
+        "algebra"
+      ],
+      "id": "B06-HEADING-003",
+      "kind": "subsection",
+      "heading": "GSW and RGSW",
+      "current_heading": "GSW and RGSW",
+      "label": null,
+      "current_label": null,
+      "parent_label": "sec:ggsw",
+      "baseline_line": 25,
+      "current_line": 25,
+      "added_during_audit": false,
+      "status": "checked_under_stated_conditions",
+      "findings": [],
+      "checks": [
+        "核查GSW/RGSW维数特例，不据名称推安全参数相同。"
+      ]
+    },
+    {
+      "file": "c01-glwe-add-cipher.tex",
+      "chinese_file": "zh-CN/c01-glwe-add-cipher.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "C01-CHAPTER",
+      "kind": "chapter",
+      "heading": "GLWE Ciphertext-to-Ciphertext Addition",
+      "current_heading": "GLWE Ciphertext-to-Ciphertext Addition",
+      "label": "sec:glwe-add-cipher",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 565,
+      "status": "corrected",
+      "findings": [
+        "FND-023",
+        "FND-028"
+      ],
+      "checks": [
+        "无标题算法与证明逐步展开，给匹配参数、总噪声和统计条件。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "c01-glwe-add-cipher.tex",
+      "chinese_file": "zh-CN/c01-glwe-add-cipher.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "C01-HEADING-001",
+      "kind": "subsection",
+      "heading": "Discussion",
+      "current_heading": "Discussion",
+      "label": "subsubsec:glwe-add-cipher-discuss",
+      "current_label": "subsubsec:glwe-add-cipher-discuss",
+      "parent_label": "subsubsec:glwe-add-cipher-discuss",
+      "baseline_line": 70,
+      "current_line": 72,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-028"
+      ],
+      "checks": [
+        "匹配参数下相位相加准确；输出正确解码受总误差预算约束。"
+      ]
+    },
+    {
+      "file": "c01-glwe-add-cipher.tex",
+      "chinese_file": "zh-CN/c01-glwe-add-cipher.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "C01-HEADING-002",
+      "kind": "para",
+      "heading": "Noise Elimination:",
+      "current_heading": "Noise Elimination:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsubsec:glwe-add-cipher-discuss",
+      "baseline_line": 73,
+      "current_line": 75,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-028"
+      ],
+      "checks": [
+        "掩码精确相消，舍入消噪仅当总误差未越Δ/2，输入有效不保证输出有效。"
+      ]
+    },
+    {
+      "file": "c01-glwe-add-cipher.tex",
+      "chinese_file": "zh-CN/c01-glwe-add-cipher.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "C01-HEADING-003",
+      "kind": "para",
+      "heading": "Noise Growth:",
+      "current_heading": "Noise Growth:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsubsec:glwe-add-cipher-discuss",
+      "baseline_line": 77,
+      "current_line": 79,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-028"
+      ],
+      "checks": [
+        "方差一般含协方差；同密文自加方差4σ²，确定性界不要求独立性。"
+      ]
+    },
+    {
+      "file": "c01-glwe-add-cipher.tex",
+      "chinese_file": "zh-CN/c01-glwe-add-cipher.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "C01-HEADING-004",
+      "kind": "para",
+      "heading": "Hard Threshold on the Plaintext's Value Without Modulo Reduction $t$:",
+      "current_heading": "Plaintext Overflow when $t\\nmid q$:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsubsec:glwe-add-cipher-discuss",
+      "baseline_line": 81,
+      "current_line": 83,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-023",
+        "FND-028"
+      ],
+      "checks": [
+        "t不整除q时回绕贡献−(q mod t)v，不能只用q≫t保证任意溢出。"
+      ]
+    },
+    {
+      "file": "c02-glwe-add-plain.tex",
+      "chinese_file": "zh-CN/c02-glwe-add-plain.tex",
+      "primary_sources": [
+        "lpr"
+      ],
+      "id": "C02-CHAPTER",
+      "kind": "chapter",
+      "heading": "GLWE Ciphertext-to-Plaintext Addition",
+      "current_heading": "GLWE Ciphertext-to-Plaintext Addition",
+      "label": "sec:glwe-add-plain",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 571,
+      "status": "corrected",
+      "findings": [
+        "FND-029"
+      ],
+      "checks": [
+        "无标题算法与证明逐步展开，区分未约减消息误差和明文回绕误差。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "c02-glwe-add-plain.tex",
+      "chinese_file": "zh-CN/c02-glwe-add-plain.tex",
+      "primary_sources": [
+        "lpr"
+      ],
+      "id": "C02-HEADING-001",
+      "kind": "para",
+      "heading": "Noise Growth: ",
+      "current_heading": "Noise Growth:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "sec:glwe-add-plain",
+      "baseline_line": 59,
+      "current_line": 61,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-029"
+      ],
+      "checks": [
+        "噪声不变是相对未约减消息；t|q时兼容明文回绕，非整除时另计有效误差。"
+      ]
+    },
+    {
+      "file": "c03-glwe-mult-plain.tex",
+      "chinese_file": "zh-CN/c03-glwe-mult-plain.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "C03-CHAPTER",
+      "kind": "chapter",
+      "heading": "GLWE Ciphertext-to-Plaintext Multiplication",
+      "current_heading": "GLWE Ciphertext-to-Plaintext Multiplication",
+      "label": "sec:glwe-mult-plain",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 577,
+      "status": "corrected",
+      "findings": [
+        "FND-030",
+        "FND-031"
+      ],
+      "checks": [
+        "无标题直接乘法证明及gadget乘法全部核查，补误差、卷积界和残差。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "c03-glwe-mult-plain.tex",
+      "chinese_file": "zh-CN/c03-glwe-mult-plain.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "C03-HEADING-001",
+      "kind": "subsection",
+      "heading": "Gadget Decomposition for Noise Suppression",
+      "current_heading": "Gadget Decomposition for Noise Suppression",
+      "label": "subsubsec:gadget-decomposition-noise-suppression",
+      "current_label": "subsubsec:gadget-decomposition-noise-suppression",
+      "parent_label": "subsubsec:gadget-decomposition-noise-suppression",
+      "baseline_line": 76,
+      "current_line": 82,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-031"
+      ],
+      "checks": [
+        "需要额外预计算GLev输入；补总误差、未平衡数字β−1界、卷积n因子和截断消息残差。"
+      ]
+    },
+    {
+      "file": "c03-glwe-mult-plain.tex",
+      "chinese_file": "zh-CN/c03-glwe-mult-plain.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "C03-HEADING-002",
+      "kind": "subsubsection",
+      "heading": "Discussion",
+      "current_heading": "Discussion",
+      "label": "subsubsec:glwe-mult-plain-discuss",
+      "current_label": "subsubsec:glwe-mult-plain-discuss",
+      "parent_label": "subsubsec:glwe-mult-plain-discuss",
+      "baseline_line": 120,
+      "current_line": 130,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-031"
+      ],
+      "checks": [
+        "比较误差上界须指定参数，不能保证每个样本都降噪；全长度gadget条件一致。"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "chinese_file": "zh-CN/c04-glwe-modulus-switch.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "C04-CHAPTER",
+      "kind": "chapter",
+      "heading": "GLWE Modulus Switching",
+      "current_heading": "GLWE Modulus Switching",
+      "label": "sec:modulus-switching",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 583,
+      "status": "corrected",
+      "findings": [
+        "FND-032",
+        "FND-033"
+      ],
+      "checks": [
+        "标量、数值例子、RLWE和GLWE逐式核查；总误差独立于不成立的CLT说法。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "chinese_file": "zh-CN/c04-glwe-modulus-switch.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "C04-HEADING-001",
+      "kind": "subsection",
+      "heading": "LWE Modulus Switching",
+      "current_heading": "LWE Modulus Switching",
+      "label": "subsec:modulus-switch-lwe",
+      "current_label": "subsec:modulus-switch-lwe",
+      "parent_label": "subsec:modulus-switch-lwe",
+      "baseline_line": 6,
+      "current_line": 4,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-032"
+      ],
+      "checks": [
+        "从整数提升严格推出新相位与总误差，补尺度整除、舍入半整数和秘密范数条件。"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "chinese_file": "zh-CN/c04-glwe-modulus-switch.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "C04-HEADING-002",
+      "kind": "para",
+      "heading": "Caution:",
+      "current_heading": "Caution:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsec:modulus-switch-lwe",
+      "baseline_line": 118,
+      "current_line": 122,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-032"
+      ],
+      "checks": [
+        "辅助epsilon_all必须与scaled旧噪声合并，单独小不能保证输出解码。"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "chinese_file": "zh-CN/c04-glwe-modulus-switch.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "C04-HEADING-003",
+      "kind": "subsection",
+      "heading": "Example",
+      "current_heading": "Example",
+      "label": null,
+      "current_label": null,
+      "parent_label": "sec:modulus-switching",
+      "baseline_line": 135,
+      "current_line": 139,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-033"
+      ],
+      "checks": [
+        "逐数重算64到32例：13等于14−1，总误差0、辅助epsilon_all=−1。"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "chinese_file": "zh-CN/c04-glwe-modulus-switch.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "C04-HEADING-004",
+      "kind": "subsection",
+      "heading": "Discussion",
+      "current_heading": "Discussion",
+      "label": "subsubsec:modulus-switch-lwe-discuss",
+      "current_label": "subsubsec:modulus-switch-lwe-discuss",
+      "parent_label": "subsubsec:modulus-switch-lwe-discuss",
+      "baseline_line": 200,
+      "current_line": 204,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-032"
+      ],
+      "checks": [
+        "图示缩放不代替舍入误差分析，撤下无依据的大k/CLT保证。"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "chinese_file": "zh-CN/c04-glwe-modulus-switch.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "C04-HEADING-005",
+      "kind": "para",
+      "heading": "Reduced Distance between $m$ and $e$:",
+      "current_heading": "Relative Noise and Rounding:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "subsubsec:modulus-switch-lwe-discuss",
+      "baseline_line": 210,
+      "current_line": 214,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-032"
+      ],
+      "checks": [
+        "纯精确缩放保持相对噪声，误差来自δ_b−Σδ_ai s_i；与图中的尺度变化区分。"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "chinese_file": "zh-CN/c04-glwe-modulus-switch.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "C04-HEADING-006",
+      "kind": "subsection",
+      "heading": "RLWE Modulus Switching",
+      "current_heading": "RLWE Modulus Switching",
+      "label": "subsec:modulus-switch-rlwe",
+      "current_label": "subsec:modulus-switch-rlwe",
+      "parent_label": "subsec:modulus-switch-rlwe",
+      "baseline_line": 218,
+      "current_line": 222,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-032"
+      ],
+      "checks": [
+        "逐系数展开RLWE卷积，补整数提升、R_t消息归属和1范数舍入界。"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "chinese_file": "zh-CN/c04-glwe-modulus-switch.tex",
+      "primary_sources": [
+        "bgv"
+      ],
+      "id": "C04-HEADING-007",
+      "kind": "subsection",
+      "heading": "GLWE Modulus Switching",
+      "current_heading": "GLWE Modulus Switching",
+      "label": "subsec:modulus-switch-glwe",
+      "current_label": "subsec:modulus-switch-glwe",
+      "parent_label": "subsec:modulus-switch-glwe",
+      "baseline_line": 415,
+      "current_line": 417,
+      "added_during_audit": false,
+      "status": "corrected",
+      "findings": [
+        "FND-032"
+      ],
+      "checks": [
+        "将多环分量舍入累加，界r||E||∞+(1+Σ||S_i||1)/2；三元最多(1+kn)/2。"
+      ]
+    },
+    {
+      "file": "c05-glwe-key-switching.tex",
+      "chinese_file": "zh-CN/c05-glwe-key-switching.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "C05-CHAPTER",
+      "kind": "chapter",
+      "heading": "GLWE Key Switching",
+      "current_heading": "GLWE Key Switching",
+      "label": "sec:glwe-key-switching",
+      "parent_label": null,
+      "baseline_line": 1,
+      "current_line": 1,
+      "baseline_main_line": 590,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-034",
+        "FND-035"
+      ],
+      "checks": [
+        "无标题KSK算法/证明逐式核查，修复密文类型、误差内积和截断残差；安全假设待证。"
+      ],
+      "scope": "entire file, including introductory prose and unheaded derivations"
+    },
+    {
+      "file": "c05-glwe-key-switching.tex",
+      "chinese_file": "zh-CN/c05-glwe-key-switching.tex",
+      "primary_sources": [
+        "tfhe"
+      ],
+      "id": "C05-HEADING-001",
+      "kind": "para",
+      "heading": "Noise and Truncation:",
+      "current_heading": "Noise and Truncation:",
+      "label": null,
+      "current_label": null,
+      "parent_label": "sec:glwe-key-switching",
+      "baseline_line": null,
+      "current_line": 138,
+      "added_during_audit": true,
+      "status": "corrected_with_pending_security",
+      "findings": [
+        "FND-034",
+        "FND-035"
+      ],
+      "checks": [
+        "逐项推导KSK噪声内积和截断rho_i S_i；给knl(β−1)Bks界，解密和安全假设分开。"
+      ]
+    }
+  ],
+  "final_integration_hashes_updated": "2026-11-08"
+}

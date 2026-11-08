@@ -1,3 +1,5 @@
+消息解码假设 $t\mid q$ 且 $\Delta=q/t$。约束噪声时，对公开乘数 $\Lambda$ 采用固定的系数整数提升。下面的密文相位等式并不声称其分布与新鲜加密相同。
+
 \textbf{- 参考资料：}
 \href{https://www.zama.ai/post/tfhe-deep-dive-part-2}{深入理解 TFHE（二）：编码与线性分层运算}~\cite{tfhe-2}
 
@@ -11,7 +13,7 @@ $ $
 
 \noindent 以及如下新的明文多项式 $\Lambda$：
 
-$\Lambda = \sum\limits_{i=0}^{n-1}(\Lambda_i \cdot X_i) \in \mathcal{R}_{\langle n, q \rangle}$
+$\Lambda = \sum\limits_{i=0}^{n-1}(\Lambda_i \cdot X^i) \in \mathcal{R}_{\langle n, q \rangle}$
 
 $ $
 
@@ -21,7 +23,7 @@ $\Lambda \cdot \textsf{ct} = (\Lambda \cdot A_0, \Lambda \cdot A_1, \ldots, \Lam
 
 $ $
 
-\noindent 假设始终使用 NTT 技术（\autoref{sec:ntt}），以 $O(n \log n)$ 的复杂度高效计算多项式乘法。则有以下结论：
+\noindent 当满足变换所需的单位根与可逆性条件时，NTT 乘法使用 $O(n\log n)$ 次域运算（\autoref{sec:ntt}）；例如，满足 $2n\mid q-1$ 的素数 $q$ 支持负循环变换。任意模数并不自动具备这样的 NTT。下面的代数恒等式与所选乘法算法无关：
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{sec:glwe-mult-plain}} GLWE 密文与明文的乘法}}]
 $\Lambda \cdot \textsf{GLWE}_{S, \sigma}(\Delta M + E)$
@@ -33,7 +35,7 @@ $= (\{\Lambda\cdot A_i^{\langle 1 \rangle}\}_{i=0}^{k-1}, \text{ } \Lambda \cdot
 $= \textsf{GLWE}_{S, \sigma}(\Delta (M \cdot \Lambda) + \Lambda\cdot E )$
 \end{tcolorbox}
 
-这意味着，将明文多项式 $\Lambda$ 与加密 $M$ 的 GLWE 密文相乘，再解密所得密文，便得到 $M \cdot \Lambda$。
+所得相位为 $\Delta M\Lambda+\Lambda E$。只有当 $\|\Lambda E\|_\infty<\Delta/2$ 时，它才解码得到 $M\Lambda\bmod t$。
 
 $ $
 
@@ -56,7 +58,7 @@ $= \sum\limits_{i=0}^{k-1}{(A_i' \cdot S_i)} + \Delta \cdot (\Lambda \cdot M) + 
 \item 由于 $B' = \sum\limits_{i=0}^{k-1}{(A_i' \cdot S_i)} + \Delta \cdot (\Lambda \cdot M) + (E')$，
 
 $(A_0', A_1', \ldots, A_{k-1}'
-, B')$ 构成密文 $\textsf{GLWE}_{S, \sigma}(\Delta \cdot \Lambda \cdot M)$。
+, B')$ 构成密文 $\textsf{GLWE}_{S, \sigma}(\Delta \cdot \Lambda \cdot M+E^{\prime})$。
 \item 因此， \\
 $\Lambda \cdot \textsf{GLWE}_{S, \sigma}(\Delta M + E)$ \\
 $ = (\Lambda \cdot A_0, \text { } \Lambda \cdot A_1, \ldots, \Lambda \cdot A_{k-1}, \text { } \Lambda \cdot B)$ \\
@@ -69,12 +71,18 @@ $= \textsf{GLWE}_{S, \sigma}(\Delta (M \cdot \Lambda) + \Lambda \cdot E)$
 \end{enumerate}
 \end{myproof}
 
-使用 $S$ 解密 $\textsf{GLWE}_{S, \sigma}(\Delta \cdot \Lambda \cdot M + \Lambda \cdot E)$，即可得到明文 $\Lambda \cdot M$。与此同时，无论加密时随机采样的值为何，$A_0', A_1', \ldots, A_{k-1}', E'$ 都会在解密及舍入过程中被消去。
+使用秘密密钥作减法会精确消去掩码乘积，但舍入只能在解码界内去除 $E'=\Lambda E$。在负循环环中，每个输出系数都是至多 $n$ 个乘积的带符号和，因此
+\[
+\|\Lambda E\|_\infty\le\|\Lambda\|_1\|E\|_\infty\le n\|\Lambda\|_\infty\|E\|_\infty.
+\]
+这里 $\|\Lambda\|_1$ 表示所选提升的系数绝对值之和。
 
-此时噪声问题更加突出，因为解密时原密文 \textsf{ct} 中的噪声已由 $E$ 增大为 $E' = \Lambda \cdot E$。这意味着，如果继续执行乘法而不通过解密消除噪声 $E'$，噪声就会不断增大，最终使 $B$ 中低位区域的噪声溢出到放大后的明文区域。一旦发生这种情况，噪声 $E'$ 便无法在解密时被消除，最终破坏明文 $M$。因此，当常量 $\Lambda$ 较大时，建议使用下一小节介绍的 gadget 分解（\autoref{subsec:gadget-decomposition}）。
+重复乘法可能使噪声界增大，直至无法正确解码。解密用于读取结果，并不会刷新已有密文。对于较大的乘数，预先计算的 GLev 表示可以通过下面的 gadget 分解（\autoref{subsec:gadget-decomposition}）给出更好的误差界。
 
 \subsection{利用 gadget 分解抑制噪声}
 \label{subsubsec:gadget-decomposition-noise-suppression}
+
+这里使用精确的降幂 gadget $g_i=q/\beta^i$，要求 $q=\beta^l$，并采用 $\{0,\ldots,\beta-1\}$ 中的无符号数位。预先计算的输入是 $\textsf{GLev}^{\beta,l}_{S,\sigma}(\Delta M)$，而非任意单个 GLWE 密文。这样的低噪声 GLev 表示是额外的加密输入，不能假设经过先前运算的密文会自动免费获得它。
 
 在密文与明文乘法 $\Lambda \cdot \textsf{GLWE}_{S, \sigma}(\Delta M)$ 中，噪声 $E$ 增长为 $E' = \Lambda \cdot E$。为限制这种增长，可以对 $\Lambda$ 进行分解（\autoref{subsec:number-decomp}），并使用 $M$ 的 GLev 加密（\autoref{subsec:glev-enc}），具体如下：
 
@@ -98,7 +106,7 @@ $= \Lambda_1\cdot\textsf{GLWE}_{S, \sigma}\left(\dfrac{q}{\beta} \Delta M + E_1\
 
 $= \textsf{GLWE}_{S, \sigma}\left(\Lambda_1\cdot\dfrac{q}{\beta}\Delta M + \Lambda_1 E_1\right) +\textsf{GLWE}_{S, \sigma}\left(\Lambda_2\cdot\dfrac{q}{\beta^2}\Delta M + \Lambda_2 E_2\right)+ \cdots + \textsf{GLWE}_{S, \sigma}\left(\Lambda_l\cdot\dfrac{q}{\beta^l}\Delta M + \Lambda_l E_l\right)$
 
-$= \textsf{GLWE}_{S, \sigma}\left(\Lambda_1\cdot\dfrac{q}{\beta} \Delta M + \Lambda_2\cdot\dfrac{q}{\beta^2} \Delta M + \cdots + \Lambda_l\cdot\dfrac{q}{\beta^l} \Delta M\right)$
+$= \textsf{GLWE}_{S, \sigma}\left(\Lambda_1\cdot\dfrac{q}{\beta} \Delta M + \Lambda_2\cdot\dfrac{q}{\beta^2} \Delta M + \cdots + \Lambda_l\cdot\dfrac{q}{\beta^l} \Delta M+E_{\textit{all}}\right)$
 
 $= \textsf{GLWE}_{S, \sigma}\left(\left(\Lambda_1\cdot\dfrac{q}{\beta} + \Lambda_2\cdot\dfrac{q}{\beta^2} + \cdots + \Lambda_l\cdot\dfrac{q}{\beta^l}\right)\cdot \Delta M  + E_{\textit{all}} \right)$ \textcolor{red}{ $\rhd$ 其中 $E_{\textit{all}} = \sum\limits_{i=1}^l \Lambda_iE_i$}
 
@@ -106,9 +114,11 @@ $= \textsf{GLWE}_{S, \sigma}\left(\Lambda \cdot \Delta M + E_{\textit{all}}\righ
 
 $ $
 
-尽管解密结果相同，但由于将 $\Lambda$ 分解成了较小的明文多项式 $\Lambda_1, \Lambda_2, \cdots, \Lambda_l$，$l$ 次明文与密文乘法各自产生的噪声都更小。设 GLev 密文中每个 GLWE 密文的噪声为 $E_i$，则最终密文与明文乘法的噪声为 $E_{\textit{all}} = \sum\limits_{i=1}^{l}\Lambda_i\cdot E_i$，远小于 $\Lambda \cdot E$，因为
-每个分解后多项式 $\Lambda_i$ 的系数都显著小于 $\Lambda$ 的系数（即
-$\|\Lambda_i\|_\infty \le \beta/2$，而 $\|\Lambda\|_\infty$ 可以达到 $q/2$）。\autoref{fig:decomp2} 对此进行了直观说明。
+精确分解时，最终误差为 $E_{\textit{all}}=\sum_{i=1}^l\Lambda_iE_i$。若 $\|E_i\|_\infty\le B_{\mathrm{g}}$，无符号数位给出
+\[
+\|E_{\textit{all}}\|_\infty\le\sum_{i=1}^l\|\Lambda_i\|_1\|E_i\|_\infty\le nl(\beta-1)B_{\mathrm{g}}.
+\]
+若要使用 $\beta/2$ 的数位界，必须明确改用平衡分解。这可能改善大乘数对应的最坏情形误差界，但不能保证每个输入的实际误差都更小。只有各自满足误差界时，两种计算才会解码得到相同消息。对于截断分解 $\Lambda\equiv\sum_i\Lambda_i g_i+\rho\pmod q$，最终相位的误差变为 $\sum_i\Lambda_iE_i-\rho\Delta M$；还必须约束这一残差。图~\ref{fig:decomp2} 展示了预期的误差界改善。
 
 \begin{figure}[h!]
     \centering

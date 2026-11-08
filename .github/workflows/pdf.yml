@@ -19,6 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Run academic counterexamples and code regressions
+        run: |
+          python3 -m venv .audit-venv
+          .audit-venv/bin/python -m pip install -r audit/requirements.txt
+          .audit-venv/bin/python audit/run_checks.py
       - name: Check translation structure and formulas
         run: python3 scripts/check_translation.py --math
       - name: Compile both editions

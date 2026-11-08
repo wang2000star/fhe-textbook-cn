@@ -3,6 +3,8 @@
 \subsection{Vector Arithmetic}
 \label{subsec:vector-arithmetic}
 
+Geometric dot-product formulas in this chapter use real Euclidean vectors. For complex vectors, the Hermitian product defined below is the appropriate positive-definite inner product.
+
 This section explains the basic arithmetic of vector and matrix computations, as well as advanced concepts such as vector/plane projection and the basis of planes (or spaces). 
 
 
@@ -244,15 +246,13 @@ $A(x + y) = Ax + Ay$
 
 $ $
 
-However, $Ax \cdot Ay \neq A(x \cdot y)$, because the resulting dimensions do not match. Also, $A(x \odot y) \neq Ax \odot Ay $. Further, note that $A\langle x, y\rangle \neq \langle Ax, Ay\rangle$, and $A\langle \langle x, y\rangle\rangle \neq \langle\langle Ax, Ay\rangle\rangle$.
+These linearity identities do not assert preservation of dot, Hermitian, or Hadamard products. For example, with $A=2I$, $x=y\ne0$, one generally has $A(x\odot y)\ne(Ax)\odot(Ay)$. This is a failure of a universal identity, not an inequality valid for every input: $A=I$ does preserve the Hadamard product. Expressions such as $A\langle x,y\rangle$ are scalar multiples of a matrix, whereas $\langle Ax,Ay\rangle$ is a scalar; they must not be compared as two outputs of the same vector map.
 
 $ $
 
 \item \textbf{NOT Commutative:} 
 
-$Ax \neq xA$
-
-$AB \neq BA$
+Matrix multiplication is not commutative in general. Both products must first be defined and have compatible shapes; some matrices commute, for example $AI=IA$. For a column vector $x$, the expression $xA$ may be undefined even when $Ax$ is defined.
 
 
 \end{itemize}
@@ -270,7 +270,9 @@ The properties described in \ref*{subsec:matrix-arithmetic} can be demonstrated 
 \subsection{Projection}
 \label{subsec:projection}
 
-There are two types of projections: a vector projection and an orthogonal (i.e., plane) projection. 
+In this subsection the scalar field is $\mathbb{R}$. Every vector onto which we project, and every vector in an orthogonal basis, is assumed nonzero.
+
+We consider orthogonal projection onto a line (vector projection) and onto a higher-dimensional subspace.
 
 
 
@@ -290,7 +292,11 @@ There are two types of projections: a vector projection and an orthogonal (i.e.,
 \end{figure}
 
 
-\para{Vector Projection:} Given two vectors $\vec{a}$ and $\vec{b}$ in the same $n$-dimensional vector space, the vector projection $\textsf{Proj}_{\vec{b}}(\vec{a})$ measures the component of $\vec{a}$ in the direction of $\vec{b}$ (i.e., the part of $\vec{a}$ that is parallel to $\vec{b}$). In the example of \autoref{fig:vector-projection}, $\vec{a}$'s projection on $\vec{b}$ is $\vec{a}_1$, where the length of $\vec{a}_1$ is geometrically $||a_1|| = ||a|| \cos \theta = ||a||\dfrac{a \cdot b}{||a||\cdot||b||} = \dfrac{a \cdot b}{||b||}$. Let $\vec{b'}$ be a unit vector of $\vec{b}$, that is $\vec{b'} = \dfrac{\vec{b}}{||b||}$. Then, $\vec{a}_1 = ||a_1||\cdot\vec{b'} = \dfrac{a \cdot b}{||b||} \cdot \dfrac{\vec{b}}{||b||} = \dfrac{a \cdot b}{||b||^2}\vec{b}$. Thus, $\textsf{Proj}_{\vec{b}}(\vec{a}) = \dfrac{a \cdot b}{||b||^2}\vec{b}$.
+\para{Vector Projection:} For real vectors $\vec a$ and $\vec b\ne0$, the signed scalar component along $\vec b$ is $c=(\vec a\cdot\vec b)/\|\vec b\|$. Thus
+\[
+\textsf{Proj}_{\vec b}(\vec a)=c\frac{\vec b}{\|\vec b\|}=\frac{\vec a\cdot\vec b}{\|\vec b\|^2}\vec b.
+\]
+For $\vec a\ne0$, the length of this projection is $\|\vec a\|\,|\cos\theta|$; $\|\vec a\|\cos\theta$ is the signed component, which can be negative. Figure~\ref{fig:vector-projection} illustrates the projection.
 
 \para{Orthogonal Projection:} Given the vector $\vec{x}$ and a set of mutually orthogonal vectors $\vec{p}_0, \vec{p}_1, \cdots, \vec{p}_{n-1}$ that span the subspace $P$, the orthogonal projection $\textsf{Proj}_P(\vec{x})$ measures how much of $\vec{x}$ lies in $P$ (i.e., the component of $\vec{x}$ within $P$). In the example, $\vec{x}$’s projection onto $P$ (red arrow) equals the sum of the projections of $\vec{x}$ onto each orthogonal basis vector $\vec{p}_i$ spanning $P$: $\textsf{Proj}_P(\vec{x}) = \sum\limits_{i=0}^{n-1}\textsf{Proj}_{\vec{p}_i}(\vec{x})$. This computation can be viewed as expressing $\vec{x}$ in a coordinate system defined by the $n$ orthogonal vectors.
 
@@ -300,7 +306,7 @@ There are two types of projections: a vector projection and an orthogonal (i.e.,
 
 \item \textbf{Vector Projection:} Given two vectors $\vec{a}$ and $\vec{b}$ in the same vector space, the vector projection of $\vec{a}$ on $\vec{b}$ is:
 
-$\textsf{Proj}_{\vec{b}}(\vec{a}) = \vec{a}_p  = \dfrac{\vec{a} \cdot \vec{b}}{||b||^2} \vec{b}$ \textcolor{red}{ $\rhd$ where $||\vec{a}_p|| = ||\vec{a}|| \cos \theta$}
+$\textsf{Proj}_{\vec{b}}(\vec{a}) = \vec{a}_p  = \dfrac{\vec{a} \cdot \vec{b}}{||b||^2} \vec{b}$ \textcolor{red}{ $\rhd$ where $||\vec{a}_p|| = ||\vec{a}||\,|\cos \theta|$}
 
 $ $
 
@@ -340,13 +346,13 @@ Based on the definition of orthogonal projection, the following properties are d
 
 \para{Orthogonal Basis:} In an $n$-dimensional vector space, any mutually orthogonal $n$ vectors in the vector space span the subspace $P$ that is identical to the entire vector space. Further, the orthogonal projection of any vector in the vector space on $P$ is guaranteed to be a unique vector.
 
-\para{Non-orthogonal Basis:} In an $n$-dimensional vector space, suppose some $n$ non-orthogonal vectors satisfy the following two conditions: (i) they span the entire vector space; (ii) they are linearly independent (i.e., one vector cannot be expressed as a linear combination of the other vectors). Then, the $n \times n$ matrix $P$ comprised of these $n$ vectors forms a basis for the entire vector space $V$, and the matrix-to-vector multiplication $P\vec{v}$ for each $\vec{v}$ in the vector space is guaranteed to yield a unique vector. However, the formula $\textsf{Proj}_P(\vec{v})$ is not a valid geometric projection of the vector $\vec{v}$ on $P$, because the $n$ basis vectors are non-orthogonal. Yet, the computation of $P\vec{v}$ can be thought of as uniquely transforming $\vec{v}$ into a different coordinate system that expresses the vector space with respect to $n$ non-orthogonal vectors in $P$. 
+\para{Non-orthogonal Basis:} Let the rows of the invertible matrix $P$ be a basis $\vec p_0,\ldots,\vec p_{n-1}$ of $\mathbb R^n$. If $\vec v$ is a column vector, its coordinates in this basis are $(P^T)^{-1}\vec v$, since $\vec v=P^T\vec c$; in general $P\vec v$ is a different invertible linear transformation, not these basis coordinates. Orthogonal projection onto the span remains well-defined even when the chosen basis is non-orthogonal. For a full-column-rank real matrix $Q$ whose columns span a subspace, it is $Q(Q^TQ)^{-1}Q^T\vec v$. For a basis of the whole space the projection is simply $\vec v$. Only the sum of individual vector-projection formula requires an orthogonal basis.
 
 \begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:projection}} Uniqueness of Transformed Vectors}}]
 
 \begin{itemize}
 \item  \textbf{Orthogonal Basis:} If some $n$ vectors are a orthogonal basis of the plane $P$ in the $n$-dimensional vector space, then $P$ is the same as the entire vector space, and $\textsf{Proj}_P(v)$ for every vector $\vec{v}$ in the vector space is guaranteed to be a unique vector.
-\item \textbf{Non-orthogonal Basis:} If some $n$ vectors are a non-orthogonal basis of the plane $P$ in the $n$-dimensional vector space (i.e., each vector is linearly independent and they span $P$), then $P$ is the same as the entire vector space, and $P\vec{v}$ is guaranteed to result in a unique vector.  
+\item \textbf{Non-orthogonal Basis:} For a basis stored as the rows of $P$, every vector $\vec v$ has the unique coordinate vector $(P^T)^{-1}\vec v$. The orthogonal projection onto the entire space spanned by this basis is $\vec v$ itself.
 \end{itemize}
 \end{tcolorbox}
 
@@ -356,11 +362,11 @@ Based on the definition of orthogonal projection, the following properties are d
 \subsection{Basis of a Polynomial Ring}
 \label{subsec:polynomial-ring-basis}
 
-Given an $(n-1)$-degree polynomial ring $\mathbb{Z}[X] / (X^n + 1)$, a basis of the polynomial ring is defined as a set of polynomials that satisfies the following two requirements:
+The ring $\mathbb Z[X]/(X^n+1)$ is a free $\mathbb Z$-module of rank $n$, not a vector space over $\mathbb Z$. A basis is a list $f_0,\ldots,f_{n-1}$ for which each element has a unique integer linear combination. Equivalently, require:
 
 \begin{itemize}
 
-\item \textbf{Linear Independence}: Each polynomial in the basis set cannot be expressed as a linear combination of the other polynomials in the same set
+\item \textbf{Linear Independence}: If $\sum_i z_i f_i=0$ with $z_i\in\mathbb Z$, then every $z_i=0$.
 \item \textbf{Spanning the Polynomial Ring:} A linear combination of the polynomials in the basis set can express any polynomial in the polynomial ring
 \end{itemize}
 
@@ -372,7 +378,7 @@ Note that for a $(n-1)$-degree polynomial ring, the number of polynomials that f
 
 
 
-Now, let's define a mapping $\sigma$ from the $(n-1)$-degree polynomial ring to the $n$-dimensional vector space, such that an input polynomial's list of $y$ values evaluated at $n$ distinct $X \in \mathbb{Z}_t$ coordinates (e.g., $x_0, x_1, \cdots, x_{n-1}$) forms the mapping's output vector, where $\mathbb{Z}_t$ is a field (i.e., $t$ is prime), so that the interpolated polynomial $f(X)$ over the $(n+1)$ distinct $X$ points is well-defined (as explained in \autoref{subsec:polynomial-interpolation-field-condition}). Technically, $\sigma$ is defined as:
+Let $n$ be a power of $2$, let $t$ be prime with $2n\mid t-1$, and fix the $n$ distinct roots $x_0,\ldots,x_{n-1}$ of $X^n+1$ in $\mathbb Z_t$. Define $\sigma$ by evaluation at these roots. Distinctness gives interpolation of degree less than $n$ (\autoref{subsec:polynomial-interpolation-field-condition}); being roots makes evaluation well-defined on the quotient and compatible with multiplication. Evaluation at arbitrary distinct nodes would give a linear bijection of coefficient representatives, but not generally the asserted ring isomorphism. Explicitly:
 
 $\sigma: f(X) \in \mathbb{Z}_t[X] / (X^n + 1) \text{ } \longrightarrow \text{ } (f(x_0), f(x_1), f(x_2), \cdots, f(x_{n-1})) \in \mathbb{Z}^n_t$
 
@@ -485,7 +491,7 @@ As shown above, even if $f_a(X) \cdot f_b(X)$ results in a polynomial with a deg
 
 To resolve these two minor issues, we let the $n$ distinct $X$ coordinates of evaluation be the solutions of the polynomial ring modulo $X^n + 1$ (where $n$ is some power of 2) and reduce $f_a(X) \cdot f_b(X)$ to a new polynomial modulo $X^n + 1$ whose degree is at most $n - 1$. Let $f_{ab}(X) = f_a(X) \cdot f_b(X)$, and $f'_{ab}(X)$ be the reduced polynomial such that $f_{ab}(X) = Q(X)\cdot (X^n + 1) + f'_{ab}(X)$ for some quotient polynomial $Q(X)$. Then, as illustrated in Summary \ref*{subsubsec:polynomial-ring-discuss} (\autoref{subsubsec:polynomial-ring-discuss}), $f_{ab}(X)$ and $f'_{ab}(X)$ evaluate to the same value if they are evaluated at the roots of $X^n + 1$ (by zeroing out the $Q(X)$ term). Therefore, if we let the $n$ distinct evaluating points $\{x_0, x_1, \cdots, x_{n-1}\}$ be the roots of $X^n + 1$, then we can ensure that the decoded vector of $f'_{ab}(X)$ is identical to that of $f_{ab}(X)$, which we expect. Therefore, we can replace the higher-degree polynomial $f_{ab}(X)$ with the reduced polynomial $f'_{ab}(X)$ and continue with any further polynomial additions or multiplications using $f'_{ab}(X)$. Also, by applying polynomial ring reduction, we can enhance the computational efficiency of polynomial addition and multiplication, as well as preserve the isomorphism of the $\sigma$ mapping. Therefore, we can freely convert between vectors \& polynomials and perform additions and multiplications. 
 
-For applying this polynomial ring reduction, the polynomial modulus can be any polynomial as long as it has at least $n$ distinct roots. In practice, we often choose $X^n + 1$ as the polynomial ring modulus, which is the $(\mu=2n)$-th cyclotomic polynomial (\autoref{subsec:cyclotomic-def}). The reason we let the polynomial ring modulus be a cyclotomic polynomial (especially the $(\mu=2n)$-th cyclotomic polynomial, $X^n + 1$) is that its $n$ distinct roots are well-defined (i.e., primitive $(\mu=2n)$-th roots of unity) and thus can be quickly identified even when $n$ is large.
+For applying this polynomial ring reduction, the polynomial modulus can be a degree-$n$ polynomial that splits into $n$ distinct roots in the coefficient field. In practice, we often choose $X^n + 1$ as the polynomial ring modulus, which is the $(\mu=2n)$-th cyclotomic polynomial (\autoref{subsec:cyclotomic-def}). The reason we let the polynomial ring modulus be a cyclotomic polynomial (especially the $(\mu=2n)$-th cyclotomic polynomial, $X^n + 1$) is that its $n$ distinct roots are well-defined (i.e., primitive $(\mu=2n)$-th roots of unity) and thus can be quickly identified even when $n$ is large.
 
 $ $
 
@@ -524,10 +530,10 @@ To isomorphically evaluate a polynomial in $\mathbb{Z}_t[X]/(X^n + 1)$ into an $
 
 We start with two constraints: (1) choose $t$ to be a prime number; (2) ensure $t-1$ is a multiple of $2n$.
 
-We learned from Fermat's Little Theorem in Theorem~\ref*{subsec:order-theorem}.4 (\autoref{subsec:order-theorem}) the following: $a^{t - 1} \equiv 1 \bmod t$ if and only if $a$ and $t$ are co-prime. This means that if $t$ is a prime, then $a^{t - 1} \equiv 1 \bmod t$ for all $a \in \mathbb{Z}_t^{\times}$ (i.e., $\mathbb{Z}_t$ without $\{0\}$). Suppose $g$ is the generator of $\mathbb{Z}_t^{\times}$ whose powered values generate all elements of $\mathbb{Z}_t^{\times}$. Then, $\textsf{Ord}_{\mathbb{Z}_t}(g) = t - 1$ and $g^{t - 1} \equiv 1 \bmod t$. Since $t - 1 = k \cdot 2n$ for some $k$, $g^{k\cdot2n} \equiv (g^{k})^{2n} \equiv 1 \bmod t$. Then, $\textsf{Ord}_{\mathbb{Z}_t}(g^{k}) \leq 2n$. However, since $\textsf{Ord}_{\mathbb{Z}_t}(g) = t - 1$, for all $a$ such that $a < t - 1 = k \cdot 2n$, $g^a \not\equiv 1 \bmod t$. In other words, for all $b$ such that $b < 2n$, $(g^k)^b \not\equiv 1 \bmod t$. Thus, $\textsf{Ord}_{\mathbb{Z}_t}(g^{k}) = 2n$. 
+We learned from Fermat's Little Theorem in Theorem~\ref*{subsec:order-theorem}.4 (\autoref{subsec:order-theorem}) the following: $a^{t - 1} \equiv 1 \bmod t$ if and only if $a$ and $t$ are co-prime. This means that if $t$ is a prime, then $a^{t - 1} \equiv 1 \bmod t$ for all $a \in \mathbb{Z}_t^{\times}$ (i.e., $\mathbb{Z}_t$ without $\{0\}$). Suppose $g$ is the generator of $\mathbb{Z}_t^{\times}$ whose powered values generate all elements of $\mathbb{Z}_t^{\times}$. Then, $\textsf{Ord}_{\mathbb{Z}_t}(g) = t - 1$ and $g^{t - 1} \equiv 1 \bmod t$. Since $t - 1 = k \cdot 2n$ for some $k$, $g^{k\cdot2n} \equiv (g^{k})^{2n} \equiv 1 \bmod t$. Then, $\textsf{Ord}_{\mathbb{Z}_t}(g^{k}) \leq 2n$. However, since $\textsf{Ord}_{\mathbb{Z}_t}(g) = t - 1$, for all integers $a$ such that $1\le a < t - 1 = k \cdot 2n$, $g^a \not\equiv 1 \bmod t$. In other words, for all integers $b$ such that $1\le b < 2n$, $(g^k)^b \not\equiv 1 \bmod t$. Thus, $\textsf{Ord}_{\mathbb{Z}_t}(g^{k}) = 2n$.
 
 Let $c = g^k$. Since $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$, $c^{2n} \equiv 1 \bmod t$. In other words, $(c^n)^2 \equiv 1 \bmod t$. 
-Now, $c^n$ can be only 1 or -1. The reason is that in the relation $X^2 \equiv 1 \bmod t$, $X$ can be mathematically only $1$ or $-1 \equiv t - 1 \bmod t$. If we substitute $X = c^n$, then $c^n$ can be only $1$ or $-1 \equiv t - 1 \bmod t$. But $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$, thus $c^n$ cannot be 1 (because $1^1 = 1$ and 1 is smaller than the order of $c$: $2n > 1$). Thus, $c^n$ can be only $-1 \equiv t - 1 \bmod t$. If $c^n = -1 \equiv t - 1 \bmod t$, then $c$ is the root of $X^n + 1 \bmod t$, because $X^n + 1 = c^n + 1 \equiv (t - 1) + 1 \equiv 0 \bmod t$. 
+Now, $c^n$ can be only 1 or -1. The reason is that in the relation $X^2 \equiv 1 \bmod t$, $X$ can be mathematically only $1$ or $-1 \equiv t - 1 \bmod t$. If we substitute $X = c^n$, then $c^n$ can be only $1$ or $-1 \equiv t - 1 \bmod t$. But $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$, thus $c^n$ cannot be 1 (because $c^n=1$ would contradict $\operatorname{ord}(c)=2n$). Thus, $c^n$ can be only $-1 \equiv t - 1 \bmod t$. If $c^n = -1 \equiv t - 1 \bmod t$, then $c$ is the root of $X^n + 1 \bmod t$, because $X^n + 1 = c^n + 1 \equiv (t - 1) + 1 \equiv 0 \bmod t$.
 
 In conclusion, given a cyclotomic polynomial $X^n + 1$, if we choose a prime $t$ such that $t - 1 = k \cdot 2n$ for some integer $k$, then one root of $X^n + 1 \bmod t$ is: $X = c = g^k$. 
 
@@ -539,7 +545,7 @@ $\omega^n \equiv t - 1 \bmod t$
 
 $\omega^{2n} \equiv (t - 1)\cdot(t - 1) \equiv  t^2 - 2t + 1 \equiv   1 \bmod t$
 
-While $\omega^{2n} \equiv 1 \bmod t$, $\omega^{n} \not\equiv 1 \bmod t$, because if so, $X^n + 1 = \omega^n + 1 = 1 + 1 = 2 \neq 0$, which contradicts the fact that $\omega$ is a root of $X^n + 1$. Therefore, $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$. 
+Here $\omega^{2n}=1$ and $\omega^n=-1\ne1$ in $\mathbb Z_t$, with odd prime $t$. Since $n$ is a power of two, every proper divisor of $2n$ divides $n$. Hence the order of $\omega$ cannot be a proper divisor, so $\operatorname{ord}(\omega)=2n$. This inference uses the power-of-two assumption; for general $n$, a root of $X^n+1$ need not be primitive.
 
 Now, we derive the remaining $n-1$ distinct roots of $X^n + 1 \bmod t$ as follows:
 
@@ -553,7 +559,7 @@ $(\omega^{2n - 1})^n + 1 \equiv 0 \bmod t$ \\ \textcolor{red}{ $\rhd$ for any od
 
 $ $
 
-Note that $\omega, \omega^3, \omega^5, \cdots, \omega^{2n - 1}$ are all distinct values in $\mathbb{Z}_t^{\times}$, because $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$. Thus, $\{\omega^{2i + 1}\}_{i=0}^{n-1}$ are $n$ distinct roots of $X^n + 1$. At the same time, since these are the roots of the cyclotomic polynomial $X^n + 1$, these are $n$ distinct primitive $(\mu=2n)$-th roots of unity. 
+Note that $\omega, \omega^3, \omega^5, \cdots, \omega^{2n - 1}$ are all distinct values in $\mathbb{Z}_t^{\times}$, because $\textsf{Ord}_{\mathbb{Z}_t}(\omega) = 2n$. Thus, $\{\omega^{2i + 1}\}_{i=0}^{n-1}$ are $n$ distinct roots of $X^n + 1$. At the same time, since these are the roots of the cyclotomic polynomial $X^n + 1$, these are $n$ distinct primitive $(\mu=2n)$-th roots of unity.
 
 
 $ $
@@ -598,8 +604,14 @@ $ $
 \subsection{Isomorphism between Polynomials and Vectors over Complex Numbers}
 \label{subsec:poly-vector-transformation-complex}
 
+Here $n=2^r$ with $r\ge1$, so $n$ is even. All isomorphisms involving $\hat{\mathbb C}^n$ are real vector-space and real-algebra isomorphisms.
 
-In Theorem~\ref*{subsec:polynomial-ring-basis} (\autoref{subsec:polynomial-ring-basis}), we learned the isomorphic mapping $\sigma: f(X) \in \mathbb{Z}_t[X]/(X^n + 1) \longrightarrow (f(x_0),f(x_1),f(x_2), \cdots, f(x_{n-1})) \in \mathbb{Z}_t^n$, where $x_0, x_1, x_2, \cdots, x_{n-1} \in \mathbb{Z}$ are the ($(\mu=2n)$-th primitive) roots of the cyclotomic polynomial $X^n + 1$, which are $\omega, \omega^3, \omega^5, \cdots, \omega^{2n-1}$, where $\omega$ can be any root of $X^n + 1$ (i.e., since each $\omega$ is a generator of all roots). In this subsection, we will demonstrate the isomorphism between a vector space and a polynomial ring over complex numbers as follows: 
+
+In Theorem~\ref*{subsec:polynomial-ring-basis} (\autoref{subsec:polynomial-ring-basis}), we learned the isomorphic mapping
+\[
+\sigma: f(X) \in \mathbb{Z}_t[X]/(X^n + 1) \longrightarrow (f(x_0),f(x_1),f(x_2), \cdots, f(x_{n-1})) \in \mathbb{Z}_t^n
+\]
+, where $x_0, x_1, x_2, \cdots, x_{n-1} \in \mathbb{Z}_t$ are the ($(\mu=2n)$-th primitive) roots of the cyclotomic polynomial $X^n + 1$, which are $\omega, \omega^3, \omega^5, \cdots, \omega^{2n-1}$, where $\omega$ can be any root of $X^n + 1$ (i.e., since each $\omega$ is a generator of all roots). In this subsection, we will demonstrate the isomorphism between a vector space and a polynomial ring over complex numbers as follows:
 
 $\sigma_c: f(X) \in \mathbb{R}[X]/(X^n + 1) \longrightarrow (f(\omega),f(\omega^3),f(\omega^5), \cdots, f(\omega^{2n-1})) \in \mathbb{\hat{C}}^{n}$
 
@@ -654,7 +666,7 @@ For this result to still lie in $\hat{\mathbb{C}}^4$, the third entry must be th
 
 $ $
 
-More generally, for any $\vec{v} \in \hat{\mathbb{C}}^n$ and any scalar $c$, the product $c \cdot \vec{v}$ preserves Hermitian symmetry if and only if $\overline{c} = c$; that is, if and only if $c$ is a real number. Therefore, $\hat{\mathbb{C}}^n$ is a valid vector space only when restricted to real scalars, and this is why $\hat{\mathbb{C}}^n$ is a vector space of complex vectors strictly with real scalars.
+More generally, for any nonzero $\vec{v} \in \hat{\mathbb{C}}^n$ and any scalar $c$, the product $c \cdot \vec{v}$ preserves Hermitian symmetry if and only if $\overline{c} = c$; that is, if and only if $c$ is a real number. Therefore, $\hat{\mathbb{C}}^n$ is a valid vector space only when restricted to real scalars, and this is why $\hat{\mathbb{C}}^n$ is a vector space of complex vectors strictly with real scalars.
 
 $ $
 
@@ -703,7 +715,7 @@ $ $
 
 This structure of vector exactly aligns with the definition of $\hat{\mathbb{C}}^n$: the second half of the elements of the $n$-dimensional vector $\vec{\hat v}$ is a reverse-ordered conjugate of the first half.
 
-For bijectiveness, we also need to demonstrate that every $f(X) \in \mathbb{R}[X] / (X^n + 1)$ is mapped to some $\vec{\hat v} \in \hat{\mathbb{C}}^{n}$, and no two different $f_1(X), f_2(X) \in \mathbb{R}[X] / (X^n + 1)$ map to the same $\vec{\hat v} \in \hat{\mathbb{C}}^{n}$. The first requirement is satisfied because each polynomial $f(X) \in \mathbb{R}[X] / (X^n + 1)$ can be evaluated at the $n$ distinct roots of $X^n + 1$ to a valid number. The second requirement is also satisfied because in the $(n-1)$-degree polynomial ring, each list of $n$ distinct $(x, y)$ coordinates (where we fix the $X$ values as the $n$ distinct roots of $X^n + 1$ as $\{\omega, \omega^3, \cdots, \omega^{2n - 1}\}$) can be mapped only to a single polynomial within the $(n-1)$-degree polynomial ring, as proved by Lagrange Polynomial Interpolation (Theorem~\ref*{sec:polynomial-interpolation} in \autoref{sec:polynomial-interpolation}).
+To prove bijectivity, first note that distinct real polynomials of degree less than $n$ cannot agree at the $n$ distinct roots, by Lagrange interpolation (Theorem~\ref*{sec:polynomial-interpolation} in \autoref{sec:polynomial-interpolation}). For surjectivity, take any $\vec v\in\hat{\mathbb C}^n$ and interpolate its values at the ordered roots to obtain a unique $f\in\mathbb C[X]$ of degree less than $n$. Conjugating the coefficients of $f$ produces another polynomial with the same evaluations, because both nodes and values occur in reversed conjugate pairs. Uniqueness forces that conjugated polynomial to equal $f$, so every coefficient of $f$ is real. Hence every $\vec v\in\hat{\mathbb C}^n$ has a real-polynomial preimage.
 
 $ $
 
@@ -734,7 +746,7 @@ $ $
 \label{subsec:poly-vector-basis-transfer}
 
 
-Suppose some polynomials $f_0(X), f_1(X), \cdots, f_{n-1}(X)$ form a basis of the $(n-1)$-degree polynomial ring and $\sigma$ is an isomorphic mapping from the $(n-1)$-degree polynomial ring to the $n$-dimensional vector space. Then, $(\sigma(f_0(X)), \sigma(f_1(X)), \cdots, \sigma(f_{n-1}(X)))$ form a basis of the $n$-dimensional vector space. This is because the $\sigma$-mapped output vectors homomorphically preserve the same algebraic relationships on the $(+, \cdot)$ operations and the basis relationship between basis vectors and a subspace can be expressed as a linear algebraic formula consisting of the $(+, \cdot)$ operations (i.e., linear independence and spanning of the space). Therefore, if a set of polynomials satisfies a basis relationship, their $\sigma$-mapped vectors also preserve a basis relationship.
+A linear isomorphism over a fixed scalar field sends a basis to a basis: linearity preserves all linear combinations, injectivity preserves linear independence, and surjectivity preserves spanning. The evaluation map $\sigma$ above is linear over $\mathbb Z_t$ with prime $t$, and $\sigma_c$ is linear over $\mathbb R$. Those are the scalar fields used in the following basis-transfer argument.
 
 The same principle holds between a polynomial ring and vector space of complex numbers (with real scalars). Given the polynomial ring $\mathbb{R}[X]/(x^n + 1)$, the most intuitive way to set up a basis of $\mathbb{R}[X]/(x^n + 1)$ is as follows:
 

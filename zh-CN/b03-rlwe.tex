@@ -12,6 +12,8 @@ RLWE 的设置参数与 LWE 类似。区别在于，$S$ 不再是从 $\{-1, 0, 1
 \subsection{加密}
 \label{subsec:rlwe-enc}
 
+多项式代表元的次数至多为 $n-1$，允许高次系数为零。噪声系数是采样后模 $q$ 约减的整数，采用 \autoref{subsec:lwe-dec} 中的约定。正确性不等式约束这些提升后的系数，而不是对无界高斯分布给出确定性保证。
+
 \begin{enumerate}
 \item 假设有一个 $(n-1)$ 次多项式 $M \in \mathcal{R}_{\langle n, t \rangle}$，其系数表示要加密的明文数值。
 \item 随机选取 $(n-1)$ 次多项式 $A \in \mathcal{R}_{\langle n,q \rangle}$ 作为一次性的公开随机掩码，记为 $A \xleftarrow{\$} \mathcal{R}_{\langle n, q \rangle}$。
@@ -72,6 +74,6 @@ $ $
 
 \end{enumerate}
 
-为了正确解密，噪声多项式 $E$ 的每个系数 $e_i$ 都应满足 $|e_i| < \dfrac{\Delta}{2}$。如果 $t$ 不整除 $q$，还要求 $q$ 充分大于 $t$。
+当 $t\mid q$ 时，要求 $\|E\|_\infty<\Delta/2$。若 $t\nmid q$，应逐系数使用 \autoref{subsubsec:lwe-noise-bound} 的有效误差界：对于未约减系数 $m_i=m_i'+v_it$，其中 $m_i'$ 为中心化代表元，在该小节的奇数 $t$ 假设下要求 $|e_i-(q\bmod t)v_i|<\Delta/2$。仅有 $q\gg t$ 并不充分。
 
 \end{tcolorbox}

@@ -2,165 +2,36 @@
 \subsection{同余关系中的模数重缩放}
 \label{subsec:modulo-rescaling}
 
-回顾 \autoref{sec:modulo}：$a \bmod q$ 是 $a$ 除以 $q$ 的余数；同余关系 $a \equiv b \bmod q$ 表示 $a$ 除以 $q$ 的余数与 $b$ 除以 $q$ 的余数相同。与之等价的数值等式为 $a = b + k\cdot q$，即 $a$ 与 $b$ 之差是 $q$ 的某个整数倍。同余式与等式是描述两个数 $a$ 和 $b$ 之间关系的两种不同方式。
-
-本节介绍另一种描述数之间关系的方法：用不同的模数 $q'$ 替代原模数 $q$，描述两个数 $a$ 和 $b$ 之间的关系。同余关系中这种模数的改变称为模数缩放。对同余关系的模数进行重缩放时，也需要相应地缩放该同余关系中的数。
-
-假设有如下同余关系：
-
-$a \equiv b \bmod q$
-
-$a + c \equiv b + d\bmod q$
-
-$a \cdot c \equiv b \cdot d\bmod q$
-
-现在，希望将上述同余关系的模数按 $q \rightarrow q'$ 重缩放，其中 $q' \mid q$，即 $q$ 是 $q'$ 的倍数。相应更新后的同余关系如 \autoref{tab:rescaling} 所示。
-
-
+设 $q,q'$ 为正整数模数，$r=q'/q$，并固定具有整数平移不变性的最近整数舍入规则 $R(x)=\lfloor x+1/2\rfloor$。对于整数 $h$，有 $R(x+h)=R(x)+h$。记 $\delta_x=R(rx)-rx$，则 $|\delta_x|\le1/2$。
 
 \begin{table}[h!]
-{
 \centering
-\begin{tabular}{|l|l|l|}
+\begin{tabular}{|l|l|}
 \hline
-\textbf{原同余} & \textbf{重缩放后的同余关系} & \textbf{重缩放后的同余关系}\\
-\textbf{关系} & \textbf{-- 精确情形} & \textbf{-- 近似情形} \\
-\hline\hline
-$a \equiv b \bmod q$ & $\Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor \equiv \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ & $\Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor \cong \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor \bmod q'$\\
-&（若 $q$ 同时整除 $aq'$ 和 $bq'$）&（若 $q$ 不能同时整除 $aq' \text{ 或 } bq'$）\\
+原关系 & 模 $q'$ 下的缩放关系 \\
 \hline
-$a + c \equiv b + d \bmod q$ & $\Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor \equiv \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ & $\Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor \cong \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor \bmod q'$\\
-&（若 $q$ 整除 $aq', bq', cq'$ 和 $dq'$ 中的所有数）&（若 $q$ 不能整除 $aq', bq', cq',$ 或 $dq'$ 中的某个数）\\
+$a\equiv b\pmod q$ & $R(ra)\equiv R(rb)\pmod{q'}$ \\
+$a+c\equiv b+d\pmod q$ & $R(ra)+R(rc)\equiv R(rb)+R(rd)+\eta\pmod{q'}$ \\
+$ac\equiv bd\pmod q$ & $R(rac)\equiv R(rbd)\pmod{q'}$ \\
 \hline
-$a \cdot c \equiv b \cdot d \bmod q$ & $\Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor  \equiv \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ & $\Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor  \cong \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor  \bmod q'$\\
-&（若 $q$ 同时整除 $acq'$ 和 $bdq'$）&（若 $q$ 不能同时整除 $acq'$ 和 $bdq'$）\\
-\hline
-\end{tabular} \par
-}
-\caption{将同余关系的模数按 $q\rightarrow q'$ 重缩放，其中 $\lceil \rfloor$ 表示舍入到最近的整数。}
+\end{tabular}
+\caption{同余关系的缩放，其中 $\eta=\delta_a+\delta_c-\delta_b-\delta_d$ 且 $|\eta|\le2$。}
 \label{tab:rescaling}
 \end{table}
 
-
 \begin{proof}
+若 $a=b+kq$，则 $ra=rb+kq'$，并且 $R(ra)=R(rb)+kq'$。因此，对同余式两侧的整体分别舍入，会精确保持同余，无论 $ra$ 是否为整数。相同论证也适用于整个乘积 $ac$ 和 $bd$。
 
-$ $
-
-\begin{enumerate}
-%\item Let $\hat{a} = \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor$, $\hat{b} = \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor$, $\hat{c} = \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor$, $\hat{d} = \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor$, where 
-\item $a \equiv b \bmod q$ $\Longleftrightarrow$ $a = b + q\cdot k$（其中 $k$ 为某个整数）
-
-$\Longleftrightarrow a \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + q\cdot k \cdot \dfrac{q'}{q}$
-
-$\Longleftrightarrow a \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + k\cdot q'$
-
-
-
-\begin{enumerate}
-\item 如果 $q$ 同时整除 $aq'$ 和 $bq'$，则 $a \cdot \dfrac{q'}{q} = \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor$ 且 $b \cdot \dfrac{q'}{q} = \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor$。因此：
-
-$a \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor = \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor \equiv \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a \equiv b \bmod q)$
-
-$ $
-
-\item 如果 $q$ 不能同时整除 $aq'$ 和 $bq'$，则 $a \cdot \dfrac{q'}{q} \approx \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor$，\text{ }$b \cdot \dfrac{q'}{q} \approx \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor$。因此：
-
-$a \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor \approx \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor \cong \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a \equiv b \bmod q)$
-
-\end{enumerate}
-
-$ $
-
-\item $a + c\equiv b + d\bmod q$ $\Longleftrightarrow$ $a + c = b + d + k\cdot q$（其中 $k$ 为某个整数）
-
-$\Longleftrightarrow a \cdot \dfrac{q'}{q} + c \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + d \cdot \dfrac{q'}{q}  + q\cdot k \cdot \dfrac{q'}{q}$
-
-$\Longleftrightarrow a \cdot \dfrac{q'}{q} + c \cdot \dfrac{q'}{q}  = b \cdot \dfrac{q'}{q} + d \cdot \dfrac{q'}{q} + k\cdot q'$
-
-\begin{enumerate}
-
-\item 如果 $q$ 整除 $aq'$、$bq'$、$cq'$ 和 $dq'$ 中的所有数，则
-
-$a \dfrac{q'}{q} + c  \dfrac{q'}{q}  = \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor$, \text{ } $b \dfrac{q'}{q} + d \dfrac{q'}{q} = \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor$
-
-因此：
-
-$a \cdot \dfrac{q'}{q} + c \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + d \cdot \dfrac{q'}{q} + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor = \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor \equiv \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a + c \equiv b + d \bmod q)$
-
-$ $
-
-\item 如果 $q$ 不能整除 $aq'$、$bq'$、$cq'$ 和 $dq'$ 中的至少一个数，则
-
-$a \dfrac{q'}{q} + c  \dfrac{q'}{q}  \approx \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor$, \text{ } $b \dfrac{q'}{q} + d \dfrac{q'}{q} \approx \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor$
-
-因此：
-
-$a \cdot \dfrac{q'}{q} + c \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + d \cdot \dfrac{q'}{q}  + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor \approx \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor \cong \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a + c \equiv b + d \bmod q)$
-
-\end{enumerate}
-
-$ $
-
-\item $a \cdot c\equiv b \cdot d\bmod q$ $\Longleftrightarrow$ $a \cdot c = b \cdot d + k\cdot q$（其中 $k$ 为某个整数）
-
-$\Longleftrightarrow ac \cdot \dfrac{q'}{q}  = bd \cdot \dfrac{q'}{q} + q\cdot k \cdot \dfrac{q'}{q}$
-
-$\Longleftrightarrow ac \cdot \dfrac{q'}{q}  = bd \cdot \dfrac{q'}{q} + k\cdot q'$
-
-\begin{enumerate}
-
-\item 如果 $q$ 整除 $aq'$、$bq'$、$cq'$ 和 $dq'$ 中的所有数，则
-
-$ac \cdot \dfrac{q'}{q} = \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor$, \text{ } $bd \cdot \dfrac{q'}{q} = \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor$
-
-因此：
-
-$ac \cdot \dfrac{q'}{q} = bd \cdot \dfrac{q'}{q} + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor = \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor \equiv \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a\cdot c \equiv b\cdot d \bmod q)$
-
-$ $
-
-\item 如果 $q$ 不能整除 $aq'$、$bq'$、$cq'$ 或 $dq'$ 中的数，则
-
-$ac \cdot \dfrac{q'}{q} \approx \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor$, \text{ } $bd \cdot \dfrac{q'}{q} \approx \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor$
-
-因此：
-
-$ac \cdot \dfrac{q'}{q} = bd \cdot \dfrac{q'}{q} + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor \approx \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor \cong \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a\cdot c \equiv b\cdot d \bmod q)$
-
-\end{enumerate}
-
-$ $
-
-\end{enumerate}
+对于分别舍入的加数，由 $a+c=b+d+kq$ 得到
+\[
+R(ra)+R(rc)-R(rb)-R(rd)=kq'+\delta_a+\delta_c-\delta_b-\delta_d.
+\]
+最后四项组成整数 $\eta$，满足 $|\eta|\le2$。当它们抵消时，特别是所有缩放后的加数均为整数时，关系精确成立；否则必须保留这个显式误差。
 \end{proof}
 
-如证明所示，如果在模数重缩放过程中，同余关系中的所有数都能被尺度因子整除，那么重缩放后得到的就是新模数下的精确同余关系。反之，如果同余关系中的某些数不能被尺度因子整除，即需要对某些小数进行舍入，那么重缩放后得到的就是新模数下的近似同余关系。
+这些结论是单向蕴含，一般不是等价关系。例如，取 $q=8$、$q'=2$，则 $a=0$ 与 $b=1$ 均舍入为零，但 $a\not\equiv b\pmod8$。舍入会丢失信息。此外，分别缩放乘积的两个因子会将整体尺度变为 $r^2$，不能替代将整个乘积只乘一次 $r$。
 
-对于包含许多 $(+, -, \cdot)$ 运算的复杂同余关系，可以将上述模数重缩放原理递归地应用于每个运算符两侧的操作数。
+对于固定整数乘数 $s$，有用的恒等式为 $R(ra)s=ras+\delta_a s$，误差至多为 $|s|/2$。因此，在 LWE 相位 $b-\sum_i a_i s_i$ 中，分别舍入 $b$ 和各个 $a_i$ 会引入 $\delta_b-\sum_i\delta_{a_i}s_i$。后续模数切换正确性需要约束这个误差，而不能只使用没有误差定义的近似同余符号。
 
 \subsubsection{示例}
 \label{subsec:modulo-rescaling-ex}
@@ -214,7 +85,7 @@ $4 \equiv 7 \bmod 3$
 
 $ $
 
-如上所示，重缩放后的同余关系仍然正确，因为所有参与缩放的值都可以被尺度因子整除。相反，如果 $\dfrac{q}{q'} = \dfrac{30}{3} = 10$ 不能整除 $a\cdot s$、$\Delta m$ 或 $e$ 中的至少一个数，那么重缩放后的同余关系就是近似同余关系，即 $\cong$。
+该例精确成立，因为 $ra$、$r\Delta$ 和 $re$ 都是整数，所有舍入误差均为零。若部分缩放后的项不是整数，误差抵消后仍可能精确成立；一般情况下，应保留 \autoref{tab:rescaling} 中相应的误差项。
 
 
 

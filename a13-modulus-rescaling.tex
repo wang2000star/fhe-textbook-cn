@@ -2,165 +2,36 @@
 \subsection{Rescaling Modulo of Congruence Relations}
 \label{subsec:modulo-rescaling}
 
-Remember from \autoref{sec:modulo} that $a \bmod q$ is the remainder of $a$ divided by $q$, and the congruence relation $a \equiv b \bmod q$ means that the remainder of $a$ divided by $q$ is the same as the remainder of $b$ divided by $q$. Its equivalent numeric equation is  $a = b + k\cdot q$, meaning that $a$ and $b$ differ by some multiple of $q$. The congruence and equation are two different ways of describing the relationship between two numbers $a$ and $b$. 
-
-In this section, we introduce another way of describing the relationship between numbers. We will describe two numbers $a$ and $b$ in terms of a different modulo $q'$ instead of the original modulo $q$. Such a change of modulo in a congruence relation is called modulo scaling. When we rescale the modulo of a congruence relation, we also need to rescale the numbers involved in the congruence relation. 
-
-Suppose we have the following congruence relations: 
-
-$a \equiv b \bmod q$
-
-$a + c \equiv b + d\bmod q$
-
-$a \cdot c \equiv b \cdot d\bmod q$
-
-Now, suppose we want to rescale the modulo of the above congruence relations from $q \rightarrow q'$, where $q' \mid q$ (meaning $q$ is a multiple of $q'$). Then, the accordingly updated congruence relations are as shown in \autoref{tab:rescaling}.
-
-
+Let $q,q'$ be positive integer moduli, $r=q'/q$, and fix the translation-equivariant nearest-integer rule $R(x)=\lfloor x+1/2\rfloor$. Thus $R(x+h)=R(x)+h$ for integer $h$. Write $\delta_x=R(rx)-rx$, so $|\delta_x|\le1/2$.
 
 \begin{table}[h!]
-{
 \centering
-\begin{tabular}{|l|l|l|}
+\begin{tabular}{|l|l|}
 \hline
-\textbf{Congruence}  & \textbf{Rescaled Congruence Relation} & \textbf{Rescaled Congruence Relation}\\
-\textbf{Relation} & \textbf{-- Exact} & \textbf{-- Approximate} \\
-\hline\hline
-$a \equiv b \bmod q$ & $\Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor \equiv \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ & $\Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor \cong \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor \bmod q'$\\
-&(if $q$ divides both $aq'$ and $bq'$)&(if $q$ does not divide either $aq' \text{ or } bq'$)\\
+Original relation & Scaled relation modulo $q'$ \\
 \hline
-$a + c \equiv b + d \bmod q$ & $\Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor \equiv \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ & $\Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor \cong \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor \bmod q'$\\
-&(if $q$ divides all of $aq', bq', cq'$ and $dq'$)&(if $q$ does not divide:  $aq', bq', cq',$ or $dq'$)\\
+$a\equiv b\pmod q$ & $R(ra)\equiv R(rb)\pmod{q'}$ \\
+$a+c\equiv b+d\pmod q$ & $R(ra)+R(rc)\equiv R(rb)+R(rd)+\eta\pmod{q'}$ \\
+$ac\equiv bd\pmod q$ & $R(rac)\equiv R(rbd)\pmod{q'}$ \\
 \hline
-$a \cdot c \equiv b \cdot d \bmod q$ & $\Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor  \equiv \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ & $\Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor  \cong \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor  \bmod q'$\\
-&(if $q$ divides both $acq'$ and $bdq'$)&(if $q$ does not divide either  $acq'$ or $bdq'$)\\
-\hline
-\end{tabular} \par
-}
-\caption{Rescaling the congruence relations  from modulo $q\rightarrow q'$ (where $\lceil \rfloor$ denotes rounding to the nearest integer)}
+\end{tabular}
+\caption{Scaling congruences, where $\eta=\delta_a+\delta_c-\delta_b-\delta_d$ and $|\eta|\le2$.}
 \label{tab:rescaling}
 \end{table}
 
-
 \begin{proof}
+If $a=b+kq$, then $ra=rb+kq'$ and $R(ra)=R(rb)+kq'$. Thus rounding an entire congruence preserves it exactly, whether or not $ra$ is an integer. The same argument applies to the entire products $ac$ and $bd$.
 
-$ $
-
-\begin{enumerate}
-%\item Let $\hat{a} = \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor$, $\hat{b} = \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor$, $\hat{c} = \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor$, $\hat{d} = \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor$, where 
-\item $a \equiv b \bmod q$ $\Longleftrightarrow$ $a = b + q\cdot k$ (for some integer $k$)
-
-$\Longleftrightarrow a \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + q\cdot k \cdot \dfrac{q'}{q}$
-
-$\Longleftrightarrow a \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + k\cdot q'$
-
-
-
-\begin{enumerate}
-\item If $q$ divides both $aq'$ and $bq'$, then $a \cdot \dfrac{q'}{q} = \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor$, and $b \cdot \dfrac{q'}{q} = \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor$. Therefore:
-
-$a \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor = \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor \equiv \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a \equiv b \bmod q)$
-
-$ $
-
-\item If $q$ does not divide either $aq'$ or $bq'$, then $a \cdot \dfrac{q'}{q} \approx \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor$, \text{ } $b \cdot \dfrac{q'}{q} \approx \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor$. Therefore:
-
-$a \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor \approx \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor \cong \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a \equiv b \bmod q)$
-
-\end{enumerate}
-
-$ $
-
-\item $a + c\equiv b + d\bmod q$ $\Longleftrightarrow$ $a + c = b + d + k\cdot q$ (for some integer $k$)
-
-$\Longleftrightarrow a \cdot \dfrac{q'}{q} + c \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + d \cdot \dfrac{q'}{q}  + q\cdot k \cdot \dfrac{q'}{q}$
-
-$\Longleftrightarrow a \cdot \dfrac{q'}{q} + c \cdot \dfrac{q'}{q}  = b \cdot \dfrac{q'}{q} + d \cdot \dfrac{q'}{q} + k\cdot q'$
-
-\begin{enumerate}
-
-\item If $q$ divides all of $aq'$, $bq'$, $cq'$, and $dq'$, then 
-
-$a \dfrac{q'}{q} + c  \dfrac{q'}{q}  = \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor$, \text{ } $b \dfrac{q'}{q} + d \dfrac{q'}{q} = \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor$
-
-Therefore:
-
-$a \cdot \dfrac{q'}{q} + c \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + d \cdot \dfrac{q'}{q} + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor = \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor \equiv \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a + c \equiv b + d \bmod q)$
-
-$ $
-
-\item If $q$ does not divide at least one of $aq'$, $bq'$, $cq'$, and $dq'$, then
-
-$a \dfrac{q'}{q} + c  \dfrac{q'}{q}  \approx \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor$, \text{ } $b \dfrac{q'}{q} + d \dfrac{q'}{q} \approx \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor$
-
-Therefore:
-
-$a \cdot \dfrac{q'}{q} + c \cdot \dfrac{q'}{q} = b \cdot \dfrac{q'}{q} + d \cdot \dfrac{q'}{q}  + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor \approx \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil a\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil c\dfrac{q'}{q}\Bigg\rfloor \cong \Bigg\lceil b\dfrac{q'}{q}\Bigg\rfloor + \Bigg\lceil d\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a + c \equiv b + d \bmod q)$
-
-\end{enumerate}
-
-$ $
-
-\item $a \cdot c\equiv b \cdot d\bmod q$ $\Longleftrightarrow$ $a \cdot c = b \cdot d + k\cdot q$ (for some integer $k$)
-
-$\Longleftrightarrow ac \cdot \dfrac{q'}{q}  = bd \cdot \dfrac{q'}{q} + q\cdot k \cdot \dfrac{q'}{q}$
-
-$\Longleftrightarrow ac \cdot \dfrac{q'}{q}  = bd \cdot \dfrac{q'}{q} + k\cdot q'$
-
-\begin{enumerate}
-
-\item If $q$ divides all of $aq'$, $bq'$, $cq'$, and $dq'$, then 
-
-$ac \cdot \dfrac{q'}{q} = \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor$, \text{ } $bd \cdot \dfrac{q'}{q} = \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor$
-
-Therefore:
-
-$ac \cdot \dfrac{q'}{q} = bd \cdot \dfrac{q'}{q} + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor = \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor \equiv \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a\cdot c \equiv b\cdot d \bmod q)$
-
-$ $
-
-\item If $q$ does not divide any of $aq'$, $bq'$, $cq'$, or $dq'$, then
-
-$ac \cdot \dfrac{q'}{q} \approx \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor$, \text{ } $bd \cdot \dfrac{q'}{q} \approx \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor$
-
-Therefore:
-
-$ac \cdot \dfrac{q'}{q} = bd \cdot \dfrac{q'}{q} + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor \approx \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor + k\cdot q'$
-
-$\Longleftrightarrow \Bigg\lceil ac\dfrac{q'}{q}\Bigg\rfloor \cong \Bigg\lceil bd\dfrac{q'}{q}\Bigg\rfloor \bmod q'$ \text{ } $(\Longleftrightarrow a\cdot c \equiv b\cdot d \bmod q)$
-
-\end{enumerate}
-
-$ $
-
-\end{enumerate}
+For separately rounded summands, $a+c=b+d+kq$ gives
+\[
+R(ra)+R(rc)-R(rb)-R(rd)=kq'+\delta_a+\delta_c-\delta_b-\delta_d.
+\]
+The last four terms form the integer $\eta$, with $|\eta|\le2$. If they cancel (in particular, if all scaled summands are integers), the relation is exact. Otherwise this explicit error must be retained.
 \end{proof}
 
-As shown in the proof, if all numbers in the congruence relations are exactly divisible by the rescaling factor during the modulo rescaling, then the rescaled result gives exact congruence relations in the new modulo. On the other hand, if any numbers in the congruence relations are not divisible by the rescaling factor during the modulo rescaling (i.e., we need to round some decimals), then the rescaled result gives approximate congruence relations in the new modulo.
+These statements are forward implications, not general equivalences. For instance, with $q=8$ and $q'=2$, both $a=0$ and $b=1$ round to zero, although $a\not\equiv b\pmod8$. Rounding loses information. Also, separately scaling both factors of a product changes its scale to $r^2$; it cannot replace scaling the entire product once by $r$.
 
-In a more complicated congruence relation that contains many $(+, -, \cdot)$ operations, the same principle of modulo rescaling explained above can be recursively applied to each pair of operands surrounding each operator. 
+For a fixed integer multiplier $s$, the useful identity is $R(ra)s=ras+\delta_a s$, with error at most $|s|/2$. In an LWE phase $b-\sum_i a_i s_i$, separately rounding $b$ and the $a_i$ therefore introduces $\delta_b-\sum_i\delta_{a_i}s_i$. This error, rather than an undefined approximate-congruence symbol, is what later modulus-switching correctness must bound.
 
 \subsubsection{Example}
 \label{subsec:modulo-rescaling-ex}
@@ -214,7 +85,7 @@ $4 \equiv 7 \bmod 3$
 
 $ $
 
-As shown above, the rescaled congruence relation preserves correctness, because all rescaled values are divisible by the rescaling factor. By contrast, if $\dfrac{q}{q'} = \dfrac{30}{3} = 10$ did not divide at least one of $a\cdot s$, $\Delta m$, or $e$, then the rescaled congruence relation would be an approximate (i.e., $\cong$) congruence relation. 
+The example is exact because $ra$, $r\Delta$, and $re$ are integers, so every rounding error is zero. If some scaled terms are not integers, exactness is still possible through cancellation; in general, retain the corresponding errors from \autoref{tab:rescaling}.
 
 
 

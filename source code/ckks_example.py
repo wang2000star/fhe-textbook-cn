@@ -15,7 +15,7 @@ from common import *
 Q_LEVEL = 5
 Q_BIT = 30
 N = 4
-error_tolerance_ratio = 0.01
+absolute_error_tolerance = 0.01
 
 #############################
 
@@ -58,7 +58,6 @@ def build_parser():
 	 parser.add_argument('--keyswitch', action='store_true', help='Key switch test')
 	 parser.add_argument('--rotate', action='store_true', help='Rotation test')
 	 parser.add_argument('--conjugate', action='store_true', help='Conjugation test')
-	 #parser.add_argument('--bootstrapping', action='store_true', help='Bootstrapping test')
 	 parser.add_argument('--random', action='store_true', help='A bulk of random tests')
 	 parser.add_argument('--all', action='store_true', help='All test')
 	 return parser
@@ -84,6 +83,7 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 
 	scale = sum(Q_BASE) / Q_LEVEL
 	Q_BASE_ORIGIN = Q_BASE.copy()
+	output_scale = scale
 	
 	if is_random_param:
 		ckks_vector1 = np.empty(N//2, dtype=object)
@@ -94,7 +94,7 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 	else:
 		if len(ckks_vector1) != N//2 or len(ckks_vector2) != N//2:
 			print("[Error] The dimensions of the input vectors are not " + str(N) + ", but " + str(len(ckks_vector1)) + ", " + str(len(ckks_vector2)))
-			sys.exit()
+			sys.exit(1)
 
 
 	encoder = Encoder(N=N, scale=scale)
@@ -150,6 +150,7 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 		print()
 		z3 = z1 * z2
 		p3 = poly_mult(p1, p2, N)
+		output_scale = ckks_rescaled_scale(encoder.scale, encoder.scale, Q_BASE[-1])
 		a3, b3 = fhe_mult_cipher_plain(a1, b1, p2, N, Q_BASE, encoder.scale)
 
 	if run_choice == 'keyswitch':
@@ -171,6 +172,7 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 
 		s2 = poly_mult(s, s, N, math.prod(Q_BASE))
 		relin_key = fhe_keyswitch_keygen(s2, s, N, math.prod(Q_BASE))
+		output_scale = ckks_rescaled_scale(encoder.scale, encoder.scale, Q_BASE[-1])
 		a3, b3 = fhe_mult_cipher_cipher(a1, b1, a2, b2, N, Q_BASE, encoder.scale, relin_key)
 
 	if run_choice == 'rotate':
@@ -201,13 +203,6 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 		a3, b3 = fhe_conjugate(a1, b1, N, Q_BASE, conjugate_key)
 
 
-	if run_choice == 'bootstrapping':
-		print("<<Bootstrapping Test>>")
-		print('z3: z1 encrypted in a bootstrapped ciphertext')
-		print()
-		z3 = z1.copy()
-		p3 = p1.copy()
-		a3, b3 = fhe_bootstrapping(a1, b1, N, Q_BASE)
 
 	# =========== Decryption Stage ===============
 	if args.encrypt:
@@ -225,9 +220,9 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 		print()
 		if run_choice != 'encode' and run_choice != 'encrypt':
 			if run_choice == 'keyswitch':
-				dec_p3, e3 = fhe_decrypt(a3, b3, N, Q_BASE, s_new, encoder.scale, p3)
+				dec_p3, e3 = fhe_decrypt(a3, b3, N, Q_BASE, s_new, output_scale, p3)
 			else:
-				dec_p3, e3 = fhe_decrypt(a3, b3, N, Q_BASE, s, encoder.scale, p3)
+				dec_p3, e3 = fhe_decrypt(a3, b3, N, Q_BASE, s, output_scale, p3)
 			print('- p3:           ', p3)
 			print('- decrypted_p3: ', dec_p3)
 			print(f'- maximum noise coeff. = {e3}')
@@ -254,20 +249,20 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 
 	print()
 	for i in range(N//2):
-		if abs((z1[i] - decoded_z1[i]).real) > error_tolerance_ratio or abs((z1[i] - decoded_z1[i]).imag) > error_tolerance_ratio:
+		if abs((z1[i] - decoded_z1[i]).real) > absolute_error_tolerance or abs((z1[i] - decoded_z1[i]).imag) > absolute_error_tolerance:
 			print("[Error] decoded vectors deviates too much")
 			print("- z1:", z1, decoded_z1)
-			sys.exit(0)
-		if abs((z2[i] - decoded_z2[i]).real) > error_tolerance_ratio or abs((z2[i] - decoded_z2[i]).imag) > error_tolerance_ratio:
+			sys.exit(1)
+		if abs((z2[i] - decoded_z2[i]).real) > absolute_error_tolerance or abs((z2[i] - decoded_z2[i]).imag) > absolute_error_tolerance:
 			print("[Error] decoded vectors deviates too much")
 			print("- z2:", z2, decoded_z2)
-			sys.exit(0)
-		if ('z3' in vars()) and (abs((z3[i] - decoded_z3[i]).real) > error_tolerance_ratio or abs((z3[i] - decoded_z3[i]).imag) > error_tolerance_ratio):
+			sys.exit(1)
+		if ('z3' in vars()) and (abs((z3[i] - decoded_z3[i]).real) > absolute_error_tolerance or abs((z3[i] - decoded_z3[i]).imag) > absolute_error_tolerance):
 			print("[Error] decoded vectors deviates too much")
 			print("- z3:", z3, decoded_z3)
-			sys.exit(0)
+			sys.exit(1)
 
-	print(f"[TEST {test_index + 1}] '{run_choice}': all decrypted values are within the {error_tolerance_ratio*100}% error bound")
+	print(f"[TEST {test_index + 1}] '{run_choice}': all decrypted values are within the {absolute_error_tolerance} absolute component error bound")
 	print()
 	return
 
@@ -281,17 +276,18 @@ if __name__ == "__main__":
 	if args.all:
 		args.random = True
 	is_random_param = args.random
-	if args.all or args.random and not (args.encode or args.encrypt or args.add_cipher_cipher or args.add_cipher_plain or args.mult_cipher_cipher or args.mult_cipher_plain or args.keyswitch or args.rotate): 
+	if args.all or args.random and not (args.encode or args.encrypt or args.add_cipher_cipher or args.add_cipher_plain or args.mult_cipher_cipher or args.mult_cipher_plain or args.keyswitch or args.rotate or args.conjugate):
 		args.encrypt = True
 		args.add_cipher_cipher = True
 		args.add_cipher_plain = True
 		args.mult_cipher_cipher = True
 		args.mult_cipher_plain = True
 		args.rotate = True
+		args.conjugate = True
 		args.keyswitch = True
 	if args.encrypt:
 		args.encode = True
-	if args.add_cipher_cipher or args.add_cipher_plain or args.mult_cipher_cipher or args.mult_cipher_plain or args.keyswitch or args.rotate:
+	if args.add_cipher_cipher or args.add_cipher_plain or args.mult_cipher_cipher or args.mult_cipher_plain or args.keyswitch or args.rotate or args.conjugate:
 		args.encrypt = True
 	run_slot = []
 	if args.add_cipher_cipher:
@@ -308,8 +304,6 @@ if __name__ == "__main__":
 		run_slot.append('keyswitch')
 	if args.conjugate:
 		run_slot.append('conjugate')
-	#if args.bootstrapping:
-	#	run_slot = ['bootstrapping']
 
 	test_index = 0
 	while True:

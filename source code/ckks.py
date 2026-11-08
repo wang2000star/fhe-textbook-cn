@@ -1,3 +1,6 @@
+"""Plaintext encoding/rotation experiment; no ciphertext encryption is performed.
+Use the corresponding *_example.py for maintained ciphertext demonstrations.
+"""
 import numpy as np
 from numpy.polynomial import Polynomial
 from fastcore.foundation import patch_to
@@ -59,13 +62,8 @@ primitive_root_of_unity = -1
 test_index = 0
 M = N*2
 
-def IsPowerOf2(N : int):
-	n_checker = N
-	while n_checker > 1:
-		if n_checker % 2 == 1:
-			return False
-		n_checker /= 2 
-	return True
+def IsPowerOf2(N: int):
+    return isinstance(N, (int, np.integer)) and N > 0 and (int(N) & (int(N) - 1)) == 0
 
 
 def Egcd(a, b):
@@ -112,10 +110,10 @@ def GenerateParam():
 	else:
 		if len(ckks_vector)*2 != N or len(ckks_vector2)*2 != N:
 		  print("Error: The dimensions of the input vectors are not " + str(N) + ", but " + str(len(ckks_vector)) + ", " + str(len(ckks_vector2)))
-		  sys.exit()
+		  sys.exit(1)
 	if M <= 0:
 		print("Error: M has to be specified for a targeted test")
-		sys.exit()
+		sys.exit(1)
 
 	N_inverse = 1/N
 	root_values = []
@@ -198,7 +196,7 @@ class CKKSEncoder:
 		
 		xi, which is an M-th root of unity will, be used as a basis for our computations.
 		"""
-		self.M = M
+		self.M = 2 * N
 		self.N = N
 		self.N_inverse = 1 / N
 		self.create_sigma_R_basis()
@@ -214,24 +212,24 @@ class CKKSEncoder:
 		power_array = []
 		power_matrix = []
 
-		primitive_root_of_unity = np.exp(2 * np.pi * 1j / M) 
+		primitive_root_of_unity = np.exp(2 * np.pi * 1j / self.M)
 		print(primitive_root_of_unity)
 
 		for h in range(int(self.N/2)):
-			new_root = (primitive_root_of_unity ** JFunction(h, True))  
+			new_root = (primitive_root_of_unity ** pow(5, h, 2 * self.N))
 			if new_root in cyclic_x_values_ordered:
 				 print("Error 1: root " + str(new_root) + " is already in " + str(cyclic_x_values_ordered))
-				 sys.exit(0)
+				 sys.exit(1)
 			cyclic_x_values_ordered.append(new_root)
-			power_array.append(JFunction(h, True))
+			power_array.append(pow(5, h, 2 * self.N))
 		for h in reversed(range(int(self.N/2))):
-			new_root = (primitive_root_of_unity ** JFunction(h, False))  
+			new_root = (primitive_root_of_unity ** ((-pow(5, h, 2 * self.N)) % (2 * self.N)))
 			if new_root in cyclic_x_values_ordered:
 				 print("Error 2: root " + str(new_root) + " is already in " + str(cyclic_x_values_ordered))
-				 print("N: " + str(self.N))
-				 sys.exit(0)
+				 print("self.N: " + str(self.N))
+				 sys.exit(1)
 			cyclic_x_values_ordered.append(new_root)
-			power_array.append(JFunction(h, False))
+			power_array.append(((-pow(5, h, 2 * self.N)) % (2 * self.N)))
 
 		for x in cyclic_x_values_ordered:
 			# For each row we select a different root
@@ -246,7 +244,7 @@ class CKKSEncoder:
 		return matrix
 
 	def create_sigma_R_basis(self):
-		"""Creates the basis (sigma(1), sigma(X), ..., sigma(X** N-1))."""
+		"""Creates the basis (sigma(1), sigma(X), ..., sigma(X** self.N-1))."""
 		self.sigma_R_basis = np.array(np.array(self.vandermonde()).T, dtype = object)
 
 		# Convert each element to Python's built-in int type, otherwise the computation will overflow!
@@ -258,18 +256,18 @@ class CKKSEncoder:
 			W_modified = copy.deepcopy(self.sigma_R_basis)
 			WT_modified = copy.deepcopy(self.sigma_R_basis_counter)
 
-			for i in range(N):
-				for j in range(N // 4):
+			for i in range(self.N):
+				for j in range(self.N // 4):
 					val1 = W_modified[i][j]
-					val2 = W_modified[i][N//2 - 1 - j]
+					val2 = W_modified[i][self.N//2 - 1 - j]
 					W_modified[i][j] = val2
-					W_modified[i][N//2 - 1 - j] = val1
+					W_modified[i][self.N//2 - 1 - j] = val1
 
-			for i in range(N//4):
-					val1 = copy.deepcopy(WT_modified[N//2 + i])
-					val2 = copy.deepcopy(WT_modified[N - 1 - i])
-					WT_modified[N//2 + i] = val2
-					WT_modified[N - 1 - i] = val1
+			for i in range(self.N//4):
+					val1 = copy.deepcopy(WT_modified[self.N//2 + i])
+					val2 = copy.deepcopy(WT_modified[self.N - 1 - i])
+					WT_modified[self.N//2 + i] = val2
+					WT_modified[self.N - 1 - i] = val1
 
 			self.sigma_R_basis = W_modified
 			self.sigma_R_basis_counter = WT_modified
@@ -286,17 +284,17 @@ class CKKSEncoder:
 					
 	
 	def encode(self, input_vector: np.array) -> Polynomial:
-		anti_diagonal_matrix = MatrixDataSizeToInfinite(np.eye(N)[::-1])
+		anti_diagonal_matrix = MatrixDataSizeToInfinite(np.eye(self.N)[::-1])
 		print(input_vector)
-		for i in range(N // 2):
+		for i in range(self.N // 2):
 			lista = [input_vector[i].conjugate()]
 			input_vector = np.append(input_vector, lista)
 			#print("Appended")
 		#print(input_vector)
 		basis_coordinates = np.matmul(self.N_inverse *  self.sigma_R_basis, anti_diagonal_matrix).dot(input_vector) 
 		#temp_matrix = np.matmul(self.sigma_R_basis, anti_diagonal_matrix)
-		#for i in range(N):
-		#	for j in range(N):
+		#for i in range(self.N):
+		#	for j in range(self.N):
 		#		print(f'{i}, {j} : {temp_matrix[i][j] * input_vector[j]}')
 		#print("Before Scaling")
 		#print(basis_coordinates)
@@ -310,11 +308,11 @@ class CKKSEncoder:
 		return scaled_p
 
 	def decode(self, p: Polynomial) -> np.array:
-		rescaled_p = p / scale
+		rescaled_p = p / self.scale
 		#print(self.sigma_R_basis)
 		#print(rescaled_p.coef)
 		coef = rescaled_p.coef
-		coef_preserved_zeros = np.pad(coef, (0, N - len(coef)), 'constant')
+		coef_preserved_zeros = np.pad(coef, (0, self.N - len(coef)), 'constant')
 		#coef_preserved_zeros = VectorDataSizeToInfinite(coef_preserved_zeros)
 		z = np.matmul(self.sigma_R_basis_counter, coef_preserved_zeros) 
 		return z
@@ -325,7 +323,7 @@ def reduce_polynomial(poly, n, q):
 	coef = poly.coef
 	for co in coef:
 		if degree >= n:
-			new_coef[degree % n] += co * (-1 ** (degree / n))
+			new_coef[degree % n] += co * ((-1) ** (degree // n))
 			#new_coef[degree % n] %= q 
 		else:
 			new_coef.append(co)# % q)
@@ -367,7 +365,7 @@ def main():
 	#p = encoder.encode(z)
 	#decoded_z = encoder.decode(p)
 	#print('decoded vector 1: ' + str(decoded_z))
-	#sys.exit()
+	#sys.exit(1)
 	print('vector 2: ' + str(z2))
 	print('vector 1 + 2: ' + str(z3 ))
 	print('vector 1 * 2: ' + str(z4 ))
@@ -414,7 +412,7 @@ def main():
 			print(decoded_z3)
 			print()
 			print(z3[i], decoded_z3[i])
-			sys.exit(0)
+			sys.exit(1)
 	else:
 		print("[FINAL DECODED RESULT " + str(test_index) + "] : " + str(z3) + " == " + str(decoded_z3) + " <---- ALMOST CORRECT")
 		print()
@@ -428,7 +426,7 @@ def main():
 			print(rotated_index)
 			print((z3[original_index] - decoded_z3_rotated[rotated_index]).real)
 			print((z3[original_index] - decoded_z3_rotated[rotated_index]).imag)
-			sys.exit(0)
+			sys.exit(1)
 	print("Rotation is ALMOST CORRECT")
 
 if __name__ == "__main__":

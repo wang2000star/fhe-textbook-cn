@@ -1,10 +1,10 @@
-In the GLWE cryptosystem, modulus switching is a process of changing a ciphertext's modulo domain to a smaller (or larger) one, while ensuring that the ciphertext still decrypts to the same plaintext. For example, suppose we have the ciphertext $\textsf{LWE}_{S, \sigma}(\Delta m) \in \mathbb{Z}_q^{k+1}$. If we switch the ciphertext's modulo from $q \rightarrow q'$, then the ciphertext is converted into $\textsf{LWE}_{S, \sigma}\left(\Delta\dfrac{q'}{q} m + e'\right) \in \mathbb{Z}_{q'}^{k+1}$. The ciphertext's all other components such as the noise ($e$) and public keys ($a_0, a_1, \cdots, a_{k-1}$, $b$) are scaled by $\dfrac{q'}{q}$, becoming $\left\lceil e\dfrac{q'}{q} \right\rfloor$, $\left(\left\lceil a_0\dfrac{q'}{q}\right\rfloor, \left\lceil a_1\dfrac{q'}{q}\right\rfloor, \cdots, \left\lceil a_{k-1}\dfrac{q'}{q}\right\rfloor, \left\lceil b\dfrac{q'}{q}\right\rfloor\right)$. To switch the modulo of an LWE ciphertext, we use the modulo rescaling technique learned from \autoref{sec:modulus-rescaling}. 
-The same modulus switching technique can also be applied to RLWE ciphertexts. In this section, we will show how to switch (i.e., rescale) the modulo of LWE and RLWE ciphertexts and prove its correctness.  
-%That is, after  LWE/RLWE ciphertexts, we will prove why they are still valid LWE/RLWE ciphertexts.
+Modulus switching scales and rounds a ciphertext's public coefficients from modulus $q$ to modulus $\hat q$. Preservation of the decoded message is conditional on the resulting noise bound. The hidden noise is not directly computed by the evaluator: its transformation is inferred from the new phase. We use the exact scale-and-round identities of \autoref{sec:modulus-rescaling} and retain all rounding-error terms.
 
 
 \subsection{LWE Modulus Switching}
 \label{subsec:modulus-switch-lwe}
+
+Throughout this chapter assume $t\mid q$ and $t\mid\hat q$, so $\Delta=q/t$ and $\hat\Delta=\hat q/t$ are integers. Put $r=\hat q/q$ and use the fixed tie rule $R(x)=\lfloor x+1/2\rfloor$. All scaled expressions are first evaluated on integer lifts; final ciphertext coefficients are reduced modulo $\hat q$. If scales are instead chosen by floors without these divisibilities, the new error contains the additional message-dependent term $(r\Delta-\hat\Delta)m$ (or $(r\Delta-\hat\Delta)M$), and the overflow analysis of \autoref{subsubsec:lwe-noise-bound} is also required. The displayed correctness claim cannot be extended by simply omitting those terms.
 
 \textbf{- Reference:} 
 \href{https://www.jeremykun.com/2022/07/16/modulus-switching-in-lwe/}{Modulus Switching in LWE}
@@ -31,7 +31,7 @@ $ $
 $ $
 
 
-In the LWE cryptosystem, modulus switching is a process of converting an original LWE ciphertext's modulo domain to a smaller modulo domain. This can be seen as scaling down all components, except for the plaintext $m$ and the secret key $S$, in the original LWE ciphertext to a smaller domain. This operation preserves the size and integrity of the original plaintext $m$, while the scaling factor $\Delta$ gets reduced to a smaller value $\hat{\Delta}$ and the noise $e$ to a smaller (reduced) noise $\hat{e}$ (note that noise alteration does not affect the original plaintext $m$, because the noise gets rounded away after decryption, anyway), and $\vv{a}$ also gets scaled down to a smaller $\vv{\hat{a}}$. Modulus switching is used for computational efficiency during TFHE's bootstrapping (which will be discussed in \autoref{subsec:tfhe-noise-bootstrapping}). Modulus switching is also used for implementing the ciphertext-to-ciphertext multiplication algorithm in BGV (\autoref{subsec:bfv-mult-cipher}) and CKKS (\autoref{subsec:ckks-mult-cipher}). 
+For modulus reduction, $0<r<1$. The message and small secret stay fixed while the public ciphertext coefficients and scale shrink. The old error is multiplied by $r$, but coefficientwise rounding adds a separate error depending on the secret. Hence the total error need not decrease. Applications such as \autoref{subsec:tfhe-noise-bootstrapping}, \autoref{subsec:bfv-mult-cipher}, and \autoref{subsec:ckks-mult-cipher} must use their own scale and correctness conditions.
 
 The high-level idea of LWE modulus switch is to rescale the congruence relationship of the LWE scheme. LWE's homomorphic computation algorithms include the following: ciphertext-to-ciphertext addition, ciphertext-to-plaintext addition, ciphertext-to-plaintext multiplication, ciphertext-to-ciphertext multiplication. However, all congruence relationships used in these algorithms are essentially rewritten versions of the following single fundamental congruence relationship: $b = \vv{a}\cdot \vv{s} + \Delta m + e \bmod q$. Thus, modulus switch of an LWE ciphertext from $q \rightarrow q'$ is equivalent to rescaling the modulo of the above congruence relationship from $q \rightarrow q'$.
 
@@ -42,7 +42,7 @@ Based on this insight, the LWE cryptosystem's modulus switching from $q \rightar
 Given an LWE ciphertext $(\vv{a}, b)$ where $b = \vv{a}\cdot \vv{s} + \Delta m + e \bmod q$ and $m \in \mathbb{Z}_t$, modulus switch of the ciphertext from $q$ to $\hat q$ is equivalent to updating $(A, b)$ to $(\vv{\hat{a}}, \hat b)$ as follows:
 
 
-$\vv{\hat{a}} = (\hat{a}_0, \hat{a}_1, \ldots, \hat{a}_{k-1})$, where each $\hat{a}_i = \Big\lceil a\dfrac{\hat{q}}{q} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$ \textcolor{red}{ $\rhd$ $\lceil \rfloor$ means rounding to the nearest integer}
+$\vv{\hat{a}} = (\hat{a}_0, \hat{a}_1, \ldots, \hat{a}_{k-1})$, where each $\hat{a}_i = \Big\lceil a_i\dfrac{\hat{q}}{q} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$ \textcolor{red}{ $\rhd$ $\lceil \rfloor$ means rounding to the nearest integer}
 
  $\hat{b} = \Big\lceil b \dfrac{\hat{q}}{q} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$
 
@@ -68,7 +68,7 @@ $ $
 
  Note that in order for $(\hat{a}_0, \hat{a}_1, \ldots, \hat{b}) \in \mathbb{Z}_{\hat{q}}^{k + 1}$ to be a valid LWE ciphertext of $\hat{\Delta}m$, we need to prove that the following relationship holds:
 
-$\hat{b} = \sum\limits_{i=0}^{k-1}\hat{a}_i \cdot s_i + \hat{\Delta} m + \hat{e} \in \mathbb{Z}_{\hat{q}}$
+$\hat{b} = \sum\limits_{i=0}^{k-1}\hat{a}_i \cdot s_i + \hat{\Delta} m + \hat{e}+\epsilon_{\textit{all}} \in \mathbb{Z}_{\hat{q}}$
 
 $ $
 
@@ -77,11 +77,11 @@ $ $
 \begin{enumerate}
 \item Note the following: 
 
-$\hat{b} = \Big\lceil b \dfrac{\hat{q}}{q} \Big\rfloor = b\dfrac{\hat{q}}{q} + \epsilon_b$ (where $-0.5 < \epsilon_b < 0.5$, a rounding drift error)
+$\hat{b} = \Big\lceil b \dfrac{\hat{q}}{q} \Big\rfloor = b\dfrac{\hat{q}}{q} + \epsilon_b$ (where $-0.5 \le \epsilon_b \le 0.5$, a rounding drift error)
 
-$\hat{a_i} = \Big\lceil a_i \dfrac{\hat{q}}{q} \Big\rfloor = a_i\dfrac{\hat{q}}{q} + \epsilon_{a_i}$ (where $-0.5 < \epsilon_{a_i} < 0.5$)
+$\hat{a_i} = \Big\lceil a_i \dfrac{\hat{q}}{q} \Big\rfloor = a_i\dfrac{\hat{q}}{q} + \epsilon_{a_i}$ (where $-0.5 \le \epsilon_{a_i} \le 0.5$)
 
-$\hat{e} = \Big\lceil e \dfrac{\hat{q}}{q} \Big\rfloor = e\dfrac{\hat{q}}{q} + \epsilon_e$ (where $-0.5 < \epsilon_e < 0.5$)
+$\hat{e} = \Big\lceil e \dfrac{\hat{q}}{q} \Big\rfloor = e\dfrac{\hat{q}}{q} + \epsilon_e$ (where $-0.5 \le \epsilon_e \le 0.5$)
 \item Note the following: 
 
 $b = \vv{a} \cdot \vv{s} + \Delta  m + e = \sum\limits_{i=0}^{k-1}(a_is_i) + \Delta m + e  \in \mathbb{Z}_q$
@@ -108,22 +108,26 @@ $= \sum\limits_{i=0}^{k-1}\hat{a}_is_i + \hat{\Delta} m + \hat{e} + \epsilon_{\t
 
 $ $
 
-The biggest possible value for $\epsilon_{\textit{all}}$ is, 
+A deterministic bound on this auxiliary error is
+\[
+|\epsilon_{\textit{all}}|\le1+\tfrac12\|\vec s\|_1\le1+\tfrac{k}{2}
+\]
+for binary or ternary secrets. It is an upper bound, not the actual error value. The error that decoding must remove is the total
+\[
+e_{\mathrm{new}}=\hat e+\epsilon_{\textit{all}}=re+\epsilon_b-\sum_i\epsilon_{a_i}s_i,
+\qquad |e_{\mathrm{new}}|\le r|e|+\tfrac12(1+\|\vec s\|_1).
+\]
+Requiring this bound to be less than $\hat\Delta/2$ suffices for correct decoding. The terms need not be independent or zero-mean: $b$ depends on the masks. Increasing $k$ does not itself make the error smaller.
 
-$\epsilon_{\textit{all}} = |-0.5| + |0.5| + |-0.5 \cdot k| = 1 + 0.5k$ 
-
-So, LWE modulus switching results in an approximate congruence relationship (\autoref{sec:modulus-rescaling}). However, if $\hat \Delta$ is large enough, $\epsilon_{\textit{all}} = 1 + 0.5k$ will be shifted to the right upon LWE decryption and get eliminated, and finally we can recover the original $m$. Also, in practice, the term $\sum\limits_{i=0}^{k-1}\epsilon_{a_i}s_i$ would 
-remain small relative to the ciphertext modulus for a sufficiently large $k$, because each $a_i$ is uniformly sampled and $s_i$ is also uniformly sampled. 
-
-\para{Caution:} If $\hat \Delta$ is not large enough, then $\epsilon_{\textit{all}}$ may not get eliminated during decryption and corrupt the plaintext $m$. Also, if $\Delta \rightarrow \hat\Delta$ shrinks too much, then the distance between $\hat\Delta m$ and $\hat e$ would become too narrow and the rounding process of $\hat e = \Big\lceil e \dfrac{\hat{q}}{q} \Big\rfloor$ may end up overlapping the least significant bit of $\hat \Delta m$, corrupting the plaintext. 
+\para{Caution:} Bounding $\epsilon_{\textit{all}}$ alone is insufficient; it must be combined with the scaled input error. Pure exact scaling preserves the ratio $|e|/\Delta$. The extra rounding error is what can exhaust the smaller output budget.
 
 $ $
 
 \item To summarize, $\hat{b}$ is approximately as follows:
 
-$\hat{b} = \sum\limits_{i=0}^{k-1}\hat{a}_is_i + \hat{\Delta} m + \hat{e} + \epsilon_{\textit{all}}  \approx \sum\limits_{i=0}^{k-1}\hat{a}_i  s_i + \hat{\Delta} m + \hat{e} \in \mathbb{Z}_{\hat{q}}$
+$\hat{b} = \sum\limits_{i=0}^{k-1}\hat{a}_is_i + \hat{\Delta} m + \hat{e} + \epsilon_{\textit{all}} \in \mathbb{Z}_{\hat{q}}$
 
-Thus, $(\hat{a}_0, \hat{a}_1, \ldots, \hat{b}) = \textsf{LWE}_{{S},\sigma}(\hat{\Delta} m + \hat{e} + \epsilon_{\textit{all}})$, decrypting which will give us $m$.
+Thus, $(\hat{a}_0, \hat{a}_1, \ldots, \hat{b}) = \textsf{LWE}_{{S},\sigma}(\hat{\Delta} m + \hat{e} + \epsilon_{\textit{all}})$, which decodes to $m$ when $|e_{\mathrm{new}}|<\hat\Delta/2$.
 
 %\begin{flushright}
 %\qedsymbol{} 
@@ -142,7 +146,7 @@ $t = 4$
 
 $q = 64$
 
-$n = 4$
+$k = 4$
 
 $\Delta = \dfrac{q}{t} = 16$
 
@@ -156,7 +160,7 @@ $e = 1 \in \mathbb{Z}_q$
 
 $b = a_0s_0 + a_1s_1 + a_2s_2 + a_3s_3 + \Delta m + e = 26 \in \mathbb{Z}_q$
 
-$\textsf{LWE}_{S, \sigma}(\Delta m + e) = \textsf{ct} = (a_0, a_1, a_2, a_3, b) = (-25, 12, -3, 7, 26) \in \mathbb{Z}_q^{n+1}$
+$\textsf{LWE}_{S, \sigma}(\Delta m + e) = \textsf{ct} = (a_0, a_1, a_2, a_3, b) = (-25, 12, -3, 7, 26) \in \mathbb{Z}_q^{k+1}$
 
 $ $
 
@@ -170,19 +174,19 @@ $\textsf{LWE}_{S, \sigma}(\hat{\Delta} m + \hat{e} + \epsilon_{\textit{all}}) = 
 
 $ = \left(\Big\lceil -25\cdot\dfrac{32}{64}\Big\rfloor, \Big\lceil12\cdot\dfrac{32}{64}\Big\rfloor, \Big\lceil-3\cdot\dfrac{32}{64}\Big\rfloor, \Big\lceil7\cdot\dfrac{32}{64}\Big\rfloor, \Big\lceil26\cdot\dfrac{32}{64}\Big\rfloor\right)$
 
-$ = (-12, 6, -1, 4, 13) \in \mathbb{Z}_{\hat{q}}^{n+1}$
+$ = (-12, 6, -1, 4, 13) \in \mathbb{Z}_{\hat{q}}^{k+1}$
 
 $ $
 
 Now, verify if the following LWE constraint holds:
 
-$\hat{b} = \hat{a}_0s_0 + \hat{a}_1s_1 + \hat{a}_2s_2 + \hat{a}_3s_3 + \hat{\Delta}m + \hat{e} \in \mathbb{Z}_{32}$
+$\hat{b} = \hat{a}_0s_0 + \hat{a}_1s_1 + \hat{a}_2s_2 + \hat{a}_3s_3 + \hat{\Delta}m + \hat{e}+\epsilon_{\textit{all}} \in \mathbb{Z}_{32}$
 
-$13 = 0 + 6 - 1 + 0 + 8 \cdot 1 + 1 \in \mathbb{Z}_{32}$
+$13 = 0 + 6 - 1 + 0 + 8 \cdot 1 + 1 - 1 \in \mathbb{Z}_{32}$
 
-$13 \approx 14 \in \mathbb{Z}_{32}$
+$\epsilon_{\textit{all}}=-1,\qquad e_{\mathrm{new}}=\hat e+\epsilon_{\textit{all}}=1-1=0$
 
-We got this small difference of 1 due to the rounding drift error of:
+The auxiliary rounding correction is $-1$, making the congruence exact. The individual rounded values are:
 
 $\hat {a_0} = \lceil -12.5 \rfloor = -12$, $\hat {a_2} = \lceil -1.5 \rfloor = -1$, $\hat{a_3} =  \lceil 3.5 \rfloor = 4$, and $\hat{e} = \lceil 0.5 \rfloor = 1 $
 
@@ -190,7 +194,7 @@ $ $
 
 If we solve the LWE decryption formula:
 
-$\hat b - (\hat{a}_0s_0 + \hat{a}_1s_1 + \hat{a}_2s_2 + \hat{a}_3s_3) = 13 - (0(-12) + 1(6) + 1(-1) + 0(4)) = 13 - (6 - 1) = 8 = \hat m + \hat e \in \mathbb{Z}_{32}$
+$\hat b - (\hat{a}_0s_0 + \hat{a}_1s_1 + \hat{a}_2s_2 + \hat{a}_3s_3) = 13 - (0(-12) + 1(6) + 1(-1) + 0(4)) = 13 - (6 - 1) = 8 = \hat\Delta m + \hat e+\epsilon_{\textit{all}} \in \mathbb{Z}_{32}$
 
 $ $
 
@@ -207,7 +211,7 @@ $m = \left \lceil \dfrac{8}{\hat \Delta} \right \rfloor = \left \lceil \dfrac{8}
   \label{fig:modulus-switch}
 \end{figure}
 
-\para{Reduced Distance between $m$ and $e$:} After modulus switching of an LWE ciphertext from $q \rightarrow \hat{q}$, the underlying plaintext (containing a noise) $\Delta m + e$ gets shrunk to $\hat{\Delta}m + \hat{e}$, as illustrated in \autoref{fig:modulus-switch}. Note that after the modulus switch from $q \rightarrow \hat{q}$, $\Delta m$ is down-scaled to $\hat{\Delta} m$ without losing its bit data. Notably, the plaintext value $m$ stays the same after the modulus switch, while its scaling factor $\Delta$ gets reduced to $\hat{\Delta}$ and the noise $e$ gets reduced to $\hat e$. However, after the modulus switch, the distance between $\hat e$'s MSB and $\hat \Delta m$'s LSB gets reduced compared to the distance between $e$'s MSB and $\Delta m$'s LSB.
+\para{Relative Noise and Rounding:} Figure~\ref{fig:modulus-switch} illustrates the shrinking numerical scale. Without rounding, $re/(r\Delta)=e/\Delta$, so the relative noise does not worsen merely because the modulus is smaller. Actual coefficientwise rounding contributes $\epsilon_b-\sum_i\epsilon_{a_i}s_i$. Relative to $\hat\Delta=r\Delta$, this extra error can become significant. Correctness must use the total-error bound, rather than a comparison of binary digit positions.
 
 
 
@@ -255,7 +259,7 @@ RLWE modulus switching is done as follows:
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:modulus-switch-rlwe}} RLWE Modulus Switching}}]
 
-For an RLWE ciphertext $(A, B)$ where $B = AS + \Delta M + E$ and $M \in \mathcal{R}_{\langle n, q \rangle}$, modulus switch of the ciphertext from $q$ to $\hat q$ is equivalent to updating $(A, B)$ to $(\hat A, \hat B)$ as follows:
+For an RLWE ciphertext $(A, B)$ where $B = AS + \Delta M + E$ and $M \in \mathcal{R}_{\langle n, t \rangle}$, modulus switch of the ciphertext from $q$ to $\hat q$ is equivalent to updating $(A, B)$ to $(\hat A, \hat B)$ as follows:
 
 
 $\hat{A} = \hat{a}_0 + \hat{a}_1X + \hat{a}_2X^2 + \cdots + \hat{a}_{n-1}X^{n-1}$, where each $\hat{a}_i = \Big\lceil a_i\dfrac{\hat{q}}{q} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$ 
@@ -287,11 +291,11 @@ $ $
 \begin{enumerate}
 \item Note the following: 
 
-$\hat{b}_i = \Big\lceil b_i \dfrac{\hat{q}}{q} \Big\rfloor = b_i\dfrac{\hat{q}}{q} + \epsilon_{b_i}$ (where $-0.5 < \epsilon_{b_i} < 0.5$, a rounding drift error)
+$\hat{b}_i = \Big\lceil b_i \dfrac{\hat{q}}{q} \Big\rfloor = b_i\dfrac{\hat{q}}{q} + \epsilon_{b_i}$ (where $-0.5 \le \epsilon_{b_i} \le 0.5$, a rounding drift error)
 
-$\hat{a}_i = \Big\lceil a_i \dfrac{\hat{q}}{q} \Big\rfloor = a_i\dfrac{\hat{q}}{q} + \epsilon_{a_i}$ (where $-0.5 < \epsilon_{a_i} < 0.5$)
+$\hat{a}_i = \Big\lceil a_i \dfrac{\hat{q}}{q} \Big\rfloor = a_i\dfrac{\hat{q}}{q} + \epsilon_{a_i}$ (where $-0.5 \le \epsilon_{a_i} \le 0.5$)
 
-$\hat{e}_i = \Big\lceil e_i \dfrac{\hat{q}}{q} \Big\rfloor = e_i\dfrac{\hat{q}}{q} + \epsilon_{e_i}$ (where $-0.5 < \epsilon_{e_i} < 0.5$)
+$\hat{e}_i = \Big\lceil e_i \dfrac{\hat{q}}{q} \Big\rfloor = e_i\dfrac{\hat{q}}{q} + \epsilon_{e_i}$ (where $-0.5 \le \epsilon_{e_i} \le 0.5$)
 
 \item Note the following: 
 
@@ -342,11 +346,11 @@ $ $
 $B = A \cdot S + \Delta  M + E$ 
 
 
-$\sum\limits_{h=0}^{n-1}  b_h  X^{h}  = \sum\limits_{h=0}^{n-1}  \left(\sum\limits_{i=0}^{h}(a_{h-i}s_{i}) - \sum\limits_{i=h+1}^{n-1}(a_{n+h-i}s_{i}) \right)\cdot X^{h}  + \Delta \sum\limits_{h=0}^{n-1}  m_h  X^{h} + \sum\limits_{h=0}^{n-1}  e_h  X^{h}  \in \mathbb{Z}_q$
+$\sum\limits_{h=0}^{n-1}  b_h  X^{h}  = \sum\limits_{h=0}^{n-1}  \left(\sum\limits_{i=0}^{h}(a_{h-i}s_{i}) - \sum\limits_{i=h+1}^{n-1}(a_{n+h-i}s_{i}) \right)\cdot X^{h}  + \Delta \sum\limits_{h=0}^{n-1}  m_h  X^{h} + \sum\limits_{h=0}^{n-1}  e_h  X^{h}  \in \mathcal{R}_{\langle n,q\rangle}$
 
 $\sum\limits_{h=0}^{n-1}  b_h  X^{h}  = \sum\limits_{h=0}^{n-1}  \left(\sum\limits_{i=0}^{h}(a_{h-i}s_{i}) - \sum\limits_{i=h+1}^{n-1}(a_{n+h-i}s_{i}) \right)\cdot X^{h}  + \Delta \sum\limits_{h=0}^{n-1}  m_h  X^{h} + \sum\limits_{h=0}^{n-1}  e_h  X^{h} + H \cdot q$
 
-(where modulo $q$ is replaced by adding $H \cdot q$, an $(n-1)$-degree polynomial whose each coefficient $c_i$ is some multiple of $q$)
+Here $H=\sum_i c_iX^i$ has integer coefficients $c_i$, so $Hq$ has coefficients $c_iq$. This converts the congruence into an equality of integer polynomial lifts.
 
 $ $
 
@@ -385,7 +389,7 @@ $
 
 \textcolor{red}{ $\rhd$ where $\epsilon_{\textit{all}} = \epsilon_{b_j} - \epsilon_{e_j}
 - \sum\limits_{i=0}^{j}(\epsilon_{a_{j-i}} s_i)
-+ \sum\limits_{i=j+1}^{n-1}(\epsilon_{a_{n+j-i}} s_i) \approx 0$}
++ \sum\limits_{i=j+1}^{n-1}(\epsilon_{a_{n+j-i}} s_i)$}
 
 
 $ $
@@ -397,11 +401,9 @@ $\hat{b}_j =  \left(\sum\limits_{i=0}^{j}(\hat{a}_{j-i}s_i)
 + \hat{\Delta} m_j + \hat{e}_j 
 + \epsilon_{\textit{all}}$
 
-$ \approx \left(\sum\limits_{i=0}^{j}(\hat{a}_{j-i}s_i) 
-- \sum\limits_{i=j+1}^{n-1}(\hat{a}_{n+j-i}s_i)\right)
-+ \hat{\Delta} m_j + \hat{e}_j$
 
-Thus, $(\hat{A}, \hat{B}) = \textsf{RLWE}_{{S},\sigma}(\hat{\Delta} M + \hat{E} + E^{\langle \epsilon_{\textit{all}} \rangle})$, decrypting which will give us $M$.
+
+Thus, $(\hat{A}, \hat{B}) = \textsf{RLWE}_{{S},\sigma}(\hat{\Delta} M + \hat{E} + E^{\langle \epsilon_{\textit{all}} \rangle})$, which decodes to $M$ only under the total coefficient-error bound stated below.
 
 \begin{flushright}
 \qedsymbol{} 
@@ -444,7 +446,7 @@ GLWE modulus switching is done as follows:
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:modulus-switch-glwe}} GLWE Modulus Switching}}]
 
-Given a GLWE ciphertext $(\{A_i\}_{i=0}^{k-1}, B)$ where $B = \vv A\cdot \vv S + \Delta M + E \bmod q$ and $M \in \mathcal{R}_{\langle n, q \rangle}$, the modulus switch of the ciphertext from $q$ to $\hat q$ is equivalent to updating $(\{A\}_{i=0}^{k-1}, B)$ to $(\{\hat{A}_i\}_{i=0}^{k-1}, \hat B)$ as follows:
+Given a GLWE ciphertext $(\{A_i\}_{i=0}^{k-1}, B)$ where $B = \vv A\cdot \vv S + \Delta M + E \bmod q$ and $M \in \mathcal{R}_{\langle n, t \rangle}$, the modulus switch of the ciphertext from $q$ to $\hat q$ is equivalent to updating $(\{A\}_{i=0}^{k-1}, B)$ to $(\{\hat{A}_i\}_{i=0}^{k-1}, \hat B)$ as follows:
 
 
 $\hat{A_i} = \hat{a}_{i,0} + \hat{a}_{i,1}X + \hat{a}_{i,2}X^2 + \cdots + \hat{a}_{i, {n-1}}X^{n-1}$, where each $\hat{a}_{i,j} = \Big\lceil a_{i,j}\dfrac{\hat{q}}{q} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$ 
@@ -484,4 +486,10 @@ $\epsilon_{j, all} = \epsilon_{b_j} - \epsilon_{e_j}
 
 $ $
 
-Note that GLWE's modulus switching can have a bigger rounding drift error (about $k$ times) than that of RLWE's modulus switching. However, in the long run, the error remains relatively small to the ciphertext modulus, because the rounding errors are independent and uniform and their sum grows slowly (central limit theorem) relative to the modulus.
+For a GLWE ciphertext, let $\epsilon_B$ and $\epsilon_{A_l}$ be the coefficientwise rounding-error polynomials. The exact new error is
+\[
+E_{\mathrm{new}}=rE+\epsilon_B-\sum_{l=0}^{k-1}\epsilon_{A_l}S_l,
+\qquad
+\|E_{\mathrm{new}}\|_\infty\le r\|E\|_\infty+\tfrac12\left(1+\sum_{l=0}^{k-1}\|S_l\|_1\right).
+\]
+For ternary secrets this is at most $r\|E\|_\infty+(1+kn)/2$; RLWE is the case $k=1$. Requiring the bound to be less than $\hat\Delta/2$ suffices for correct coefficientwise decoding. The auxiliary term used in the proof satisfies $|\epsilon_{j,\mathrm{all}}|\le1+\frac12\sum_l\|S_l\|_1$. A sharper probabilistic estimate needs explicit distributional or independence assumptions; neither independence nor a small error follows from the central limit theorem alone. The hidden $\hat E$ is an analysis device, not a value the evaluator separately computes.

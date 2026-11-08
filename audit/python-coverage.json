@@ -1,0 +1,201 @@
+[
+  {
+    "file": "source code/bfv.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "bfv.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-005",
+      "CODE-013"
+    ],
+    "functions": 20,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/bfv_example.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "bfv_example.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-009"
+    ],
+    "functions": 2,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/bfv_j_matrix_inverse_proof.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "bfv_j_matrix_inverse_proof.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-014"
+    ],
+    "functions": 0,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/bfv_lib.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "bfv_lib.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-002",
+      "CODE-003",
+      "CODE-008"
+    ],
+    "functions": 8,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/bfv_rotation_only.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "bfv_rotation_only.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-005",
+      "CODE-013"
+    ],
+    "functions": 20,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/bgv.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "bgv.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-005",
+      "CODE-011"
+    ],
+    "functions": 11,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/bgv_example.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "bgv_example.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-009"
+    ],
+    "functions": 2,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/bgv_lib.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "bgv_lib.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-002",
+      "CODE-008"
+    ],
+    "functions": 9,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/ckks.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "ckks.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-005",
+      "CODE-012",
+      "CODE-013"
+    ],
+    "functions": 15,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/ckks_example.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "ckks_example.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-004",
+      "CODE-009",
+      "CODE-010"
+    ],
+    "functions": 2,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/ckks_lib.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "ckks_lib.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-002",
+      "CODE-004",
+      "CODE-008"
+    ],
+    "functions": 10,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/common.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "common.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-003",
+      "CODE-007",
+      "CODE-013",
+      "CODE-014"
+    ],
+    "functions": 44,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/rns.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "rns.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-005",
+      "CODE-006",
+      "CODE-011"
+    ],
+    "functions": 14,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/tfhe_example.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "tfhe_example.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-001",
+      "CODE-009",
+      "CODE-010"
+    ],
+    "functions": 2,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "source code/tfhe_lib.py",
+    "unit": "file-level-academic-code-review",
+    "heading": "tfhe_lib.py",
+    "status": "reviewed_with_documented_limitations",
+    "findings": [
+      "CODE-001",
+      "CODE-007",
+      "CODE-008",
+      "CODE-013"
+    ],
+    "functions": 17,
+    "review": "静态核对实际功能、环与尺度、参数及测试语义；确认问题有定向回归。函数计数仅为清单信息，不代表逐函数形式化验证。"
+  },
+  {
+    "file": "d07-python-demo-library.tex",
+    "unit": "demo-capability-paragraph",
+    "heading": "Python Demo Library",
+    "status": "reviewed_corrected",
+    "findings": [
+      "CODE-001",
+      "CODE-002",
+      "CODE-014"
+    ],
+    "review": "核查整个D7能力说明与真实代码；明确mock访问秘密、三个自举占位和教学参数限制。"
+  }
+]

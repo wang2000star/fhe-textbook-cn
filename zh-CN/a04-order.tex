@@ -4,6 +4,8 @@
 \subsection{定义}
 \label{subsec:order-def}
 
+相同定义及前三条阶定理也适用于群中任何具有有限乘法阶的元素，包括 $\mathbb{C}^{\times}$ 中的单位根。任意非零复数不一定具有有限阶。
+
 \begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:order-def}} 阶的定义}}]
 $\bm{\textsf{ord}_{\mathbb{F}}(a)}$：对于 $a \in \mathbb{F}^{\times}$（一个有限域，见 \autoref{subsec:field-def}），$a$ 的阶是使 $a^k = 1$ 成立的最小正整数 $k$。
 \end{tcolorbox}
@@ -36,7 +38,7 @@ $\bm{\textsf{ord}_{\mathbb{F}}(a)}$：对于 $a \in \mathbb{F}^{\times}$（一�
     \begin{enumerate}
     \item $a^k, a^{2k}, a^{3k}, \ldots = 1$. 
     \item 已知 $\textsf{ord}_{\mathbb{F}}(a^n) = m$，有 $(a^n)^m, (a^n)^{2m}, (a^n)^{3m}, \ldots = 1$。
-    \item 根据阶的定义，$x=k$ 是满足 $a^x$ = 1 的最小值。因此，给定 $\textsf{ord}_{\mathbb{F}}(a^n) = m$，$m$ 就是使 $(a^n)^m = 1$ 成立的最小整数。注意，$(a^n)^m$ 应当是 $a^k$ 的倍数，也就是说，$mn$ 应当是 $k$ 的倍数。使 $mn$ 成为 $k$ 的倍数的最小整数 $m$ 为 $m = \dfrac{k}{\gcd(k, n)}$。
+    \item 根据阶的定义，$x=k$ 是满足 $a^x$ = 1 的最小值。因此，给定 $\textsf{ord}_{\mathbb{F}}(a^n) = m$，$m$ 就是使 $(a^n)^m = 1$ 成立的最小整数。由定理~\ref*{subsec:order-theorem}.1，$(a^n)^m=1$ 当且仅当 $k\mid mn$。使 $mn$ 成为 $k$ 的倍数的最小整数 $m$ 为 $m = \dfrac{k}{\gcd(k, n)}$。
     \end{enumerate}
 \end{myproof}
 

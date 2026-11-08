@@ -1,3 +1,5 @@
+Use the same ring and scale for the ciphertext and the integer lift of $\Lambda$. Assume $t\mid q$, $\Delta=q/t$, and $\|E\|_\infty<\Delta/2$ for the stated decoded plaintext modulo $t$.
+
 Suppose we have a GLWE ciphertext \textsf{ct} and a new plaintext polynomial $\Lambda$ as follows: 
 
 
@@ -56,4 +58,4 @@ $= \textsf{GLWE}_{S, \sigma}(\Delta (M + \Lambda) + E)$
 \end{myproof}
 
 
-\para{Noise Growth: } Note that after decryption, the original ciphertext $\textsf{ct} +\Delta\Lambda$'s noise $E$ stays the same as before. This means that ciphertext-to-plaintext addition does not increase the noise level.
+\para{Noise Growth:} The phase error relative to the unreduced message $M+\Lambda$ remains $E$. With $t\mid q$, reducing that message modulo $t$ does not alter the effective error. If $t\nmid q$, a message wrap-around can add the overflow-dependent error described in \autoref{subsubsec:lwe-noise-bound}; the statement that noise stays unchanged must then be understood relative to the unreduced message.

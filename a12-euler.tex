@@ -41,7 +41,7 @@ $\sin^2 \theta + \cos^2 \theta = \dfrac{a^2}{c^2} + \dfrac{b^2}{c^2} = \dfrac{a^
 \end{enumerate}
 \end{proof}
 
-\subsection{Imaginary Number}n
+\subsection{Imaginary Number}
 \label{subsec:imaginary}
 
 
@@ -100,7 +100,7 @@ In this subsection, we will build a Vandermonde matrix (\autoref{subsec:vandermo
 
 \begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:vandermonde-euler}} Vandermonde Matrix with the Roots of  \text{(power-of-2)}-th Cyclotomic Polynomial over Complex Numbers}}]
 
-Suppose we have an $n \times n$ (where $n$ is a power of 2) Vandermonde matrix comprised of $n$ distinct roots of the $\mu$-th cyclotomic polynomial (explained in Theorem~\ref*{subsec:cyclotomic-theorem}.1 in \autoref{subsec:cyclotomic-theorem}), where $\mu$ is a power of 2 and $n = \dfrac{\mu}{2}$. In other words, $V = \mathit{Vander}(x_0, x_1, \cdots, x_{n-1})$, where each $x_j = (e^{i\pi/n})^{2j-1}$ for $1 \leq j \leq n$ (i.e., the primitive $\mu$-th roots of unity). Then, the following holds:
+Suppose we have an $n \times n$ (where $n$ is a power of 2) Vandermonde matrix comprised of $n$ distinct roots of the $\mu$-th cyclotomic polynomial (explained in Theorem~\ref*{subsec:cyclotomic-theorem}.1 in \autoref{subsec:cyclotomic-theorem}), where $\mu$ is a power of 2 and $n = \dfrac{\mu}{2}$. In other words, $V = \mathit{Vander}(x_0, x_1, \cdots, x_{n-1})$, where each $x_j = (e^{i\pi/n})^{2j+1}$ for $0 \leq j<n$ (i.e., the primitive $\mu$-th roots of unity). Then, the following holds:
 
 $V \cdot V^T = \begin{bmatrix}
 0 & \cdots & 0 & 0 & n\\
@@ -123,7 +123,7 @@ $ $
 
 \begin{enumerate}
 
-\item Given $\omega = e^{i\pi/n}$, each $x_j = (\omega)^{2j-1}$. Thus, we can expand as follows:
+\item Given $\omega = e^{i\pi/n}$, each $x_j = (\omega)^{2j+1}$. Thus, we can expand as follows:
 
 $V \cdot V^T = \begin{bmatrix}
 1 & (\omega) & (\omega)^2 & \cdots & (\omega)^{n-1}\\
@@ -189,7 +189,7 @@ $S_n = \dfrac{x^n - 1}{x - 1}$ \textcolor{red}{ $\rhd$ with the constraint that 
 
 Leveraging the Geometric Sum formula $\sum\limits_{i=0}^{n-1}x^i = \dfrac{x^n - 1}{x - 1}$, 
 
-$\sum\limits_{k=0}^{n-1} \omega^{2mk} = \dfrac{(\omega^{2m})^n - 1}{\omega^{2m} - 1} = \dfrac{(\omega^{2n})^{m} - 1}{\omega^{2m} - 1} = \dfrac{1 - 1}{\omega^{2m} - 1} = 0$ for $1 \leq m \leq (2n - 1)$  \textcolor{red}{ $\rhd$ since $\textsf{Ord}(\omega) = 2n$}
+$\sum\limits_{k=0}^{n-1} \omega^{2mk} = \dfrac{(\omega^{2m})^n - 1}{\omega^{2m} - 1} = \dfrac{(\omega^{2n})^{m} - 1}{\omega^{2m} - 1} = \dfrac{1 - 1}{\omega^{2m} - 1} = 0$ for $1 \leq m \leq (2n - 1)$ with $m\ne n$  \textcolor{red}{ $\rhd$ since $\textsf{Ord}(\omega) = 2n$}
 
 $ $
 
@@ -223,7 +223,7 @@ $V^{-1} = \dfrac{V^T \cdot I_n^R}{n}$
 \end{enumerate}
 \end{proof}
 
-Later in the CKKS scheme (\autoref{sec:ckks}), we will use $V^{-1}$ to encode a complex vector into a real number vector, and $V^T$ to decode a real number vector into a complex vector (\autoref{subsec:ckks-enc-dec}).
+Later in the CKKS scheme (\autoref{sec:ckks}), we will use $V^{-1}$ to encode a complex vector into a real number vector, and $V$ to decode a real number vector into a complex vector (\autoref{subsec:ckks-enc-dec}).
 
 $ $
 
@@ -253,6 +253,8 @@ $(\mu=2n)$-th roots is a consequence of the power-of-2 ring choice. Meanwhile, a
 
 \subsection{Vandermonde Matrix with Roots of Cyclotomic Polynomial over Ring ($\mathbb{Z}_p$)}
 \label{subsec:vandermonde-euler-integer-ring}
+
+Assume $p$ is prime and $2n\mid p-1$, and fix $\omega\in\mathbb Z_p^\times$ of order $2n$. Order the nodes as $x_j=\omega^{2j+1}$ for $0\le j<n$. All matrix identities below hold in $\mathbb Z_p$; in particular $n^{-1}$ exists. The displayed reverse identity depends on this node order; arbitrary row permutations change the pairing matrix.
 
 Theorem~\ref*{subsec:vandermonde-euler} (in \autoref{subsec:vandermonde-euler}) showed that $V \cdot V^T = n \cdot I^R_n$, where $V$ is the Vandermonde matrix $V = \mathit{Vander}(x_0, x_1, \cdots, x_{n-1})$, where each $x_i$ is the primitive $\mu$-th root of unity over $X \in \mathbb{C}$ (i.e., complex number) and $\mu$ is a power of 2. In this subsection, we will show that the relation $V \cdot V^T = n \cdot I^R_n$ holds even if each $x_i$ is the primitive $\mu$-th root of unity over $X \in \mathbb{Z}_p$ (i.e., ring). In particular, we will prove Theorem~\ref*{subsec:vandermonde-euler}: 
 
@@ -369,10 +371,8 @@ $V^{-1} = n^{-1}\cdot V^T \cdot I_n^R$
 \end{enumerate}
 \end{proof}
 
-We finally proved that $V\cdot V^T = n \cdot I_n^R$, and $V^{-1} = n^{-1}\cdot V^T \cdot I_n^R$. Later in the BFV scheme (\autoref{sec:bfv}), we will use $V^{-1}$ to encode an integer vector into a vector of polynomial coefficients, and $V^T$ to decode it back to the integer vector (\autoref{subsec:bfv-batch-encoding}).
+We finally proved that $V\cdot V^T = n \cdot I_n^R$, and $V^{-1} = n^{-1}\cdot V^T \cdot I_n^R$. Later in the BFV scheme (\autoref{sec:bfv}), we will use $V^{-1}$ to encode an integer vector into a vector of polynomial coefficients, and $V$ to decode it back to the integer vector (\autoref{subsec:bfv-batch-encoding}).
 
 $ $
 
-\para{Condition for $\bm \mu$:} Like in CKKS, it's worthwhile to note that the property $V\cdot V^T = n\cdot I_n^R$ does not hold if $\mu$ (denoting the $\mu$-th cyclotomic polynomial) is not a power of 2. In particular, step 3 of the proof does not hold anymore if $\mu$ is not a power of 2:
-
-$\sum\limits_{k=0}^{n-1} \omega^{2k} \neq \sum\limits_{k=0}^{n-1} \omega^{4k} \neq \sum\limits_{k=0}^{n-1} \omega^{6k} \neq \cdots \neq \sum\limits_{k=0}^{n-1} \omega^{2(n-1)k} \neq \sum\limits_{k=0}^{n-1} \omega^{2(n+1)k} \neq \cdots \neq \sum\limits_{k=0}^{n-1} \omega^{2(2n-1)k} \neq 0$
+\para{Condition for $\bm \mu$:} With $p$ prime, $2n\mid p-1$, and nodes ordered as $\omega^{2j+1}$, the geometric-sum proof gives $V V^T=n I_n^R$ for every $n\ge1$, not only powers of two. For example, $n=3$, $p=7$, and $\omega=3$ satisfy these assumptions. The power-of-two assumption is needed to identify $X^n+1$ with the single cyclotomic polynomial $\Phi_{2n}$ and all its roots with primitive $2n$-th roots; it is not necessary for this matrix identity.

@@ -1,0 +1,2784 @@
+{
+  "baseline_commit": "2a901038078fe054371e53089c86caaaa1112209",
+  "chapter_files": [
+    "a01-modulo.tex",
+    "a02-group.tex",
+    "a03-field.tex",
+    "a04-order.tex",
+    "a05-polynomial-ring.tex",
+    "a06-decomp.tex",
+    "a07-roots-of-unity.tex",
+    "a08-cyclotomic-polynomial.tex",
+    "a09-cyclotomic-polynomial-integer-ring.tex",
+    "a10-polynomial-interpolation.tex",
+    "a11-matrix.tex",
+    "a12-euler.tex",
+    "a13-modulus-rescaling.tex",
+    "a14-chinese-remainder.tex",
+    "a15-taylor-series.tex",
+    "a16-ntt.tex",
+    "b01-lattice.tex",
+    "b02-lwe.tex",
+    "b03-rlwe.tex",
+    "b04-glwe.tex",
+    "b05-glev.tex",
+    "b06-ggsw.tex",
+    "c01-glwe-add-cipher.tex",
+    "c02-glwe-add-plain.tex",
+    "c03-glwe-mult-plain.tex",
+    "c04-glwe-modulus-switch.tex",
+    "c05-glwe-key-switching.tex",
+    "d01-tfhe.tex",
+    "d02-bfv.tex",
+    "d03-ckks.tex",
+    "d04-bgv.tex",
+    "d05-rns.tex",
+    "d06-scheme-summary.tex",
+    "d07-python-demo-library.tex"
+  ],
+  "source_sha256": {
+    "a01-modulo.tex": "5f5ed0bf0295bdd80ee0dd90ef01ce66eb23500b5dcc6a9d3233de6f06f04139",
+    "a02-group.tex": "86cd49c2baf44ef96de4144034db389284d85bc5b735b7d0f03f5647222ed77f",
+    "a03-field.tex": "79c9d0cc8aaf338ed1a3a805e8c8940e4d39beda9526db4a536cd5d22ffd36b3",
+    "a04-order.tex": "d1f355a0e35282449323523876d1e177ef9744d35215ca1978b1fa53a6269c56",
+    "a05-polynomial-ring.tex": "94dd32f15f85898936e1032532f8e3df337e0d4b673637e7cf93561b1f0579ab",
+    "a06-decomp.tex": "2c6a04e4ab99ca9090f7d4c3d77e0bd8e64bc76a2c527fb3f4dd79ff031979f3",
+    "a07-roots-of-unity.tex": "e93f6aa4b1913f7312aa46284033f4bdaf55c8b68891d6b99ca7cc1427126040",
+    "a08-cyclotomic-polynomial.tex": "08d0e783d9fcd482d65ee9f0e294b9159ddca13985fe56ea02bea6903e49c6af",
+    "a09-cyclotomic-polynomial-integer-ring.tex": "8e63ee0b79b06bfde7daee0b15a5c62d412f7a41ee68212442446faa8a1a5e6f",
+    "a10-polynomial-interpolation.tex": "2a52c97e0d136a31ca18b6509415be8340aa082e9e8bc026ab0919958e89b3fc",
+    "a11-matrix.tex": "04251286dd814868da03ae9cfe5f39144586d1608d9d88a4fa4209b2bd9d6577",
+    "a12-euler.tex": "8c566b8069d3bc66d7589bc9dc7d1fcb3d6eb4ebc79beb2cb69b052bd5c5e63f",
+    "a13-modulus-rescaling.tex": "be22f01629a047ade0d8aef7c6e25284ae45e2644224f3ef38d9339b3e7e0fee",
+    "a14-chinese-remainder.tex": "7e421c3243b91cf22df7f5844b95efacfad6609116a9957aeff45d079f78a363",
+    "a15-taylor-series.tex": "921d9a6d0a4fb54df81ffb9a45be07a73a7f2a47fb704cdf386f0c68cd06db5b",
+    "a16-ntt.tex": "2a7d43e98a494de5f60fa2fa9190e341a6a0cecfa37fd7d9f290d3e88581b029",
+    "b01-lattice.tex": "431167c24dcb173f76385151eab93b462f5a8349fdcf1b4676fbda374fbc2c57",
+    "b02-lwe.tex": "b812f87d236dbfc7a02ee3532ae451625f747d8b8dd13b49153f648830ca05c3",
+    "b03-rlwe.tex": "e22f706f9a868cf8a45d55972f3fd39e064b98c944629294eb6ff0b9c8dc6c0f",
+    "b04-glwe.tex": "1260b45eeec1b200689c116b3327fa4c92f90cd608acbbe237cd2e7d1fcf2405",
+    "b05-glev.tex": "b9443d3111df4cdc1e05f7630a61a83c694c89ff618f7975eecbf86b20223217",
+    "b06-ggsw.tex": "7b2bf3c8d4a695b7c3739337dad9b0613f3079b99e8de95a86cae6239a5da348",
+    "c01-glwe-add-cipher.tex": "1004c4abfd0a4a4293a59a363e1dd4dc0f9e732964d0f894a8a568bd714ff0fd",
+    "c02-glwe-add-plain.tex": "ead30c5964ea5a92cbd929f637b5565bc0e4efc72c19e1ff5b835adcc6cb8054",
+    "c03-glwe-mult-plain.tex": "a387c4c08b95eb6547f67016f8dcd7aedeaac011d4a9f28985d47a8dbac6bb3c",
+    "c04-glwe-modulus-switch.tex": "27117d8b4d796590508a0b433a142efd6acc6265e9852b8c3d2953d6991c26a0",
+    "c05-glwe-key-switching.tex": "b553e8a424a90f7d624018eb1a8736f0599a9439f8c7ad6a752ac24bf26db187",
+    "d01-tfhe.tex": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd",
+    "d02-bfv.tex": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb",
+    "d03-ckks.tex": "f030a044332c61bb31d3eba4513021fc78765c2d1d78aa5ebb95f4b1e07a8be4",
+    "d04-bgv.tex": "a836258302ff0cceb40650587da5622741e157af79c2a749bee36bded887a59e",
+    "d05-rns.tex": "6fae4611858495cf91abf2a0750abc351feba6f2b4d6a6ad63ce6f00c40c0daa",
+    "d06-scheme-summary.tex": "3cd7080eaaa870bc444bddf5ff022a673f1cc990418f42fcd6f331ab3dde2fc0",
+    "d07-python-demo-library.tex": "567d5e909867b704b9824a249adf8455cc5f747c057c261616a974664b69a111"
+  },
+  "extraction": "scripts/check_translation.py balanced TeX parser; comments masked; exact heading body restored from original offsets to retain URLs.",
+  "headings": [
+    {
+      "file": "a01-modulo.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Overview",
+      "original_line": 7,
+      "labels": [
+        "subsec:modulo-overview"
+      ]
+    },
+    {
+      "file": "a01-modulo.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Modulo Arithmetic",
+      "original_line": 43,
+      "labels": [
+        "subsec:modulo-arithmetic"
+      ]
+    },
+    {
+      "file": "a01-modulo.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Inverse",
+      "original_line": 138,
+      "labels": [
+        "subsec:modulo-inverse"
+      ]
+    },
+    {
+      "file": "a01-modulo.tex",
+      "kind": "subsection",
+      "ordinal": 4,
+      "heading": "Modulo Division",
+      "original_line": 155,
+      "labels": [
+        "subsec:modulo-division"
+      ]
+    },
+    {
+      "file": "a01-modulo.tex",
+      "kind": "subsection",
+      "ordinal": 5,
+      "heading": "Centered Residue Representation",
+      "original_line": 160,
+      "labels": [
+        "subsec:modulo-centered"
+      ]
+    },
+    {
+      "file": "a02-group.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Definitions",
+      "original_line": 4,
+      "labels": [
+        "subsec:group-def"
+      ]
+    },
+    {
+      "file": "a02-group.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Examples",
+      "original_line": 43,
+      "labels": [
+        "subsec:group-ex"
+      ]
+    },
+    {
+      "file": "a03-field.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Definitions",
+      "original_line": 4,
+      "labels": [
+        "subsec:field-def"
+      ]
+    },
+    {
+      "file": "a03-field.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Examples",
+      "original_line": 17,
+      "labels": [
+        "subsec:field-ex"
+      ]
+    },
+    {
+      "file": "a03-field.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Theorems",
+      "original_line": 38,
+      "labels": [
+        "subsec:field-theorem"
+      ]
+    },
+    {
+      "file": "a04-order.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Definitions",
+      "original_line": 4,
+      "labels": [
+        "subsec:order-def"
+      ]
+    },
+    {
+      "file": "a04-order.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Theorems",
+      "original_line": 11,
+      "labels": [
+        "subsec:order-theorem"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Overview",
+      "original_line": 7,
+      "labels": [
+        "subsec:poly-ring-overview"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "kind": "subsubsection",
+      "ordinal": 2,
+      "heading": "Example",
+      "original_line": 67,
+      "labels": [
+        "subsubsec:poly-ring-ex"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "kind": "subsubsection",
+      "ordinal": 3,
+      "heading": "Discussion",
+      "original_line": 84,
+      "labels": [
+        "subsubsec:polynomial-ring-discuss",
+        "tab:ring-comparison"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "kind": "para",
+      "ordinal": 4,
+      "heading": "Congruency:",
+      "original_line": 137,
+      "labels": []
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "kind": "para",
+      "ordinal": 5,
+      "heading": "Polynomial Evaluation:",
+      "original_line": 139,
+      "labels": []
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "kind": "para",
+      "ordinal": 6,
+      "heading": "Number Ring \\& Polynomial Ring:",
+      "original_line": 147,
+      "labels": []
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "kind": "subsection",
+      "ordinal": 7,
+      "heading": "Coefficient Rotation",
+      "original_line": 150,
+      "labels": [
+        "subsec:coeff-rotation"
+      ]
+    },
+    {
+      "file": "a05-polynomial-ring.tex",
+      "kind": "subsubsection",
+      "ordinal": 8,
+      "heading": "Example",
+      "original_line": 194,
+      "labels": [
+        "subsec:coeff-rotation-ex"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Number Decomposition",
+      "original_line": 3,
+      "labels": [
+        "subsec:number-decomp",
+        "fig:decomp"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "kind": "subsubsection",
+      "ordinal": 2,
+      "heading": "Example",
+      "original_line": 35,
+      "labels": []
+    },
+    {
+      "file": "a06-decomp.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Polynomial Decomposition",
+      "original_line": 48,
+      "labels": [
+        "subsec:poly-decomp"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "kind": "subsubsection",
+      "ordinal": 4,
+      "heading": "Example",
+      "original_line": 80,
+      "labels": []
+    },
+    {
+      "file": "a06-decomp.tex",
+      "kind": "subsubsection",
+      "ordinal": 5,
+      "heading": "Discussion",
+      "original_line": 112,
+      "labels": []
+    },
+    {
+      "file": "a06-decomp.tex",
+      "kind": "subsection",
+      "ordinal": 6,
+      "heading": "Approximate Decomposition",
+      "original_line": 117,
+      "labels": [
+        "subsec:approx-decomp",
+        "fig:decomp3"
+      ]
+    },
+    {
+      "file": "a06-decomp.tex",
+      "kind": "subsection",
+      "ordinal": 7,
+      "heading": "Gadget Decomposition",
+      "original_line": 138,
+      "labels": [
+        "subsec:gadget-decomposition"
+      ]
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Definitions",
+      "original_line": 5,
+      "labels": [
+        "subsec:roots-def"
+      ]
+    },
+    {
+      "file": "a07-roots-of-unity.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Theorems",
+      "original_line": 18,
+      "labels": [
+        "subsec:roots-theorem",
+        "fig:complex-plane"
+      ]
+    },
+    {
+      "file": "a08-cyclotomic-polynomial.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Definitions",
+      "original_line": 4,
+      "labels": [
+        "subsec:cyclotomic-def"
+      ]
+    },
+    {
+      "file": "a08-cyclotomic-polynomial.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Theorems",
+      "original_line": 44,
+      "labels": [
+        "subsec:cyclotomic-theorem"
+      ]
+    },
+    {
+      "file": "a10-polynomial-interpolation.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "The Field Condition for Unique Interpolation",
+      "original_line": 40,
+      "labels": [
+        "subsec:polynomial-interpolation-field-condition"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Vector Arithmetic",
+      "original_line": 3,
+      "labels": [
+        "subsec:vector-arithmetic"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Various Types of Matrix",
+      "original_line": 74,
+      "labels": [
+        "subsec:vandermonde"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Matrix Arithmetic",
+      "original_line": 144,
+      "labels": [
+        "subsec:matrix-arithmetic"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsection",
+      "ordinal": 4,
+      "heading": "Projection",
+      "original_line": 270,
+      "labels": [
+        "subsec:projection",
+        "fig:vector-projection",
+        "fig:orthogonal-projection"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 5,
+      "heading": "Vector Projection:",
+      "original_line": 293,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 6,
+      "heading": "Orthogonal Projection:",
+      "original_line": 295,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 7,
+      "heading": "Orthogonal Basis:",
+      "original_line": 341,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 8,
+      "heading": "Non-orthogonal Basis:",
+      "original_line": 343,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsection",
+      "ordinal": 9,
+      "heading": "Basis of a Polynomial Ring",
+      "original_line": 356,
+      "labels": [
+        "subsec:polynomial-ring-basis"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsection",
+      "ordinal": 10,
+      "heading": "Isomorphism between Polynomials and Vectors over Integers (and Ring)",
+      "original_line": 370,
+      "labels": [
+        "subsec:poly-vector-transformation"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 11,
+      "heading": "Bijective:",
+      "original_line": 385,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 12,
+      "heading": "Homomorphic:",
+      "original_line": 389,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 13,
+      "heading": "Polynomial Ring Reduction:",
+      "original_line": 468,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 14,
+      "heading": "Polynomial Coefficient Modulo Reduction:",
+      "original_line": 492,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 15,
+      "heading": "Summary:",
+      "original_line": 514,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsubsection",
+      "ordinal": 16,
+      "heading": "Finding Appropriate Modulus $t$",
+      "original_line": 520,
+      "labels": [
+        "subsubsec:poly-vector-transformation-modulus"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsection",
+      "ordinal": 17,
+      "heading": "Isomorphism between Polynomials and Vectors over Complex Numbers",
+      "original_line": 598,
+      "labels": [
+        "subsec:poly-vector-transformation-complex"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsubsection",
+      "ordinal": 18,
+      "heading": "Isomorphism between $\\mathbb{C}^{\\frac{n}{2}}$ and $\\hat{\\mathbb{C}}^{n}$",
+      "original_line": 610,
+      "labels": [
+        "subsec:poly-vector-transformation-complex-isomorphism1"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 19,
+      "heading": "Bijective:",
+      "original_line": 627,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 20,
+      "heading": "Homomorphic:",
+      "original_line": 629,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsubsection",
+      "ordinal": 21,
+      "heading": "Isomorphism between $\\hat{\\mathbb{C}}^{n}$ and $\\mathbb{R}[X] / (X^n + 1)$",
+      "original_line": 678,
+      "labels": [
+        "subsec:poly-vector-transformation-complex-isomorphism2",
+        "fig:cyclotomic-polynomial"
+      ]
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 22,
+      "heading": "Bijective:",
+      "original_line": 692,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "para",
+      "ordinal": 23,
+      "heading": "Homomorphic:",
+      "original_line": 710,
+      "labels": []
+    },
+    {
+      "file": "a11-matrix.tex",
+      "kind": "subsection",
+      "ordinal": 24,
+      "heading": "Transforming Basis between Polynomial Ring and Vector Space of Complex Vectors with Real Scalars",
+      "original_line": 733,
+      "labels": [
+        "subsec:poly-vector-basis-transfer"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Pythagorean Identity",
+      "original_line": 2,
+      "labels": [
+        "subsec:pythagorean",
+        "fig:pythagorean-theorem",
+        "fig:pythagorean-identity"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Imaginary Number",
+      "original_line": 44,
+      "labels": [
+        "subsec:imaginary"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Euler's Formula",
+      "original_line": 71,
+      "labels": [
+        "subsec:euler"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "kind": "subsection",
+      "ordinal": 4,
+      "heading": "Vandermonde Matrix with Roots of Cyclotomic Polynomial over Complex Numbers",
+      "original_line": 92,
+      "labels": [
+        "subsec:vandermonde-euler"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "kind": "para",
+      "ordinal": 5,
+      "heading": "Condition for $\\bm \\mu$:",
+      "original_line": 235,
+      "labels": []
+    },
+    {
+      "file": "a12-euler.tex",
+      "kind": "subsection",
+      "ordinal": 6,
+      "heading": "Vandermonde Matrix with Roots of Cyclotomic Polynomial over Ring ($\\mathbb{Z}_p$)",
+      "original_line": 254,
+      "labels": [
+        "subsec:vandermonde-euler-integer-ring"
+      ]
+    },
+    {
+      "file": "a12-euler.tex",
+      "kind": "para",
+      "ordinal": 7,
+      "heading": "Condition for $\\bm \\mu$:",
+      "original_line": 376,
+      "labels": []
+    },
+    {
+      "file": "a13-modulus-rescaling.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Rescaling Modulo of Congruence Relations",
+      "original_line": 2,
+      "labels": [
+        "subsec:modulo-rescaling",
+        "tab:rescaling"
+      ]
+    },
+    {
+      "file": "a13-modulus-rescaling.tex",
+      "kind": "subsubsection",
+      "ordinal": 2,
+      "heading": "Example",
+      "original_line": 165,
+      "labels": [
+        "subsec:modulo-rescaling-ex"
+      ]
+    },
+    {
+      "file": "a14-chinese-remainder.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Application: Residue Number System (RNS)",
+      "original_line": 121,
+      "labels": [
+        "subsec:crt-application"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Background and Motivation",
+      "original_line": 4,
+      "labels": [
+        "subsec:ntt-motivation"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Forward FFT (or NTT)",
+      "original_line": 35,
+      "labels": [
+        "subsec:ntt-forward"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "kind": "subsubsection",
+      "ordinal": 3,
+      "heading": "High-level Idea",
+      "original_line": 46,
+      "labels": [
+        "subsec:ntt-forward-overview"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "kind": "subsubsection",
+      "ordinal": 4,
+      "heading": "Details",
+      "original_line": 63,
+      "labels": [
+        "subsec:ntt-forward-details"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "kind": "para",
+      "ordinal": 5,
+      "heading": "FFT Level $\\bm{l = 1}$:",
+      "original_line": 113,
+      "labels": []
+    },
+    {
+      "file": "a16-ntt.tex",
+      "kind": "para",
+      "ordinal": 6,
+      "heading": "FFT Level $\\bm{l = 2}$:",
+      "original_line": 118,
+      "labels": []
+    },
+    {
+      "file": "a16-ntt.tex",
+      "kind": "para",
+      "ordinal": 7,
+      "heading": "FFT Level $\\bm{l = 3}$:",
+      "original_line": 122,
+      "labels": []
+    },
+    {
+      "file": "a16-ntt.tex",
+      "kind": "para",
+      "ordinal": 8,
+      "heading": "Generalization:",
+      "original_line": 126,
+      "labels": []
+    },
+    {
+      "file": "a16-ntt.tex",
+      "kind": "subsection",
+      "ordinal": 9,
+      "heading": "Point-wise Multiplication",
+      "original_line": 135,
+      "labels": [
+        "subsec:pointwise-multiplication"
+      ]
+    },
+    {
+      "file": "a16-ntt.tex",
+      "kind": "subsection",
+      "ordinal": 10,
+      "heading": "Inverse FFT (or NTT)",
+      "original_line": 140,
+      "labels": [
+        "subsec:ntt-backward"
+      ]
+    },
+    {
+      "file": "b01-lattice.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Overview",
+      "original_line": 14,
+      "labels": [
+        "subsec:lattice-overview"
+      ]
+    },
+    {
+      "file": "b01-lattice.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "LWE Cryptosystem",
+      "original_line": 91,
+      "labels": [
+        "subsec:lattice-scheme",
+        "fig:scaling"
+      ]
+    },
+    {
+      "file": "b01-lattice.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "RLWE Cryptosystem",
+      "original_line": 134,
+      "labels": [
+        "subsec:lattice-scheme2"
+      ]
+    },
+    {
+      "file": "b02-lwe.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Setup",
+      "original_line": 12,
+      "labels": []
+    },
+    {
+      "file": "b02-lwe.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Encryption",
+      "original_line": 15,
+      "labels": [
+        "subsec:lwe-enc"
+      ]
+    },
+    {
+      "file": "b02-lwe.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Decryption",
+      "original_line": 53,
+      "labels": [
+        "subsec:lwe-dec"
+      ]
+    },
+    {
+      "file": "b02-lwe.tex",
+      "kind": "subsubsection",
+      "ordinal": 4,
+      "heading": "In the Case of $t$ not Dividing $q$",
+      "original_line": 89,
+      "labels": [
+        "subsubsec:lwe-noise-bound"
+      ]
+    },
+    {
+      "file": "b03-rlwe.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Setup",
+      "original_line": 5,
+      "labels": []
+    },
+    {
+      "file": "b03-rlwe.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Encryption",
+      "original_line": 12,
+      "labels": [
+        "subsec:rlwe-enc"
+      ]
+    },
+    {
+      "file": "b03-rlwe.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Decryption",
+      "original_line": 48,
+      "labels": [
+        "subsec:rlwe-dec"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Setup",
+      "original_line": 6,
+      "labels": []
+    },
+    {
+      "file": "b04-glwe.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Encryption",
+      "original_line": 12,
+      "labels": [
+        "subsec:glwe-enc"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Decryption",
+      "original_line": 57,
+      "labels": [
+        "subsec:glwe-dec"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "kind": "subsubsection",
+      "ordinal": 4,
+      "heading": "Discussion",
+      "original_line": 88,
+      "labels": []
+    },
+    {
+      "file": "b04-glwe.tex",
+      "kind": "subsection",
+      "ordinal": 5,
+      "heading": "An Alternative Version of GLWE",
+      "original_line": 99,
+      "labels": [
+        "subsec:glwe-alternative"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "kind": "subsection",
+      "ordinal": 6,
+      "heading": "Public Key Encryption",
+      "original_line": 149,
+      "labels": [
+        "subsec:glwe-public-key-enc"
+      ]
+    },
+    {
+      "file": "b04-glwe.tex",
+      "kind": "para",
+      "ordinal": 7,
+      "heading": "Security:",
+      "original_line": 228,
+      "labels": []
+    },
+    {
+      "file": "b05-glev.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Encryption",
+      "original_line": 7,
+      "labels": [
+        "subsec:glev-enc",
+        "fig:glev"
+      ]
+    },
+    {
+      "file": "b05-glev.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Decryption",
+      "original_line": 25,
+      "labels": []
+    },
+    {
+      "file": "b05-glev.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Lev and RLev",
+      "original_line": 29,
+      "labels": []
+    },
+    {
+      "file": "b06-ggsw.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Encryption",
+      "original_line": 4,
+      "labels": [
+        "subsec:ggsw-enc",
+        "fig:ggsw"
+      ]
+    },
+    {
+      "file": "b06-ggsw.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Decryption",
+      "original_line": 19,
+      "labels": []
+    },
+    {
+      "file": "b06-ggsw.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "GSW and RGSW",
+      "original_line": 25,
+      "labels": []
+    },
+    {
+      "file": "c01-glwe-add-cipher.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Discussion",
+      "original_line": 70,
+      "labels": [
+        "subsubsec:glwe-add-cipher-discuss"
+      ]
+    },
+    {
+      "file": "c01-glwe-add-cipher.tex",
+      "kind": "para",
+      "ordinal": 2,
+      "heading": "Noise Elimination:",
+      "original_line": 73,
+      "labels": []
+    },
+    {
+      "file": "c01-glwe-add-cipher.tex",
+      "kind": "para",
+      "ordinal": 3,
+      "heading": "Noise Growth:",
+      "original_line": 77,
+      "labels": []
+    },
+    {
+      "file": "c01-glwe-add-cipher.tex",
+      "kind": "para",
+      "ordinal": 4,
+      "heading": "Hard Threshold on the Plaintext's Value Without Modulo Reduction $t$:",
+      "original_line": 81,
+      "labels": []
+    },
+    {
+      "file": "c02-glwe-add-plain.tex",
+      "kind": "para",
+      "ordinal": 1,
+      "heading": "Noise Growth: ",
+      "original_line": 59,
+      "labels": []
+    },
+    {
+      "file": "c03-glwe-mult-plain.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Gadget Decomposition for Noise Suppression",
+      "original_line": 76,
+      "labels": [
+        "subsubsec:gadget-decomposition-noise-suppression",
+        "fig:decomp2"
+      ]
+    },
+    {
+      "file": "c03-glwe-mult-plain.tex",
+      "kind": "subsubsection",
+      "ordinal": 2,
+      "heading": "Discussion",
+      "original_line": 120,
+      "labels": [
+        "subsubsec:glwe-mult-plain-discuss"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "LWE Modulus Switching",
+      "original_line": 6,
+      "labels": [
+        "subsec:modulus-switch-lwe"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "kind": "para",
+      "ordinal": 2,
+      "heading": "Caution:",
+      "original_line": 118,
+      "labels": []
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Example",
+      "original_line": 135,
+      "labels": []
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "kind": "subsection",
+      "ordinal": 4,
+      "heading": "Discussion",
+      "original_line": 200,
+      "labels": [
+        "subsubsec:modulus-switch-lwe-discuss",
+        "fig:modulus-switch"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "kind": "para",
+      "ordinal": 5,
+      "heading": "Reduced Distance between $m$ and $e$:",
+      "original_line": 210,
+      "labels": []
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "kind": "subsection",
+      "ordinal": 6,
+      "heading": "RLWE Modulus Switching",
+      "original_line": 218,
+      "labels": [
+        "subsec:modulus-switch-rlwe"
+      ]
+    },
+    {
+      "file": "c04-glwe-modulus-switch.tex",
+      "kind": "subsection",
+      "ordinal": 7,
+      "heading": "GLWE Modulus Switching",
+      "original_line": 415,
+      "labels": [
+        "subsec:modulus-switch-glwe"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Encryption and Decryption",
+      "original_line": 41,
+      "labels": [
+        "subsec:tfhe-enc-dec"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Homomorphic Ciphertext-to-Ciphertext Addition",
+      "original_line": 82,
+      "labels": [
+        "subsec:tfhe-add-cipher",
+        "Here"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Homomorphic Ciphertext-to-Plaintext Addition",
+      "original_line": 100,
+      "labels": [
+        "subsec:tfhe-add-plain"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsection",
+      "ordinal": 4,
+      "heading": "Homomorphic Ciphertext-to-Plaintext Multiplication",
+      "original_line": 116,
+      "labels": [
+        "subsec:tfhe-mult-plain"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsection",
+      "ordinal": 5,
+      "heading": "Homomorphic Key Switching",
+      "original_line": 132,
+      "labels": [
+        "subsec:tfhe-key-switching"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsection",
+      "ordinal": 6,
+      "heading": "Homomorphic Ciphertext-to-Ciphertext Multiplication",
+      "original_line": 148,
+      "labels": [
+        "subsec:tfhe-mult-cipher"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 7,
+      "heading": "Generalization to GLWE-to-GGSW Multiplication",
+      "original_line": 276,
+      "labels": [
+        "subsubsec:tfhe-glwe-to-ggsw-multiplication"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsection",
+      "ordinal": 8,
+      "heading": "Coefficient Extraction",
+      "original_line": 392,
+      "labels": [
+        "subsec:tfhe-extraction"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsection",
+      "ordinal": 9,
+      "heading": "Noise Bootstrapping",
+      "original_line": 541,
+      "labels": [
+        "subsec:tfhe-noise-bootstrapping"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 10,
+      "heading": "Overview",
+      "original_line": 579,
+      "labels": [
+        "subsec:bootstrapping-overview"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 11,
+      "heading": "Modulus Switch for Noise Bootstrapping",
+      "original_line": 618,
+      "labels": [
+        "subsec:bootstrapping-modulus-switch"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "para",
+      "ordinal": 12,
+      "heading": "The degree of $V(X)$ and Security",
+      "original_line": 641,
+      "labels": []
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 13,
+      "heading": "Halving the Plaintext Space To be Used",
+      "original_line": 645,
+      "labels": [
+        "subsec:tfhe-zero-padding"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "para",
+      "ordinal": 14,
+      "heading": "Solution:",
+      "original_line": 704,
+      "labels": []
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 15,
+      "heading": "Blind Rotation",
+      "original_line": 757,
+      "labels": [
+        "subsec:bootstrapping-blind-rotation",
+        "fig:mux"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "para",
+      "ordinal": 16,
+      "heading": "Homomorphic MUX Logic Gate:",
+      "original_line": 795,
+      "labels": []
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "para",
+      "ordinal": 17,
+      "heading": "Dimensions of the GLWE and GGSW Ciphertexts:",
+      "original_line": 797,
+      "labels": []
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 18,
+      "heading": "Coefficient Extraction",
+      "original_line": 799,
+      "labels": []
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 19,
+      "heading": "Key Switching",
+      "original_line": 806,
+      "labels": [
+        "subsec:bootstrapping-key-switch"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 20,
+      "heading": "Noise Bootstrapping Summary",
+      "original_line": 813,
+      "labels": [
+        "subsec:tfhe-summary"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "para",
+      "ordinal": 21,
+      "heading": "\\underline{Halving the Usable Plaintext Range}: ",
+      "original_line": 871,
+      "labels": []
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "para",
+      "ordinal": 22,
+      "heading": "\\underline{Choice of $k'$}:",
+      "original_line": 875,
+      "labels": []
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 23,
+      "heading": "Example: Noise Bootstrapping",
+      "original_line": 882,
+      "labels": [
+        "subsec:tfhe-noise-bootstrapping-ex",
+        "tab:lut"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 24,
+      "heading": "Discussion",
+      "original_line": 1076,
+      "labels": [
+        "subsec:tfhe-noise-bootstrapping-discussion"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 25,
+      "heading": "Application: Gate Bootstrapping",
+      "original_line": 1085,
+      "labels": [
+        "subsec:tfhe-noise-bootstrapping-gate",
+        "tab:gate-and"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "para",
+      "ordinal": 26,
+      "heading": "Division:",
+      "original_line": 1162,
+      "labels": []
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsubsection",
+      "ordinal": 27,
+      "heading": "Application: Neural Networks Bootstrapping",
+      "original_line": 1164,
+      "labels": [
+        "subsec:tfhe-neural-network",
+        "fig:neural-network",
+        "fig:neural-network2"
+      ]
+    },
+    {
+      "file": "d01-tfhe.tex",
+      "kind": "subsection",
+      "ordinal": 28,
+      "heading": "TFHE on a Discrete Torus",
+      "original_line": 1194,
+      "labels": [
+        "subsec:torus"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Single Value Encoding",
+      "original_line": 45,
+      "labels": [
+        "subsec:bfv-single-encoding"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Batch Encoding",
+      "original_line": 112,
+      "labels": [
+        "subsec:bfv-batch-encoding"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 3,
+      "heading": "\\textsf{Encoding\\textsubscript{1}}",
+      "original_line": 121,
+      "labels": [
+        "subsubsec:bfv-encoding-1"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 4,
+      "heading": "\\textsf{Encoding\\textsubscript{2}}",
+      "original_line": 187,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 5,
+      "heading": "\\textsf{Decoding\\textsubscript{1}}",
+      "original_line": 193,
+      "labels": [
+        "subsubsec:bfv-enc-dec-decoding1"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 6,
+      "heading": "\\textsf{Decoding\\textsubscript{2}}",
+      "original_line": 201,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 7,
+      "heading": "Summary",
+      "original_line": 209,
+      "labels": [
+        "subsubsec:bfv-encoding-summary"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 8,
+      "heading": "Encryption and Decryption",
+      "original_line": 266,
+      "labels": [
+        "subsec:bfv-enc-dec"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 9,
+      "heading": "Ciphertext-to-Ciphertext Addition",
+      "original_line": 321,
+      "labels": [
+        "subsec:bfv-add-cipher"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 10,
+      "heading": "Noise Bound Analysis",
+      "original_line": 338,
+      "labels": [
+        "subsubsec:bfv-noise-analysis"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 11,
+      "heading": "Ciphertext-to-Plaintext Addition",
+      "original_line": 445,
+      "labels": [
+        "subsec:bfv-add-plain"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 12,
+      "heading": "Ciphertext-to-Plaintext Multiplication",
+      "original_line": 463,
+      "labels": [
+        "subsec:bfv-mult-plain"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 13,
+      "heading": "Ciphertext-to-Ciphertext Multiplication",
+      "original_line": 483,
+      "labels": [
+        "subsec:bfv-mult-cipher"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 14,
+      "heading": "\\textsf{ModRaise}",
+      "original_line": 500,
+      "labels": [
+        "subsubsec:bfv-mult-cipher-modraise"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 15,
+      "heading": "Polynomial Multiplication",
+      "original_line": 534,
+      "labels": [
+        "subsubsec:bfv-mult-cipher-multiplication"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 16,
+      "heading": "Relinearization",
+      "original_line": 576,
+      "labels": [
+        "subsubsec:bfv-mult-cipher-relinearization"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 17,
+      "heading": "Rescaling",
+      "original_line": 676,
+      "labels": [
+        "subsubsec:bfv-mult-cipher-rescaling"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 18,
+      "heading": "Noise Analysis:",
+      "original_line": 797,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 19,
+      "heading": "Modulus Switch v.s. Rescaling: ",
+      "original_line": 807,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 20,
+      "heading": "Summary",
+      "original_line": 812,
+      "labels": [
+        "subsubsec:bfv-mult-cipher-summary"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 21,
+      "heading": "The Purpose of \\textsf{ModRaise}: ",
+      "original_line": 901,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 22,
+      "heading": "Swapping the Order of \\textsf{Relinearization} and \\textsf{Rescaling}: ",
+      "original_line": 905,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 23,
+      "heading": "Application to TFHE's Ciphertext-to-Ciphertext Multiplication",
+      "original_line": 909,
+      "labels": [
+        "subsubsec:bfv-mult-cipher-tfhe"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 24,
+      "heading": "Homomorphic Key Switching",
+      "original_line": 1027,
+      "labels": [
+        "subsec:bfv-key-switching"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 25,
+      "heading": "Homomorphic Rotation of Input Vector Slots",
+      "original_line": 1039,
+      "labels": [
+        "subsec:bfv-rotation"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 26,
+      "heading": "Rotating Input Vector Slots by Updating the Plaintext Polynomial",
+      "original_line": 1055,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 27,
+      "heading": "Converting $\\bm{M(X)}$ into $\\bm{M'(X)}$:",
+      "original_line": 1142,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 28,
+      "heading": "Decoding $\\bm{M'(X)}$ into \\boldmath$\\vec{v}^{\\langle h \\rangle}$",
+      "original_line": 1176,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 29,
+      "heading": "Updating the Plaintext Polynomial by Updating the Ciphertext Polynomials",
+      "original_line": 1389,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 30,
+      "heading": "Summary",
+      "original_line": 1419,
+      "labels": [
+        "subsubsec:bfv-rotation-summary"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 31,
+      "heading": "Encoding Example",
+      "original_line": 1490,
+      "labels": [
+        "subsubsec:bfv-batch-encoding-ex"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 32,
+      "heading": "Rotation Example",
+      "original_line": 1682,
+      "labels": [
+        "subsubsec:bfv-rotation-ex"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 33,
+      "heading": "Source Code:",
+      "original_line": 1904,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 34,
+      "heading": "Application: Matrix Multiplication",
+      "original_line": 1908,
+      "labels": [
+        "subsec:bfv-matrix-multiplication"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsection",
+      "ordinal": 35,
+      "heading": "Noise Bootstrapping",
+      "original_line": 1956,
+      "labels": [
+        "subsec:bfv-bootstrapping"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 36,
+      "heading": "High-level Idea",
+      "original_line": 1982,
+      "labels": [
+        "subsubsec:bfv-bootstrapping-high-level"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 37,
+      "heading": "Modulus Switch",
+      "original_line": 2063,
+      "labels": [
+        "subsubsec:bfv-bootstrapping-modulus-switch"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 38,
+      "heading": "Homomorphic Decryption",
+      "original_line": 2068,
+      "labels": [
+        "subsubsec:bfv-bootstrapping-homomorphic-decryption"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 39,
+      "heading": "\\textsf{CoeffToSlot} and \\textsf{SlotToCoeff}",
+      "original_line": 2115,
+      "labels": [
+        "subsubsec:bfv-bootstrapping-coefftoslot"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 40,
+      "heading": "Digit Extraction",
+      "original_line": 2161,
+      "labels": [
+        "subsubsec:bfv-bootstrapping-digit-extraction"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 41,
+      "heading": "1st Recursion:",
+      "original_line": 2193,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 42,
+      "heading": "2nd Recursion:",
+      "original_line": 2199,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 43,
+      "heading": "3rd Recursion:",
+      "original_line": 2205,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 44,
+      "heading": "$\\bm{(\\varepsilon-1)}$-th Recursion:",
+      "original_line": 2211,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 45,
+      "heading": "Scaling Factor Re-interpretation:",
+      "original_line": 2240,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 46,
+      "heading": "Designing \\boldmath$F_{\\varepsilon'}(z_i)$:",
+      "original_line": 2280,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "subsubsection",
+      "ordinal": 47,
+      "heading": "Summary",
+      "original_line": 2408,
+      "labels": [
+        "subsubsec:bfv-bootstrapping-summary"
+      ]
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 48,
+      "heading": "\\underline{Scaling Factor Re-interpretation}:",
+      "original_line": 2470,
+      "labels": []
+    },
+    {
+      "file": "d02-bfv.tex",
+      "kind": "para",
+      "ordinal": 49,
+      "heading": "The purpose of Homomorphic Decryption:",
+      "original_line": 2486,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Encoding and Decoding",
+      "original_line": 77,
+      "labels": [
+        "subsec:ckks-encoding-decoding"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 2,
+      "heading": "Structure of \\boldmath$\\vec{v}_{'} \\in \\mathbb{\\hat C}^n$:",
+      "original_line": 126,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 3,
+      "heading": "CKKS's Approximation Property:",
+      "original_line": 266,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 4,
+      "heading": "Example",
+      "original_line": 269,
+      "labels": [
+        "subsubsec:ckks-encoding-ex"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 5,
+      "heading": "Source Code:",
+      "original_line": 457,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 6,
+      "heading": "Encryption and Decryption",
+      "original_line": 461,
+      "labels": [
+        "subsec:ckks-enc-dec"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 7,
+      "heading": "Ciphertext-to-Ciphertext Addition",
+      "original_line": 510,
+      "labels": [
+        "subsec:ckks-add-cipher"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 8,
+      "heading": "Ciphertext-to-Plaintext Addition",
+      "original_line": 529,
+      "labels": [
+        "subsec:ckks-add-plain"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 9,
+      "heading": "Ciphertext-to-Ciphertext Multiplication",
+      "original_line": 549,
+      "labels": [
+        "subsec:ckks-mult-cipher"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 10,
+      "heading": "Synthetic Ciphertext Derivation",
+      "original_line": 585,
+      "labels": [
+        "subsubsec:ckks-mult-cipher-relation"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 11,
+      "heading": "Relinearization  Method 1 -- Ciphertext Decomposition",
+      "original_line": 654,
+      "labels": [
+        "subsubsec:relinearization-gadget-decomposition"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 12,
+      "heading": "Relinearization Method 2 -- Ciphertext Modulus Switch",
+      "original_line": 687,
+      "labels": [
+        "subsubsec:relinearization-modulus-switch"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 13,
+      "heading": "Rescaling",
+      "original_line": 832,
+      "labels": [
+        "subsubsec:ckks-mult-cipher-rescale"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 14,
+      "heading": "Initial Scaling Factor $\\bm\\Delta$ Upon Encryption:",
+      "original_line": 895,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 15,
+      "heading": "Noise Growth:",
+      "original_line": 897,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 16,
+      "heading": "Comparing BFV and CKKS Bootstrapping",
+      "original_line": 900,
+      "labels": [
+        "subsubsec:bfv-bootstrapping-ckks-comparison"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 17,
+      "heading": "Multiplicative Level:",
+      "original_line": 907,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 18,
+      "heading": "Limitation of Noise Handling:",
+      "original_line": 909,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 19,
+      "heading": "Summary",
+      "original_line": 912,
+      "labels": [
+        "subsubsec:ckks-mult-cipher-summary"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 20,
+      "heading": "Swapping the Order of \\textsf{Relinearization} and \\textsf{Rescaling}: ",
+      "original_line": 1007,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 21,
+      "heading": "Ciphertext-to-Plaintext Multiplication",
+      "original_line": 1012,
+      "labels": [
+        "subsec:ckks-mult-plain"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 22,
+      "heading": "\\textsf{ModDrop}",
+      "original_line": 1058,
+      "labels": [
+        "subsec:ckks-moddrop"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 23,
+      "heading": "Difference between Modulus Switch and \\textsf{ModDrop}",
+      "original_line": 1110,
+      "labels": [
+        "subsubsec:ckks-moddrop-vs-modswitch"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 24,
+      "heading": "Homomorphic Key Switching",
+      "original_line": 1117,
+      "labels": [
+        "subsec:ckks-key-switching"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 25,
+      "heading": "Homomorphic Rotation of Input Vector Slots",
+      "original_line": 1131,
+      "labels": [
+        "subsec:ckks-rotation"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 26,
+      "heading": "Rotation within Half Slots:",
+      "original_line": 1175,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 27,
+      "heading": "Example",
+      "original_line": 1180,
+      "labels": [
+        "subsubsec:ckks-rotation-ex"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 28,
+      "heading": "Source Code:",
+      "original_line": 1278,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 29,
+      "heading": "Contemplation on CKKS Encoding",
+      "original_line": 1284,
+      "labels": [
+        "subsec:ckks-encoding-contemplate"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 30,
+      "heading": "Why CKKS's Encoding Uses the $\\bm{(\\mu=2n)}$-th Cyclotomic Polynomial:",
+      "original_line": 1287,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 31,
+      "heading": "Homomorphic Conjugation",
+      "original_line": 1292,
+      "labels": [
+        "subsec:ckks-conjugation"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 32,
+      "heading": "Sparsely Packing Ciphertexts",
+      "original_line": 1331,
+      "labels": [
+        "subsec:ckks-sparse-packing"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 33,
+      "heading": "Forward Proof: Decoding of Sparsely Packed Ciphertext",
+      "original_line": 1354,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsection",
+      "ordinal": 34,
+      "heading": "Modulus Bootstrapping",
+      "original_line": 1390,
+      "labels": [
+        "subsec:ckks-bootstrapping"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 35,
+      "heading": "High-level Idea",
+      "original_line": 1412,
+      "labels": [
+        "subsubsec:ckks-bootstrapping-high-level",
+        "fig:modulo-reduction-sine",
+        "tab:ckks-bootstrapping-procedure"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 36,
+      "heading": "Mathematical Expansion of the High-level Idea",
+      "original_line": 1482,
+      "labels": [
+        "subsubsec:ckks-bootstrapping-high-level-correctness"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 37,
+      "heading": "\\textsf{\\textbf{\\underline{ModRaise}:}}",
+      "original_line": 1510,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 38,
+      "heading": "\\textsf{\\textbf{\\underline{CoeffToSlot}:}}",
+      "original_line": 1518,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 39,
+      "heading": "\\textsf{\\textbf{\\underline{EvalExp}:}}",
+      "original_line": 1544,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 40,
+      "heading": "\\textsf{\\textbf{\\underline{SlotToCoeff}:}}",
+      "original_line": 1558,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 41,
+      "heading": "\\textsf{\\textbf{\\underline{Bootstrapping Without a Secret Key}:}}",
+      "original_line": 1569,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 42,
+      "heading": "Details: \\textsf{CoeffToSlot}",
+      "original_line": 1610,
+      "labels": [
+        "subsubsec:ckks-bootstrapping-coefftoslot-details"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 43,
+      "heading": "Details: \\textsf{EvalExp}",
+      "original_line": 1668,
+      "labels": [
+        "subsubsec:ckks-bootstrapping-evalexp-details"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 44,
+      "heading": "Details: \\textsf{SlotToCoeff}",
+      "original_line": 1752,
+      "labels": [
+        "subsubsec:ckks-bootstrapping-slottocoeff-details"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 45,
+      "heading": "Reducing the Bootstrapping Overhead by Sparsely Packing Ciphertext",
+      "original_line": 1796,
+      "labels": [
+        "subsubsec:ckks-bootstrapping-time-reduction"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 46,
+      "heading": "Summary",
+      "original_line": 1823,
+      "labels": [
+        "subsubsec:ckks-bootstrapping-summary"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 47,
+      "heading": "Comparison between BFV and CKKS Bootstrapping:",
+      "original_line": 1884,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "subsubsection",
+      "ordinal": 48,
+      "heading": "Reducing the Bootstrapping Noise",
+      "original_line": 1894,
+      "labels": [
+        "subsubsec:ckks-bootstrapping-noise-reduction",
+        "fig:arc-sine"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 49,
+      "heading": "$\\bm{\\arcsin(\\sin(x))}$ Approximation (\\href{https://dl.acm.org/doi/10.1007/978-3-030-77870-5_22}{EUROCRYPT 2021}~\\cite{cryptoeprint:2020/552}):",
+      "original_line": 1921,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 50,
+      "heading": "Meta-BTS (\\href{https://dl.acm.org/doi/10.1145/3548606.3560696}{CCS 2022}~\\cite{cryptoeprint:2022/1167}):",
+      "original_line": 1925,
+      "labels": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "kind": "para",
+      "ordinal": 51,
+      "heading": "Limitation in Noise Handling:",
+      "original_line": 1936,
+      "labels": []
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Encoding and Decoding",
+      "original_line": 47,
+      "labels": [
+        "subsec:bgv-encoding-decoding"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Encryption and Decryption",
+      "original_line": 104,
+      "labels": [
+        "subsec:bgv-enc-dec"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 3,
+      "heading": "Ciphertext-to-Ciphertext Addition",
+      "original_line": 173,
+      "labels": [
+        "subsec:bgv-add-cipher"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 4,
+      "heading": "Ciphertext-to-Plaintext Addition",
+      "original_line": 189,
+      "labels": [
+        "subsec:bgv-add-plain"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 5,
+      "heading": "Ciphertext-to-Plaintext Multiplication",
+      "original_line": 205,
+      "labels": [
+        "subsec:bgv-mult-plain"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 6,
+      "heading": "\\textsf{ModDrop}",
+      "original_line": 226,
+      "labels": [
+        "subsec:bgv-moddrop"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 7,
+      "heading": "Modulus Switch",
+      "original_line": 276,
+      "labels": [
+        "subsec:bgv-modulus-switch"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsubsection",
+      "ordinal": 8,
+      "heading": "Difference between Modulus Switch and \\textsf{ModDrop}",
+      "original_line": 497,
+      "labels": [
+        "subsubsec:bgv-moddrop-vs-modswitch"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "para",
+      "ordinal": 9,
+      "heading": "Source Code:",
+      "original_line": 506,
+      "labels": []
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 10,
+      "heading": "Ciphertext-to-Ciphertext Multiplication",
+      "original_line": 509,
+      "labels": [
+        "subsec:bgv-mult-cipher"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "para",
+      "ordinal": 11,
+      "heading": "Swapping the Order of \\textsf{Relinearization} and \\textsf{Rescaling}: ",
+      "original_line": 578,
+      "labels": []
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "para",
+      "ordinal": 12,
+      "heading": "Details of the Optional Rescaling:",
+      "original_line": 582,
+      "labels": []
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 13,
+      "heading": "Homomorphic Key Switching",
+      "original_line": 587,
+      "labels": [
+        "subsec:bgv-key-switching"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 14,
+      "heading": "Homomorphic Rotation of Input Vector Slots",
+      "original_line": 598,
+      "labels": [
+        "subsec:bgv-rotation"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsection",
+      "ordinal": 15,
+      "heading": "Modulus Bootstrapping",
+      "original_line": 631,
+      "labels": [
+        "subsec:bgv-bootstrapping"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "para",
+      "ordinal": 16,
+      "heading": "\\underline{Handling the Divisions by $p$}:",
+      "original_line": 709,
+      "labels": []
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsubsection",
+      "ordinal": 17,
+      "heading": "Discussion",
+      "original_line": 777,
+      "labels": []
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "para",
+      "ordinal": 18,
+      "heading": "The Reason for Modulus Switch from $q_l \\rightarrow \\hat{q}$",
+      "original_line": 779,
+      "labels": []
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "para",
+      "ordinal": 19,
+      "heading": "The Choice of $\\varepsilon$:",
+      "original_line": 783,
+      "labels": []
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "para",
+      "ordinal": 20,
+      "heading": "Generalization to $\\Delta = p^r$:",
+      "original_line": 788,
+      "labels": []
+    },
+    {
+      "file": "d04-bgv.tex",
+      "kind": "subsubsection",
+      "ordinal": 21,
+      "heading": "Comparing the Bootstrapping in BFV, BGV, and CKKS",
+      "original_line": 796,
+      "labels": [
+        "subsubsec:bootstrapping-differences"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsection",
+      "ordinal": 1,
+      "heading": "Fast Base Conversion: \\textsf{FastBConv}",
+      "original_line": 41,
+      "labels": [
+        "subsec:rns-fastbconv"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsection",
+      "ordinal": 2,
+      "heading": "Small Montgomery Reduction Algorithm: \\textsf{SmallMont}",
+      "original_line": 115,
+      "labels": [
+        "subsec:rns-smallmont"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 3,
+      "heading": "Improving \\textsf{FastBConv} by Using \\textsf{SmallMont}",
+      "original_line": 217,
+      "labels": [
+        "subsubsec:rns-smallmont-fastbconv"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsection",
+      "ordinal": 4,
+      "heading": "RNS-based ModRaise: \\textsf{ModRaise\\textsubscript{RNS}}",
+      "original_line": 234,
+      "labels": [
+        "subsec:rns-modraise"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsection",
+      "ordinal": 5,
+      "heading": "RNS-based ModDrop: \\textsf{ModDrop\\textsubscript{RNS}}",
+      "original_line": 301,
+      "labels": [
+        "subsec:rns-moddrop"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsection",
+      "ordinal": 6,
+      "heading": "RNS-based Modulus Switch: \\textsf{ModSwitch\\textsubscript{RNS}}",
+      "original_line": 345,
+      "labels": [
+        "subsec:rns-modswitch"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 7,
+      "heading": "Comparing \\textsf{ModSwitch\\textsubscript{RNS}}, \\textsf{ModRaise\\textsubscript{RNS}}, and \\textsf{ModDrop\\textsubscript{RNS}}",
+      "original_line": 445,
+      "labels": []
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsection",
+      "ordinal": 8,
+      "heading": "RNS-based Decryption",
+      "original_line": 452,
+      "labels": [
+        "subsec:rns-dec"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 9,
+      "heading": "BFV Decryption: $\\textsf{Dec}_{\\textsf{RNS}}^{\\textsf{BFV}}$",
+      "original_line": 458,
+      "labels": [
+        "subsubsec:rns-dec-bfv"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 10,
+      "heading": "CKKS and BGV Decryption",
+      "original_line": 577,
+      "labels": [
+        "subsubsec:rns-dec-ckks-bgv"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsection",
+      "ordinal": 11,
+      "heading": "BGV's RNS-based Modulus Switch: $\\textsf{ModSwitch}_{\\textsf{RNS}}^{\\textsf{BGV}}$",
+      "original_line": 584,
+      "labels": [
+        "subsec:rns-modswitch-bgv"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsection",
+      "ordinal": 12,
+      "heading": "Exact Fast Base Conversion: \\textsf{FastBConvEx}",
+      "original_line": 617,
+      "labels": [
+        "subsec:rns-fastbconvex"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "para",
+      "ordinal": 13,
+      "heading": "Necessity of the Centered (i.e., Signed) Residue Representation:",
+      "original_line": 699,
+      "labels": []
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsection",
+      "ordinal": 14,
+      "heading": "Decomposing Multiplication: \\textsf{DecompMult\\textsubscript{RNS}}",
+      "original_line": 706,
+      "labels": [
+        "subsec:rns-decompmult"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsection",
+      "ordinal": 15,
+      "heading": "Applying RNS Techniques to FHE Operations",
+      "original_line": 815,
+      "labels": [
+        "subsec:rns-application"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 16,
+      "heading": "Addition and Multiplication of Polynomials",
+      "original_line": 821,
+      "labels": [
+        "subsubsec:rns-application-basic"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 17,
+      "heading": "Key Switching",
+      "original_line": 859,
+      "labels": [
+        "subsubsec:rns-application-key-switching"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 18,
+      "heading": "Input Slot Rotation",
+      "original_line": 878,
+      "labels": [
+        "subsubsec:rns-rotation"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 19,
+      "heading": "BFV's Ciphertext-to-Ciphertext Multiplication",
+      "original_line": 913,
+      "labels": [
+        "subsubsec:rns-cipher-mult-bfv"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 20,
+      "heading": "CKKS's Ciphertext-to-Ciphertext Multiplication",
+      "original_line": 1042,
+      "labels": [
+        "subsubsec:rns-cipher-mult-ckks"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 21,
+      "heading": "BGV's Ciphertext-to-Ciphertext Multiplication",
+      "original_line": 1050,
+      "labels": [
+        "subsubsec:rns-cipher-mult-bgv"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 22,
+      "heading": "BFV's Bootstrapping",
+      "original_line": 1056,
+      "labels": [
+        "subsubsec:rns-bfv-bootstrapping"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 23,
+      "heading": "CKKS's Bootstrapping",
+      "original_line": 1140,
+      "labels": [
+        "subsubsec:rns-ckks-bootstrapping"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 24,
+      "heading": "BGV's Bootstrapping",
+      "original_line": 1150,
+      "labels": [
+        "subsubsec:rns-bgv-bootstrapping"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 25,
+      "heading": "Noise Impact of RNS Operations",
+      "original_line": 1185,
+      "labels": [
+        "subsubsec:rns-noise"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "kind": "subsubsection",
+      "ordinal": 26,
+      "heading": "Python Source Code of RNS Primitives",
+      "original_line": 1190,
+      "labels": [
+        "subsubsec:rns-source-code"
+      ]
+    }
+  ]
+}

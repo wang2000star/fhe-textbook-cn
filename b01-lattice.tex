@@ -5,7 +5,7 @@ Errors Problem}~\cite{lattice-crypto}
 
 $ $
 
-Lattice-based cryptography is often considered as  post-quantum cryptography, resistant against quantum computer attacks. This section describes the mathematical hard problem that is the basis of the lattice-based cryptosystems we will explore: LWE (Learning with Error) cryptosystem, RLWE (Ring Learning with Error) cryptosystem, GLWE (General Learning with Error) cryptosystem, GLev cryptosystem, and GGSW cryptosystem.
+Lattice-based cryptography provides candidates for post-quantum security, under precisely specified computational assumptions and parameter choices. Resistance to every quantum attack is not proved unconditionally. This section introduces the LWE (Learning with Errors), RLWE (Ring Learning with Errors), GLWE, GLev, and GGSW constructions used later.
 
 
 
@@ -13,6 +13,8 @@ Lattice-based cryptography is often considered as  post-quantum cryptography, re
 
 \subsection{Overview}
 \label{subsec:lattice-overview}
+
+All equations in this overview are over $\mathbb Z_q$. Masks are sampled uniformly and independently; errors are small integers from a specified distribution, reduced modulo $q$ only for arithmetic.
 
 Suppose we have a single unknown $k$-dimensional vector $\vec{s}$ as a secret key, many publicly known $k$-dimensional vectors $\vec{a}^{\langle i \rangle}$.
 
@@ -28,22 +30,22 @@ $\vec{s} \cdot \vec{a}^{\langle 2 \rangle} = s_0\cdot a_{0}^{\langle 2 \rangle} 
 
 $ $
 
-Suppose that all $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$ tuples are publicly known. An attacker only needs $k$ such tuples to derive the secret vector $\vec{s}$. Specifically, as there are $k$ unknown variables (i.e., $s_0, s_1, \cdots, s_{k-1}$), the attacker can solve for those $k$ variables with $k$ equations by using linear algebra. 
+In the noiseless case, $k$ samples determine $\vec s$ if their coefficient matrix is invertible over $\mathbb Z_q$. For prime $q$, this means full rank; over a composite modulus the determinant must be a unit. Merely having $k$ equations does not ensure independence or unique recovery.
 
 However, suppose that in each equation above, we randomly add an unknown small noise $e^{\langle i \rangle}$ (i.e., error) as follows: 
 
-$\vec{s} \cdot \vec{a}^{\langle 0 \rangle} = s_0\cdot a_{0}^{\langle 0 \rangle} + s_1\cdot a_{1}^{\langle 0 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 0 \rangle} + e^{\langle 0 \rangle} \approx b^{\langle 0 \rangle}$
+$b^{\langle 0 \rangle} = s_0\cdot a_{0}^{\langle 0 \rangle} + s_1\cdot a_{1}^{\langle 0 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 0 \rangle} + e^{\langle 0 \rangle} \pmod q$
 
-$\vec{s} \cdot \vec{a}^{\langle 1 \rangle} = s_0\cdot a_{0}^{\langle 1 \rangle} + s_1\cdot a_{1}^{\langle 1 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 1 \rangle} + e^{\langle 1 \rangle} \approx b^{\langle 1 \rangle}$
+$b^{\langle 1 \rangle} = s_0\cdot a_{0}^{\langle 1 \rangle} + s_1\cdot a_{1}^{\langle 1 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 1 \rangle} + e^{\langle 1 \rangle} \pmod q$
 
-$\vec{s} \cdot \vec{a}^{\langle 2 \rangle} = s_0\cdot a_{0}^{\langle 2 \rangle} + s_1\cdot a_{1}^{\langle 2 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 2 \rangle} + e^{\langle 2 \rangle} \approx b^{\langle 2 \rangle}$
+$b^{\langle 2 \rangle} = s_0\cdot a_{0}^{\langle 2 \rangle} + s_1\cdot a_{1}^{\langle 2 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 2 \rangle} + e^{\langle 2 \rangle} \pmod q$
 
 \text{ } $\vdots$
 
 
 $ $
 
-Then, even if the attacker has a sufficient number of $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$ tuples, it is not feasible to derive $s_0, s_1, \cdots, s_{k-1}$, because even a small amount of noise added to each equation prevents the linear-algebra-based direct derivation of the unknown variables. For each of the above equations, the attacker has to consider as many possibilities as there are possible values of $e^{\langle i \rangle}$. For example, if there are $r$ possible values for each noise $e^{\langle i \rangle}$, the attacker's brute-force search space for applying linear algebra to those $k$ equations is: $\overbrace{r \times r \times r \times \cdots \times r}^{\text{k times}} = r^k$. Thus, the number of noisy equations grows, and the aggregate possibilities of $e^{\langle i \rangle}$s grow exponentially, which means that the attacker's cost of attack grows exponentially. 
+Noise prevents simply treating these as exact linear equations for $\vec s$. If each of $k$ errors has $r$ possible values, enumerating all $r^k$ error vectors is one possible attack. This is an upper bound for that particular enumeration, not a lower bound for all algorithms and not a security proof. Additional samples may help an attacker and can always be ignored. LWE hardness is a computational assumption for specified dimension, modulus, secret and error distributions, and sample count; sufficiently small or structured errors can make some instances easy.
 
 Based on this intuition, the mathematical hard problem that constitutes lattice-based cryptography is as follows:
 
@@ -54,7 +56,7 @@ $ $
 
 Consider samples of the form: $b = \vec{s} \cdot\vec{a} + e$ (where $e$ is a small noise to be explained later). 
 
-For each encryption, a random $k$-dimensional vector $\vec{a} \in \mathbb{Z}_q^k$ and a small noise value $e \in \mathbb{Z}_q$ are newly sampled from $\{0, 1, \cdots, q - 1\}$, where $q$ is the ciphertext domain size. On the other hand, the $k$-dimensional secret vector $\vec{s}$ is the same for all encryptions. Suppose we have a sufficient number of ciphertext tuples: 
+For each sample, choose $\vec a$ uniformly from $\mathbb Z_q^k$ and independently draw a small integer error $e$ from an explicitly specified distribution $\chi$, then reduce $e$ modulo $q$. The secret $\vec s$ is sampled once from its specified distribution and reused. The error is not uniform over $\mathbb Z_q$. A security experiment permits a polynomial number of such samples in the security parameter.
 
 $(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle})$, where $b^{\langle 1 \rangle} = \vec{s} \cdot \vec{a}^{\langle 1 \rangle} + e^{\langle 1 \rangle}$ 
 
@@ -69,19 +71,19 @@ Suppose that the attacker has a sufficiently large number of $(\vec{a}^{\langle 
 $ $
 
 \begin{itemize}
-\item \textbf{Search-Hard Problem:} There is no efficient algorithm for the attacker to find out the secret key vector $\vec{s}$.
-\item \textbf{Decision-Hard Problem:} We create a black box system which can be configured to one of the following two modes: (1) all $b^{\langle i\rangle}$ values are purely randomly generated; (2) all $b^{\langle i\rangle}$ values are computed as the results of $\vec{s} \cdot \vec{a}^{\langle i\rangle} + e^{\langle i\rangle}$ based on the randomly picked known public (symmetric) keys $\vec{a}^{\langle i \rangle}$, randomly picked unknown noises $e^{\langle i\rangle}$, and a constant unknown secret vector $\vec{s}$. Given a sufficient number of $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$ tuples generated by this black box system, the attacker has no efficient algorithm to determine which mode this black box system is configured to.
+\item \textbf{Search problem:} Given the samples, recover the secret $\vec s$. The search-LWE assumption states that no efficient algorithm succeeds with non-negligible probability for the selected parameter family.
+\item \textbf{Decision problem:} Distinguish LWE samples $(\vec a,\langle\vec a,\vec s\rangle+e)$ from independent uniform pairs in $\mathbb Z_q^k\times\mathbb Z_q$. The decisional-LWE assumption states that every efficient distinguisher has negligible advantage for the selected parameter family.
 \end{itemize}
 
 $ $
 
-These two problems are interchangeable.
+Search-to-decision reductions require hypotheses; the two formulations are not unconditionally interchangeable for every modulus and distribution. For example, Regev's reduction in Lemma 4.2 assumes a prime modulus bounded by a polynomial in the dimension, with its stated error and oracle conditions. His worst-case lattice reduction also has explicit noise and modulus requirements and is a quantum reduction. See \href{https://cims.nyu.edu/~regev/papers/qcrypto.pdf}{Regev, On Lattices, Learning with Errors, Random Linear Codes, and Cryptography}, Theorem 1.1 and Section 4.
 
 $ $
 
 \textbf{\underline{RLWE Problem}}
 
-In the case of the RLWE (Ring Learning with Errors) problem, the only difference is that $\vec{a}$, $b$, $\vec{s}$, and $e$ are replaced by polynomials $(n-1)$-degree polynomials $A$, $B$, $S$, and $E$ in $\mathbb{Z}_q[X] / (x^n + 1)$, and its search-hard problem is finding the unknown $n$ coefficients of the secret polynomial $S$. 
+For the algebraic RLWE form, use $B=AS+E$ in $\mathbb Z_q[X]/(X^n+1)$, with polynomial representatives of degree less than $n$. Search asks for $S$; decision distinguishes these pairs from uniform ring pairs. This notation alone does not transfer every LWE security theorem: the ring, modulus, and error/secret distributions must satisfy the hypotheses of a ring-LWE result.
 
 \end{tcolorbox}
 
@@ -90,6 +92,8 @@ In the case of the RLWE (Ring Learning with Errors) problem, the only difference
 
 \subsection{LWE Cryptosystem}
 \label{subsec:lattice-scheme}
+
+For the following correctness formulas, assume $t\mid q$, set $\Delta=q/t$, and let $[x]_q$ denote the centered integer representative of $x\bmod q$. Rounding is performed on this representative, and the decoded result is reduced modulo $t$. All bit-shift descriptions apply only when $\Delta$ is a power of two; in general scaling means multiplication or division by $\Delta$. The complete ciphertext is $(\vec a,b)$, not $b$ alone.
 
 The LWE cryptosystem uses the following encryption formula: $b = \vec{s} \cdot \vec{a} + \Delta \cdot m + e$ (where $\vec{s}$ is a secret key, $\vec{a}$ is a publicly known random vector picked per encryption, $m$ is a plaintext, $e$ is small noise randomly picked per encryption from a normal distribution, and $b$ is a ciphertext). $\Delta$ is a scaling factor of the plaintext $M$ (shifting $m$ by $\text{log}_2\Delta$ bits to the left). Before encrypting the plaintext, we left-shift the plaintext several bits (i.e., $\text{log}_2\Delta$ bits) to secure sufficient space to store the error in the lower bits.
 
@@ -108,7 +112,7 @@ The LWE cryptosystem uses the following encryption formula: $b = \vec{s} \cdot \
 
     $ $
     
-    \item \textbf{\underline{Decryption}: } $ \dfrac{\lceil b^{\langle i \rangle} - \vec{s} \cdot \vec{a}^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = \dfrac{\lceil \Delta m^{\langle i \rangle} + e^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = m^{\langle i \rangle}$ $\Big($ provided $|e^{\langle i \rangle}| < \dfrac{\Delta}{2}\Big)$   
+    \item \textbf{\underline{Decryption}: } $\left\lceil [b^{\langle i\rangle}-\vec s\cdot\vec a^{\langle i\rangle}]_q/\Delta\right\rfloor\bmod t=m^{\langle i\rangle}$ $\Big($ provided $|e^{\langle i \rangle}| < \dfrac{\Delta}{2}\Big)$
 \end{itemize}
 \end{tcolorbox}
 
@@ -121,15 +125,9 @@ $ $
 
 $ $
 
-\noindent \textbf{Security: } Given that an attacker has a large list of $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$ (i.e., many ciphertexts), it is almost impossible for them to derive $\vec{s}$, due to the random noise $e^{\langle i \rangle}$ added in each encryption (which is a search-hard problem described in \autoref{subsec:lattice-overview}). This is because even small added unknown noises $e^{\langle i \rangle}$ greatly change the mathematical solution for $\vec{s}$ that satisfies all the $b^{\langle i \rangle} = \vec{s} \cdot \vec{a}^{\langle i \rangle} + \Delta \cdot m^{\langle i \rangle} + e^{\langle i \rangle}$ equations. 
+\noindent \textbf{Security: } Semantic security is justified by the decisional-LWE assumption for the actual secret and error distributions, not merely by difficulty of recovering the secret. In a standard hybrid argument, replace fresh LWE pairs $(\vec a,\langle\vec a,\vec s\rangle+e)$ by uniform pairs. Adding a fixed message offset $\Delta m$ preserves uniformity, so the resulting ciphertext distribution hides the message. The argument covers a polynomial number of encryptions with fresh masks and errors, including repeated or chosen plaintexts. It does not assert unconditional hardness or that adding more samples increases attack cost.
 
-%$Y = S \cdot X$
-
-Even in the case that the attacker has a large list of $(\vec{a}^{(j)}, b^{(j)})$ generated for the same ciphertext $m^{\langle i \rangle}$ (where each ciphertext used different $\vec{a}^{(j)}$ and $e^{(j)}$ to encrypt the same $m^{\langle i \rangle}$), he still cannot derive $m^{\langle i \rangle}$, because a randomly picked different noise $e^{(j)}$ is used for every $(\vec{a}^{(j)}, b^{(j)})$ and is accumulated over ciphertexts, which exponentially complicates the difficulty of the linear algebra involved in solving $\vec{s}$. Also, in the actual cryptosystem (\autoref{sec:lwe}), the publicly known random vector $\vec{a}^{\langle i \rangle}$ and the secret key $\vec{s}$ are not a single number but a long vector comprising many random numbers. Thus, adding $\vec{a}^{\langle i \rangle }\cdot \vec{s}$ to $\Delta m^{\langle i \rangle} + e^{\langle i \rangle}$ increases the entropy of randomness against the attack. 
-
-$ $
-
-To summarize, lattice-based cryptography hides plaintext by adding the encryption component $\vec{s} \cdot \vec{a}$ to it, along with a small random noise $e$. During decryption, the secret key owner re-creates this encryption component $\vec{a} \cdot \vec{s}$ by using her $\vec{s}$ and removes it. She then removes the noise $e$ using the rounding technique and finally right-shifts the remaining $\Delta m$ by $\text{log}_2 \Delta$ bits to get $m$.
+Decryption subtracts the secret-dependent term, rounds to remove a sufficiently small error, divides by $\Delta$, and reduces modulo $t$. The noise bound and the security assumption are distinct requirements: small enough for correct decoding does not by itself mean large enough for security.
 
 \subsection{RLWE Cryptosystem}
 \label{subsec:lattice-scheme2}
@@ -142,7 +140,7 @@ In the RLWE cryptosystem, the formula in \tboxlabel{\ref*{subsec:lattice-scheme}
 
     $ $
     
-    \item \textbf{\underline{Decryption}: } $ \dfrac{\lceil B^{\langle i \rangle} - S \cdot A^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = \dfrac{\lceil \Delta M^{\langle i \rangle} + E^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = M^{\langle i \rangle}$ \\$\Big($provided $||E^{\langle i \rangle}||_{\infty} < \dfrac{\Delta}{2}$, meaning each coefficient of $E^{\langle i \rangle}$ has a magnitude less than $\dfrac{\Delta}{2}\Big)$    
+    \item \textbf{\underline{Decryption}: } $\left\lceil [B^{\langle i\rangle}-S\cdot A^{\langle i\rangle}]_q/\Delta\right\rfloor\bmod t=M^{\langle i\rangle}$ \\$\Big($provided $||E^{\langle i \rangle}||_{\infty} < \dfrac{\Delta}{2}$, meaning each coefficient of $E^{\langle i \rangle}$ has a magnitude less than $\dfrac{\Delta}{2}\Big)$
 
     $ $
 

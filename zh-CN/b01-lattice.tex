@@ -5,7 +5,7 @@
 
 $ $
 
-格密码通常被视为能够抵抗量子计算机攻击的后量子密码。本节介绍后续所讨论的格密码体制所依赖的数学困难问题，包括 LWE（带误差学习）、RLWE（环带误差学习）、GLWE（广义带误差学习）、GLev 和 GGSW 密码体制。
+格密码在明确的计算困难假设及参数选择下，为后量子安全提供候选方案；不能无条件地声称它能够抵抗所有量子攻击。本节介绍后续使用的 LWE（带误差学习）、RLWE（环带误差学习）、GLWE、GLev 和 GGSW 构造。
 
 
 
@@ -13,6 +13,8 @@ $ $
 
 \subsection{概述}
 \label{subsec:lattice-overview}
+
+本概述中的所有等式均在 $\mathbb Z_q$ 上成立。掩码独立均匀采样；误差先从指定分布采样为小整数，仅在运算时模 $q$ 约减。
 
 假设有一个未知的 $k$ 维向量 $\vec{s}$ 作为秘密密钥，以及许多公开已知的 $k$ 维向量 $\vec{a}^{\langle i \rangle}$。
 
@@ -28,22 +30,22 @@ $\vec{s} \cdot \vec{a}^{\langle 2 \rangle} = s_0\cdot a_{0}^{\langle 2 \rangle} 
 
 $ $
 
-假设所有二元组 $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$ 都公开已知。攻击者只需 $k$ 个这样的二元组，就可以求出秘密向量 $\vec{s}$。具体来说，由于共有 $k$ 个未知变量，即 $s_0, s_1, \cdots, s_{k-1}$，攻击者可以利用线性代数，从 $k$ 个方程中求解这 $k$ 个变量。
+在无噪声情形下，若 $k$ 个样本的系数矩阵在 $\mathbb Z_q$ 上可逆，它们就能确定 $\vec s$。当 $q$ 为素数时，这要求矩阵满秩；当模数为合数时，行列式必须为单位。仅有 $k$ 个方程，并不能保证方程独立或唯一恢复。
 
 但是，如果在上述每个方程中都随机加入一个未知的小噪声 $e^{\langle i \rangle}$，即误差，得到：
 
-$\vec{s} \cdot \vec{a}^{\langle 0 \rangle} = s_0\cdot a_{0}^{\langle 0 \rangle} + s_1\cdot a_{1}^{\langle 0 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 0 \rangle} + e^{\langle 0 \rangle} \approx b^{\langle 0 \rangle}$
+$b^{\langle 0 \rangle} = s_0\cdot a_{0}^{\langle 0 \rangle} + s_1\cdot a_{1}^{\langle 0 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 0 \rangle} + e^{\langle 0 \rangle} \pmod q$
 
-$\vec{s} \cdot \vec{a}^{\langle 1 \rangle} = s_0\cdot a_{0}^{\langle 1 \rangle} + s_1\cdot a_{1}^{\langle 1 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 1 \rangle} + e^{\langle 1 \rangle} \approx b^{\langle 1 \rangle}$
+$b^{\langle 1 \rangle} = s_0\cdot a_{0}^{\langle 1 \rangle} + s_1\cdot a_{1}^{\langle 1 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 1 \rangle} + e^{\langle 1 \rangle} \pmod q$
 
-$\vec{s} \cdot \vec{a}^{\langle 2 \rangle} = s_0\cdot a_{0}^{\langle 2 \rangle} + s_1\cdot a_{1}^{\langle 2 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 2 \rangle} + e^{\langle 2 \rangle} \approx b^{\langle 2 \rangle}$
+$b^{\langle 2 \rangle} = s_0\cdot a_{0}^{\langle 2 \rangle} + s_1\cdot a_{1}^{\langle 2 \rangle} + \cdots + s_{k-1}\cdot a_{k-1}^{\langle 2 \rangle} + e^{\langle 2 \rangle} \pmod q$
 
 \text{ } $\vdots$
 
 
 $ $
 
-即使攻击者获得足够多的二元组 $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$，也难以求出 $s_0, s_1, \cdots, s_{k-1}$，因为每个方程中加入的少量噪声阻碍了通过线性代数直接求解未知变量。对于每个方程，攻击者需要考虑 $e^{\langle i \rangle}$ 的各种可能取值。例如，如果每个噪声 $e^{\langle i \rangle}$ 有 $r$ 种可能值，则要对这 $k$ 个方程应用线性代数，攻击者需要暴力搜索的空间为 $\overbrace{r \times r \times r \times \cdots \times r}^{\text{k 次}} = r^k$。因此，随着含噪方程数量增加，所有 $e^{\langle i \rangle}$ 的联合取值可能性呈指数增长，攻击者的攻击成本也随之呈指数增长。
+噪声使得这些方程不能直接作为关于 $\vec s$ 的精确线性方程求解。若 $k$ 个误差各有 $r$ 种可能值，枚举全部 $r^k$ 个误差向量是一种可行攻击。这只是该枚举方法的工作量上界，并非所有算法的下界，也不是安全性证明。额外样本可能帮助攻击者，而且攻击者始终可以忽略它们。LWE 困难性是针对明确维数、模数、秘密与误差分布以及样本数量的计算假设；过小或具有特殊结构的误差可能使某些实例易解。
 
 基于这一直观认识，格密码所依赖的数学困难问题可描述如下：
 
@@ -54,7 +56,7 @@ $ $
 
 考虑如下形式的样本：$b = \vec{s} \cdot\vec{a} + e$，其中 $e$ 是后面将介绍的小噪声。
 
-每次加密时，都在 $\{0, 1, \cdots, q - 1\}$ 中重新采样一个随机 $k$ 维向量 $\vec{a} \in \mathbb{Z}_q^k$ 以及一个小噪声值 $e \in \mathbb{Z}_q$，其中 $q$ 为密文域的大小。而所有加密过程都使用相同的 $k$ 维秘密向量 $\vec{s}$。假设获得了足够多的密文二元组：
+对每个样本，从 $\mathbb Z_q^k$ 中均匀选取 $\vec a$，并独立地从明确指定的分布 $\chi$ 采样小整数误差 $e$，随后将 $e$ 模 $q$ 约减。秘密 $\vec s$ 从其指定分布采样一次并重复使用。误差并非在 $\mathbb Z_q$ 上均匀分布。安全实验允许获得关于安全参数的多项式数量的这类样本。
 
 $(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle})$，其中 $b^{\langle 1 \rangle} = \vec{s} \cdot \vec{a}^{\langle 1 \rangle} + e^{\langle 1 \rangle}$
 
@@ -69,19 +71,19 @@ $(\vec{a}^{\langle 3 \rangle}, b^{\langle 3 \rangle})$，其中 $b^{\langle 3 \r
 $ $
 
 \begin{itemize}
-\item \textbf{搜索困难问题：}攻击者无法使用高效算法求出秘密密钥向量 $\vec{s}$。
-\item \textbf{判定困难问题：}构造一个黑盒系统，可配置为以下两种模式之一：(1) 所有 $b^{\langle i\rangle}$ 值均完全随机生成；(2) 所有 $b^{\langle i\rangle}$ 值均通过 $\vec{s} \cdot \vec{a}^{\langle i\rangle} + e^{\langle i\rangle}$ 计算得到，所使用的输入为随机选取且公开已知的（对称加密中的）公开量 $\vec{a}^{\langle i \rangle}$、随机选取且未知的噪声 $e^{\langle i\rangle}$，以及固定且未知的秘密向量 $\vec{s}$。即使获得该黑盒生成的足够多的二元组 $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$，攻击者也没有高效算法判定黑盒采用了哪种模式。
+\item \textbf{搜索问题：}给定这些样本，恢复秘密 $\vec s$。搜索 LWE 假设认为，对于所选参数族，不存在以不可忽略概率成功的高效算法。
+\item \textbf{判定问题：}区分 LWE 样本 $(\vec a,\langle\vec a,\vec s\rangle+e)$ 与 $\mathbb Z_q^k\times\mathbb Z_q$ 中独立均匀的二元组。判定 LWE 假设认为，对于所选参数族，每个高效区分器的优势都可忽略。
 \end{itemize}
 
 $ $
 
-这两个问题可以相互转换。
+搜索到判定的归约需要前提；这两种表述并不对所有模数和分布无条件等价。例如，Regev 的引理 4.2 要求模数为关于维数多项式有界的素数，并满足其中的误差及预言机条件。其最坏情形格问题归约也有明确的噪声和模数要求，而且是量子归约。参见 \href{https://cims.nyu.edu/~regev/papers/qcrypto.pdf}{Regev, On Lattices, Learning with Errors, Random Linear Codes, and Cryptography} 的定理 1.1 及第 4 节。
 
 $ $
 
 \textbf{\underline{RLWE 问题}}
 
-对于 RLWE（环带误差学习）问题，区别在于将 $\vec{a}$、$b$、$\vec{s}$ 和 $e$ 分别替换为 $\mathbb{Z}_q[X] / (x^n + 1)$ 中的 $(n-1)$ 次多项式 $A$、$B$、$S$ 和 $E$；相应的搜索困难问题，就是求出秘密多项式 $S$ 的 $n$ 个未知系数。
+在 RLWE 的代数形式中，使用 $\mathbb Z_q[X]/(X^n+1)$ 上的 $B=AS+E$，多项式代表元的次数小于 $n$。搜索问题要求恢复 $S$，判定问题要求将这些二元组与均匀环元素对区分开。仅替换记号并不能转移所有 LWE 安全性定理：环、模数以及误差和秘密分布必须满足相应环 LWE 结论的前提。
 
 \end{tcolorbox}
 
@@ -90,6 +92,8 @@ $ $
 
 \subsection{LWE 密码体制}
 \label{subsec:lattice-scheme}
+
+下面的正确性公式假设 $t\mid q$，取 $\Delta=q/t$，并以 $[x]_q$ 表示 $x\bmod q$ 的中心化整数代表元。舍入作用于该代表元，解码结果还需模 $t$ 约减。所有位移描述仅适用于 $\Delta$ 为二幂的情形；一般的缩放是乘以或除以 $\Delta$。完整密文是 $(\vec a,b)$，并非只有 $b$。
 
 LWE 密码体制使用加密公式 $b = \vec{s} \cdot \vec{a} + \Delta \cdot m + e$，其中 $\vec{s}$ 为秘密密钥，$\vec{a}$ 为每次加密时选取的公开随机向量，$m$ 为明文，$e$ 为每次加密时从正态分布中随机选取的小噪声，$b$ 为密文。$\Delta$ 是明文 $M$ 的尺度因子，相当于将 $m$ 向左移动 $\text{log}_2\Delta$ 个二进制位。加密前，先将明文左移若干位，即 $\text{log}_2\Delta$ 位，为低位中的误差预留足够空间。
 
@@ -108,7 +112,7 @@ LWE 密码体制使用加密公式 $b = \vec{s} \cdot \vec{a} + \Delta \cdot m +
 
     $ $
     
-    \item \textbf{\underline{解密}：}$ \dfrac{\lceil b^{\langle i \rangle} - \vec{s} \cdot \vec{a}^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = \dfrac{\lceil \Delta m^{\langle i \rangle} + e^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = m^{\langle i \rangle}$ $\Big($，前提是 $|e^{\langle i \rangle}| < \dfrac{\Delta}{2}\Big)$。
+    \item \textbf{\underline{解密}：}$\left\lceil [b^{\langle i\rangle}-\vec s\cdot\vec a^{\langle i\rangle}]_q/\Delta\right\rfloor\bmod t=m^{\langle i\rangle}$ $\Big($，前提是 $|e^{\langle i \rangle}| < \dfrac{\Delta}{2}\Big)$。
 \end{itemize}
 \end{tcolorbox}
 
@@ -121,15 +125,9 @@ $ $
 
 $ $
 
-\noindent \textbf{安全性：}即使攻击者获得大量 $(\vec{a}^{\langle i \rangle}, b^{\langle i \rangle})$，也就是许多密文，由于每次加密都会加入随机噪声 $e^{\langle i \rangle}$，仍难以求出 $\vec{s}$；这就是 \autoref{subsec:lattice-overview} 描述的搜索困难问题。原因是，哪怕加入很小的未知噪声 $e^{\langle i \rangle}$，也会显著改变满足全部 $b^{\langle i \rangle} = \vec{s} \cdot \vec{a}^{\langle i \rangle} + \Delta \cdot m^{\langle i \rangle} + e^{\langle i \rangle}$ 方程的 $\vec{s}$ 的数学解。
+\noindent \textbf{安全性：}语义安全性依赖于针对实际秘密和误差分布的判定 LWE 假设，而不只是恢复秘密密钥的困难性。标准混合论证将新鲜 LWE 二元组 $(\vec a,\langle\vec a,\vec s\rangle+e)$ 替换为均匀二元组；加入固定的消息偏移 $\Delta m$ 仍保持均匀，因此替换后的密文分布隐藏消息。该论证涵盖使用新鲜掩码与误差的多项式数量加密，包括重复或选择的明文；它不声称无条件困难，也不声称样本增加会提高攻击成本。
 
-%$Y = S \cdot X$
-
-即使攻击者获得针对同一个 $m^{\langle i \rangle}$ 生成的大量 $(\vec{a}^{(j)}, b^{(j)})$，其中每个密文都使用不同的 $\vec{a}^{(j)}$ 和 $e^{(j)}$ 加密相同的 $m^{\langle i \rangle}$，也仍难以求出 $m^{\langle i \rangle}$。这是因为每个 $(\vec{a}^{(j)}, b^{(j)})$ 都使用重新随机选取的不同噪声 $e^{(j)}$，而这些噪声在联合分析多份密文时，使求解 $\vec{s}$ 所涉及的线性代数问题呈指数级复杂化。此外，在实际密码体制（\autoref{sec:lwe}）中，公开随机向量 $\vec{a}^{\langle i \rangle}$ 与秘密密钥 $\vec{s}$ 都不是单个数，而是由许多随机数组成的长向量。因此，将 $\vec{a}^{\langle i \rangle }\cdot \vec{s}$ 加入 $\Delta m^{\langle i \rangle} + e^{\langle i \rangle}$，提高了攻击者所面对的随机性熵。
-
-$ $
-
-概括而言，格密码通过在明文中加入加密项 $\vec{s} \cdot \vec{a}$ 和小随机噪声 $e$ 来隐藏明文。解密时，秘密密钥持有者利用 $\vec{s}$ 重新计算加密项 $\vec{a} \cdot \vec{s}$ 并将其减去，再通过舍入消去噪声 $e$，最后将剩余的 $\Delta m$ 右移 $\text{log}_2 \Delta$ 位，得到 $m$。
+解密先减去依赖秘密的项，再通过舍入去除足够小的误差，除以 $\Delta$，最后模 $t$ 约减。噪声界与安全假设是两个独立要求：足够小而能正确解码，并不自动意味着足够大而能保证安全。
 
 \subsection{RLWE 密码体制}
 \label{subsec:lattice-scheme2}
@@ -142,7 +140,7 @@ RLWE 密码体制使用与 \tboxlabel{\ref*{subsec:lattice-scheme}} 相同的公
 
     $ $
     
-    \item \textbf{\underline{解密}：}$ \dfrac{\lceil B^{\langle i \rangle} - S \cdot A^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = \dfrac{\lceil \Delta M^{\langle i \rangle} + E^{\langle i \rangle} \rfloor_{\Delta}}{\Delta} = M^{\langle i \rangle}$ \\$\Big($前提是 $||E^{\langle i \rangle}||_{\infty} < \dfrac{\Delta}{2}$，即 $E^{\langle i \rangle}$ 的每个系数的绝对值都小于 $\dfrac{\Delta}{2}\Big)$    
+    \item \textbf{\underline{解密}：}$\left\lceil [B^{\langle i\rangle}-S\cdot A^{\langle i\rangle}]_q/\Delta\right\rfloor\bmod t=M^{\langle i\rangle}$ \\$\Big($前提是 $||E^{\langle i \rangle}||_{\infty} < \dfrac{\Delta}{2}$，即 $E^{\langle i \rangle}$ 的每个系数的绝对值都小于 $\dfrac{\Delta}{2}\Big)$
 
     $ $
 

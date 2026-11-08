@@ -28,14 +28,15 @@ def fhe_decrypt(a: Polynomial, b: Polynomial, N, P, Q, s, scale, expected_dec: P
 	"""
 	Decrypt:
 	  v = b + a*s  (mod x^n+1, q)  ~= scale*m + e
-	  m_hat = round(v/scale)
+	  m_hat = round(P*v/Q) mod P (standard FV decoding)
 	  (optionally centered mod p if p was stored by fhe_encrypt)
 	"""
 
 	v = poly_add(b, poly_mult(a, s, N, Q), N, Q)
-	m_hat = [round_div(c, scale) for c in v.coef]
+	m_hat = [round_div(P * int(c), Q) for c in v.coef]
 	m_hat = [centered_mod(c, P) for c in m_hat]
 
+	e_bits = None  # No reference plaintext was supplied for a diagnostic.
 	if expected_dec is not None:
 		e = poly_sub(v, poly_scalar_mult(expected_dec, scale, N, Q), N, Q)
 		max_abs = float(np.max(np.abs(e.coef))) if len(e.coef) else 0.0
@@ -82,13 +83,9 @@ def fhe_mult_cipher_cipher(a1, b1, a2, b2, N, P, Q, scale, relin_key):
     a2 = poly_mod(a2, N, Q); b2 = poly_mod(b2, N, Q)
 
     # ---- Raw products in big integers (no mod Q yet) ----
-    d0_raw = poly_mult(b1, b2, N, Q*scale)  # b1*b2
-    d1_raw = poly_add(
-        poly_mult(b1, a2, N, Q*scale),
-        poly_mult(a1, b2, N, Q*scale),
-        N, Q*scale
-    )  # b1*a2 + a1*b2
-    d2_raw = poly_mult(a1, a2, N, Q*scale)  # a1*a2
+    d0_raw = poly_mult_integer(b1, b2, N)  # b1*b2
+    d1_raw = poly_mult_integer(b1, a2, N) + poly_mult_integer(a1, b2, N)  # b1*a2 + a1*b2
+    d2_raw = poly_mult_integer(a1, a2, N)  # a1*a2
 
     # ---- BFV rescale: round(P/Q * ·) and reduce mod Q ----
     d0 = poly_rescale_P_over_Q(d0_raw, P, Q, N)
@@ -108,4 +105,4 @@ def fhe_mult_cipher_cipher(a1, b1, a2, b2, N, P, Q, scale, relin_key):
 
 
 def fhe_bootstrapping(a1, b1, N, P, Q):
-	return 0
+	raise NotImplementedError("BFV bootstrapping is not implemented in this educational demo")

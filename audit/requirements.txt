@@ -1,0 +1,4 @@
+# Versions used for the deterministic educational-code regression checks.
+numpy==2.3.5
+sympy==1.14.0
+fastcore==2.2.39

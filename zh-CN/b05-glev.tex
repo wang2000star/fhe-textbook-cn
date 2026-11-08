@@ -1,7 +1,7 @@
 GLev 密文是由多个 GLWE 密文组成的列表，分别加密明文列表 $\dfrac{q}{\beta^1}M, \dfrac{q}{\beta^2}M, \ldots, \dfrac{q}{\beta^l}M$，其中 $M$ 是编码为多项式的明文。GLev 密文中的第 $i$ 个 GLWE 密文使用不同的明文尺度因子 $\Delta_i = \dfrac{q}{\beta^i}$。\autoref{fig:glev} 直观展示了 GLev 密文的结构。
 
 
-$\beta$ 应取 $t$ 与 $q$ 之间的某个值。具体而言，$t$ 应小于或等于 $\beta$，因为如果 $t$ 大于 $\beta$，计算 $\dfrac{q}{\beta^1}M$ 时，$M$ 的高位就会溢出模数 $q$ 的范围。
+对于这里的整数环权重，要求整数 $\beta\ge2$ 且 $\beta^l\mid q$。只有在期望第一行恢复取自 $\{0,\ldots,t-1\}$ 的系数代表元时，才需要 $t\le\beta$。GLev 也可作为一般环消息的 gadget 密文使用；在这种用法中，并不要求每一行都能单独解码原消息。若要用降幂 gadget 精确重构每个剩余，还须满足 $q=\beta^l$，如 \autoref{sec:decomp} 所述。
 
 
 \subsection{加密}
@@ -24,7 +24,7 @@ $\textsf{GLev}_{S, \sigma}^{\beta, l}(M) = \Bigl \{\textsf{GLWE}_{S, \sigma}\lef
 
 \subsection{解密}
 
-使用秘密密钥 $S$，按照尺度因子 $\Delta_1 = \dfrac{q}{\beta}$ 解密第一个 GLWE 密文，即 $i=1$ 对应的密文。虽然 GLev 密文包含 $l$ 份加密，但随着索引增大到 $i > 1$，尺度因子 $\Delta_i = q/\beta^i$ 逐渐减小。如果 $\Delta_i$ 小于噪声所需的阈值，这些分量就无法正确解密。
+第一行的相位为 $(q/\beta)M+E_1\pmod q$。若 $\|E_1\|_\infty<q/(2\beta)$，最近整数解码逐系数恢复 $M\bmod\beta$。只有当原代表元能由其模 $\beta$ 的类唯一确定时，才能恢复它，例如系数属于 $\{0,\ldots,t-1\}$ 且 $t\le\beta$。类似地，若 $\|E_i\|_\infty<q/(2\beta^i)$，第 $i$ 行能解码模 $\beta^i$ 的结果。后面的行对误差的容忍度更低，但不一定无法解码；gadget 运算也不要求各行单独解码。
 
 \subsection{Lev 与 RLev}
 

@@ -1,449 +1,287 @@
-%\subsection{Scheme Comparison}
-%\label{subsec:scheme-comparison}
+下表总结本书讨论的环版本，并不覆盖这些方案族的全部变体。设 $R=\mathbb Z[X]/(X^n+1)$、$R_q=R/qR$，其中 $n$ 为 2 的幂。记 $[x]_q$ 为中心化代表元，$\lfloor x\rceil$ 为最近整数舍入；舍入、模约减和系数界均逐系数解释；多项式乘法在指定的商环中进行。
 
-下面对 TFHE、BFV、CKKS 和 BGV 进行总结与比较：
-
-\begin{comment}
-\clearpage
-
-
-
-\end{comment}
+本节统一采用加号相位约定 $b+\langle\vec a,\vec s\rangle$ 或 $B+AS$。TFHE 正文章节采用等价的减号约定，可通过将公开掩码取负互相转换；盲旋转和密钥切换的符号必须与所选约定一致。不能假设求值后的误差仍具有新鲜加密时的分布或标准差。各概要公式均须满足相应解码界、参数兼容性及求值密钥假设；特别是将秘密密钥加密在相关密钥下公开时，可能需要循环/KDM 安全假设或适当的密钥层级。
 
 \captionsetup{justification=raggedright,singlelinecheck=false,labelfont=bf}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\textbf{困难问题基础}\\\hline\hline
-\textbf{TFHE}&LWE\\\hline
-\textbf{BFV}&\\
-\textbf{CKKS}&RLWE\\
-\textbf{BGV}&\\\hline
-\end{tabular}
+\textbf{TFHE}&标量密文依赖 LWE；环密文及求值密钥还涉及 GLWE/RLWE。\\\hline
+\textbf{BFV / CKKS / BGV}&此处讨论的环版本依赖 RLWE。安全性取决于环、维数、模数、秘密密钥与误差分布，以及公开的求值密钥。\\\hline
+\end{tabularx}
 \caption{\textbf{困难问题基础}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\textbf{基本数据类型}\\\hline\hline
-\textbf{TFHE}&向量\\\hline
-\textbf{BFV}&\\
-\textbf{CKKS}&多项式\\
-\textbf{BGV}&\\\hline
-\end{tabular}
-\caption{\textbf{基本数据类型}}
+\textbf{TFHE}&标量接口为 $(\vec a,b)\in\mathbb Z_q^{k+1}$；盲旋转内部使用 GLWE/GGSW 环密文。\\\hline
+\textbf{BFV / CKKS / BGV}&重线性化后的密文为 $(A,B)\in R_q^2$；乘法中间结果有三个分量。\\\hline
+\end{tabularx}
+\caption{\textbf{密文表示}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{明文}}\\\hline\hline
-\textbf{TFHE}&数值 $m \in \mathbb{Z}_t$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为 2 的幂}\\\hline
-\textbf{BFV}&多项式 $M \in \mathbb{Z}_t[X]/X^n+1$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数，$n$ 为 2 的幂}\\\hline
-\textbf{CKKS}&多项式 $M \in \mathbb{R}[X]/X^n+1$ \text{ }\textcolor{red}{ $\rhd$ $n$ 为 2 的幂}\\\hline
-\textbf{BGV}&多项式 $M \in \mathbb{Z}_t[X]/X^n+1$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数，$n$ 为 2 的幂}\\\hline
-\end{tabular}
-\caption{\textbf{明文}}
+\textbf{TFHE}&有限消息字母表（常取 $m\in\mathbb Z_t$）嵌入环面。将 $t$ 选为 2 的幂是编码选择，并非普遍必要条件。\\\hline
+\textbf{BFV / BGV}&$M\in R_t$，且 $t$ 不必是素数。完整标量批编码通常取素数 $t\equiv1\pmod{2n}$；其他选择可能得到扩环槽。\\\hline
+\textbf{CKKS}&最多有 $n/2$ 个复数槽，经近似编码成为整数多项式；实数或复数语义值并非精确的有限环元素。\\\hline
+\end{tabularx}
+\caption{\textbf{明文与槽的定义域}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{私钥}}\\\hline\hline
-\textbf{TFHE}&向量 $\vec{s} \xleftarrow{\$} \mathbb{Z}_2^k$，由 $\{0, 1\}$ 采样 \textcolor{red}{ $\rhd$ $\$$ 为均匀随机分布}\\\hline
-\textbf{BFV}&\\
-\textbf{CKKS}&多项式 $S \xleftarrow{\$} \mathbb{Z}_3[X]/X^n+1$，其中 $\mathbb{Z}_3 = \{-1, 0, 1\}$\\
-\textbf{BGV}&\\\hline
-\end{tabular}
-\caption{\textbf{私钥}}
+\textbf{TFHE}&此处取 $s_i\in\{0,1\}$；盲旋转使用另一组 GLWE 秘密密钥。\\\hline
+\textbf{BFV / CKKS / BGV}&小多项式 $S\in R$ 的系数常取自 $\{-1,0,1\}$，再嵌入 $R_q$；密钥运算并非在 $R_3$ 中进行。\\\hline
+\end{tabularx}
+\caption{\textbf{秘密密钥}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{密文}}\\\hline\hline
-\textbf{TFHE}&（向量 $\vec{a}$，数值 $b$）= $(\vec{a} \xleftarrow{\$} \mathbb{Z}_q^k$，$\text{ } b \in \mathbb{Z}_q)$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$，且 $t$ 整除 $q$}\\\hline
-\textbf{BFV}&\\
-\textbf{CKKS}&（多项式 $A, B$）= $(A \xleftarrow{\$} \mathbb{Z}_q[X]/X^n+1$，\text{ } $B \in \mathbb{Z}_q[X]/X^n+1)$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$}\\
-\textbf{BGV}&\\\hline
-\end{tabular}
-\caption{\textbf{密文}}
+\textbf{TFHE}&新鲜掩码 $\vec a\leftarrow\mathbb Z_q^k$，标量 $b\in\mathbb Z_q$。下述简单整数编码假设 $t\mid q$。\\\hline
+\textbf{BFV / CKKS / BGV}&新鲜掩码 $A\leftarrow R_q$，且 $B\in R_q$。求值后的密文不必服从新鲜加密的分布。\\\hline
+\end{tabularx}
+\caption{\textbf{密文与新鲜随机性}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{噪声}}\\\hline\hline
-\textbf{TFHE}&数值 $e \xleftarrow{\chi} \mathbb{Z}_q$ \text{ } \textcolor{red}{ $\rhd$ $\chi$ 为高斯随机分布}\\\hline
-\textbf{BFV}&\\
-\textbf{CKKS}&多项式 $E \xleftarrow{\chi} \mathbb{Z}_q[X]/X^n+1$\\
-\textbf{BGV}&\\\hline
-\end{tabular}
+\textbf{All schemes}&新鲜误差取自明确指定的小分布；离散高斯、有界分布及其他分布各自需要相应的参数分析。\\\hline
+\textbf{Evaluation}&独立零均值误差满足 $\operatorname{Var}(e_1+e_2)=\operatorname{Var}(e_1)+\operatorname{Var}(e_2)$。同一密文与自身相加得到误差 $2e$，并非两个独立样本。\\\hline
+\end{tabularx}
 \caption{\textbf{噪声}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{尺度因子}}\\\hline\hline
-\textbf{TFHE}&用于 $\Delta m$，\text{ } 其中 $\Delta = \dfrac{q}{t}$ \text{ } \textcolor{red}{ $\rhd$ $t$ 整除 $q$}\\\hline
-\textbf{BFV}&用于 $\Delta M$，\text{ } 其中 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数}\\\hline
-\textbf{CKKS}&用于 $\Delta M$，\text{ } 其中 $\Delta \cdot ||M||_\infty \ll q_0$\\
-& \text{ } \textcolor{red}{ $\rhd$ $q_0$ 为最低乘法层级的密文模数}\\\hline
-\textbf{BGV}&用于 $\Delta E$，\text{ } 其中 $\Delta = t$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数}\\\hline
-\end{tabular}
+\textbf{TFHE}&此处整数编码取 $\Delta=q/t$，并要求 $t\mid q$。\\\hline
+\textbf{BFV}&$\Delta=\lfloor q/t\rfloor$，记 $r=q-t\Delta$；余数 $r$ 必须计入正确性界。\\\hline
+\textbf{CKKS}&实际尺度 $\Delta$ 是必须跟踪的元数据，会随乘法和重缩放变化；包含误差的完整相位必须适合当前模数。\\\hline
+\textbf{BGV}&明文不缩放，误差为 $t$ 的倍数。将误差系数记为 $\Delta=t$，不表示它与 BFV/CKKS 的明文尺度相同。\\\hline
+\end{tabularx}
 \caption{\textbf{尺度因子}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{加密}}\\\hline\hline
-\textbf{TFHE}&$(\vec{a}, b)$ \text{ } 其中 $\vec{a} \xleftarrow{\$} \mathbb{Z}_q^k$、$\text{ } b = \Delta m + e - a\cdot s \bmod q$，\text{ } $e \xleftarrow{\chi} \mathbb{Z}_q$\\
-&\text{ } \text{ } \textcolor{red}{ $\rhd$ 每次使用 $e$ 后即丢弃}\\\hline
-\textbf{BFV}&$(A, B)$ \text{ } 其中 $A \xleftarrow{\$} \mathbb{Z}_q[X] / (X^n + 1)$、$\text{ } B = \Delta M + E - A\cdot S \bmod q$，\text{ } $E \xleftarrow{\chi} \mathbb{Z}_q[X]/(X^n+1)$\\
-\textbf{CKKS}&\text{ } \text{ }\textcolor{red}{ $\rhd$ 每次使用 $E$ 后即丢弃}\\\hline
-\textbf{BGV}&$(A, B)$ \text{ } 其中 $A \xleftarrow{\$} \mathbb{Z}_q[X] / (X^n + 1)$、$\text{ } B = M + \Delta E - A\cdot S \bmod q$，\text{ } $E \xleftarrow{\chi} \mathbb{Z}_q[X]/(X^n+1)$\\
-&\text{ } \text{ }\textcolor{red}{ $\rhd$ 每次使用 $E$ 后即丢弃}\\\hline
-\end{tabular}
-\caption{\textbf{加密}}
+\textbf{TFHE}&$b=[\Delta m+e-\langle\vec a,\vec s\rangle]_q$。每次加密均重新采样掩码与误差。\\\hline
+\textbf{BFV}&$B=[\Delta M+E-AS]_q$。\\\hline
+\textbf{CKKS}&$B=[\lfloor\Delta M\rceil+E_{\rm enc}-AS]_q$。下文 $E$ 包含编码及加密误差。\\\hline
+\textbf{BGV}&$B=[M+tE-AS]_q$。\\\hline
+\end{tabularx}
+\caption{\textbf{对称加密}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{加密关系}}\\\hline\hline
-\textbf{TFHE}&$b + a\cdot s = \Delta m + e \pmod q$，\text{ } 其中 $\Delta = \dfrac{q}{t}$ \text{ } \textcolor{red}{ $\rhd$ $t$ 整除 $q$}\\\hline
-\textbf{BFV}&$B + A\cdot S = \Delta M + E \pmod q$，\text{ } 其中 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数}\\\hline
-\textbf{CKKS}&$B + A\cdot S = \Delta M + E \pmod q$，\text{ } 其中 $\Delta \cdot ||M||_\infty \ll q_0$\\
-& \text{ } \textcolor{red}{ $\rhd$ $q_0$ 为最低乘法层级的密文模数}\\\hline
-\textbf{BGV}&$B + A\cdot S = M + \Delta E \pmod q$，\text{ } 其中 $\Delta = t$ \text{ } \textcolor{red}{ $\rhd$ $t$ 为素数}\\\hline
-\end{tabular}
-\caption{\textbf{加密关系}}
+\textbf{TFHE}&$\phi=b+\langle\vec a,\vec s\rangle\equiv\Delta m+e\pmod q$。\\\hline
+\textbf{BFV / CKKS}&$\Phi=B+AS\equiv\Delta M+E\pmod q$。\\\hline
+\textbf{BGV}&$\Phi=B+AS\equiv M+tE\pmod q$。\\\hline
+\end{tabularx}
+\caption{\textbf{相位关系}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{解密公式}}\\\hline\hline
-\textbf{TFHE}&$m = \left\lceil\dfrac{(b + a\cdot s \bmod q)}{\Delta}\right\rfloor \bmod t$\\
-&$\textcolor{white}{m} = \left\lceil\dfrac{(\Delta m + e)}{\Delta}\right\rfloor \bmod t$ \text{ } \textcolor{red}{ $\rhd$ 若 $e < \dfrac{\Delta}{2}$，则 $e$ 被消去}\\\hline
-\textbf{BFV}&$M = \left\lceil\dfrac{(B + A\cdot S \bmod q)}{\Delta}\right\rfloor  \bmod t$\\
-&$\textcolor{white}{M} = \left\lceil\dfrac{(\Delta M + E)}{\Delta}\right\rfloor  \bmod t$ \text{ } \textcolor{red}{ $\rhd$ 若 $||E||_\infty < \dfrac{\Delta}{2}$，则 $E$ 被消去}\\\hline
-\textbf{CKKS}&$M = \left\lceil\dfrac{(B + A\cdot S \bmod q)}{\Delta}\right\rfloor_{\frac{1}{\Delta}}$\\
-&$\textcolor{white}{M} = \left\lceil\dfrac{\Delta M + E}{\Delta}\right\rfloor_{\frac{1}{\Delta}}$ \text{ } \textcolor{red}{ $\rhd$ 最终残余噪声为 $\dfrac{E}{\Delta}$（增大 $\Delta$ 可减小它）}\\\hline
-\textbf{BGV}&$M = (B + A\cdot S \bmod q) \bmod t$\\
-&$\textcolor{white}{M} = (M + \Delta E) \bmod t$ \text{ } \textcolor{red}{ $\rhd$ 若 $\Delta E < q$，则 $E$ 被消去}\\\hline
-\end{tabular}
-\caption{\textbf{解密公式}}
+\textbf{TFHE}&若 $|e|<\Delta/2$，则 $m=\lfloor[\phi]_q/\Delta\rceil\bmod t$。\\\hline
+\textbf{BFV}&$M=\lfloor(t/q)[\Phi]_q\rceil\bmod t$。对选定的 $M$ 的整数提升，一个充分条件为 $\|tE-rM\|_\infty<q/2$，其中 $r=q-t\Delta$。\\\hline
+\textbf{CKKS}&将 $[\Phi]_q/\Delta$ 经典范嵌入解码。若 $\|\Delta M+E\|_\infty<q/2$，则系数误差为 $E/\Delta$；槽误差还须经过嵌入后估计。\\\hline
+\textbf{BGV}&$M=[\Phi]_q\bmod t$。一个充分的无回绕条件为 $\|M+tE\|_\infty<q/2$。\\\hline
+\end{tabularx}
+\caption{\textbf{解密与充分正确性条件}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{密文模数}}\\\hline\hline
-\textbf{TFHE}&单个数值 $q$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$，且 $t$ 整除 $q$}\\\hline
-\textbf{BFV}&单个数值 $q$ \text{ } \textcolor{red}{ $\rhd$ $q \gg t$}\\\hline
-\textbf{CKKS}&具有 $L$ 个乘法层级的模数链 $\{q_0, q_1, \cdots, q_L\}$\\
-& \text{ } \textcolor{red}{ $\rhd$ 各层满足 $q_i = \prod\limits_{j=0}^{l}w_j$，每个 $w_j$ 为 CRT 模数}\\
-&\text{ } \text{ } \text{ } \textcolor{red}{满足 $w_0 \gg \Delta \cdot ||M||_{\infty}, \text{ } w_j \approx \Delta$（对于 $1 \leq j \leq L$）}\\\hline
-\textbf{BGV}&具有 $L$ 个乘法层级的模数链 $\{q_0, q_1, \cdots, q_L\}$\\
-&\text{ } \textcolor{red}{ $\rhd$ 各层满足 $q_i = \prod\limits_{j=0}^{l}w_j$，每个 $w_j$ 为 CRT 模数}\\
-&\text{ } \text{ } \text{ } \textcolor{red}{满足 $w_0 \equiv w_1 \equiv \cdots \equiv w_L \bmod t$}\\\hline
-\end{tabular}
+\textbf{TFHE / BFV}&基本表述可采用固定模数 $q$，也存在 RNS 及模数切换变体。\\\hline
+\textbf{CKKS}&$q_i=\prod_{j=0}^{i}w_j$，各因子两两互素。重缩放去除 $w_l=q_l/q_{l-1}$ 时，尺度精确乘以 $1/w_l$，即使 $w_l\approx\Delta$ 也不能视为完全相等。\\\hline
+\textbf{BGV}&$q_i=\prod_{j=0}^{i}w_j$，各因子与 $t$ 互素。令所有 $w_j\equiv1\pmod t$ 可使用简单的剩余类保持约定；其他链需要校正因子。\\\hline
+\end{tabularx}
 \caption{\textbf{密文模数}}
 \end{table}
 
-
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{密文与密文加法}}\\\hline\hline
-\textbf{TFHE}&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
-&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_2) = (\vec{a}_2, b_2) = (a_{2,0}, a_{2, 1}, \cdots, a_{2, k-1}, b_2) \bmod q$\\
-&$\textsf{LWE}_{\vec{s}, \sigma}(\Delta (m_1 + m_2)) = (\vec{a}_1+\vec{a}_2, b_1+b_2) \bmod q$\\\hline
-\textbf{BFV}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q$\\
-&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2) \bmod q$\\
-&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + M_2)) =(A_1+A_2,B_1+B_2) \bmod q$\\\hline
-\textbf{CKKS}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q_l$\\
-&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2) \bmod q_l$\\
-&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + M_2)) =(A_1+A_2,B_1+B_2) \bmod q_l$\\\hline
-\textbf{BGV}&- 密文 $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1) \bmod q_l$\\
-&- 密文 $\textsf{RLWE}_{S, \sigma}(M_2) = (A_2, B_2) \bmod q_l$\\
-&$\textsf{RLWE}_{S, \sigma}(M_1 + M_2) =(A_1+A_2,B_1+B_2) \bmod q_l$\\\hline
-\end{tabular}
-\caption{\textbf{密文与密文加法}}
+\textbf{All schemes}&逐分量相加得到 $(A_1+A_2,B_1+B_2)$ 或 $(\vec a_1+\vec a_2,b_1+b_2)$。密钥及模数必须匹配，CKKS 还须对齐尺度。\\\hline
+\textbf{Error}&提升后的相位误差相加：$E_{\rm out}=E_1+E_2$。BFV 将回绕后的和重新表示为 $R_t$ 中的代表元时，还须计入 $q-t\Delta$ 对应的进位修正。\\\hline
+\end{tabularx}
+\caption{\textbf{密文与密文相加}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{密文与明文加法}}\\\hline\hline
-\textbf{TFHE}&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
-&- 明文数值 $c \in \mathbb{Z}_t$\\
-&$\textsf{LWE}_{\vec{s}, \sigma}(\Delta (m_1 + c)) = (\vec{a}_1, b_1+\Delta c) \bmod q$\\\hline
-\textbf{BFV}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q$\\
-&- 明文多项式 $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
-&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + C)) =(A_1,B_1+\Delta C) \bmod q$\\\hline
-\textbf{CKKS}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q_l$\\
-&- 明文多项式 $C \in \mathbb{R}[X]/(X^n + 1)$\\
-&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 + C)) =(A_1,B_1+\Delta C) \bmod q_l$\\\hline
-\textbf{BGV}&- 密文 $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1) \bmod q_l$\\
-&- 明文多项式 $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
-&$\textsf{RLWE}_{S, \sigma}(M_1 + C) =(A_1,B_1+C) \bmod q_l$\\\hline
-\end{tabular}
-\caption{\textbf{密文与明文加法}}
+\textbf{TFHE / BFV}&按约定整数代表元，将 $\Delta c$ 加到 $b$，或将 $\Delta C$ 加到 $B$。\\\hline
+\textbf{CKKS}&将整数编码 $\lfloor\Delta C\rceil$ 加到 $B$，并将编码误差计入精度预算。\\\hline
+\textbf{BGV}&在密文模数下将 $C$ 加到 $B$。\\\hline
+\end{tabularx}
+\caption{\textbf{密文与明文相加}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{密文与明文乘法}}\\\hline\hline
-\textbf{TFHE}&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
-&- 明文数值 $c \in \mathbb{Z}_t$\\
-&$\textsf{LWE}_{\vec{s}, \sigma}(\Delta (m_1 \cdot c)) = (\vec{a}_1 \cdot c, \text{ } b_1 \cdot c) \bmod q$\\\hline
-\textbf{BFV}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1) \bmod q$\\
-&- 明文多项式 $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
-&$\textsf{RLWE}_{S, \sigma}(\Delta (M_1 \cdot C)) =(A_1 \cdot C, \text{ } B_1 \cdot C)$\\\hline
-\textbf{CKKS}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q_l$\\
-&- 明文多项式 $C \in \mathbb{R}[X]/(X^n + 1)$\\
-&1. \underline{基本乘法}\\
-&\textcolor{white}{1. } $\textsf{ct} = \textsf{RLWE}_{S, \sigma}(\Delta^2 (M_1 \cdot C)) =(A_1 \cdot \Delta C, \text{ } B_1 \cdot \Delta  C)  \bmod q_l$\\
-&2. 按 $\dfrac{1}{\Delta}$ \underline{重缩放}：$\left\lceil\dfrac{\textsf{ct}}{\Delta}\right\rfloor = \textsf{RLWE}_{S, \sigma}(\Delta M_1 C) \bmod q_{l-1}$\\\hline
-\textbf{BGV}&- 密文 $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1) \bmod q_l$\\
-&- 明文多项式 $C \in \mathbb{Z}_t[X]/(X^n + 1)$\\
-&$\textsf{RLWE}_{S, \sigma}(M_1 \cdot C) =(A_1 \cdot C, \text{ } B_1\cdot C)  \bmod q_l$\\\hline
-\end{tabular}
-\caption{\textbf{密文与明文乘法}}
+\textbf{TFHE / BFV / BGV}&将两个分量均乘以未缩放明文 $c$ 或 $C$。相位误差变为 $ce$ 或 $CE$，并计入代表元修正。在 $R$ 中有 $\|CE\|_\infty\leq\|C\|_1\|E\|_\infty$。\\\hline
+\textbf{CKKS}&乘以尺度为 $\Delta_C$ 的整数编码。若重缩放去除 $w_l$，输出尺度为 $\Delta_{\rm out}=\Delta\Delta_C/w_l$。分量舍入还产生 $\rho_B+\rho_A S$，其中 $\|\rho_A\|_\infty,\|\rho_B\|_\infty\leq1/2$。\\\hline
+\end{tabularx}
+\caption{\textbf{密文与明文相乘}}
 \end{table}
 
-
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{密文与密文乘法}}\\\hline\hline
-\textbf{TFHE}&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) = (\vec{a}_1, b_1) = (a_{1,0}, a_{1, 1}, \cdots, a_{1, k-1}, b_1) \bmod q$\\
-&- 密文 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_2) = (\vec{a}_2, b_2) = (a_{2,0}, a_{2, 1}, \cdots, a_{2, k-1}, b_2)  \bmod q$\\
-&1. \underline{可编程自举}:\\ 
-&\textcolor{white}{1. } 将 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_2)$ 转换为 $\textsf{GSW}_{\vec{s}, \sigma}^{\beta, l}(m_2)$。\\
-&2. \underline{同态乘法}:\\
-&\textcolor{white}{2. } 计算 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1) \cdot \textsf{GSW}_{\vec{s}, \sigma}^{\beta, l}(m_2)$\\
-&\text{ }$ = \sum\limits_{i=0}^{k-1} \langle \textsf{Decomp}^{\beta, l}(a_{1,i}),  \textsf{Lev}_{\vec{s}, \sigma}^{\beta, l}(-s_i\cdot m_2) \rangle + \langle \textsf{Decomp}^{\beta, l}(b_{1}),  \textsf{Lev}_{\vec{s}, \sigma}^{\beta, l}(m_2) \rangle$ \\
-&\text{ } $ = \textsf{LWE}_{\vec{s}, \sigma}(\Delta m_1 m_2)$\\\hline
-\textbf{BFV}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q$\\
-&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2)  \bmod q$\\
-&1. \underline{\textsf{ModRaise}}：从 $q$ 升至 $Q = q \cdot \Delta$\\
-&\textcolor{white}{1. } - 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod Q$\\
-&\textcolor{white}{1. } - 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2)  \bmod Q$\\
-&2. \underline{多项式乘法}: \\
-& \textcolor{white}{1. } $(A_1A_2, \text{ } A_1B_2 + A_2B_1, \text{ } B_1B_2) \equiv (D_2, D_1, D_0) \pmod Q$\\
-&3. \underline{重线性化}: $\textsf{ct}_\alpha = (D
-_1, D_0),$\text{ } $\textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$\\
-&\textcolor{white}{3. 重线性化: } $\textsf{ct}_\alpha + \textsf{ct}_\beta = \textsf{ct}_{\alpha + \beta} = \textsf{RLWE}_{S, \sigma}(\Delta^2 M_1 M_2) \bmod Q$\\
-&4. 按 $\dfrac{1}{\Delta}$ \underline{重缩放}：$\left\lceil\dfrac{\textsf{ct}_{\alpha+\beta}}{\Delta}\right\rfloor = \textsf{RLWE}_{S, \sigma}(\Delta M_1 M_2) \bmod q$\\\hline
-\textbf{CKKS}&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_1) = (A_1, B_1)  \bmod q_l$\\
-&- 密文 $\textsf{RLWE}_{S, \sigma}(\Delta M_2) = (A_2, B_2)  \bmod q_l$\\
-&1. \underline{多项式乘法}: \\
-& \textcolor{white}{1. } $(A_1A_2, \text{ } A_1B_2 + A_2B_1, \text{ } B_1B_2) \equiv (D_2, D_1, D_0) \pmod{q_l}$\\
-&2. \underline{重线性化}: $\textsf{ct}_\alpha = (D
-_1, D_0),$\text{ } $\textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$\\
-&\textcolor{white}{3. 重线性化: } $\textsf{ct}_\alpha + \textsf{ct}_\beta = \textsf{ct}_{\alpha + \beta} = \textsf{RLWE}_{S, \sigma}(\Delta^2 M_1 M_2) \bmod q_l$\\
-&3. 按 $\dfrac{1}{\Delta}$ \underline{重缩放}：$\left\lceil\dfrac{\textsf{ct}_{\alpha+\beta}}{\Delta}\right\rfloor = \textsf{RLWE}_{S, \sigma}(\Delta M_1 M_2) \bmod q_{l-1}$\\\hline
-\textbf{BGV}&- 密文 $\textsf{RLWE}_{S, \sigma}(M_1) = (A_1, B_1)  \bmod q_l$\\
-&- 密文 $\textsf{RLWE}_{S, \sigma}( M_2) = (A_2, B_2)  \bmod q_l$\\
-&1. \underline{多项式乘法}: \\
-& \textcolor{white}{1. } $(A_1A_2, \text{ } A_1B_2 + A_2B_1, \text{ } B_1B_2) \equiv (D_2, D_1, D_0) \pmod{q_l}$\\
-&2. \underline{重线性化}: $\textsf{ct}_\alpha = (D
-_1, D_0),$\text{ } $\textsf{ct}_\beta = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$\\
-&\textcolor{white}{3. 重线性化: } $\textsf{ct}_\alpha + \textsf{ct}_\beta = \textsf{ct}_{\alpha + \beta} = \textsf{RLWE}_{S, \sigma}( M_1 M_2) \bmod q_l$\\
-&3. （可选）按 $\dfrac{1}{\Delta}$ \underline{重缩放}：$\left\lceil\dfrac{\textsf{ct}_{\alpha+\beta}}{\Delta}\right\rfloor_t = \textsf{RLWE}_{S, \sigma}(M_1 M_2) \bmod q_{l-1}$\\
-&\textcolor{red}{ $\rhd$ $\lceil\rfloor_t$ 表示舍入到 $t$ 的最近倍数}\\
-&\textcolor{red}{ $\rhd$ 重缩放可降低之后的噪声增长速度}\\\hline
-\end{tabular}
-\caption{\textbf{密文与密文乘法}}
+\textbf{TFHE}&外积需要某个操作数的兼容 GSW/GGSW 密文。将 LWE 密文转换为该表示需要电路自举，不能仅与普通 PBS 等同；噪声须包含分解及求值密钥误差。\\\hline
+\textbf{BFV}&规范 FV 乘法先形成整数负循环乘积 $(D_2,D_1,D_0)=(A_1A_2,A_1B_2+A_2B_1,B_1B_2)$，将分量乘以 $t/q$ 并舍入，再在模 $q$ 下重线性化。缩放前不能先将乘积模 $q$ 约减。正文另行分析了明确标注的 $1/\Delta$ 教学变体。\\\hline
+\textbf{CKKS}&进行张量乘法、重线性化，并在计划需要时重缩放。输入尺度为 $\Delta_1,\Delta_2$ 时，乘法后尺度为 $\Delta_1\Delta_2$，重缩放后为 $\Delta_1\Delta_2/w_l$；重线性化和舍入均增加误差。\\\hline
+\textbf{BGV}&噪声界成立时，张量乘法及重线性化保持模 $t$ 的消息。可选的模数切换使用比值 $q_{l-1}/q_l$ 及剩余类校正，不能先除以 $t$ 再舍入到 $t$ 的倍数。\\\hline
+\end{tabularx}
+\caption{\textbf{密文与密文相乘}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{最大乘法次数（不执行自举）}}\\\hline\hline
-\textbf{TFHE}&使用可编程自举时不受限制（不使用自举则无法实现）\\\hline
-\textbf{BFV}&不受限制（原文表述；请参见表后的译者注）\\\hline
-\textbf{CKKS}&次数受模数链长度限制\\\hline
-\textbf{BGV}&次数受模数链长度限制\\\hline
-\end{tabular}
-\caption{\textbf{最大乘法次数（不执行自举）}}
+\textbf{TFHE}&分层运算受有限噪声预算约束。门自举或 PBS 已执行自举，不能用来论证无自举条件下的计算能力。\\\hline
+\textbf{BFV}&固定参数仅支持由噪声增长界定的一类有限预算电路；固定密文模数不意味着可无限次乘法。\\\hline
+\textbf{CKKS / BGV}&模数链及噪声或精度预算约束乘法深度与层级消耗，不能把链长度直接当作并行乘法门的总数；刷新需要有效的自举参数配置。\\\hline
+\end{tabularx}
+\caption{\textbf{无自举时的计算预算}}
 \end{table}
-\noindent\textbf{译者注：}上表沿用原文的比较口径。BFV 在固定参数且不进行自举时仍受噪声预算约束；“不受限制”不能理解为可以正确执行任意深度的计算。关于 BGV 噪声管理等表述的进一步核对事项，见仓库的 \texttt{TRANSLATION.md}。
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{密钥切换}}\\\hline\hline
-\textbf{TFHE}&密钥切换 $\vec{s} \rightarrow \vec{s}_{'}$：\\
-&$\textsf{LWE}_{\vec{s}_{'},\sigma}(\Delta m) = b + a\cdot \textsf{LWE}_{\vec{s}_{'}, \sigma}(s)$\\
-&\textcolor{white}{$\textsf{LWE}_{\vec{s}_{'},\sigma}(\Delta m) $} $ = b + \bm{\langle} \textsf{Decomp}^{\beta, l}(\vec{a}), \text{ } \textsf{Lev}_{\vec{s}_{'}, \sigma}^{\beta, l}(\vec{s}) \bm{\rangle}$\\\hline
-\textbf{BFV}&密钥切换 $S \rightarrow S'$：\\
-\textbf{CKKS}&$\textsf{RLWE}_{S',\sigma}(\Delta M) = B + A\cdot \textsf{RLWE}_{S', \sigma}(S)$\\
-&\textcolor{white}{$\textsf{RLWE}_{S',\sigma}(\Delta M) $} $ = B + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$\\\hline
-\textbf{BGV}&密钥切换 $S \rightarrow S'$：\\
-&$\textsf{RLWE}_{S',\sigma}(M) = B + A\cdot \textsf{RLWE}_{S', \sigma}(S)$\\
-&\textcolor{white}{$\textsf{RLWE}_{S',\sigma}(M) $} $ = B + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$\\\hline
-\end{tabular}
+\textbf{Ring form}&设 $A=\sum_i d_i g_i$ 为精确 Gadget 分解，求值密钥分量 $K_i$ 在 $S'$ 下的相位为 $g_iS+\varepsilon_i$。则 $c'=(0,B)+\sum_i d_iK_i$ 在 $S'$ 下的相位为 $B+AS+\sum_i d_i\varepsilon_i$。\\\hline
+\textbf{Conditions}&TFHE 使用相应的向量公式；近似分解还产生残差项。BGV 的求值密钥误差须为 $t$ 的倍数；标量与密文相加仅指加到密文体分量。\\\hline
+\end{tabularx}
 \caption{\textbf{密钥切换}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{模数丢弃 (\textsf{ModDrop})}}\\\hline\hline
-\textbf{CKKS}&- 乘法层级为 $l$ 的密文：$\textsf{RLWE}_{S, \sigma}(\Delta M) = (A, B)  \bmod q_l$\\
-\textbf{BGV}&- 乘法层级为 $l-1$ 的密文：\\
-&\textcolor{white}{ - } $\textsf{RLWE}_{S, \sigma}(\Delta M) = (A', B') = (A \bmod q_{l-1}, B \bmod q_{l-1})$\\\hline
-\end{tabular}
-\caption{\textbf{模数丢弃 (\textsf{ModDrop})}}
+\textbf{ModDrop}&当 $q'\mid q$ 时，将分量直接模 $q'$ 约减而不缩放。CKKS 的尺度元数据不变，而所表示的值保持正确要求剩余相位可容纳；BGV 在 $\|M+tE\|_\infty<q'/2$ 时保持明文，任意回绕可能改变模 $t$ 的结果。\\\hline
+\textbf{BGV switch}&在 $q\equiv q'\pmod t$ 的约定下，选取接近 $(q'/q)c$ 且满足 $c'\equiv c\pmod t$ 的各分量。缩放同时改变绝对噪声与模数，并增加舍入误差，不会产生新鲜噪声分布。\\\hline
+\end{tabularx}
+\caption{\textbf{模数丢弃与模数切换}}
 \end{table}
 
-
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{明文编码与解码}}\\\hline\hline
-\textbf{TFHE}&不需要，因为每个明文是单个数值\\\hline
-\textbf{BFV}&为支持批处理，须将输入槽位转换为多项式系数：\\
-\textbf{CKKS}&- 将输入槽位 $\vec{v}$ 编码为多项式系数：$\vec{m} = n^{-1}\cdot\vec{v}\cdot I_n^R \cdot \hathat W$\\
-\textbf{BGV}&- 将多项式系数 $\vec{m}$ 解码为输入槽位：$\vec{v} = \vec{m} \cdot \hathat W^{*}$\\\hline
-\end{tabular}
+\textbf{TFHE}&即使只有标量，也需要 $m\mapsto\Delta m$ 等编码及解码噪声裕量；还须指定查找表的填充方式与有效输入区间。\\\hline
+\textbf{BFV / BGV}&批编码是在相应因式分解假设下对明文环应用多项式 CRT；直接处理多项式消息时不一定需要批编码。\\\hline
+\textbf{CKKS}&典范嵌入及其逆将共轭对称的复数求值与实系数联系起来，再通过缩放及整数舍入得到有限精度编码。\\\hline
+\end{tabularx}
 \caption{\textbf{明文编码与解码}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{输入槽位旋转}}\\\hline\hline
-\textbf{TFHE}&不适用，因为明文是单个数值（即单个槽位）\\\hline
-\textbf{BFV}&给定 $\textsf{ct} = \textsf{RLWE}_{S(X), \sigma}\bm(\Delta M(X)\bm) = \bm(A(X), B(X)\bm)$，\\
-&\text{ } 将输入槽位向左旋转 $h$ 个位置：\\
-\textbf{CKKS}&1. 将 $\textsf{ct}$ 更新为 $ \textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(\Delta M(X^{J(h)})\bm) = \bm(A(X^{J(h)})$、$B(X^{J(h)})\bm)$\\
-&\text{ } \text{ }（其中 $J(h) = 5^h \bmod 2n$）\\
-&2. 密钥切换：将 $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(\Delta M(X^{J(h)})\bm)$ 转为 $\textsf{RLWE}_{S(X), \sigma}\bm(\Delta M(X^{J(h)})\bm)$。\\\hline
-\textbf{BGV}&给定 $\textsf{ct} = \textsf{RLWE}_{S(X), \sigma}\bm(M(X)\bm) = \bm(A(X), B(X)\bm)$，\\
-&\text{ } 将输入槽位向左旋转 $h$ 个位置：\\
-&1. 将 $\textsf{ct}$ 更新为 $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(M(X^{J(h)})\bm) = \bm(A(X^{J(h)})$、$B(X^{J(h)})\bm)$\\
-&2. 密钥切换：将 $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm( M(X^{J(h)})\bm)$ 转为 $\textsf{RLWE}_{S(X), \sigma}\bm( M(X^{J(h)})\bm)$。\\\hline
-\end{tabular}
-\caption{\textbf{输入槽位旋转}}
+\textbf{Ring schemes}&先应用自同构 $X\mapsto X^j$，再将密钥从 $S(X^j)$ 切换回 $S(X)$。在常用排列下，$j=5^h\bmod2n$ 旋转 CKKS 复数槽，或分别旋转 BFV/BGV 的两行槽；并非贯穿全部 $n$ 个标量槽的单个循环。\\\hline
+\textbf{TFHE}&标量 LWE 接口没有 SIMD 槽旋转；打包 GLWE 构造具有其他多项式操作，应与该接口区分。\\\hline
+\end{tabularx}
+\caption{\textbf{输入槽旋转}}
 \end{table}
 
-
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{自举目标}}\\\hline\hline
-\textbf{TFHE}&重置噪声。\\
-\textbf{BFV}&\\\hline
-\textbf{CKKS}&按 $q_0 \rightarrow q_L$ 重置密文模数（严格地说，重置为满足 $q_0 < q_{l'} < q_L$ 的 $q_{l'}$）。\\
-\textbf{BGV}&\\\hline
-\end{tabular}
+\textbf{TFHE / BFV / BGV}&获得相同消息或指定查找表输出的密文，并恢复可用噪声预算；输出仍含噪声，也可能使用另一组密钥或参数。\\\hline
+\textbf{CKKS}&恢复可用层级，同时控制新增近似误差；已累积在表示值中的误差通常不会被消除。\\\hline
+\end{tabularx}
 \caption{\textbf{自举目标}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{自举细节}}\\\hline\hline
-\textbf{TFHE}&1. 按 $q \rightarrow 2n$ \underline{切换模数}，转换 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m) \rightarrow \textsf{LWE}_{\vec{s}, \sigma}(\hat\Delta m) = ( \vec{\hat a}, \hat b) \bmod 2n $，\\
-&\text{ } \text{ } 其中 $\hat\Delta = \dfrac{2n}{t}$。\text{ } \textcolor{red}{ $\rhd$ $t$ 整除 $2n$}\\
-&2. \underline{盲旋转}：同态地将 GLWE 加密的查找表\\
-&\text{ } \text{ } 多项式 $\textsf{GLWE}_{\vec{S},\sigma}(\Delta V)$ 向左旋转 $\Delta m + e$ 个位置，\\
-&\text{ } \text{ } 即按如下方式同态计算 $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_k)$：\\
-&\text{ } \text{ } $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_0) = \textsf{GLWE}_{\vec{S},\sigma}(\Delta V) \cdot X^{-\hat b}$\\
-&\text{ } \text{ } $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_i) = \textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1}) \cdot X^{\hat a_i s_{i-1}}$\\
-&\text{ } \text{ } \text{ } $ = \textsf{GGSW}_{\vec{S},\sigma}^{\beta, l}(s_{i-1})\cdot \bm(\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1}) \cdot X^{\hat{a}_{i-1}} - \textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1})\bm) + \textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_{i-1})$\\
-&3. \underline{系数提取}：旋转后的加密多项式 $V_k$ 的常数项为\\
-&\text{ } \text{ } $\Delta m$。从 $\textsf{GLWE}_{\vec{S}, \sigma}(\Delta V_k)$ 中提取该加密常数项，得到 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m)$。\\\hline
-\textbf{BFV}&1. 按 $q \rightarrow p^\varepsilon$ \underline{切换模数}，转换 $\textsf{RLWE}_{S, \sigma}(\Delta M) \rightarrow \textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1} M) \bmod p^\varepsilon$\\
-&2. \underline{同态解密}:\\
-&\text{ } \text{ } $B + A\cdot \textsf{RLWE}_{S, \sigma}(\Delta' S) = \textsf{RLWE}_{S, \sigma}(\Delta' \cdot(p^{\varepsilon-1}M + E + Kp^\varepsilon)) \bmod q$，其中 $\Delta' = \left\lfloor\dfrac{q}{p^\varepsilon}\right\rfloor$\\
-&3. \underline{\textsf{CoeffToSlot}}：将密文乘以 $n^{-1}\cdot I_n^R \cdot \hathat W$，\\
-&\text{ } \text{ } 把 $p^{\varepsilon-1} M + E + Kp^\varepsilon$ 的明文系数移到输入槽位。\\
-&4. \underline{数位提取}：给定数位提取多项式 $G_{\varepsilon}(x)$，\\
-&\text{ } \text{ } 同态计算：\\
-&\text{ } \text{ } $G_{2} \circ G_{3}\circ \cdots \circ G_{\varepsilon-1} (p^{\varepsilon-1} M + E + Kp^\varepsilon)$\\
-&\text{ } \text{ } 将输出 $M + K^{\langle \varepsilon - 1 \rangle}p$ 存储在明文槽位中。\\
-&\text{ } \text{ } 通过重新解释尺度因子处理乘以 $p$ 逆元的操作。\\
-&5. \underline{\textsf{SlotToCoeff}}：将密文乘以 $\hathat W^*$，把 $M + K^{\langle \varepsilon - 1 \rangle}p$ 移回\\
-&\text{ } \text{ } 多项式系数位置，得到 $\textsf{RLWE}_{S, \sigma}(\Delta'\cdot(M + K^{\langle \varepsilon - 1 \rangle}p)) \bmod q$\\
-&\text{ } \text{ } $  = \textsf{RLWE}_{S, \sigma}(\Delta M) \bmod q$\\
-\hline
-\end{tabular}
-\caption{\textbf{自举细节: TFHE, BFV}}
+\textbf{TFHE}&先将模数切换为 $2n$。在本节的加号相位约定下，有效旋转误差为 $\hat e=(2n/q)e+\delta_b+\sum_i s_i\delta_{a_i}$。初始化加密 $\Delta_{\rm out}V$ 的 GLWE 累加器，其中 $V$ 为未缩放的 LUT 多项式。先旋转 $X^{-\hat b}$，再利用秘密比特的密文施加 $X^{-\hat a_i s_i}$。提取常数项，得到所选查找表的 $f(m)$ 的编码；提取密钥由 GLWE 秘密密钥导出，必要时再切换密钥。\\\hline
+\textbf{TFHE conditions}&定义未缩放查找函数 $F(j)=\operatorname{coeff}_0(VX^{-j})$。它须在总误差区间内保持常值，并满足负循环的反周期性 $F(j+n)=-F(j)$。任意函数需要适当受限或填充后的输入域，或扩展构造。\\\hline
+\textbf{BFV}&对明文模数 $p^r$，在模数切换误差界成立时，将解密转为模 $p^e$ 的舍入：$M=[\lfloor[c_0'+c_1' S]_{p^e}/p^{e-r}\rceil]_{p^r}$。用秘密密钥的密文同态求内积，常数体分量也必须按新尺度编码。再由 CoeffToSlot、包含精确除法的数位提取及 SlotToCoeff 实现剩余映射。奇数 $p$ 使用平衡数位；$p=2$ 时，删除低位前须加入半单位舍入偏移。CRT 槽路线要求 $\gcd(p,2n)=1$，因此二进制自举须另选相容的分圆环或其他构造。参数条件和扩域槽布局不可省略，见文献 \cite{cryptoeprint:2022/1363}。\\\hline
+\end{tabularx}
+\caption{\textbf{自举概要：TFHE、BFV}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{自举细节}}\\\hline\hline
-\textbf{CKKS}&1. \underline{\textsf{ModRaise}：} 将密文 $(A, B) \bmod q_0$ 视为 $(A, B) \bmod q_L$\\
-%&2. \underline{Homomorphic Decryption } (without scaling down by $\Delta$): \\
-%&\text{ } \text{ } $B + A \cdot \textsf{RLWE}_{S, \sigma}(S) \bmod q_L = B + \langle \textsf{Decomp}^{\beta, l}(A), \textsf{RLev}_{S, \sigma}^{\beta, l}(S) \rangle$\\
-%&$\text{ } \text{ } = \textsf{RLWE}_{S, \sigma}(\Delta M + E + Kq_0) \bmod q_L$\\
-&2. \underline{\textsf{CoeffToSlot}}：将 $\Delta M + E + Kq_0$ 的系数移到输入槽位。\\
-&3. \underline{\textsf{EvalExp}}：在 $\Delta M + E + Kq_0$ 处同态求值\\
-&\text{ } \text{ } 周期为 $q_0$ 的正弦函数的多项式近似，\\
-&\text{ } \text{ } 得到在明文槽位中加密 $\Delta M + E$ 的密文。\\
-&4. \underline{\textsf{SlotToCoeff}}：将 $\Delta M + E$ 移到多项式系数位置，\\
-&\text{ } \text{ } 得到 $\textsf{RLWE}_{S, \sigma}(\Delta M + E)$。\\\hline
-\textbf{BGV}&1. 按 $q_{l} \rightarrow \hat{q}$ \underline{切换模数}，转换\\
-&\text{ } \text{ } $\textsf{RLWE}_{S, \sigma}(M) = (A, B) \bmod q_l \rightarrow \textsf{RLWE}_{S, \sigma}(M) = (\hat{A}, \hat{B}) \bmod \hat{q}$\\ 
-&\text{ } \text{ } 其中 $\hat{q} \equiv 1 \bmod p^\varepsilon$\\
-&2. \underline{密文系数乘以 $p^{\varepsilon-1}$}：\\
-&\text{ } \text{ } 计算 $(p^{\varepsilon-1}\hat{A}, p^{\varepsilon-1}\hat{B}) = (A', B') \bmod \hat{q}$（其中 $\hat{q} \equiv 1 \bmod p^\varepsilon$）\\
-&\text{ } \text{ } 得到密文 $\textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1}M) \bmod \hat{q}$，其噪声为 $p^\varepsilon E$。\\
-&3. \underline{\textsf{ModRaise}}: $(A', B') \bmod \hat{q} \rightarrow (A', B') \bmod q_L$\\
-&\text{ } \text{ } 这就是密文 $\textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1}M + p^\varepsilon E + K'\hat{q}) \bmod q_L$。\\
-&4. \underline{\textsf{CoeffToSlot}}：将密文乘以 $n^{-1}\cdot I_n^R \cdot \hathat W$，\\
-&\text{ } \text{ } 把 $p^{\varepsilon-1}M + p^\varepsilon E + K'\hat{q}$ 的明文系数移到输入槽位。\\
-&5. \underline{数位提取}：给定数位提取多项式 $G_{\varepsilon}(x)$，\\
-&\text{ } \text{ } 同态计算：\\
-&\text{ } \text{ } $\bm(\text{ } G_{2} \circ G_{3}\circ \cdots \circ G_{\varepsilon} (p^{\varepsilon-1} M + p^\varepsilon E + K'\hat{q})\text{ } \bm)$\\
-&\text{ } \text{ } 将输出 $M + K''p$ 存储在明文槽位中。\\
-&\text{ } \text{ } 为处理第 $i$ 轮中乘以 $p$ 逆元的操作，\\
-&\text{ } \text{ } 将所有密文多项式系数乘以 $|p^{-1}|_{q^{\langle i \rangle}}$，使明文部分\\
-&\text{ } \text{ } 从 $Mp^{\varepsilon - i} + K'''p^{\varepsilon - i + 1} \pmod{q^{\langle i \rangle}}$ 更新为 $M^{\varepsilon - i - 1} + K^{\langle i \rangle}p^{\varepsilon - i} \pmod{q^{\langle i \rangle}}$\\
-&\text{ } \text{ } \textcolor{red}{ $\rhd$ 其中 $q^{\langle i \rangle}$ 为该轮对应的密文模数}\\
-&6. \underline{\textsf{SlotToCoeff}}：将密文乘以 $\hathat W^*$，把 $M + K^{\langle \varepsilon - 1 \rangle}p$ 移回\\
-&\text{ } \text{ } 多项式系数位置，得到 $\textsf{RLWE}_{S, \sigma}(M + K^{\langle \textit{last} \rangle}p)$\\
-&\text{ } \text{ } $ = \textsf{RLWE}_{S, \sigma}(M + \Delta K^{\langle \textit{last} \rangle}) \bmod q_{l'}$ \textcolor{red}{ $\rhd$ 其中 $\Delta = p$，最终噪声为 $K^{\langle \textit{last} \rangle}$}\\\hline
-\end{tabular}
-\caption{\textbf{自举细节: CKKS, BGV}}
+\textbf{CKKS}&模数提升显露提升后的相位 $\Delta M+E+Kq_0$。CoeffToSlot 是同态线性变换，EvalMod 则在指定有界输入集合上非线性地近似模约减。SlotToCoeff 将结果还原为系数形式；所有变换均消耗预算并产生误差。\\\hline
+\textbf{CKKS error}&示意映射 $g(x)=q_0\sin(2\pi x/q_0)/(2\pi)$ 满足 $g(r+Kq_0)=r+\varepsilon_{\sin}$，其中 $|\varepsilon_{\sin}|\leq(2\pi)^2|r|^3/(6q_0^2)$。这不是精确求余；多项式近似及同态求值还会产生其他误差。\\\hline
+\textbf{BGV}&先转换解密关系，同态计算含秘密密钥的内积，再通过 CoeffToSlot 及数位提取去除不需要的数位，最后执行 SlotToCoeff。CRT 互素条件、奇素数平衡位及二进制舍入限制均与 BFV 行相同。精确除以 $p$ 会将明文模数从 $p^j\to p^{j-1}$，且必须有可整除不变量。仅将小模数密文视为大模数密文，并未完成这些运算；见文献 \cite{cryptoeprint:2022/1363}。\\\hline
+\end{tabularx}
+\caption{\textbf{自举概要：CKKS、BGV}}
 \end{table}
 
-\begin{table}[h]
-\begin{tabular}{|c||l|}
+\begin{table}[htbp]
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\linewidth}{|p{0.17\linewidth}|X|}
 \hline
-&\multicolumn{1}{c|}{\textbf{噪声管理}}\\\hline\hline
-\textbf{TFHE}&通过自举重置噪声。\\
-\textbf{BFV}&\\\hline
-\textbf{CKKS}&- 噪声持续增长，因为自举仅重置\\
-&模数链。为减缓噪声增长，应增大明文的\\
-&尺度因子 $\Delta$。\\
-&- CKKS 的 \textsf{EvalExp} 不能用数位提取多项式去除噪声，\\
-&因为其明文是实数，而非模数环中的元素。\\\hline
-\textbf{BGV}&BGV 的模数切换具有重置噪声的特殊性质，而其\\
-&自举重置模数链，使模数切换能够持续进行。\\\hline
-\end{tabular}
-\caption{\textbf{噪声管理}}
+\textbf{TFHE / BFV / BGV}&跟踪完整相位误差的界以及超出解码裕量的概率。自举产生新的有界误差，不会使误差归零。\\\hline
+\textbf{CKKS}&在每一层跟踪尺度、数值大小和槽误差。提高尺度可减少相对舍入误差，但会消耗模数容量，并非没有代价或普遍有效；误差在每个电路中也不必单调增加。\\\hline
+\textbf{BGV}&模数切换在降低模数的同时减小绝对相位大小，并加入校正误差；它属于噪声管理步骤，不是独立的刷新操作。\\\hline
+\end{tabularx}
+\caption{\textbf{噪声与精度管理}}
 \end{table}

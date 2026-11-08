@@ -1,4 +1,4 @@
-The GLWE cryptosystem is a generalized form to encompass both the LWE and RLWE cryptosystems. The GLWE cryptosystem's ciphertext is a tuple $(\{A_i\}_{i=0}^{k-1}, B)$, where $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E$. The public key $\{A_i\}_{i=0}^{k-1}$ and the secret key $\{S_i\}_{i=0}^{k-1}$ are a list of $k$ $(n-1)$-degree polynomials, each. The message $M$ and the noise $E$ are $(n-1)$-degree polynomials, each. Like in LWE and RLWE, a random public mask $A$ is created for each ciphertext, whereas the same secret key $S$ is used for all ciphertexts. In this section, we denote each ciphertext instance as $(\{A_i\}_{i=0}^{k-1}, B)$ instead of $(\{A_i\}_{i=0}^{k-1, \langle j \rangle}, B^{\langle j \rangle})$ for simplicity.
+The GLWE cryptosystem is a generalized form to encompass both the LWE and RLWE cryptosystems. The GLWE cryptosystem's ciphertext is a tuple $(\{A_i\}_{i=0}^{k-1}, B)$, where $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E$. The public mask $\{A_i\}_{i=0}^{k-1}$ and the secret key $\{S_i\}_{i=0}^{k-1}$ are a list of $k$ $(n-1)$-degree polynomials, each. The message $M$ and the noise $E$ are $(n-1)$-degree polynomials, each. Like in LWE and RLWE, a random public mask $A$ is created for each ciphertext, whereas the same secret key $S$ is used for all ciphertexts. In this section, we denote each ciphertext instance as $(\{A_i\}_{i=0}^{k-1}, B)$ instead of $(\{A_i\}_{i=0}^{k-1, \langle j \rangle}, B^{\langle j \rangle})$ for simplicity.
 
 
 
@@ -12,11 +12,13 @@ Notice that GLWE's setup parameters are similar to that of RLWE. One difference 
 \subsection{Encryption}
 \label{subsec:glwe-enc}
 
+Polynomial representatives have degree at most $n-1$, including when leading coefficients vanish. Noise coefficients are integer samples reduced modulo $q$, using the convention of \autoref{subsec:lwe-dec}. A correctness inequality is a condition on these lifted coefficients, not a deterministic guarantee for an unbounded Gaussian distribution.
+
 Suppose we have an $(n-1)$-degree polynomial $M \in \mathcal{R}_{\langle n, t \rangle}$ whose coefficients represent the plaintext numbers to encrypt.
 
 
 \begin{enumerate}
-\item Randomly pick a list of $k$ $(n-1)$-degree polynomials $\{A_i\}_{i=0}^{k-1} \xleftarrow{\$} \mathcal{R}_{\langle n,q \rangle}^{k}$ as a one-time public key.
+\item Randomly pick a list of $k$ $(n-1)$-degree polynomials $\{A_i\}_{i=0}^{k-1} \xleftarrow{\$} \mathcal{R}_{\langle n,q \rangle}^{k}$ as a one-time public mask.
 \item Randomly pick a small polynomial $E \xleftarrow{\chi_\sigma} \mathcal{R}_{\langle n,q \rangle}$ as a one-time noise, whose $n$ coefficients are small numbers in $\mathbb{Z}_q$ randomly sampled from the Gaussian distribution $\chi_\sigma$. 
 \item Scale $M$ by $\Delta$, which is to compute $\Delta \cdot M$. This converts $M \in \mathcal{R}_{\langle n, t \rangle}$ into $\Delta \cdot M \in \mathcal{R}_{\langle n,q \rangle}$.
 \item Compute $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E \in \mathcal{R}_{\langle n,q \rangle}$. 
@@ -59,7 +61,7 @@ $ $
 
 \begin{enumerate}
 \item Given the ciphertext $(\{A_i\}_{i=0}^{k-1}, B)$ where $B = \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} + \Delta \cdot M + E \in \mathcal{R}_{\langle n,q \rangle}$, compute $B - \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)} = \Delta \cdot M + E$. 
-\item Round each coefficient of the polynomial $\Delta \cdot M + E \in \mathcal{R}_{\langle n,q \rangle}$ to the nearest multiple of $\Delta$ (i.e., round it as a base $\Delta$ number), which is denoted as $\lceil \Delta \cdot M + E \rfloor_{\Delta}$. This operation successfully eliminates $E$ and gives $\Delta \cdot M$. One caveat is that $E$'s each coefficient $e_i$ has to be $|e_i| < \dfrac{\Delta}{2}$ to be eliminated during the rounding. Otherwise, some of $e_i$'s higher bits will overlap the plaintext $m_i$ coefficient's lower bit and won't be eliminated during decryption, corrupting the plaintext $m_1$.
+\item Round each coefficient of the polynomial $\Delta \cdot M + E \in \mathcal{R}_{\langle n,q \rangle}$ to the nearest multiple of $\Delta$ (i.e., round it as a base $\Delta$ number), which is denoted as $\lceil \Delta \cdot M + E \rfloor_{\Delta}$. This operation successfully eliminates $E$ and gives $\Delta \cdot M$. One caveat is that $E$'s each coefficient $e_i$ has to be $|e_i| < \dfrac{\Delta}{2}$ to be eliminated during the rounding. Otherwise, some of $e_i$'s higher bits will overlap the plaintext $m_i$ coefficient's lower bit and won't be eliminated during decryption, corrupting the plaintext $m_i$.
 \item Compute $\dfrac{\Delta \cdot M} {\Delta}$, which is equivalent to scaling down each polynomial coefficient in $\Delta \cdot M$ by $\Delta$. 
 \end{enumerate}
 
@@ -86,14 +88,16 @@ For correct decryption, every noise coefficient $e_i$ of polynomial $E$ should b
 
 
 \subsubsection{Discussion}
+
+The following size comparisons describe representation and brute-force search space only. Concrete security depends jointly on $n,k,q$, the error and secret distributions, and sample count; increasing one dimension is not by itself a security reduction.
 \begin{enumerate}
 \item \textbf{LWE} is a special case of GLWE where the polynomial ring's degree $n = 1$. That is, all polynomials in $\{A_i\}_{i=0}^{k-1}, \{S_i\}_{i=0}^{k-1}, E$, and $M$ are zero-degree polynomial constants. Instead, there are $k$ such constants for $A_i$ and $S_i$, so each of them forms a vector.
-\item \textbf{RLWE} is a special case of GLWE where $k = 1$. That is, the secret key $S$ is a single polynomial $S_0$, and each encryption is processed by only a single polynomial $A_0$ as a public key.
-\item \textbf{Size of $\bm{n}$:} A large polynomial degree $n$ increases the number of the secret key's coefficient terms (i.e., $S_i = s_{i,0} + s_{i,1}X + \cdots + s_{i, n-1}X^{n-1} $), which makes it more difficult to guess the complete secret key. The same applies to the noise polynomial $E$ and the public key polynomials $A_i$, thus making it harder to solve the search-hard problem (\autoref{subsec:lattice-overview}). Also, higher-degree polynomials can encode more plaintext terms in the same plaintext polynomial $M$, improving the throughput efficiency of processing ciphertexts.
+\item \textbf{RLWE} is a special case of GLWE where $k = 1$. That is, the secret key $S$ is a single polynomial $S_0$, and each encryption is processed by only a single polynomial $A_0$ as a public mask.
+\item \textbf{Size of $\bm{n}$:} A large polynomial degree $n$ increases the number of the secret key's coefficient terms (i.e., $S_i = s_{i,0} + s_{i,1}X + \cdots + s_{i, n-1}X^{n-1} $), which makes it more difficult to guess the complete secret key. The same applies to the noise polynomial $E$ and the public mask polynomials $A_i$, thus making it harder to solve the search-hard problem (\autoref{subsec:lattice-overview}). Also, higher-degree polynomials can encode more plaintext terms in the same plaintext polynomial $M$, improving the throughput efficiency of processing ciphertexts.
 %\item \textbf{Size of $\bm{q}$:} Increasing $q$ increases the ciphertext molulus space, making it hard to attack the cryptosystem. 
 %Also, a large modulo space creates an enough separation between the plaintext bits and the noise bits in the ciphertext, which reduces the growth rate of the noise bits across ciphertext multiplications (will be discussed in \autoref{subsubsec:glwe-mult-plain-discussion}) and thus we can do a more number of ciphertext multiplications before the noise bits overflow to the plaintext bit area. 
-\item \textbf{Size of $\bm{k}$:} A large $k$ increases the number of the secret key polynomials $(S_0, S_1, \ldots, S_k)$ and the number of the one-time public key polynomials $(A_0, A_1,\ldots, A_k)$, which makes it more difficult for the attacker to guess the complete secret keys. Meanwhile, there is only a single $M$ and $E$ polynomials per GLWE ciphertext, regardless of the size of $k$. 
-\item \textbf{Reducing the Ciphertext Size:} The public key $\{A_i\}_{i=0}^{k-1}$ has to be created for each ciphertext, which is a big size. To reduce this size, each ciphertext can instead include the seed $d$ for the pseudo-random number generation hash function $H$. Then, the public key can be dynamically computed $k-1$ times upon each encryption \& decryption as $\{H(s), H(H(s)), H(H(H(s)), \ldots \}$. Note that $H$, by nature, generates the same sequence of numbers given the same random initial seed $d$. 
+\item \textbf{Size of $\bm{k}$:} A large $k$ increases the number of the secret key polynomials $(S_0, S_1, \ldots, S_{k-1})$ and the number of the one-time public mask polynomials $(A_0, A_1,\ldots, A_{k-1})$, which makes it more difficult for the attacker to guess the complete secret keys. Meanwhile, there is only a single $M$ and $E$ polynomials per GLWE ciphertext, regardless of the size of $k$.
+\item \textbf{Reducing the Ciphertext Size:} A seeded ciphertext may store a fresh public seed $d$ and $B$. A specified cryptographic pseudorandom generator or extendable-output function expands $d$, with domain-separated indices, into all $kn$ mask coefficients. Rejection sampling can map its output to $\mathbb Z_q$ without modular bias. Expansion uses the public seed, never the secret key. Both parties reproduce the same masks; security additionally relies on the specified pseudorandom expansion, rather than literal uniform sampling from a short seed.
 \end{enumerate}
 
 \subsection{An Alternative Version of GLWE}
@@ -132,7 +136,7 @@ $ $
 \item $\textsf{GLWE}^{-1}_{S,\sigma}(\textsf{ct}) = B \text{ } \textcolor{red}{ + \sum\limits_{i=0}^{k-1}{(A_i \cdot S_i)}} = \Delta  M + E \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
 
 \item Scale down 
-$\Bigl\lceil \dfrac{ \Delta  M + E }{\Delta}\Bigr\rfloor = M  \text{ } \in \mathcal{R}_{\langle n, t \rangle}$
+$\Bigl\lceil \dfrac{ \Delta  M + E }{\Delta}\Bigr\rfloor \bmod t = M  \text{ } \in \mathcal{R}_{\langle n, t \rangle}$
 
 \end{enumerate}
 
@@ -149,10 +153,12 @@ Even if the $A_iS_i$ terms flip their signs, the decryption stage cancels out th
 \subsection{Public Key Encryption}
 \label{subsec:glwe-public-key-enc}
 
+\textbf{Scope:} This subsection is restricted to $k=1$, the standard RLWE public-key structure, with sufficiently large power-of-two ring dimension $n$ and a parameter/distribution family for which the required decisional RLWE assumptions are justified. The vector notation below is retained with a single component. It is not a generic public-key construction for arbitrary GLWE dimensions or the $n=1$ LWE special case. Such generalizations require a suitable public matrix construction and their own security argument. As in the setup above, assume $t\mid q$ for the displayed decryption bound.
+
 
 The encryption scheme in \autoref{subsec:glwe-enc} assumes that it is the secret key owner who encrypts each plaintext. In this section, we explain a public key encryption scheme in which we create a public key counterpart of the secret key. Anyone who knows the public key can encrypt the plaintext in such a way that only the secret key owner can decrypt it. The high-level idea is that a portion of the components to be used in the encryption stage is pre-computed at the setup stage and published as a public key. At the actual encryption stage, the public key is multiplied by an additional randomness ($U$) and added to additional noise ($E_1, \vec{E}_2$) to create unpredictable randomness for each encrypted ciphertext. The actual scheme is as follows: 
 
-\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:glwe-public-key-enc}} GLWE Public Key Encryption}}]
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:glwe-public-key-enc}} RLWE Public Key Encryption ($k=1$)}}]
 
 \textbf{\underline{Initial Setup}:} 
 \begin{itemize}
@@ -199,7 +205,7 @@ $\vec{D} = \vv{{\mathit{PK}}}_2 \cdot U + \vec{E}_2 \in \mathcal{R}_{\langle n,q
 \item $\textsf{GLWE}^{-1}_{S,\sigma}(\textsf{ct}) = B - \vec{D} \cdot \vec{S} = \Delta  M + E_{\mathit{all}} \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
 
 \item Scale down 
-$\Bigl\lceil \dfrac{ \Delta  M + E_{\mathit{all}} }{\Delta}\Bigr\rfloor = M  \text{ } \in \mathcal{R}_{\langle n, t \rangle}$
+$\Bigl\lceil \dfrac{ \Delta  M + E_{\mathit{all}} }{\Delta}\Bigr\rfloor \bmod t = M  \text{ } \in \mathcal{R}_{\langle n, t \rangle}$
 
 \end{enumerate}
 
@@ -225,16 +231,12 @@ $= \Delta M + E_{\mathit{all}}$ \textcolor{red}{ $\rhd$ where $E_{\mathit{all}} 
 
 $ $
 
-\para{Security:} The GLWE encryption scheme's encryption formula (Summary~\ref{subsec:glwe-enc} in \autoref{subsec:glwe-enc}) is as follows: 
+\para{Security:} The cancellation above proves an algebraic correctness identity; it does not by itself prove secrecy or equivalence of security levels. For $k=1$, this is the usual ring-LWE public-key pattern: a noisy public key, independently randomized encryption, and error $E_{\mathit{all}}=EU+E_1-E_2S$. See \href{https://web.eecs.umich.edu/~cpeikert/pubs/ideal-lwe.pdf}{Lyubashevsky--Peikert--Regev, On Ideal Lattices and Learning with Errors over Rings}. The chosen ternary-secret and ternary-randomizer variant requires its corresponding decisional RLWE assumptions; the original paper's Gaussian-distribution theorems should not be invoked without checking their hypotheses.
 
-$\textsf{GLWE}_{S, \sigma}(\Delta M + E) = \bm{(} \text{ } \vec{A}, \text{ } B = \vec{A}\cdot\vec{S} + \Delta M + E \text{ }\bm{)}$
+For lifted coefficients in the negacyclic ring,
+\[
+\|E_{\mathit{all}}\|_\infty\le\|E\|_\infty\|U\|_1+\|E_1\|_\infty+\|E_2\|_\infty\|S\|_1.
+\]
+The right-hand side being less than $\Delta/2$ suffices for decryption when $t\mid q$.
 
-$ $
-
-, where the hardness of the LWE and RLWE problems guarantees that guessing $\vec{S}$ is difficult given $\vec{A}$ and $E$ are randomly picked at each encryption. On the other hand, the public key encryption scheme is as follows: 
-
-$\textsf{GLWE}_{S, \sigma}(\Delta M  + E_{\textit{all}}) = \bm{(} \text{ } \vec{D} = \vv{{\mathit{PK}}}_2 \cdot U + \vec{E}_2, \text{ } B = \mathit{PK}_1\cdot U + \Delta  M + E_1 \text{ } \bm{)}$
-
-$ $
-
-, where $\mathit{PK}_1$, $\vv{\mathit{PK}}_2$ are fixed and $U$, $E_1$, $\vec{E}_2$ are randomly picked at each encryption. Given the polynomial degree $n$ is large, both schemes provide the equivalent level of hardness to solve the problem. 
+The unrestricted construction would be insecure for $n=1$ and ternary $U$, even if the LWE vector dimension $k$ were large: an attacker need only try $U\in\{-1,0,1\}$ and test whether all $D_i-A_iU$ are small, then decode $B-\mathit{PK}_1U$. In particular, $U=0$ occurs with probability $1/3$ and leaves $B=\Delta m+E_1$. This is why the general GLWE security claim cannot be inferred from the displayed algebra.

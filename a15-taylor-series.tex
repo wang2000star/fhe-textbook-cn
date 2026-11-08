@@ -4,4 +4,8 @@ $
 f(a) + \dfrac{f'(a)}{1!}(X - a) + \dfrac{f''(a)}{2!}(X - a)^2 + \dfrac{f'''(a)}{3!}(X - a)^3 + \cdots = \sum\limits_{d=0}^{\infty}\dfrac{f^{(d)}(a)}{d!}(X - a)^d
 $
 
-For a given function, one can truncate the Taylor series to a finite number of terms (up to degree $D$ instead of an infinite number of terms). Such a $D$-degree polynomial is also called the $D$-th Taylor polynomial approximating $f(X)$. Generally, the larger the degree $D$ (i.e. the more terms we include), the more accurate the approximation of $f(X)$ becomes. The accuracy of the approximation is higher for those coordinates nearby $X=a$, and lower for those coordinates away from $X=a$. To increase the accuracy for farther coordinates, we need to increase $D$. 
+Truncating after degree $D$ gives the $D$-th Taylor polynomial $T_D(X)$. Inside a neighborhood where the Taylor series represents $f$, the error tends to zero as $D\to\infty$, but it need not decrease at every successive degree or monotonically with the distance from $a$. For a real function with $D+1$ continuous derivatives on the interval joining $a$ and $X$, Taylor's theorem gives
+\[
+|f(X)-T_D(X)|\le\frac{\sup_{u}|f^{(D+1)}(u)|}{(D+1)!}|X-a|^{D+1},
+\]
+where the supremum is over that interval. Increasing the degree outside the series' convergence region gives no general accuracy guarantee.

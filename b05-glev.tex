@@ -1,7 +1,7 @@
 A GLev ciphertext is a list of GLWE ciphertexts that encrypt the list of plaintexts $\dfrac{q}{\beta^1}M, \dfrac{q}{\beta^2}M, \ldots, \dfrac{q}{\beta^l}M$, where $M$ is a plaintext encoded in a polynomial. Note that each $i$-th GLWE ciphertext of a GLev ciphertext uses a different plaintext scaling factor, which is: $\Delta_i = \dfrac{q}{\beta^i}$. The structure of GLev ciphertext is visually depicted in \autoref{fig:glev}.
 
 
-Note that $\beta$ should be some value between $t$ and $q$. Specifically, $t$ should be smaller than or equal to $\beta$ because if $t$ is greater than $\beta$, then the higher bits of $M$ will overflow beyond $q$ when computing $\dfrac{q}{\beta^1}M$. 
+For these integer-ring weights require an integer $\beta\ge2$ and $\beta^l\mid q$. The inequality $t\le\beta$ is needed only if the first row is intended to recover coefficients represented in $\{0,\ldots,t-1\}$. GLev is also used as a gadget ciphertext for a general ring message; in that use, each row need not separately decode the original message. Exact reconstruction with the descending gadget for every residue additionally requires $q=\beta^l$, as explained in \autoref{sec:decomp}.
 
 
 \subsection{Encryption}
@@ -24,7 +24,7 @@ $\textsf{GLev}_{S, \sigma}^{\beta, l}(M) = \Bigl \{\textsf{GLWE}_{S, \sigma}\lef
 
 \subsection{Decryption}
 
-We decrypt the first GLWE ciphertext ($i=1$) using the secret $S$, with the scaling factor $\Delta_1 = \dfrac{q}{\beta}$. This is because while the ciphertext contains $l$ encryptions, the higher indices $i > 1$ have progressively smaller scaling factors $\Delta_i = q/\beta^i$. If $\Delta_i$ becomes smaller than the noise threshold, those specific components cannot be decrypted correctly.
+The first row has phase $(q/\beta)M+E_1\pmod q$. If $\|E_1\|_\infty<q/(2\beta)$, nearest-integer decoding recovers $M\bmod\beta$ coefficientwise. It recovers a chosen original representative only when that representative is uniquely determined by its class modulo $\beta$, for example coefficients in $\{0,\ldots,t-1\}$ with $t\le\beta$. Row $i$ similarly decodes modulo $\beta^i$ if $\|E_i\|_\infty<q/(2\beta^i)$. Later rows have a smaller error tolerance; they are not necessarily undecodable, nor is separate decoding required for gadget operations.
 
 \subsection{Lev and RLev}
 

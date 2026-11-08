@@ -1,0 +1,362 @@
+[
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "chapter",
+    "heading": "FHE Scheme Comparison and Summary",
+    "original_line": 1,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-002",
+      "SUM-003",
+      "SUM-004",
+      "SUM-005",
+      "SUM-006",
+      "SUM-007",
+      "SUM-008",
+      "SUM-009",
+      "SUM-010",
+      "SUM-011",
+      "SUM-012",
+      "SUM-013",
+      "SUM-014",
+      "SUM-015",
+      "SUM-016",
+      "SUM-017",
+      "SUM-018",
+      "SUM-019",
+      "SUM-020",
+      "SUM-021"
+    ],
+    "review": "阅读全文及24个比较主题；逐行核对定义域、相位符号、实际尺度、误差、类型、复杂度和条件。已与各方案章节交叉核对。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-01",
+    "heading": "Hard Problem Basis",
+    "original_line": 24,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-002"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-02",
+    "heading": "Unit Data Type",
+    "original_line": 36,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-002"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-03",
+    "heading": "Plaintext",
+    "original_line": 48,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-003"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-04",
+    "heading": "Secret Key",
+    "original_line": 60,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-004"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-05",
+    "heading": "Ciphertext",
+    "original_line": 72,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-002",
+      "SUM-003"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-06",
+    "heading": "Noise",
+    "original_line": 85,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-005"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-07",
+    "heading": "Scaling Factor",
+    "original_line": 99,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-006",
+      "SUM-009"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-08",
+    "heading": "Encryption",
+    "original_line": 114,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-018"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-09",
+    "heading": "Cryptographic Relation",
+    "original_line": 127,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-006",
+      "SUM-007",
+      "SUM-009"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-10",
+    "heading": "Decryption Formula",
+    "original_line": 144,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-006",
+      "SUM-007",
+      "SUM-009"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-11",
+    "heading": "Ciphertext Modulus",
+    "original_line": 160,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-008"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-12",
+    "heading": "Ciphertext-to-Ciphertext Addition",
+    "original_line": 182,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-005"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-13",
+    "heading": "Ciphertext-to-Plaintext Addition",
+    "original_line": 202,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-009"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-14",
+    "heading": "Ciphertext-to-Plaintext Multiplication",
+    "original_line": 224,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-005",
+      "SUM-009"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-15",
+    "heading": "Ciphertext-to-Ciphertext Multiplication",
+    "original_line": 271,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-009",
+      "SUM-010",
+      "SUM-011",
+      "SUM-012"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-16",
+    "heading": "Maximum Possible Multiplications (without Bootstrapping)",
+    "original_line": 283,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-013"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-17",
+    "heading": "Key Switching",
+    "original_line": 300,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-014"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-18",
+    "heading": "Modulus Drop (\\textsf{ModDrop})",
+    "original_line": 312,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-015"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-19",
+    "heading": "Encoding and Decoding the Plaintext",
+    "original_line": 326,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-016"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-20",
+    "heading": "Input Slot Rotation",
+    "original_line": 345,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-017"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-21",
+    "heading": "Bootstrapping Goal",
+    "original_line": 358,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-005",
+      "SUM-020"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-22",
+    "heading": "Bootstrapping Details: TFHE, BFV",
+    "original_line": 390,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-018",
+      "SUM-019"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-23",
+    "heading": "Bootstrapping Details: CKKS, BGV",
+    "original_line": 429,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-020",
+      "SUM-021"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "d06-scheme-summary.tex",
+    "unit": "table-24",
+    "heading": "Noise Management",
+    "original_line": 446,
+    "label": null,
+    "status": "reviewed_corrected_or_clarified",
+    "findings": [
+      "SUM-005"
+    ],
+    "review": "逐行核对相位、定义域、参数条件、变换类型与误差；对应条目说明具体问题。"
+  },
+  {
+    "file": "00-main.tex",
+    "unit": "preface-claims",
+    "heading": "Preface: correctness, operations, privacy, integrity",
+    "status": "reviewed_corrected",
+    "findings": [
+      "SUM-001"
+    ],
+    "review": "核查精确有限环与近似语义、除法条件、保密与完整性，修正原无条件论断。"
+  },
+  {
+    "file": "00-main.tex",
+    "unit": "preface-roadmap-links",
+    "heading": "Preface: chapter roadmap, availability and attribution",
+    "status": "reviewed_clarified",
+    "findings": [],
+    "review": "核对四部分说明及上游链接；保持作者和致谢。"
+  },
+  {
+    "file": "z-bibfile.bib",
+    "unit": "bibliography",
+    "heading": "Reference identity and citation resolution",
+    "status": "reviewed_with_limitations",
+    "findings": [
+      "SUM-022"
+    ],
+    "review": "检查引用键/标题/链接对应并纠正错引；并未重新审查全部被引论文的每个定理。"
+  }
+]

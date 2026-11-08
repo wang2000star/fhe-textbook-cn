@@ -4,6 +4,8 @@
 \subsection{Definitions}
 \label{subsec:order-def}
 
+The same definition and the first three order theorems apply to any element of finite multiplicative order in a group, including roots of unity in $\mathbb{C}^{\times}$. An arbitrary nonzero complex number need not have finite order.
+
 \begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:order-def}} Order Definition}}]
 $\bm{\textsf{ord}_{\mathbb{F}}(a)}$: For $a \in \mathbb{F}^{\times}$ (a finite field, \autoref{subsec:field-def}), $a$'s order is the smallest positive integer $k$ such that $a^k = 1$. 
 \end{tcolorbox}
@@ -36,7 +38,7 @@ If $\textsf{ord}_{\mathbb{F}}(a) = k$, then for any $n \geq 1$, $\textsf{ord}_{\
     \begin{enumerate}
     \item $a^k, a^{2k}, a^{3k}, \ldots = 1$. 
     \item Given $\textsf{ord}_{\mathbb{F}}(a^n) = m$, $(a^n)^m, (a^n)^{2m}, (a^n)^{3m}, \ldots = 1$ 
-    \item Note that by definition of order, $x=k$ is the smallest value that satisfies $a^x$ = 1. Thus, given $\textsf{ord}_{\mathbb{F}}(a^n) = m$, then $m$ is the smallest integer that makes $(a^n)^m = 1$. Note that $(a^n)^m$ should be a multiple of $a^k$, which means $mn$ should be a multiple of $k$. The smallest possible integer $m$ that makes $mn$ a multiple of $k$ is $m = \dfrac{k}{\gcd(k, n)}$. 
+    \item Note that by definition of order, $x=k$ is the smallest value that satisfies $a^x$ = 1. Thus, given $\textsf{ord}_{\mathbb{F}}(a^n) = m$, then $m$ is the smallest integer that makes $(a^n)^m = 1$. By Theorem~\ref*{subsec:order-theorem}.1, $(a^n)^m=1$ holds exactly when $k\mid mn$. The smallest possible integer $m$ that makes $mn$ a multiple of $k$ is $m = \dfrac{k}{\gcd(k, n)}$.
     \end{enumerate}
 \end{myproof}
 

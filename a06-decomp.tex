@@ -10,8 +10,8 @@ $\gamma = \gamma_1 \dfrac{q}{\beta^1} + \gamma_2 \dfrac{q}{\beta^2} + \cdots + \
 
 $ $
 
-\noindent where $\beta\ge 2$ is a base and $\ell\ge 1$ is the decomposition level. We assume $\beta^\ell \mid q$ and take digits $\gamma_i\in\{0,1,\ldots,\beta-1\}$; under these conditions, the decomposition is unique. This is visually shown in \autoref{fig:decomp}. (If $\beta^\ell\nmid q$, see \autoref{subsec:approx-decomp}.) 
-Each $\gamma_i$ is a digit in the base-$\beta$ representation of $\gamma$, where $i=1$ is the most significant digit. When $q$ is a power of two, this corresponds to a shift by $i\cdot \log_2\beta$ bits.
+\noindent where $\beta\ge 2$ and $\ell\ge1$ are integers. For every canonical representative $0\le\gamma<q$ to have such a unique expansion with $\gamma_i\in\{0,1,\ldots,\beta-1\}$, assume $q=\beta^\ell$. More generally, $\beta^\ell\mid q$ only makes the weights integers: if $d=q/\beta^\ell>1$, an exact expansion exists precisely when $d\mid\gamma$. Figure~\ref{fig:decomp} illustrates full decomposition; see \autoref{subsec:approx-decomp} for truncation.
+Each $\gamma_i$ is a digit in the base-$\beta$ representation of $\gamma$ when $q=\beta^\ell$, with $i=1$ the most significant digit. Binary bit shifts apply when both $q$ and $\beta$ are powers of $2$.
 
 \begin{figure}[h!]
     \centering
@@ -53,7 +53,7 @@ This time, suppose we have a polynomial $f$ in the polynomial ring ${\mathbb{Z}_
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:poly-decomp}} Polynomial Decomposition}}]
 
-Given $f\in \mathbb{Z}_q[x]/(x^n+1)$, fix $\beta\ge 2$ and $\ell\ge 1$ with $\beta^\ell\mid q$. We write
+Given $f\in \mathbb{Z}_q[x]/(x^n+1)$, fix integers $\beta\ge2$, $\ell\ge1$ with $q=\beta^\ell$. We write
 
 $ $
 
@@ -124,19 +124,18 @@ Note that after decomposition, the original coefficients of the polynomial have 
   \label{fig:decomp3}
 \end{figure}
 
-If no level $\ell$ satisfies $\beta^\ell \mid q$, then some lower-order digits of $q$ (in base $\beta$) must be discarded during decomposition, as shown in \autoref{fig:decomp3}. Such lower bits can be rounded to the nearest multiple of $\dfrac{q}{\beta^\ell}$ during decomposition. In such a case, the decomposition is an approximate decomposition. 
-Formally, when $\beta^\ell\nmid q$ we can write
+Fix integers $\beta\ge2$ and $\ell\ge1$ with $\beta^\ell\mid q$, and let $d=q/\beta^\ell$. Truncation is needed when $d>1$ and the input is not a multiple of $d$, even though the divisibility condition holds. Round the canonical representative of $\gamma$ to the nearest multiple of $d$, reduce that multiple modulo $q$, and decompose it into the displayed weights. With a fixed nearest-integer tie rule, the result satisfies
 $$
-\gamma=\sum_{i=1}^{\ell}\gamma_i\,\frac{q}{\beta^{i}}+\varepsilon,\qquad
-\gamma_i\in\{0,\ldots,\beta-1\},\quad
-|\varepsilon|\le \frac{q}{2\beta^{\ell}}
+\gamma\equiv\sum_{i=1}^{\ell}\gamma_i\frac{q}{\beta^i}+\varepsilon\pmod q,
+\qquad \gamma_i\in\{0,\ldots,\beta-1\},\qquad |\varepsilon|\le\frac{q}{2\beta^\ell}.
 $$
-(using nearest-integer rounding and identifying $\gamma$ with its integer representative)The polynomial case is analogous, coefficient-wise.
-
+The residual is an integer lift of the circular rounding error. The congruence is essential: for $q=16$, $\beta=2$, $\ell=2$, the input $15$ rounds to $16\equiv0\pmod{16}$, with $\varepsilon=-1$. The polynomial case is coefficient-wise. If $\beta^\ell\nmid q$, the displayed rational weights do not define this integer-ring gadget; one may instead use the integer gadget in \autoref{subsec:gadget-decomposition}.
 
 
 \subsection{Gadget Decomposition}
 \label{subsec:gadget-decomposition}
+
+The gadget and the allowed digit set are part of the definition; arbitrary weights need not represent every residue. An exact integer choice valid for every $q\ge2$ is $g_i=\beta^{i-1}$, with $\ell=\lceil\log_\beta q\rceil$ and the ordinary radix digits of the canonical representative. It satisfies $\gamma=\sum_{i=1}^{\ell}\gamma_i g_i$ over the integers. It differs from the descending weights below; their digit vectors must not be interchanged. For a truncated gadget, replace exact reconstruction by reconstruction modulo $q$ with its residual and include that residual in any later noise analysis.
 
 Gadget decomposition is a generalized form of number decomposition (\autoref{subsec:number-decomp}). In number decomposition, a number $\gamma$ is decomposed as follows: 
 

@@ -28,14 +28,14 @@ def fhe_decrypt(a: Polynomial, b: Polynomial, N, P, Q_BASE, s, scale, expected_d
 	"""
 	Decrypt:
 	 v = b + a*s  (mod x^n+1, q)  ~= m + e*scale
-	 m_hat = round(v/scale)
+	 m_hat = centered_mod(v, P); no division by the noise factor
 	 (optionally centered mod p if p was stored by fhe_encrypt)
 	"""
 	Q = math.prod(Q_BASE)
 
 	v = poly_add(b, poly_mult(a, s, N, Q), N, Q)
 	m_hat = poly_mod(v, N, P)
-	print(m_hat)
+	e_bits = None  # No reference plaintext was supplied for a diagnostic.
 	if expected_dec is not None:
 		noise_poly = poly_sub(v, expected_dec, N, Q)
 		e = Polynomial(np.array([round_div(c, P) for c in noise_poly.coef], dtype=object))
@@ -50,6 +50,8 @@ def bgv_mod_switch_poly(poly, N, P, Q_cur, Q_new):
 	Ensures c' = c mod P.
 	Logic ported from bgv.py's ModSwitchBGV using integer arithmetic.
 	"""
+	if not (0 < Q_new < Q_cur) or math.gcd(Q_cur, P) != 1 or (Q_new - Q_cur) % P:
+		raise ValueError("this BGV switch requires 0 < Q_new < Q_cur, gcd(Q_cur,P)=1, and Q_new == Q_cur mod P")
 	# 1. Prepare arrays (ensure dtype=object for large integers)
 	coeffs = np.array(poly.coef, dtype=object)
 	
@@ -131,7 +133,7 @@ def fhe_mult_cipher_cipher(a1, b1, a2, b2, N, P, Q_BASE, scale, relin_key):
 	a1 = poly_mod(a1, N, Q); b1 = poly_mod(b1, N, Q)
 	a2 = poly_mod(a2, N, Q); b2 = poly_mod(b2, N, Q)
 
-	# ---- Raw products in big integers (no mod Q yet) ----
+	# ---- Tensor products modulo the current ciphertext modulus ----
 	d0_raw = poly_mult(b1, b2, N, Q)  # b1*b2
 	d1_raw = poly_add(
 		poly_mult(b1, a2, N, Q),
@@ -140,7 +142,9 @@ def fhe_mult_cipher_cipher(a1, b1, a2, b2, N, P, Q_BASE, scale, relin_key):
 	)  # b1*a2 + a1*b2
 	d2_raw = poly_mult(a1, a2, N, Q)  # a1*a2
 
-	# ---- BGV rescale: round(P/Q * ·) and reduce mod Q ----
+	# ---- BGV modulus switch with plaintext residue correction ----
+	if len(Q_BASE) < 2:
+		raise ValueError("BGV modulus switching requires at least two modulus factors")
 	q_last = Q_BASE.pop()
 	Q_new = Q // q_last
 
@@ -163,4 +167,4 @@ def fhe_mult_cipher_cipher(a1, b1, a2, b2, N, P, Q_BASE, scale, relin_key):
 
 
 def fhe_bootstrapping(a1, b1, N, Q):
-	return 0
+	raise NotImplementedError("BGV bootstrapping is not implemented in this educational demo")

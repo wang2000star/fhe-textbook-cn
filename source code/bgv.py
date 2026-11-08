@@ -1,3 +1,4 @@
+from common import round_div
 from sympy import randprime
 import random
 import sys
@@ -64,7 +65,7 @@ def mod_inverse(x, q):
     arr  = np.asarray(x, dtype=object)          # keeps big ints intact
     invs = np.empty_like(arr)
 
-    it = np.nditer(arr, flags=["multi_index"])
+    it = np.nditer(arr, flags=["multi_index", "refs_ok"])
     while not it.finished:
         invs[it.multi_index] = _scalar_inv_centered(int(it[0]), q)
         it.iternext()
@@ -86,20 +87,15 @@ def _scalar_inv_centered(a, q):
 
 
 def poly_degree_reduce(prod):
-	# Wrap around for x^N - 1
-	for i in range(N, len(prod)):
-		prod[i - N] += prod[i]
-	reduced = prod[:N]		  # shape (16384,)
-	return reduced
+    """Reduce in Z[X]/(X^N+1) without changing the input array."""
+    reduced = np.zeros(N, dtype=object)
+    for degree, coefficient in enumerate(prod):
+        reduced[degree % N] += (-1 if (degree // N) % 2 else 1) * coefficient
+    return reduced
 
 def poly_reduce(prod, modulus):
-	# Wrap around for x^N - 1
-	for i in range(N, len(prod)):
-		prod[i - N] += prod[i]
-	reduced = prod[:N]		  # shape (16384,)
-	for i in range(0, N):
-		prod[i] = centered_mod(prod[i], modulus)
-	return reduced
+    return centered_mod(poly_degree_reduce(prod), modulus)
+
 
 def poly_round(poly):
 	for i in range(0, N):
@@ -110,7 +106,7 @@ def poly_round(poly):
 def ModSwitchBGV(poly, plain_modulus, cur_modulus, new_modulus):
 	poly_divide_round = np.zeros_like(poly)
 	for i in range(0, len(poly)):
-		poly_divide_round[i] = int(np.round(float(poly[i]) * (float(new_modulus) / float(cur_modulus))))
+		poly_divide_round[i] = round_div(int(poly[i]) * new_modulus, cur_modulus)
 	epsilon = new_modulus * poly - cur_modulus * poly_divide_round
 	H = poly_reduce(epsilon * mod_inverse(cur_modulus, plain_modulus), plain_modulus)
 	poly_switch = poly_reduce(poly_divide_round + H, new_modulus)
@@ -119,28 +115,28 @@ def ModSwitchBGV(poly, plain_modulus, cur_modulus, new_modulus):
 def ModSwitchBGV_debug(poly, plain_modulus, cur_modulus, new_modulus):
 	poly_divide_round = np.zeros_like(poly)
 	for i in range(0, len(poly)):
-		poly_divide_round[i] = int(np.round(float(poly[i]) * (float(new_modulus) / float(cur_modulus))))
+		poly_divide_round[i] = round_div(int(poly[i]) * new_modulus, cur_modulus)
 	epsilon = new_modulus * poly - cur_modulus * poly_divide_round
 	H = poly_reduce(epsilon * mod_inverse(cur_modulus, plain_modulus), plain_modulus)
 	poly_switch = poly_reduce(poly_divide_round + H, new_modulus)
 	#print(poly_switch)
 	#if (centered_mod(poly, plain_modulus) - centered_mod(poly_switch, plain_modulus) != 0).any():
 	#		print ("Plain Modulus False")
-	#		sys.exit()
+	#		sys.exit(1)
 		#print(f'INverse: {centered_mod(mod_inverse(prime_factor, new_modulus), plain_modulus)}')
 	return (poly_switch, poly_divide_round, H)
 
 def ModSwitchBGV2(poly, plain_modulus, cur_modulus, new_modulus):
-	poly_divide_round = poly
+	poly_divide_round = np.array(poly, dtype=object, copy=True)
 	for i in range(0, len(poly)):
-		poly_divide_round[i] = int(np.round(float(poly[i]) * (float(new_modulus) / float(cur_modulus))))
+		poly_divide_round[i] = round_div(int(poly[i]) * new_modulus, cur_modulus)
 	epsilon = new_modulus * poly - cur_modulus * poly_divide_round
 	H = poly_reduce(epsilon * mod_inverse(cur_modulus, plain_modulus), plain_modulus)
 	poly_switch = poly_divide_round + H
 	#print(poly_switch)
 	#if (centered_mod(poly, plain_modulus) - centered_mod(poly_switch, plain_modulus) != 0).any():
 	#		print ("Plain Modulus False")
-	#		sys.exit()
+	#		sys.exit(1)
 		#print(f'INverse: {centered_mod(mod_inverse(prime_factor, new_modulus), plain_modulus)}')
 	return poly_switch
 

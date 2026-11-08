@@ -1,7 +1,6 @@
+BGV 在满足解密正确性条件时，支持有限明文环中的精确算术。BFV 采用较大的消息尺度 $\Delta$，BGV 则让误差成为明文模数的倍数。常见的高位与低位数位图像是一种直观解释；只有采用适当的二次幂基数时，才可字面理解为二进制位的分区，而且中心化代表元可以为负数。
 
-与 BFV 类似，BGV 方案面向整数的同态加法和乘法。BGV 保证精确的加密与解密，而 CKKS 采用近似计算。从这一角度看，BGV 与 BFV 相似。不过，两者的主要区别在于：BFV 将明文值放在最高有效位区域，将噪声放在低位（最低有效位）区域；BGV 则相反，将明文放在低位区域，将噪声放在高位区域。具体来说，BFV 用 $\Delta$ 缩放明文多项式，而 BGV 用 $\Delta$ 缩放噪声多项式。因此，两种方案采用略有差异的方式在密文中存储和管理明文与噪声。
-
-BGV 在明文编码、密文与明文加法、密文与密文加法、密文与明文乘法以及输入向量旋转方面，采用与 BFV 几乎相同的策略。另一方面，由于 BGV 缩放的是噪声而不是明文，其加密与解密过程与 BFV 略有不同。此外，BFV 的密文乘法本身不设置次数层级，而 BGV 的密文与密文乘法采用分层机制，如 CKKS 一样将模数切换到较低层级，因此可执行的层数受到限制。BGV 的模数切换和自举也与 BFV 部分不同。
+BGV 与 BFV 共用精确的明文环算术、张量乘法和密钥切换技术。BGV 通常沿模数链使用模数切换来控制噪声大小。固定模数的 BFV 同样受噪声预算限制，并不能在不刷新的情况下支持无限次乘法。模数切换和自举必须满足下述各方案对应的正确性条件。
 
 
 
@@ -75,10 +74,9 @@ $ $
 
 $ $
 
-其中 $\omega$ 是模 $t$ 的本原 $2n$ 次单位根（因此 $t \equiv 1 \bmod 2n$）。这意味着 $\omega = g^{\frac{t - 1}{2n}} \bmod t$（$g$ 是 $\mathbb{Z}_t^{\times}$ 的生成元，见 \autoref{subsubsec:poly-vector-transformation-modulus}）。最终输出为 $M = \sum\limits_{i=0}^{n-1} m_iX^i \text{ } \in \mathbb{Z}_t[X] / (X^n + 1)$，
-在后续的加密和解密过程中，也可以将其视为
+，其中，这种完全分裂的批处理构造要求 $t$ 为素数且 $t\equiv1\pmod{2n}$。选择 $\mathbb{Z}_t^\times$ 的生成元 $g$，令 $\omega=g^{(t-1)/(2n)}\bmod t$（\autoref{subsubsec:poly-vector-transformation-modulus}）。输出为 $M=\sum_{i=0}^{n-1}m_iX^i\in\mathbb{Z}_t[X]/(X^n+1)$。加密前将其系数提升为整数代表元，再在模 $q$ 下加密；这种提升不是环的包含映射。更一般的 BGV 明文模数不一定提供 $n$ 个标量槽位。
 
-$M = \sum\limits_{i=0}^{n-1} m_iX^i \text{ } \in \mathbb{Z}_q[X] / (X^n + 1)$，因为新编码得到的系数 $m_i$ 保证小于任何满足 $q = \{q_0, q_1, \cdots, q_L\}$ 的 $q$。
+将系数映入密文系数域之前，应为每个模 $t$ 系数选择固定代表元。正确性取决于完整相位的界，而不仅仅是新鲜消息系数的大小。
 
 $ $
 
@@ -104,7 +102,7 @@ $\hathat{W}^* = \begin{bmatrix}
 \subsection{加密与解密}
 \label{subsec:bgv-enc-dec}
 
-BGV 的加密与解密方案与 BFV（\autoref{subsec:bfv-enc-dec} 中的总结~\ref*{subsec:bfv-enc-dec}）非常相似，但存在一个小区别：BFV 用 $\Delta$ 缩放明文多项式 $M(X)$，BGV 则用 $\Delta$ 缩放噪声多项式 $E(X)$。在 BFV 中，每个编码后的明文多项式 $M(X)$ 都乘以 $ \Delta = \left\lfloor \dfrac{q}{t} \right\rfloor$；这会将每个明文系数移到最高有效位区域，而将噪声留在最低有效位区域。另一方面，BGV 不缩放明文多项式 $M(X)$，而是将每次新生成的噪声 $E(X)$ 乘以 $\Delta = t$，得到 $\Delta E(X)$。这种缩放策略通过乘以 $\Delta = t$ 将噪声（即 $e_i$）移到最高有效位区域，同时将明文值（即 $m_i$），也就是 $M(X)$ 的各个系数，保留在最低有效位区域。
+比较 BFV 的相位 $\Delta M+E$（其中 $\Delta=\lfloor q/t\rfloor$）与 BGV 的相位 $M+tE$（\autoref{subsec:bfv-enc-dec}）。在 BGV 中，正确恢复中心化相位后，对明文模数取模即可消除可整除的误差。以下对称密钥表述采用素数明文模数和便于说明的同余模数链；BGV 也存在更一般的明文与模数链配置。
 
 此外，BGV 的密文模数 $q$ 与 CKKS 一样采用分层结构：$q \in \{q_0, q_1, \cdots, q_L\}$，其中各层满足 $q_l = \prod\limits_{i=0}^l w_i$（各个 $w_i$ 是 CRT 模数）。
 
@@ -135,7 +133,7 @@ BGV 的加密与解密过程如下：
 
 \item 计算 $B = -A \cdot S + M + \Delta E \text{ } \in \mathcal{R}_{\langle n,q \rangle}$
 
-\item $\textsf{RLWE}_{S,\sigma}(M + \Delta E) = (A, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^2$ 
+\item $\textsf{RLWE}_{S,\sigma}(M + \Delta E) = (A, B) \text{ } \in \mathcal{R}_{\langle n,q \rangle}^2$
 
 \end{enumerate}
 
@@ -158,15 +156,13 @@ $ $
 
 \textbf{\underline{正确解密的条件}：}
 
-%\begin{enumerate}
-%\item 
-每个含缩放噪声与明文的系数 $\Delta e_i + m_i$，都不应超出密文当前乘法层级 $l$ 对应的密文模数 $q_l$ 的范围（即 $\Delta e_i + m_i < q_l$；采用有符号模表示时为 $|\Delta e_i + m_i| < \frac{q_l}{2}$）。
+采用中心化代表元时，要求在执行解密的层级满足 $\|M+tE\|_\infty<q_l/2$。先在中心化区间中计算 $[B+AS]_{q_l}$，再对 $t$ 取模。仅有单边不等式 $m_i+te_i<q_l$ 并不足够，而且对 $q_l$ 取模一般不能与随后对 $t$ 取模交换。
 
 %\end{enumerate}
 
 \end{tcolorbox}
 
-在解密末尾恢复明文时，BFV 将明文和噪声向低位移动，从而通过舍入消除噪声；BGV 则计算 $\text{ mod } p$。由于 $E$ 的每个系数都是 $t$ 的倍数（即 $\Delta$），这一取模操作会消去累计的噪声。最后，低位区域仅保留明文多项式 $m_i$ 的各个系数，不再包含噪声 $e_i$。
+对 $t$ 取模消除的是系数均为 $t$ 倍数的项 $tE$；$E$ 本身的系数不必是 $t$ 的倍数。密钥切换和重线性化中的求值密钥误差也必须遵守这一规则。本章的加密记号描述相位关系，并不声称计算后的误差仍具有原始分布。
 
 
 
@@ -226,566 +222,156 @@ $= \textsf{RLWE}_{S, \sigma}((M \cdot \Lambda) + \Delta E\cdot \Lambda )$
 \subsection{\textsf{ModDrop}}
 \label{subsec:bgv-moddrop}
 
-BGV 的 \textsf{ModDrop} 与 CKKS 的 \textsf{ModDrop} 类似（见 \autoref{subsec:ckks-moddrop} 中的总结~\ref*{subsec:ckks-moddrop}）。回顾 CKKS 的密文解密关系如下：
-
-$M + \Delta E = A \cdot S + B \bmod q_l$
-
-$M + \Delta E = A \cdot S + B - K\cdot q_l$ \textcolor{red}{ $\rhd$ 其中 $K\cdot q_l$ 表示对 $q_l$ 取模}
-
-BGV 的 \textsf{ModDrop} 通过将密文 $(A, B)$ 更新为新密文 $\bm(A' = A \bmod q_{l-1}$、$B' = B \bmod q_{l-1})$，按 $q_l \rightarrow q_{l-1}$ 降低模数。执行 \textsf{ModDrop} 后，密文模数按 $q_l \rightarrow q_{l-1}$ 降低，但仍保持如下解密关系：
-
-$A' \cdot S + B' - K\cdot q_l $
-
-$= (A \bmod q_{l-1}) \cdot S + (B \bmod q_{l-1}) - K\cdot q_l$
-
-$= (A - K_A\cdot q_{l-1}) \cdot S + (B - K_B\cdot q_{l-1}) - K\cdot q_l$ 
-
-$= A\cdot S + B - (K_A \cdot S + K_B + K\dfrac{q}{q_{l-1}})\cdot q_{l-1}$
-\textcolor{red}{ $\rhd$ 其中 $\dfrac{q}{q_{l-1}} = w_l$（即 $q_L$ 的第 $l$ 个素数因子）}
-
-$= A\cdot S + B - K'\cdot q_{l-1}$ \textcolor{red}{ $\rhd$ 其中 $K' = K_A\cdot S + K_B + K\dfrac{q}{q_{l-1}}$、$\dfrac{q}{q_{l-1}} = w_l$}
-
-$= A\cdot S + B \bmod q_{l-1}$
-
-$= M + \Delta E$ \textcolor{red}{ $\rhd$ 因为 $M + \Delta E < q_0 < q_{l-1}$}
-
-$ $
-
-如上所示，$(A', B') \bmod q_{l-1}$ 仍能解密为相同的含缩放误差明文 $M + \Delta E$。不过，由于密文模数与噪声之比减小，噪声预算（即允许的噪声阈值）也会减小。
-
-$ $
-
-BGV 的 \textsf{ModDrop} 可总结如下：
-
-
-
-\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bgv-moddrop}} BGV 的 \textsf{ModDrop}}}]
-
-给定处于第 $l$ 个乘法层级的 BGV 密文 $\textsf{RLWE}_{S, \sigma}(M + \Delta E) = (A, B) \bmod q_l$，\textsf{ModDrop} 操作为：
-
-$(A', B') \bmod q_{l-1} = (A \bmod q_{l-1}, B \bmod q_{l-1})$
-
-$ $
-
-完成后，密文的乘法层级降低 1，噪声尺度因子 $\Delta$ 和明文均不变，但噪声预算（允许的噪声阈值）减小。
-
-\end{tcolorbox}
-
-
+BGV 的 ModDrop 将 $(A,B)$ 逐系数对 $q_l$ 的因子 $q_{l-1}$ 取模：
+\[
+(A',B')=([A]_{q_{l-1}},[B]_{q_{l-1}}).
+\]
+由于 $A'S+B'\equiv AS+B\pmod{q_{l-1}}$，若 $\|M+tE\|_\infty<q_{l-1}/2$，就会保持中心化相位 $M+tE$。在该条件下，明文和噪声不变，可用模数空间减少。如果不满足此界，回绕可能改变模 $t$ 的明文。
 
 \subsection{模数切换}
 \label{subsec:bgv-modulus-switch}
 
-\noindent \textbf{- 参考资料 1：}
-\href{https://eprint.iacr.org/2020/1481}{HElib 的设计与实现：一个同态加密库}~\cite{bgv-modswitch1}
-
-
-\noindent \textbf{- 参考资料 2：}
-\href{https://eprint.iacr.org/2011/277.pdf}{无需自举的全同态加密}~\cite{bgv-modswitch2}
-
-
-\noindent \textbf{- 参考资料 3：}
-\href{https://eprint.iacr.org/2012/099.pdf}{AES 电路的同态求值}~\cite{bgv-modswitch3}
-
-回顾模数切换的要求：将密文模数从 $q$ 改为 $\hat q$ 后，密文仍应解密得到相同明文 $M$。BGV 的模数切换与 RLWE 的模数切换（\autoref{subsec:modulus-switch-rlwe}）类似，但有一个额外要求，因为 BGV 将尺度因子 $\Delta$ 施加于噪声 $E$，而非明文 $M$。BFV 和 CKKS 的解密只需要通过舍入消除低位区域的噪声；而 BGV 的明文位于低位区域，解密必须通过模 $t$（即明文模数）的约减去除高位区域的噪声。更具体地说，BGV 从 $(A, B) \bmod q_{l}$ $\rightarrow$ $(\hat{A}, \hat{B}) \bmod \hat{q}$ 的模数切换应满足解密关系 $((\hat{A} \cdot S + \hat{B}) \bmod \hat{q}) \bmod t = M$。在 BGV 模数切换中，$\hat{q}$ 不必属于密文预设的乘法层级，$\hat{q}$ 只需满足 $\hat{q} < q_l$ 和 $\hat{q} \equiv 1 \bmod t$。BGV 的模数切换过程如下：
-
-$ $
-
-\begin{enumerate}
-
-
-\item 输入密文为 $\textsf{ct} = (A, B) \bmod q_l$。按如下方式计算新多项式 $A'$ 和 $B'$：
-
-$(A', B') = \left(\left\lceil\dfrac{\hat{q}}{q_l}\cdot A\right\rfloor, \left\lceil\dfrac{\hat{q}}{q_l}\cdot B\right\rfloor\right) \pmod{\hat{q}}$
-
-$ $
-
-并按如下方式计算舍入误差 $\epsilon_A, \epsilon_B$：
-
-$\epsilon_A = \dfrac{\hat{q}}{q_l}\cdot A - A'$
-
-$\epsilon_B = \dfrac{\hat{q}}{q_l}\cdot B - B'$
-
-
-$ $
-
-将其改写为：
-
-$\hat{q} A = q_{l} A' + q_{l}\epsilon_A = q_{l} A' + \epsilon'_A$ \textcolor{red}{ $\rhd$ 记 $\epsilon'_A = q_{l}\epsilon_A$，其中 $\epsilon'_A \in \mathbb{Z}_{q_l}$}
-
-$\hat{q} B = q_{l} B' + q_{l}\epsilon_B = q_{l} B' + \epsilon'_B$ \textcolor{red}{ $\rhd$ 记 $\epsilon'_B = q_{l}\epsilon_B$，其中 $\epsilon'_B \in \mathbb{Z}_{q_l}$}
-
-$ $
-
-\item 按如下方式计算新多项式 $H_A$ 和 $H_B$：
-
-$H_A = q_l^{-1}\cdot\epsilon'_A \bmod t$
-
-$H_B = q_l^{-1}\cdot\epsilon'_B \bmod t$
-
-$ $
-
-\item 定义最终完成模数切换的密文 $\hat{\textsf{ct}}$ 如下：
-
-$\hat{\textsf{ct}} = (\hat{A}, \hat{B}) = (A' + H_A, \text{ } B' + H_B) \bmod \hat{q}$
-
-$ $
-
-注意，仅计算 $A' + H_A$ 和 $B' + H_B$ 所得的结果可能超出范围 $\mathbb{Z}_{\hat{q}}$，因为 $A', B' \in \mathbb{Z}_{\hat{q}}$ 且 $H_A, H_B \in \mathbb{Z}_t$。因此，需要将 $A' + H_A$ 和 $B' + H_B$ 对 $\hat{q}$ 取模，得到 $\hat{A} \in \mathbb{Z}_{\hat{q}}$ 和 $\hat{B} \in \mathbb{Z}_{\hat{q}}$。
-
-$ $
-
-\item 接下来验证 $\hat{\textsf{ct}}$ 是满足 BGV 解密关系的有效密文。首先，可推导 $\textsf{ct} = (A, B)$、$A' + H_A$ 和 $B' + H_B$ 之间的关系如下：
-
-$\hat{q}\cdot \textsf{ct} \bmod t $
-
-$= (\hat{q}A, \hat{q}B) \bmod t$
-
-$= (q_{l} A' + \epsilon'_A, \text{ } q_{l} B' + \epsilon'_B) \bmod t$ \textcolor{red}{ $\rhd$ 代入步骤 1 的结果：$\hat{q} A = q_{l}A' + \epsilon'_A$，\text{ } $\hat{q} B = q_{l}B' + \epsilon'_B$}
-
-$ = (q_{l} A' + q_lH_A, \text{ } q_{l} B' + q_lH_B) \bmod t$ 
-\textcolor{red}{ $\rhd$ 代入步骤 2 的结果：$H_A = q_l^{-1}\cdot\epsilon'_A \bmod t$，\text{ } $H_B = q_l^{-1}\cdot\epsilon'_B \bmod t$}
-
-$ $
-
-$ = q_l\cdot(A' + H_A, \text{ } B' + H_B) \bmod t$
-
-%$ = q_l \cdot \hat{\textsf{ct}} \bmod t$
-
-$ $
-
-因此，$\hat{q}\cdot\textsf{ct} = q_l\cdot(A' + H_A, \text{ } B' + H_B) \bmod t$。在 BGV 中，$q_l \equiv q_2 \equiv \cdots \equiv \hat{q} \equiv \cdots q_L \equiv 1 \bmod t$，于是有：
-
-$A \equiv A' + H_A \bmod t$
-
-$B \equiv B' + H_B \bmod t$
-
-
-
-
-$ $
-
-\item 根据 $\textsf{ct}$ 的解密关系，可以推导 $\hat{\textsf{ct}}$ 的解密关系如下：
-
-$M = (A\cdot S + B \bmod q_l) \bmod t$ \textcolor{red}{ $\rhd$ $\textsf{ct} = (A, B) \bmod q_l$ 的 BGV 解密关系}
-
-$= (A\cdot S + B - K\cdot q_l) \bmod t$ \textcolor{red}{ $\rhd$ 其中 $K\cdot q_l$ 表示模 $q_l$ 约减}
-
-$= ((A' + H_A)\cdot S + B' + H_B - K\cdot q_{l}) \bmod t$ \textcolor{red}{ $\rhd$ 代入步骤 4 的结果：$A \equiv A' + H_A \bmod t$，\text{ } $B \equiv B' + H_B \bmod t$}
-
-$= ((A' + H_A)\cdot S + B' + H_B - K\cdot \hat{q}) \bmod t$ \textcolor{red}{ $\rhd$ 因为 BGV 中 $q_0\equiv q_1\equiv \cdots q_L \equiv 1 \bmod t$，且所选 $\hat{q}$ 满足 $\hat{q} \equiv 1 \bmod t$}
-
-$ $
-
-\item 现在，只要证明 $(A' + H_A)\cdot S + B' + H_B - K\cdot \hat{q} = (A' + H_A)\cdot S + B' + H_B \bmod \hat{q}$（即 $K\cdot\hat{q}$ 将 $(A' + H_A)\cdot S + B' + H_B$ 对 $\hat{q}$ 取模），就足以得到以下结论：
-
-$(\hat{A}\cdot S + \hat{B} \bmod \hat{q}) \bmod t$
-
-$= ((A' + H_A)\cdot S + B' + H_B \bmod \hat{q}) \bmod t$
-
-$= M$ \textcolor{red}{ $\rhd$ 即 $(\hat{A}, \hat{B}) = (A' + H_A, B' + H_B) \bmod \hat{q}$ 是解密得到 $M$ 的有效密文}
-
-$ $
-\begin{comment}
-\item 以下关系也成立：
-
-$(A' + H_A)\cdot S + B' + H_B \bmod \hat{q}$
-
-$ = |A' + H_A|_{\hat{q}}\cdot S + |B' + H_B|_{\hat{q}} \bmod \hat{q}$ 
-
-\textcolor{red}{ $\rhd$ 其中 $|A' + H_A|_{\hat{q}} = A' + H_A \bmod \hat{q}$，\text{ } $|B' + H_B|_{\hat{q}} = B' + H_B \bmod \hat{q}$}
-
-$ $
-
-$ = \hat{A}\cdot S + \hat{B} \bmod \hat{q}$ \textcolor{red}{ $\rhd$ 代入步骤 3：$\hat{A} = A' + H_A \bmod \hat{q}$，\text{ } $\hat{B} = B' + H_B \bmod \hat{q}$}
-
-$ $
-
-因此，证明 $(A' + H_A)\cdot S + B' + H_B - K\cdot \hat{q} = (A' + H_A)\cdot S + B' + H_B \bmod \hat{q}$ 等价于证明 $(A' + H_A)\cdot S + B' + H_B - K\cdot \hat{q} = \hat{A}\cdot S + \hat{B} \bmod \hat{q}$。
-
-$ $
-\end{comment}
-
-
-\item 下面证明 $(A' + H_A)\cdot S + B' + H_B - K\cdot \hat{q} = (A' + H_A)\cdot S + B' + H_B \bmod \hat{q}$：
-
-$(A' + H_A)\cdot S + B' + H_B - K\cdot \hat{q}$ 
-
-
-$ = (\dfrac{\hat{q}}{q_{l}}\cdot A - \dfrac{\epsilon'_A}{q_{l}} + H_A)\cdot S + (\dfrac{\hat{q}}{q_{l}}\cdot B - \dfrac{\epsilon'_B}{q_{l}} + H_B) - K\cdot \hat{q}$ 
-
-\textcolor{red}{ $\rhd$ 代入步骤 1 的结果：$A' = \dfrac{\hat{q}}{q_{l}}\cdot A - \dfrac{\epsilon'_A}{q_{l}}, \text{ } B' = \dfrac{\hat{q}}{q_{l}}\cdot B - \dfrac{\epsilon'_B}{q_{l}}$}
-
-$ $
-
-$ $
-
-$ = \left(\dfrac{\hat{q}}{q_{l}}\cdot A\cdot S + \dfrac{\hat{q}}{q_{l}}\cdot B  - K\cdot \hat{q}\right) + H_A\cdot S + H_B - \dfrac{\epsilon'_A}{q_{l}}\cdot S - \dfrac{\epsilon'_B}{q_{l}}$ \textcolor{red}{ $\rhd$ 重新排列各项}
-
-$ = \dfrac{\hat{q}}{q_{l}}\cdot(A\cdot S + B  - K\cdot q_{l}) + H_A\cdot S + H_B - \dfrac{\epsilon'_A}{q_{l}}\cdot S - \dfrac{\epsilon'_B}{q_{l}}$ \textcolor{red}{ $\rhd$ 提取公因子 $\dfrac{\hat{q}}{q_{l}}$}
-
-$ = \dfrac{\hat{q}}{q_{l}}\cdot(A\cdot S + B \bmod q_l) + H_A\cdot S + H_B - \dfrac{\epsilon'_A\cdot S + \epsilon'_B}{q_{l}}$ \textcolor{red}{ $\rhd$ 因为 $A\cdot S + B - K\cdot q_{l} = A\cdot S + B \bmod q_l$}
-
-$ $
-
-要成功解密，上式所得多项式的每个系数都必须位于 $\mathbb{Z}_{\hat{q}}$ 范围内（即 $K\cdot\hat{q}$ 成功将 $(A' + H_A)\cdot S + B' + H_B$ 对 $\hat{q}$ 取模）。第一项 $\dfrac{\hat{q}}{q_{l}}\cdot(A\cdot S + B \bmod q_l)$ 可视为将原密文 \textsf{ct} 中的噪声及明文消息按 $\dfrac{\hat{q}}{q_l}$ 缩小，保证处于 $\mathbb{Z}_{\hat{q}}$ 范围内。第二项 $H_A \cdot S$ 的系数也较小，因为 $H_A \in \mathbb{Z}_t^n$ 且 $S \in \{-1, 0, 1\}^n$。第三项 $H_B$ 的系数同样较小，因为 $H_B \in \mathbb{Z}_t^n$。最后一项 $- \dfrac{\epsilon'_A\cdot S + \epsilon'_B}{q_{l}}$ 的系数也较小，因为 $\dfrac{\epsilon'_A}{q_l}$ 和 $\dfrac{\epsilon'_B}{q_l}$ 均为 $\in \mathbb{Z}_{\frac{q_l}{\hat{q}}}$。
-
-$ $
-
-因此，在上述误差阈值成立的条件下，有 $(A' + H_A)\cdot S + B' + H_B - K\cdot \hat{q} = (A' + H_A)\cdot S + B' + H_B \bmod \hat{q}$。
-
-$ $
-
-\item 最后，将步骤 6 和步骤 7 的结果结合：
-
-$\bm((\hat{A}\cdot S + \hat{B}) \bmod \hat{q} \bm) \bmod t$
-
-$= \bm((A' + H_A)\cdot S + B' + H_B \bmod \hat{q}\bm) \bmod t$ \textcolor{red}{ $\rhd$ 因为 $\hat{A} \equiv A' + H_A \bmod \hat{q}$ 且 $\hat{B} \equiv B' + H_B \bmod \hat{q}$}
-
-$ = ((A' + H_A)\cdot S + B' + H_B - K\cdot \hat{q}) \bmod t$ \textcolor{red}{ $\rhd$ 代入步骤 7}
-
-$ = M$ \textcolor{red}{ $\rhd$ 代入步骤 5}
-
-$ $
-
-所以，解密 $(\hat{A}, \hat{B}) \bmod \hat{q}$ 得到消息 $M$。
-
-\end{enumerate}
-
-$ $
-
-BGV 的模数切换可总结如下：
-
-
-
-\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bgv-modulus-switch}} BGV 的模数切换}}]
-
-设当前密文模数为 $q_l$，新密文模数为 $\hat{q}$，满足 $q_l \equiv \hat{q} \equiv 1 \bmod t$ 和 $\hat{q} < q_l$。因此，$\hat{q}$ 可以属于 BGV 密文乘法层级对应的模数集合 $q_0, q_1, \cdots, q_L$，也可以不属于该集合。
-
-$ $
-
-BGV 的模数切换 $q_l \rightarrow \hat{q}$ 等价于按如下方式将 $(A, B) \bmod q_l$ 更新为 $(\hat A, \hat B) \bmod \hat{q}$：
-
-
-$(A', B') = \left(\left\lceil\dfrac{\hat{q}}{q_l}\cdot A\right\rfloor, \left\lceil\dfrac{\hat{q}}{q_l}\cdot B\right\rfloor\right) \in \mathcal{R}_{\langle n, \hat{q} \rangle}^2$
-
-$ $
-
-$\epsilon'_A = \hat{q}\cdot A - q_l\cdot A'$ \textcolor{red}{ $\rhd$ 其中 $\epsilon'_A \in \mathbb{Z}_{q_l}$}
-
-$\epsilon'_B = \hat{q}\cdot B - q_l\cdot B'$ \textcolor{red}{ $\rhd$ 其中 $\epsilon'_B \in \mathbb{Z}_{q_l}$}
-
-
-$ $
-
-$H_A = q_l^{-1}\cdot\epsilon'_A \bmod t$
-
-$H_B = q_l^{-1}\cdot\epsilon'_B \bmod t$
-
-$ $
-
-$\hat{\textsf{ct}} = (\hat{A}, \hat{B}) = (A' + H_A, B' + H_B) \bmod \hat{q}$
-
-$ $
-
-BGV 的模数切换用于密文与密文乘法（详见 \autoref{subsec:bgv-mult-cipher}）。完成模数切换后，噪声尺度因子 $\Delta = t$ 保持不变，私钥 $S$ 也保持不变。噪声大致按 $\dfrac{\hat{q}}{q_l}$ 缩小，但噪声与密文模数之比并不会因此下降。要减小这一比值，需要使用模数自举（详见 \autoref{subsec:bgv-bootstrapping}）。
-
+\noindent \textbf{- 参考文献：} \href{https://eprint.iacr.org/2020/1481}{Design and implementation of HElib}~\cite{bgv-modswitch1}；\href{https://eprint.iacr.org/2011/277.pdf}{(Leveled) Fully Homomorphic Encryption without Bootstrapping}~\cite{bgv-modswitch2}；\href{https://eprint.iacr.org/2012/099.pdf}{Homomorphic Evaluation of the AES Circuit}~\cite{bgv-modswitch3}。
+
+这里描述方便说明的特例：$q_l\equiv\widehat q\equiv1\pmod t$ 且 $\widehat q<q_l$。这些同余关系是本节构造的充分条件，而不是每一种 BGV 实现的必要条件。令 $\rho=\widehat q/q_l$，取 $A,B$ 的中心化整数代表元，计算整数多项式
+\[
+A'=\lceil\rho A\rfloor,\quad B'=\lceil\rho B\rfloor,\quad
+\epsilon'_A=\widehat qA-q_lA',\quad\epsilon'_B=\widehat qB-q_lB'.
+\]
+误差 $\epsilon'_A/q_l,\epsilon'_B/q_l$ 是绝对值至多 $1/2$ 的实数舍入误差，并不是某个整数剩余类环的元素。通过下式纠正模 $t$ 的剩余类：
+\[
+H_A=[q_l^{-1}\epsilon'_A]_t,\quad H_B=[q_l^{-1}\epsilon'_B]_t,
+\quad (\widehat A,\widehat B)=([A'+H_A]_{\widehat q},[B'+H_B]_{\widehat q}).
+\]
+这里的 $H_A,H_B$ 使用中心化代表元。在最后取模之前，$\widetilde A=A'+H_A$、$\widetilde B=B'+H_B$ 满足 $\widetilde A\equiv A\pmod t$、$\widetilde B\equiv B\pmod t$。
+
+为证明正确性，写成 $AS+B=M+tE+Kq_l$，并令 $\delta_A=\widetilde A-\rho A$、$\delta_B=\widetilde B-\rho B$，则
+\[
+Y=\widetilde AS+\widetilde B-K\widehat q
+=\rho(M+tE)+\delta_AS+\delta_B,
+\qquad Y\equiv M\pmod t.
+\]
+后一个同余关系来自 $q_l\equiv\widehat q\pmod t$。如果 $\|Y\|_\infty<\widehat q/2$，就有 $Y=[\widehat AS+\widehat B]_{\widehat q}$，解密返回 $M$。一个确定性的充分条件是
+\[
+\rho\|M+tE\|_\infty+\frac{t+1}{2}(1+\|S\|_1)<\frac{\widehat q}{2}.
+\]
+该条件由 $\|\delta_A\|_\infty,\|\delta_B\|_\infty\leq(t+1)/2$ 得到。若原相位已经接近边界，不能仅因纠正项有界就认为它们必然无害。
+
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bgv-modulus-switch}} BGV 模数切换}}]
+将密文代表元近似乘以 $\rho$，再施加上述同余纠正。满足相位界时，输出相位为 $M+tE'$，其中 $E'$ 是新的整数误差。明文模数和噪声可整除因子仍为 $t$；原相位的大小缩小，同时增加舍入与纠正项。这不是噪声重置。
 \end{tcolorbox}
-
-
 
 \subsubsection{模数切换与 \textsf{ModDrop} 的区别}
 \label{subsubsec:bgv-moddrop-vs-modswitch}
 
-对于 CKKS（\autoref{subsubsec:ckks-mult-cipher-rescale}），模数切换与 \textsf{ModDrop} 的区别在于：前者将明文尺度因子按 $\dfrac{q_l}{q_{l-1}} \approx \dfrac{1}{\Delta}$ 缩小，而后者不影响明文尺度因子。
+CKKS 重缩放将消息尺度除以 $q_l/q_{l-1}$，而其 ModDrop 在满足相位界时保持尺度不变（\autoref{subsubsec:ckks-mult-cipher-rescale}）。在 BGV 中，两种操作都不改变噪声可整除因子 $\Delta=t$。BGV 模数切换近似缩小相位大小，并通过同余纠正保持明文剩余类。ModDrop 只进行剩余类约减，减少可用的相位空间。这两种操作都不局限于计算末尾。
 
-类似地，在 BGV 中，从 $q_l \rightarrow q_{l-1}$ 开始的模数切换（重缩放）和 \textsf{ModDrop} 都会按 $q_l \rightarrow q_{l-1}$ 降低密文模数。关键区别在于，重缩放还将噪声的缩放量按 $\dfrac{q_l}{q_{l-1}} \approx \dfrac{1}{\Delta}$ 减小，而 \textsf{ModDrop} 保持该缩放量不变。因此，重缩放只用于密文与密文乘法（详见 \autoref{subsec:bgv-mult-cipher}），用于按 $\Delta^2 \rightarrow \Delta$ 缩小中间密文中噪声的缩放量。另一方面，当应用确定某个密文不会再参与密文与密文乘法时，即无须继续降低其模数以支持乘法时，可以用 \textsf{ModDrop} 缩短模运算时间。
-
-CKKS 与 BGV 模数切换的主要区别是：前者将明文的缩放量大致按 $\dfrac{1}{\Delta}$ 缩小，而后者将噪声的缩放量大致按 $\dfrac{1}{\Delta}$ 缩小。
-
-\para{源代码：} 可以运行\href{https://github.com/fhetextbook/fhe-textbook/blob/main/source%20code/bgv.py}{\underline{此 Python 脚本}}，查看 BGV 模数切换的示例。
+\para{源代码：} \href{https://github.com/wang2000star/fhe-textbook-cn/blob/chinese-edition/source%20code/bgv.py}{\underline{Python 示例}}演示了模数切换；任何实现都必须满足上述相位与参数条件。
 
 
 \subsection{密文与密文乘法}
 \label{subsec:bgv-mult-cipher}
 
-\noindent \textbf{- 参考资料：}
-\href{https://www.inferati.com/blog/fhe-schemes-bgv}{BGV 加密方案简介}
-
-由于 BGV 与 CKKS 一样使用分层密文模数链，其密文与密文乘法也与 CKKS 相同（见 \autoref{subsec:ckks-mult-cipher} 中的总结~\ref*{subsec:ckks-mult-cipher}），唯一区别是重缩放步骤使用 BGV 的模数切换（\autoref{subsec:bgv-modulus-switch}）。
+对于输入相位 $M_1+tE_1$ 和 $M_2+tE_2$，张量积得到
+\[
+D_0=B_1B_2,\quad D_1=A_1B_2+A_2B_1,\quad D_2=A_1A_2,
+\]
+\[
+D_0+D_1S+D_2S^2\equiv M_1M_2+t(M_1E_2+M_2E_1+tE_1E_2)\pmod q.
+\]
+噪声仍被 $t$ 整除，不能把方案的因子 $t$ 解释为依次变成 $t^2,t^4,\ldots$。将 $M_1M_2$ 对 $t$ 取模还可能在整数误差中增加进位项。
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bgv-mult-cipher}} BGV 密文与密文乘法}}]
-
-假设有以下两个 RLWE 密文：
-
-$\textsf{RLWE}_{S, \sigma}(M^{\langle 1 \rangle} + \Delta E^{\langle 1 \rangle}) = (A^{\langle 1 \rangle}, B^{\langle 1 \rangle})$，\text{ } 其中 $B^{\langle 1 \rangle} = -A^{\langle 1 \rangle} \cdot S +  M^{\langle 1 \rangle} + \Delta E^{\langle 1 \rangle}$
-
-$\textsf{RLWE}_{S, \sigma}(M^{\langle 2 \rangle} + \Delta E^{\langle 2 \rangle}) = (A^{\langle 2 \rangle}, B^{\langle 2 \rangle})$，\text{ } 其中 $B^{\langle 2 \rangle} = -A^{\langle 2 \rangle} \cdot S +  M^{\langle 2 \rangle} + \Delta E^{\langle 2 \rangle}$
-
-$ $
-
-两个密文的乘法过程如下：
-
-$ $
-
 \begin{enumerate}
-\item \textbf{\underline{基本乘法}}
-
-计算以下各项：
-
-$ $
-
-$D_0 = B^{\langle 1 \rangle}\cdot B^{\langle 2 \rangle}$
-
-$D_1 = A^{\langle 1 \rangle}\cdot B^{\langle 2 \rangle} + A^{\langle 2 \rangle}\cdot B^{\langle 1 \rangle}$
-
-$D_2 = A^{\langle 1 \rangle} \cdot A^{\langle 2 \rangle}$
-
-$ $
-
-解密关系满足：$M^{\langle 1 \rangle}M^{\langle 2 \rangle} + \Delta\cdot (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + \Delta^2E^{\langle 1 \rangle}E^{\langle 2 \rangle}$
-
-$ = \underbrace{B^{\langle 1 \rangle}\cdot B^{\langle 2 \rangle}}_{D_0}  + \underbrace{(B^{\langle 2 \rangle}\cdot A^{\langle 1 \rangle} + B^{\langle 1 \rangle}\cdot A^{\langle 2 \rangle})}_{D_1} \cdot S + \underbrace{(A^{\langle 1 \rangle} \cdot A^{\langle 2 \rangle})}_{D_2} \cdot \underbrace{S \cdot S}_{S^2}$
-
-$= D_0 + D_1\cdot S + D_2 \cdot S^2$
-
-$ $
-
-\item \textbf{\underline{重线性化}}
-
-$\textsf{RLWE}_{S, \sigma}\bm(M^{\langle 1 \rangle}M^{\langle 2 \rangle} + \Delta\cdot (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + \Delta^2E^{\langle 1 \rangle}E^{\langle 2 \rangle}\bm) $
-
-$= \textsf{RLWE}_{S, \sigma}\bm{(}\text{ }D_0 + D_1\cdot S + D_2\cdot S^2\text{ }\bm{)}$
-
-$  \approx C_\alpha + C_\beta, \text{其中} \text{ } C_\alpha = (D_1, D_0), \text{ }\text{ }\text{ } C_\beta = \bm{\langle}  \text{ } \textsf{Decomp}^{\beta, l}(D_2), \textsf{RLev}_{S, \sigma}^{\beta, l}(S^2)  \text{ } \bm{\rangle}$ 
-
-$ $
-
-\item \textbf{\underline{（可选）重缩放}}
-
-为了抑制按 $\Delta^2$ 缩放的噪声分量，使其回到因子 $\Delta$，按照总结~\ref*{subsec:bgv-modulus-switch}（\autoref{subsec:bgv-modulus-switch}）给出的 BGV 模数切换，将密文 $(A, B)$ 更新为 $(\hat A, \hat B)$，从而按 $q \rightarrow \hat q$ 切换密文模数。
-
-$ $
-
-完成上述从 $(A, B)$ 到 $(\hat A, \hat B)$ 的更新后，噪声尺度因子 $\Delta = t$ 和明文 $M$ 保持不变；我们已在 \autoref{subsec:bgv-modulus-switch} 证明 $((\hat A \cdot S + \hat B) \bmod \hat q) \bmod t = M$。
-
-$ $
-
-
-
+\item 在模 $q$ 下计算 $(D_0,D_1,D_2)$。
+\item 选择精确整数 gadget $g_i$，使 $D_2\equiv\sum_i d_ig_i\pmod q$。BGV 求值密钥必须满足 $B_i+A_iS\equiv g_iS^2+tE_i\pmod q$。构造 $(A,B)=(D_1,D_0)+\sum_i d_i(A_i,B_i)$；新增密钥切换误差为 $t\sum_i d_iE_i$。
+\item 如需管理噪声，施加 \autoref{subsec:bgv-modulus-switch} 中的 BGV 模数切换。该操作使用实际比率 $\widehat q/q$ 和同余纠正，并不是除以 $t$ 后舍入到 $t$ 的倍数。
 \end{enumerate}
-
-\para{交换重线性化与重缩放的顺序：} 重线性化和重缩放的顺序可以交换。先执行重缩放可以减小密文模数，从而加快随后重线性化的执行速度。
-
+\para{交换\textsf{重线性化}与\textsf{重缩放}的顺序：} 可以先对三个分量作模数切换，前提是正确性界考虑秘密向量 $(1,S,S^2)$，并且重线性化密钥适用于新模数。顺序会改变误差界和成本。
 \end{tcolorbox}
 
-\para{可选重缩放的细节：} 重缩放前，密文所含内容为 $M^{\langle 1 \rangle}M^{\langle 2 \rangle} + \Delta\cdot (M^{\langle 1 \rangle}E^{\langle 2 \rangle} + M^{\langle 2 \rangle}E^{\langle 1 \rangle}) + \Delta^2E^{\langle 1 \rangle}E^{\langle 2 \rangle} + \epsilon$，其中 $\epsilon$ 是重线性化误差。因此，每次密文与密文乘法后，噪声的缩放量都会平方，变为 $\Delta^2, \Delta^4, \Delta^8, \cdots$。为降低这种指数式噪声增长速度，可以在乘法层级 $l$ 的重线性化结束时，选择将密文按 $w_l = \dfrac{q_l}{q_{l-1}} > \Delta$ 重缩放，从而抑制噪声增长，并使噪声尺度因子维持为 $\Delta$。重缩放后，密文按 $w_l$ 缩小，并加入新噪声 $\epsilon_2$。重缩放前，噪声大致按因子 $\Delta = t$ 增长，因为最大的噪声项是 $\Delta^2 E^{\langle 1 \rangle} E^{\langle 2 \rangle}$；重缩放则通过因子 $w_l$ 降低这一增长量，再引入新的常量噪声 $\epsilon_2$。因此，若 $w_l$ 显著大于 $\Delta = t$，所得噪声会小于 $\Delta E^{\langle 1 \rangle}$ 和 $\Delta E^{\langle 2 \rangle}$。基于这一原因，设计 BGV 模数链时，要求各个 $w_l$ 显著大于 $\Delta = t$，以便在每次密文与密文乘法时有效抑制噪声增长，同时确保按 $t$ 取模能得到明文 $M$（详见 \autoref{subsec:bgv-modulus-switch}）。虽然每次重缩放都会新增常量噪声项 $\epsilon_2$，但它会成为重缩放后密文的一部分，并在之后的重缩放中继续按因子 $w_{l-1}$ 缩小。因此，BGV 在密文与密文乘法后执行重缩放，能够有效抑制噪声增长。
-
-上述降噪设计不适用于 CKKS，因为 CKKS 使用尺度因子 $\Delta$ 缩放消息 $M$，而非噪声 $E$；因此，为在多次密文与密文乘法之间保持相同的明文尺度因子 $\Delta$，CKKS 要求各层满足 $w_l \approx \Delta$。由于这一设计差别，CKKS 在每次密文与密文乘法后都会增加噪声。
+\para{可选重缩放的细节：} 新误差取决于输入消息、两个输入误差、多项式卷积、密钥切换和模数切换纠正项。仅选择 $w_l=q_l/q_{l-1}>t$，不能保证输出误差比两个输入误差都小。应根据完整输出相位的界选择模数链。CKKS 同样需要明确的尺度与误差预算，不能断言所有输入的噪声都必然单调增长。
 
 
 \subsection{同态密钥切换}
 \label{subsec:bgv-key-switching}
 
-BGV 的同态密钥切换将 RLWE 密文对应的私钥从 $S$ 改为 $S'$。该过程与 BFV 的密钥切换完全相同（见 \autoref{subsec:bfv-key-switching} 中的总结~\ref*{subsec:bfv-key-switching}）。
-
-\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bgv-key-switching}} BGV 的密钥切换}}]
-$\textsf{RLWE}_{S',\sigma}(M + \Delta E) = (0, B) + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$
+选取精确整数 gadget $g_i$ 和满足 $A\equiv\sum_i d_ig_i\pmod q$ 的数位 $d_i$。$S'$ 下的 BGV 求值密钥必须满足 $b_i+a_iS'\equiv g_iS+tE_i\pmod q$。于是
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bgv-key-switching}} BGV 密钥切换}}]
+\[
+(A',B')=(0,B)+\sum_i d_i(a_i,b_i),\qquad
+B'+A'S'\equiv M+t\left(E+\sum_i d_iE_i\right)\pmod q.
+\]
 \end{tcolorbox}
-
-
+这是 \autoref{subsec:bfv-key-switching} 中的 gadget 技术，但求值密钥误差含有 BGV 专用因子 $t$。应检验所得中心化相位界。使用误差未经该因子缩放的一般求值密钥，可能改变明文剩余类。
 
 \subsection{输入向量槽位的同态旋转}
 \label{subsec:bgv-rotation}
 
-
-BGV 对输入向量槽位的同态旋转与 BFV 完全相同（见 \autoref{subsec:bfv-rotation} 中的总结~\ref*{subsec:bfv-rotation}）。
-
-
+对于完全分裂的打包，以及 \autoref{subsec:bfv-rotation} 所用的根顺序，自同构 $X\mapsto X^{J(h)}$、$J(h)=5^h\bmod2n$ 将两组各含 $n/2$ 个标量槽位分别在组内左移 $h$ 个位置。
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:bgv-rotation}} BGV 输入向量槽位的同态旋转}}]
-
-
-假设有如下 BGV 密文和密钥切换密钥：
-
-\[
-\textsf{RLWE}_{S, \sigma}(M + \Delta E) = (A, B), \quad \textsf{RLev}_{S, \sigma}^{\beta, l}(S(X^{J(h)}))
-\]
-
-将原输入向量 $\vec{v}$ 的前半部分元素在该半部分内部循环左移 $h$ 个位置，同时将 $\vec{v}$ 的后半部分元素在该半部分内部循环左移 $h$ 个位置，步骤如下：
-
 \begin{enumerate}
-\item 将 $A(X)$、$B(X)$ 更新为 $A(X^{J(h)})$、$B(X^{J(h)})$。
-\item 执行以下从 $S(X^{J(h)})$ 到 $S(X)$ 的密钥切换（参见 \autoref{subsec:bfv-key-switching}）：
-
-$\textsf{RLWE}_{S(X),\sigma}\bm{(} M(X^{J(h)}) + \Delta E(X^{J(h)})\bm{)} $
-
-$= \bm{(} 0, B(X^{J(h)}) \bm{)} \text{ } + \text{ } \bm{\langle}  \textsf{Decomp}^{\beta, l}\bm{(}A(X^{J(h)})\bm{)}, \text{ } \textsf{RLev}_{S(X), \sigma}^{\beta, l}\bm{(}S(X^{J(h)})\bm{)} \bm{\rangle}$
+\item 将 $(A(X),B(X))$ 替换为 $(A(X^{J(h)}),B(X^{J(h)}))$，并模 $X^n+1$ 约减。秘密密钥变为 $S(X^{J(h)})$，相位在模 $q$ 下为 $M(X^{J(h)})+tE(X^{J(h)})$。
+\item 应用 \autoref{subsec:bgv-key-switching}，从 $S(X^{J(h)})$ 切换回 $S(X)$，求值密钥的误差必须是 $t$ 的倍数。
 \end{enumerate}
-
-
 \end{tcolorbox}
-
-
+自同构精确置换消息，而密钥切换增加误差。正确性要求所得相位满足中心化不回绕界。其他打包布局具有对应的自同构槽位置换。
 
 
 \subsection{模数自举}
 \label{subsec:bgv-bootstrapping}
 
-\noindent \textbf{- 参考资料：}
-\href{https://eprint.iacr.org/2022/1363.pdf}{重新审视 BGV 与 BFV 的自举}~\cite{cryptoeprint:2022/1363}
+\noindent \textbf{- 参考文献：} \href{https://eprint.iacr.org/2022/1363}{Bootstrapping for BGV and BFV Revisited}~\cite{cryptoeprint:2022/1363}，第 3.2--3.4 节和第 6 节。
 
-BGV 的自举同时具有 BFV 和 CKKS 自举的一些特点：其目标与 CKKS 相同，而内部技术更接近 BFV。与 CKKS 一样，BGV 自举将已消耗的密文模数按 $q_l \rightarrow q_L$ 重置；严格来说，结果是 $q_l \rightarrow q_{l'}$，满足 $l < l' < L$，因为步骤 2$\sim$6 中的自举运算会消耗乘法层级。这一模数变化既重置乘法层级，也降低噪声与密文模数之比。为实现这一目标，可能会想到直接采用 CKKS 自举中的 \textsf{ModRaise}。但这不能直接套用，因为 CKKS 在升模后通过正弦近似消除 $q_0$ 的倍数形式的溢出，而 BGV 是精确加密方案，不允许对明文值作近似。因此，BGV 采用 BFV 中的数位提取来消除模数溢出。为使用数位提取，BGV 也必须像 BFV 一样，将明文模数改成专门选取的 $p^\varepsilon$。为将明文模数与密文模数分别配置为所需的 $p^\varepsilon$ 和 $q_L$，BGV 与 BFV 一样采用同态解密技术。
+自举使用加密的秘密密钥计算适当的解密电路。支付该电路本身的运算成本后，得到具有更新模数与噪声预算的密文。以下给出所引论文的一般自举流程，并不意味着只把 BGV 密文提升到更大模数就能刷新它。
 
+下面的系数到槽位路线还要求明文素数与分圆指标 $\mu$ 满足 $\gcd(p,\mu)=1$，参见所引论文第 2.3 节。对于本书分圆指标为 $\mu=2n$ 的二次幂环，这要求 $p$ 为奇数。论文的二进制数位提取情形使用相容的分圆参数；仅有其舍入规则，不能在发生分歧的二次幂环中获得标量或扩张环槽位。
 
-BGV 自举的技术细节如下。
-
-$ $
-
-设有 RLWE 密文 $(A, B)  = \textsf{RLWE}_{S, \sigma}(M + \Delta E) \bmod q_l$，其中 $A\cdot S + B = M + \Delta E$、$\Delta = t = p$（为素数），$q_l$ 是当前乘法层级的密文模数。
-
-$ $
+令明文模数为 $t=p^r$，其中 $p$ 为素数、$r\geq1$。经过有效的模数切换后，令密文模数为满足 $q\equiv1\pmod{p^\varepsilon}$ 的 $q$，其中 $\varepsilon>r$。将其中心化解密相位写为 $M+p^rE$。选取中心化系数代表元，公开计算
+\[
+A'=[p^{\varepsilon-r}A]_q,\qquad B'=[p^{\varepsilon-r}B]_q.
+\]
+存在整数多项式 $K'$，满足
+\[
+u=B'+A'S=p^{\varepsilon-r}M+p^\varepsilon E+qK'.
+\]
+因此，
+\[
+w=[u]_{p^\varepsilon}=[p^{\varepsilon-r}M+K']_{p^\varepsilon},\qquad
+M=\left[\left\lfloor\frac{w}{p^{\varepsilon-r}}\right\rceil\right]_{p^r}
+\]
+成立的条件是 $\|K'\|_\infty<p^{\varepsilon-r}/2$。这是所引论文中采用最近整数舍入的解密公式，而不是普通的向下取整。一个充分界必须考虑以下三项：
+\[
+\|K'\|_\infty\leq\left\|\frac{B'+A'S}{q}\right\|_\infty+
+\frac{p^{\varepsilon-r}\|M\|_\infty}{q}+
+\frac{p^\varepsilon\|E\|_\infty}{q}.
+\]
+特别地，仅凭秘密密钥为三元多项式，不能推出 $\|K'\|_\infty\leq n+1$。还必须约束输入噪声和所选参数。
 
 \begin{enumerate}
-
-\item \textbf{\underline{模数切换} \boldmath$q_l \rightarrow \hat{q}$：} BFV 自举首先按 $q \rightarrow p^{\varepsilon-1}$ 切换密文模数，其中 $q \gg p^\varepsilon > t = p$。BGV 自举则将密文模数切换为特殊模数 $\hat{q}$，使其满足 $\hat{q} \equiv 1 \bmod p^\varepsilon$ 和 $\hat{q} > p^\varepsilon$（$p^\varepsilon$ 将在下一步说明）。为了能按 $q_l \rightarrow \hat{q}$ 切换到该特殊模数，构成 $\hat{q}$ 的素因子必须与 $q_{0}, \ldots, q_L \bmod t$ 同余，这样才能使用 \autoref{subsec:bgv-modulus-switch} 所述技术完成 $q_l\cdot \hat{q} \rightarrow \hat{q}$ 的模数切换。最终，该步骤将密文 $(A, B) \bmod q_l$ 转换为 $(\hat{A}, \hat{B}) \bmod \hat{q}$，同时保持明文模数（即噪声尺度因子）不变。
-
-$ $
-
-\item \textbf{\underline{密文系数乘以 \boldmath$p^{\varepsilon-1}$}：}
-将常量 $p^{\varepsilon-1}$ 乘到密文多项式的每个系数上，得到密文 $p^{\varepsilon-1} \cdot (\hat{A}, \hat{B}) = (A', B') \bmod \hat{q}$，其中 $A' = p^{\varepsilon-1}\hat{A}$ 且 $B' = p^{\varepsilon-1}\hat{B}$。该操作将原解密关系 $\hat{A}\cdot S + \hat{B} = M + p E + K\hat{q}$ 更新为 $A'\cdot S + B' = p^{\varepsilon-1} M + p^\varepsilon E + K'\hat{q}$（其中 $||K'||_{\infty} \leq n + 1$）。注意，明文模数（即噪声尺度因子）已按 $p \rightarrow p^\varepsilon$ 发生变化。选择 $\varepsilon$ 时，BGV 还要求满足 $\hat{q} > p^\varepsilon$ 和 $\hat{q}  \equiv 1 \bmod p^\varepsilon$。
-
-$ $
-
-\item \textbf{\underline{\textsf{ModRaise}}：} 将 $(\hat{A}, \hat{B}) \bmod \hat{q}$ 升模为 $(\hat{A}, \hat{B}) \bmod q_L$，其中 $\hat{q} \ll q_L$。升模后密文的解密关系如下：
-
-$\hat{A}\cdot S + \hat{B} = p^{\varepsilon-1}M + p^\varepsilon E + K'\hat{q} \bmod q_L$
-
-$ $
-
-注意，$K'\hat{q}$ 是 $\hat{q}$ 的倍数形式的溢出项，由于 $K'\hat{q} \ll q_L$，该项不会被模 $q_L$ 约减消去。CKKS 自举中的 \textsf{ModRaise}（\autoref{subsubsec:ckks-bootstrapping-high-level}）也存在同样情况：按 $q_0 \rightarrow q_L$ 重置密文模数的代价是引入 $Kq_0$ 溢出，之后通过 \textsf{EvalExp} 的同态近似正弦求值将其去除（\autoref{subsubsec:ckks-bootstrapping-evalexp-details}）。类似地，BGV 升模后的密文 $(\hat{A}, \hat{B}) \bmod q_L$ 为 $\textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1}M + p^\varepsilon E + K'\hat{q}) \bmod q_L$，即对 $p^{\varepsilon-1}M + p^\varepsilon E + K'\hat{q}$ 的加密。后续将像 BFV 自举一样，使用数位提取同态地消除 $K'\hat{q}$。BGV 采用数位提取而非正弦近似求值，是因为它与 BFV 一样属于精确加密方案，而不像 CKKS 那样采用近似计算。
-
-$ $
-
-\item \textbf{\textsf{\underline{CoeffToSlot}}：} 该步骤与 CKKS 和 BFV 中的同名步骤相同：将多项式 $p^{\varepsilon-1} M + p^\varepsilon E + \hat{q}K'$ 的系数移入新密文的输入向量槽位。记该多项式为 $Z = p^{\varepsilon-1} M + p^\varepsilon E + \hat{q}K'$，并将 $Z$ 的第 $i$ 个系数记为 $z_i$。为完成 \textsf{CoeffToSlot}，同态计算 $Z \cdot n^{-1} \cdot \hathat W \cdot I_n^R$，所得密文各槽位便分别存储多项式 $Z$ 的各个 $z_i$。
-
-$ $
-
-\item \textbf{\underline{数位提取}：} 此时，各个输入向量槽位存储 $p^{\varepsilon-1} M + p^\varepsilon E + \hat{q}K'$ 的相应系数，即 $p^{\varepsilon-1} m_i + p^\varepsilon e_i + \hat{q}k'_i$。回顾最低乘法层级的密文模数 $\hat{q}$ 和同态乘法因子 $p^\varepsilon$ 的选取方式：它们满足 $\hat{q} \equiv 1 \bmod p^\varepsilon$，或对某个正整数 $k^{\langle \hat{q} \rangle }$ 满足 $\hat{q} = k^{\langle \hat{q} \rangle } \cdot p^\varepsilon + 1$。因此，有以下关系：
-
-$p^{\varepsilon-1} m_i + p^\varepsilon e_i + \hat{q}k'_i$
-
-$ = p^{\varepsilon-1} m_i + p^\varepsilon e_i + k'_i\cdot(k^{\langle \hat{q} \rangle } \cdot p^\varepsilon + 1) $ \textcolor{red}{ $\rhd$ 代入 $\hat{q} = k^{\langle \hat{q} \rangle } \cdot p^\varepsilon + 1$}
-
-$ = p^{\varepsilon-1} m_i + k'_i + p^\varepsilon  \cdot (e_i + k'_i\cdot k^{\langle \hat{q} \rangle }) $ \textcolor{red}{ $\rhd$ 重新排列各项}
-
-$ = p^{\varepsilon-1} m_i + k'_i + p^\varepsilon \cdot k_i^{\langle \hat{q} + \varepsilon \rangle } $ \textcolor{red}{ $\rhd$ 其中 $ k_i^{\langle \hat{q} + \varepsilon \rangle } = e_i + k'_i\cdot k^{\langle \hat{q} \rangle } $}
-
-$ \equiv p^{\varepsilon-1} m_i + k'_i \pmod{p^\varepsilon}$
-
-$ $
-
-为了消去上式中的 $k'_i$（其中 $|k'_i| \leq n + 1$），使用与 BFV 自举（\autoref{subsubsec:bfv-bootstrapping-digit-extraction}）相同的数位提取多项式 $G_{\varepsilon, v}$：
-
-$z_i = d_0 + \left(\sum\limits_{j=\varepsilon'}^{\varepsilon-1} d_* p^j\right)$ \textcolor{red}{ $\rhd$ 其中 $d_0 \in \mathbb{Z}_p$，\text{ } $d_*$ 可为任意整数，\text{ } 且 $1 \leq \varepsilon' \leq \varepsilon$}
-
-$F_{\varepsilon'}(z_i) \equiv d_0 \bmod p^{\varepsilon'+1}$
-
-$G_{\varepsilon}(z_i) \equiv (z_i - \underbrace{F_{\varepsilon-1} \circ F_{\varepsilon-2} \circ \cdots \circ F_1}_{\varepsilon - 1 \text{次}} (z_i)) \cdot |p^{-1}|_{q}$
-
-$ $
-
-对 $\{\varepsilon, \varepsilon-1, \varepsilon-2, \cdots, 2\}$ 递归求值数位提取多项式 $G_{\varepsilon}$，共执行 $\varepsilon-1$ 次。这会将 $z_i$ 的最低 $\varepsilon-1$ 个以 $p$ 为基的数位置零并右移，如下所示：
-
-$G_{2} \circ G_{3} \circ \cdots \circ G_{\varepsilon-1} \circ G_{\varepsilon} (z_i)$
-
-$= m_i + k_i''p \bmod q_{l'}$
-
-$ $
-
-其中 $k_i''p^\varepsilon$ 是 $p^\varepsilon$ 的某个倍数，包含原有的 $p^\varepsilon$ 倍数溢出项，以及数位提取过程中新增的 $p^\varepsilon$ 倍数溢出项。由于同态求值多项式 $G_{\varepsilon}$ 需要若干次密文与密文乘法，会消耗乘法层级，因此数位提取将密文模数按 $q_L \rightarrow q_{l'}$ 降低，其中 $l'$ 是小于 $L$ 的整数。该步骤的输出是各输入向量槽位中的 $m_i + k''_ip \bmod q_{l'}$。
-
-$ $
-
-\para{\underline{如何处理除以 $p$}：} 与 BFV（\autoref{subsubsec:bfv-bootstrapping-digit-extraction}）不同，BGV 的尺度因子设置不同，因此无法仅靠重新解释尺度因子完成除法。在 BGV 的每轮数位提取中，都应将槽位值显式地同态乘以 $|p^{-1}|_{q^{\langle i \rangle}}$，其中 $q^{\langle i \rangle}$ 是第 $i$ 轮数位提取时的密文模数。设 $(A^{\langle g_1 \rangle}, B^{\langle g_1 \rangle}) \bmod q^{\langle 1 \rangle}$ 是第一轮数位提取中、执行 $p$ 逆元乘法前的密文，则实际的除以 $p$ 运算等价于执行如下密文与明文乘法（\autoref{subsec:bfv-mult-plain}）：
-
-$(A^{\langle g_1 \rangle}, B^{\langle g_1 \rangle}) \cdot \textsf{Encode}(p^{-1}) \bmod q^{\langle 1 \rangle}$
-
-$= (A^{\langle g_1 \rangle}, B^{\langle g_1 \rangle}) \cdot p^{-1} \bmod q^{\langle 1 \rangle}$ \textcolor{red}{ $\rhd$ 因为 $\textsf{Encode}(p^{-1}) = p^{-1} + 0X + 0X^2 + \cdots + 0X^{n-1}$}
-
-$= (p^{-1}A^{\langle g_1 \rangle}, p^{-1}B^{\langle g_1 \rangle}) \bmod q^{\langle 1 \rangle}$
-
-$ $
-
-因此，将两个 BGV 密文多项式 $A^{\langle g_1 \rangle}$ 和 $B^{\langle g_1 \rangle}$ 的系数乘以 $|p^{-1}|_{q^{\langle 1 \rangle}}$，可得到以下效果：
-
-$(|p^{-1}|_{q^{\langle 1 \rangle}} \cdot A^{\langle g_1 \rangle})\cdot S + (|p^{-1}|_{q^{\langle 1 \rangle}} \cdot B^{\langle g_1 \rangle}) \bmod q^{\langle 1 \rangle}$
-
-$= |p^{-1}|_{q^{\langle 1 \rangle}} \cdot (p^{\varepsilon - 1}M + \left\lfloor{K'}\right\rfloor_p + K''p^{\varepsilon}) \bmod q^{\langle 1 \rangle}$
-
-
-$= p^{\varepsilon - 2}M + \left\lfloor\dfrac{K'}{p}\right\rfloor + K''p^{\varepsilon-1} \bmod q^{\langle 1 \rangle} $
-
-$ $
-
-用文字表述，将 $(A^{\langle g_1 \rangle}, B^{\langle g_2 \rangle})$ 的所有多项式系数乘以 $p$ 的逆元具有两个效果：（1）将明文和噪声按 $p$ 缩小；（2）将模数残余项 $K'$ 减为 $\left\lfloor\dfrac{K'}{p}\right\rfloor$，即右移一个以 $p$ 为基的数位。
-
-$ $
-
-BGV 的数位提取等价于：从输入 $z_i$ 开始递归求值 $G_{\varepsilon}$，每轮将 $\varepsilon$ 减少 1，共执行 $\varepsilon-1$ 轮，如下所示：
-
-\textbf{输入：} $p^{\varepsilon - 1}M + K' + K''p^{\varepsilon} \bmod \hat{q}$
-
-\textbf{第 1 轮：} $G_{\varepsilon}(z_i) \xRightarrow{\text{效果}}  p^{\varepsilon - 2}M + \left\lfloor\dfrac{K'}{p}\right\rfloor + K''^{\langle 1 \rangle}p^{\varepsilon-1} \bmod q^{\langle 1 \rangle}$
-
-\textbf{第 2 轮：} $G_{\varepsilon-1} \circ G_{\varepsilon}(z_i) \xRightarrow{\text{效果}}  p^{\varepsilon - 3}M + \left\lfloor\dfrac{K'}{p^2}\right\rfloor + K''^{\langle 2 \rangle}p^{\varepsilon-2} \bmod q^{\langle 2 \rangle}$
-
-\textbf{第 3 轮：} $G_{\varepsilon-2} \circ G_{\varepsilon-1} \circ G_{\varepsilon}(z_i)  \xRightarrow{\text{效果}}  p^{\varepsilon - 4}M + \left\lfloor\dfrac{K'}{p^3}\right\rfloor + K''^{\langle 3 \rangle}p^{\varepsilon-3} \bmod q^{\langle 3 \rangle}$
-
-$\vdots$
-
-\textbf{第 $\bm{\varepsilon - 1}$ 轮：} $G_{2}\circ \cdots \circ G_{\varepsilon} (z_i) \xRightarrow{\text{效果}}  M + K''^{\langle \varepsilon - 1 \rangle}p \bmod q^{\langle \varepsilon - 1 \rangle}$
-
-$ $
-
-如上所示，整个数位提取过程对明文槽位中的数值产生两个效果：（1）将消息 $p^{\varepsilon - 1}M$ 缩小为 $M$；（2）将模数残余项 $K'$ 置零，即 $\left\lfloor\dfrac{K'}{p^{\varepsilon - 1}}\right\rfloor = 0$。各轮中 $K''$ 会更新为 $K''^{\langle 1 \rangle}, K''^{\langle 2 \rangle}, \cdots, K''^{\langle \varepsilon -1 \rangle}$，原因在于第 $i$ 轮的函数 $F_{\epsilon'}$ 和 $G_{\epsilon}$ 都在模 $p^{\varepsilon - i}$ 下求值，因此每轮都会生成新的 $p^{\varepsilon - i}$ 倍数形式的溢出残余项。
-
-$ $
-
-
-
-
-
-
-
-
-
-
-
-
-$\varepsilon - 1$ 轮乘以 $p$ 逆元的操作还带来一个好处：将明文 $p^{\varepsilon-1}m_i \rightarrow m_i$ 和噪声 $k''p^{\varepsilon} \rightarrow k''p$ 缩小，使噪声尺度因子达到标准 BGV 密文所需的 $p$。
-
-$ $
-
-\item \textbf{\textsf{\underline{SlotToCoeff}}：} 该步骤与 BFV 的同名步骤相同：通过同态乘以 $\hathat W^*$，将输入向量槽位中的 $m_i + k''_ip$ 移回多项式系数位置。完成后，由于步骤 $4\sim6$ 的同态运算消耗了若干乘法层级，密文模数变为小于 $q_L$ 的某个值 $q_{l'}$。所得明文系数为 $m_i + k'''_ip$；由于同态执行 \textsf{SlotToCoeff} 又引入了额外噪声，有 $k''' > k''$。此时，明文模数（即噪声尺度因子）为标准 BGV 密文所使用的 $p$。将相应多项式分别记为 $M$ 和 $K'''$，则输出密文为 $\textsf{RLWE}_{S, \sigma}(M + K'''p) \bmod q_{l'}$。
-
-
-
+\item \textbf{同态内积。} 使用在输出秘密密钥下加密 $S$ 的自举密钥，其密文模数 $Q$ 应足够大，明文模数为 $p^\varepsilon$。同态计算 $B'+A'S$，得到 $w=[u]_{p^\varepsilon}$ 的加密，新增加密误差被 $p^\varepsilon$ 整除。原密文系数 $A',B'$ 是该计算的公开输入。正确性要求新密文和此后每个中间密文都满足各自的解密界。
+\item \textbf{\textsf{CoeffToSlot}。} 在明文环上同态计算适当的线性变换，将 $w$ 的系数放入标量槽位。对于完全分裂的情形 $p\equiv1\pmod{2n}$，该环具有 $n$ 个标量槽位，所用变换是在 $\mathbb Z_{p^\varepsilon}$ 上编码矩阵的逆。一般分圆参数下，槽位可能是扩张环，并且需要多个密文，详见所引论文。不能直接在该环上复用 CKKS 的复数矩阵。
+\item \textbf{数位提取。} 逐槽位计算舍入映射 $w_i\mapsto[\lfloor w_i/p^{\varepsilon-r}\rceil]_{p^r}$。当 $p$ 为奇素数时，可以组织为反复去除平衡基数 $p$ 的最低数位，再精确除以 $p$。数位提取多项式必须在当前明文模数下返回所需平衡数位；仅作普通向下取整，会在 $K'$ 为负数时失败。二进制数位提取需要专门的舍入约定，包括所引论文中的偏移项。上述输入界、数位多项式正确性条件和同态误差预算缺一不可。
+\item \textbf{\textsf{SlotToCoeff}。} 施加逆线性变换，在模 $p^r$ 的明文环中恢复多项式 $M$。输出是位于剩余密文模数 $Q_{\mathrm{out}}$ 的 BGV 密文，其相位为 $M+p^rE_{\mathrm{out}}$。误差由自举电路决定，并非将原误差重置为零。
 \end{enumerate}
 
-
+\para{\underline{如何处理除以 $p$ 的操作}：} 在中间明文模数 $p^j$ 下，假设减去数位后得到的相位为 $pT+p^jF$，且 $\gcd(p,Q_j)=1$。将两个密文分量都乘以 $p^{-1}\bmod Q_j$ 后，相位变为
+\[
+T+p^{j-1}F\pmod{Q_j}.
+\]
+将结果解释为明文模数 $p^{j-1}$ 下的密文，并验证其中心化相位界。该操作仅因前一步明文被 $p$ 整除，才实现精确除法；$p^{-1}$ 并不是 $\mathbb Z_{p^j}$ 中的逆元。经过 $\varepsilon-r$ 次此类除法，明文模数变为 $p^r$，末尾无需再额外除以 $p^{\varepsilon-r}$。
 
 \subsubsection{讨论}
 
-\para{执行模数切换 $q_l \rightarrow \hat{q}$ 的原因：} BGV 通过 $q_l \rightarrow \hat{q}$ 的模数切换来消除自举中的 $q_l$ 倍数溢出。完成模数切换 $q_l \rightarrow \hat{q}$ 并执行 \textsf{ModRaise} 后，加密明文中会出现 $K'\hat{q}$ 溢出项。利用特殊关系 $\hat{q} \equiv 1 \bmod p^\varepsilon$（其中 $p^\varepsilon$ 是明文模数），从明文模数的角度看，该项可约减为 $K'$。
+\para{从 $q_l\rightarrow\hat q$ 进行模数切换的原因：} 选择 $\hat q\equiv1\pmod{p^\varepsilon}$，使溢出项 $\hat qK'$ 在自举明文模数 $p^\varepsilon$ 下约减为 $K'$。这一同余条件本身既不能界定 $K'$，也不能证明正确性。有效的 BGV 模数切换必须保持明文剩余类，并使输入误差满足上述所需界。一般的模数切换操作不要求 $\hat q$ 是原模数的因子。
 
 $ $
 
-\para{$\varepsilon$ 的选取：} $\varepsilon$ 越大，$p^{\varepsilon-1}M$ 与 $K'$ 之间以 $p$ 为基的数位间隔就越大，因此解密失败（即未能将 $K'$ 置零）的可能性越小。不过，较大的 $\varepsilon$ 也意味着数位提取成本更高。
+\para{$\varepsilon$ 的选择：} 应根据确定性输入界，或明确的噪声与秘密密钥概率模型及目标失败概率来选择 $\varepsilon$。增大 $\varepsilon$ 也会增大 $p^\varepsilon\|E\|_\infty/q$，因此不能仅根据数位间隔判断效果。较大的 $\varepsilon-r$ 通常使数位提取更昂贵。所引论文给出了相关参数与失败概率分析；仅由环维数不能无条件确定参数。
 
 $ $
 
-
-\para{推广到 $\Delta = p^r$：} 与 BFV 自举（\autoref{subsubsec:bfv-bootstrapping-summary} 中的总结~\ref*{subsubsec:bfv-bootstrapping-summary}）一样，可以将明文模数（即噪声尺度因子）推广为 $p^r$，其中 $p$ 为素数，$r$ 可为任意正整数。
+\para{推广到 $\Delta=p^r$：} 上述推导已经涵盖所有正整数 $r$，并要求 $\varepsilon>r$。缩放因子是 $p^{\varepsilon-r}$，舍入间隔是 $p^{\varepsilon-r}/2$，数位提取将明文模数从 $p^\varepsilon$ 降至 $p^r$。\autoref{subsubsec:bfv-bootstrapping-summary} 中的 BFV 变体使用不同的公开预处理步骤；共有的舍入解密结构，并不意味着两者的密文尺度规则可以互换。
 
 
 
@@ -796,10 +382,6 @@ $ $
 \subsubsection{BFV、BGV 和 CKKS 自举的比较}
 \label{subsubsec:bootstrapping-differences}
 
-BFV 和 BGV 的自举都使用数位提取，但目的不同。在 BFV 中，数位提取用于消除低位区域的噪声；在 BGV 中，它用于消除按 $\hat{q}\rightarrow q_L$ 执行 \textsf{ModRaise} 后，在低位区域产生的模数残余值。此外，BGV 每轮数位提取都显式地将密文多项式系数乘以 $|p^{-1}|_{q^{\langle i \rangle}}$。BFV 则省略这种显式乘以 $p$ 逆元的操作，只在概念上重新解释尺度因子。
+在~\cite{cryptoeprint:2022/1363} 的 BGV 和 BFV 构造中，公开预处理之后依次执行同态内积、系数与槽位间的线性变换，以及在变化明文模数下的精确数位提取。正确性依赖明确的解密界和同态电路的误差预算。BGV 中间步骤对 $p$ 的精确除法同时降低明文模数和可整除的相位，不能解释为在明文环中求一般逆元。BFV 使用不同的缩放舍入预处理，详见 \autoref{subsubsec:bfv-bootstrapping-summary}。
 
-CKKS 自举不包含数位提取，因为它没有需要从低位区域消去的数值。对于按 $q_0 \rightarrow q_L$ 执行 \textsf{ModRaise} 后产生的模数残余值，CKKS 使用 \textsf{EvalExp} 同态求值近似正弦函数来消除。虽然 CKKS 自举将模数重置为较大的值，但它不会降低噪声与消息之比；这一比值仍会在同态运算中持续增大。
-
-%In the case of BFV's bootstrapping, we need homomorphic decryption (\autoref{subsubsec:bfv-bootstrapping-homomorphic-decryption}) because we need to simultaneously change the ciphertext's plaintext scaling factor from $p^{\varepsilon-1} \rightarrow \left\lfloor\dfrac{q}{p}\right\rfloor$ and the ciphertext modulus from $p^\varepsilon \rightarrow q$.For the similar reason, in the case of BGV's bootstrapping, we used digit extraction to change the noise scaling factor from  $\hat{q} \rightarrow q_L$ ((or technically, $\hat{q} \rightarrow q_{l'}$ where $\hat{q} < q_{l'} < q_L$) while keeping the noise scaling factor (i.e., the plaintext modulus) $\Delta = p^\varepsilon$. On the other hand, in the case of CKKS's bootstrapping, \textsf{ModRaise} instead of homomorphic decryption is sufficient because we only need to change the ciphertext modulus from $q_0 \rightarrow q_L$ (or technically, $q_0 \rightarrow q_{l'}$ where $q_0 < q_{l'} < q_L$) while keeping the same plaintext scaling factor $\Delta \approx \dfrac{q_l}{q_{l-1}}$.  
-
-
+CKKS 自举提升密文系数模数，将系数信息移入槽位，近似计算周期性的模约减函数，再施加逆线性变换。输出保留输入的近似误差，并增加电路的逼近误差与加密误差。更大的密文模数恢复计算空间，但一般不能恢复已经丢失的精度。提高精度的额外过程需要单独分析；上述流程既不意味着每次运算误差都不可避免地单调增大，也不意味着精度会普遍重置。

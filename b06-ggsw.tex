@@ -18,7 +18,7 @@ $\textsf{GGSW}_{S, \sigma}^{\beta, l}(M) = \Bigl \{ \{ \textsf{GLev}_{S, \sigma}
 
 \subsection{Decryption}
 
-To recover the message $M$, it is sufficient to decrypt the last GLev ciphertext (the one encrypting $M$) using the secret $S$. Decrypting the other rows yields $-S_i \cdot M$, but recovering $M$ from these rows is only possible if $S_i$ is invertible (i.e., $S_i \neq 0$).
+Decrypting the final GLev block recovers $M$ under the message-range and noise conditions stated for GLev. Another block's first row decodes $-S_iM\bmod\beta$ under its corresponding error bound. Recovering $M\bmod\beta$ from this product requires $S_i$ to be a unit in $\mathbb Z_\beta[X]/(X^n+1)$. Nonzero is insufficient: in $\mathbb Z_5[X]/(X^2+1)$, both $X-2$ and $X+2$ are nonzero, but $(X-2)(X+2)=0$. No inversion of $S_i$ is needed when using the final block.
 
 
 

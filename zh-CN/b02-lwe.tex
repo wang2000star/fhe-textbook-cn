@@ -10,6 +10,8 @@ $ $
 
 
 \subsection{参数设置}
+
+先假设 $2\le t<q$ 且 $t\mid q$。记号 $e\xleftarrow{\chi_\sigma}\mathbb Z_q$ 表示从明确指定的离散高斯分布（或明确指定的舍入高斯分布）采样整数，再模 $q$ 约减。噪声界约束的是其整数提升，而非非负剩余。高斯分布的尾部无界，因此正确性以满足噪声界为条件，参数还须使失败概率足够小。
 设 $[0, t-1]$ 为明文范围，$[0, q-1]$ 为密文范围，其中 $t \ll q$，即 $t$ 远小于 $q$。随机选取长度为 $k$ 的向量 $\vec{s}$ 作为秘密密钥，其中包含 $k$ 个从 $\{-1, 0, 1\}$ 中采样的三元数，记为 $\vec{s} \xleftarrow{\$} \{-1, 0, 1\}^k$。令明文尺度因子为 $\Delta = \dfrac{q}{t}$。
 
 \subsection{加密}
@@ -51,11 +53,13 @@ $ $
 \end{tcolorbox}
 
 \subsection{解密}
-\label{subsec:lwe-dec} 
+\label{subsec:lwe-dec}
+
+在下面的公式中，先将相位提升为中心化代表元 $[b-\vec a\cdot\vec s]_q$。记号 $\textsf{LWE}^{-1}_{S,\sigma}$ 表示相位提取；随后进行舍入并模 $t$ 约减，才完成消息解密。RLWE 和 GLWE 也采用这一约定。最近整数舍入使用固定规则，例如 $\lceil x\rfloor=\lfloor x+1/2\rfloor$。
 
 \begin{enumerate}
 \item 给定密文 $(\vec{a}, b)$，其中 $b = \vec{a} \cdot \vec{s} + \Delta \cdot m + e \in \mathbb{Z}_q$，计算 $b - \vec{a} \cdot \vec{s}$，得到与 $\Delta \cdot m + e \in \mathbb{Z}_q$ 相同的值。
-\item 将 $\Delta \cdot m + e \in \mathbb{Z}_q$ 舍入到最接近的 $\Delta$ 的整数倍，即按基数 $\Delta$ 舍入，记为 $\lceil \Delta \cdot m + e \rfloor_{\Delta}$。只要 $e$ 足够小并满足 $e < \dfrac{\Delta}{2}$，舍入就能成功消去 $e$，得到 $\Delta m$。如果 $e \geq \dfrac{\Delta}{2}$，则噪声 $e$ 的部分高位会与明文 $m$ 重叠，无法被消去，从而破坏明文 $m$ 的部分低位。
+\item 将 $\Delta \cdot m + e \in \mathbb{Z}_q$ 舍入到最接近的 $\Delta$ 的整数倍，即按基数 $\Delta$ 舍入，记为 $\lceil \Delta \cdot m + e \rfloor_{\Delta}$。只要 $e$ 足够小并满足 $|e| < \dfrac{\Delta}{2}$，舍入就能成功消去 $e$，得到 $\Delta m$。如果 $|e| \geq \dfrac{\Delta}{2}$，则噪声 $e$ 的部分高位会与明文 $m$ 重叠，无法被消去，从而破坏明文 $m$ 的部分低位。
 \item 计算 $\dfrac{\Delta m} {\Delta}$，这等价于将 $\lceil \Delta \cdot m + e \rfloor_{\Delta}$ 向右移动 $\text{log}_2 \Delta$ 位。这里假设 $\Delta$ 为 2 的幂；若 $\Delta$ 不是 2 的幂，则将 $m$ 按 $\Delta$ 向上或向下缩放，分别意味着将该数乘以或除以 $\Delta$。
 \end{enumerate}
 
@@ -78,13 +82,13 @@ $ $
 \item 向下缩放 $\Bigg\lceil\dfrac{ \Delta  m + e } {\Delta}\Bigg\rfloor \bmod t = m \text{ } \in \mathbb{Z}_t$
 \end{enumerate}
 
-为了正确解密，噪声 $e$ 应满足 $e < \dfrac{\Delta}{2}$。
+为了正确解密，噪声 $e$ 应满足 $|e| < \dfrac{\Delta}{2}$。
 
 \end{tcolorbox}
 
 解密时，秘密密钥持有者可以利用秘密密钥 $\vec{s}$ 直接计算 $\vec{a} \cdot \vec{s}$，因此能够从 $b$ 中减去 $\vec{a} \cdot \vec{s}$。
 
-将明文 $m$ 按 $\Delta$ 缩放有两个目的：(i) 加密时，将 $m$ 左移 $\text{log}_2\Delta$ 位，与低位中的噪声 $e$ 分离；而噪声 $e$ 是使攻击者难以猜测 $m$ 或 $\vec{s}$ 的必要成分；(ii) 解密时，通过右移 $\text{log}_2\Delta$ 位消去低位噪声 $e$，同时保持高位的 $m$ 不受损。将明文 $m$ 右移（即缩放）$\text{log}_2\Delta$ 位，再加入噪声 $e$ 的过程如 \autoref{fig:scaling} 所示。
+缩放使相邻消息代表元间隔为 $\Delta$，因此最近整数解码能够容忍满足 $|e|<\Delta/2$ 的误差。当 $\Delta$ 为二幂时，加密中的缩放是左移，如 \autoref{fig:scaling} 所示。解密必须先舍入到最近的整数倍，再除法或右移。对于有符号误差，直接右移并不正确：取 $\Delta=8$、$m=1$、$e=-1$，得到 $7/8$，其最近整数为 $1$，但截断结果为 $0$。
 
 \subsubsection{$t$ 不整除 $q$ 的情形}
 \label{subsubsec:lwe-noise-bound}
@@ -92,12 +96,9 @@ $ $
 在总结~\ref*{subsec:lwe-enc}（\autoref{subsec:lwe-enc}）中，假设 $t$ 整除 $q$。此时，明文 $m$ 的大小没有额外的上下界限制：其数值可以反复越过模 $t$ 的边界，而解密仍然正确。这是因为 $m$
 在模 $t$ 下的回绕，可以由解密时缩放后明文的模 $q$ 约减对应处理。
 
-另一方面，假设 $t$ 不整除 $q$。此时，将尺度因子设为 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$。
-只要 $q \gg t$，即使 $m$ 很大并越过模 $t$ 的边界，仍然可以正确解密。下面说明其原因。
+若 $t\nmid q$，取 $\Delta=\lfloor q/t\rfloor$ 和 $r=q-\Delta t$。明文溢出 $m=m'+vt$ 会将有效误差从 $e$ 改为 $e-rv$。因此，仅有 $q\gg t$ 并不能保证任意多次溢出后仍能正确解密。下面的推导给出明确的充分条件。
 
-在本小节的分析中，选择 $t$ 为奇数（素数）。出于计算效率的考虑，这是全同态加密中常见的做法（见 \autoref{subsubsec:poly-vector-transformation-modulus}）。
-假设采用中心化剩余表示，明文域为 $\left[-\dfrac{t-1}{2}, \dfrac{t-1}{2}\right]$，密文域为 $\left[-\dfrac{q}{2}, \dfrac{q}{2} - 1\right]$。
-将明文 $m \bmod t$ 表示为 $m = m' + vt$，其中 $m' \in \mathbb{Z}_t$，整数 $v$ 表示 $m$ 越过模 $t$ 边界的次数。将明文尺度因子设为 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$，则按 $\Delta$ 缩放并加入噪声后的明文可以表示为：
+本推导取奇数 $t\ge3$，不要求它为素数；批处理编码可能另有条件（\autoref{subsubsec:poly-vector-transformation-modulus}）。使用中心化整数代表元：$m'\in[-(t-1)/2,(t-1)/2]$，密文代表元属于 $[-q/2,q/2)\cap\mathbb Z$。写成 $m=m'+vt$，其中 $v$ 为整数，则有：
 
 $\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m + e $
 
@@ -111,7 +112,7 @@ $= \left\lfloor\dfrac{q}{t}\right\rfloor\cdot m' + qv - \epsilon \cdot vt + e$ \
 
 $ $
 
-回顾 LWE 的解密关系：$\dfrac{b - \vec{a}\cdot \vec{s} \bmod q}{\Delta} \bmod t = \dfrac{\Delta m + e \bmod q}{\Delta} \bmod t$。根据上述表达式，可以通过以下计算解密消息：
+实际解码器必须包含舍入：$\lceil [b-\vec a\cdot\vec s]_q/\Delta\rfloor\bmod t$。代入上面的恒等式得到：
 
 
 
@@ -132,7 +133,7 @@ $= \left\lceil\dfrac{1}{\left\lfloor\frac{q}{t}\right\rfloor} \cdot \left(\left\
 
 $ $
 
-为了正确解密，希望能够省去内层的模 $q$ 约减。也就是说，在中心化剩余表示 $\left[-\dfrac{q}{2}, \dfrac{q}{2}-1\right]$ 下，希望满足 $-\dfrac{q}{2} \leq \left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e < \dfrac{q}{2}$，或者采用更严格的条件 $\left|\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e\right| < \dfrac{q}{2}$。
+为了正确解密，希望能够省去内层的模 $q$ 约减。也就是说，在中心化剩余表示 $\left[-\dfrac{q}{2}, \dfrac{q}{2}\right)\cap\mathbb Z$ 下，希望满足 $-\dfrac{q}{2} \leq \left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e < \dfrac{q}{2}$，或者采用更严格的条件 $\left|\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e\right| < \dfrac{q}{2}$。
 
 $ $
 
@@ -142,7 +143,7 @@ $\left|\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'  - \epsilon vt + e\right| $
 
 $ \leq \left|\left\lfloor\dfrac{q}{t}\right\rfloor\cdot m'\right| + \left|- \epsilon vt + e\right|$
 
-$ \leq \left|\left\lfloor\dfrac{q}{t}\right\rfloor\cdot \dfrac{t-1}{2}\right| + \left|- \epsilon vt + e\right|$ \textcolor{red}{ $\rhd$ 假设 $t$ 为奇素数，这是全同态加密中的常见做法}
+$ \leq \left|\left\lfloor\dfrac{q}{t}\right\rfloor\cdot \dfrac{t-1}{2}\right| + \left|- \epsilon vt + e\right|$ \textcolor{red}{ $\rhd$ 该中心化范围仅要求 $t$ 为奇数}
 
 $ \leq \left|\dfrac{q}{t}\cdot \dfrac{t-1}{2}\right| + \left|- \epsilon vt + e\right|$
 
@@ -172,15 +173,15 @@ $= m' + \left\lceil \dfrac{-\epsilon vt + e }{\lfloor\frac{q}{t}\rfloor} \right\
 
 $= m' \bmod t$ \textcolor{red}{ $\rhd$ 使用特殊假设 $|-\epsilon vt + e| < \dfrac{\Delta}{2} = \dfrac{\lfloor\frac{q}{t}\rfloor}{2}$}
 
-因此，当明文尺度因子设为 $\Delta=\left\lfloor\dfrac{q}{t}\right\rfloor$，且 $t$ 为奇数（素数）时，只要满足误差界条件 $|-\epsilon vt + e| < \dfrac{\Delta}{2} = \dfrac{\lfloor\frac{q}{t}\rfloor}{2}$，就能正确解密。以下情况会破坏这一条件并导致解密失败：(1) 噪声 $e$ 相对于 $q$ 过大；(2) 明文模数 $t$ 相对于 $q$ 过大；(3) 明文越过模 $t$ 边界的次数过多，即 $v$ 过大。满足这些误差界条件的一种通用方法，是将密文模数 $q$ 设得足够大。换言之，如果 $q \gg t$ 且 $q \gg e$，上述误差界就成立。
+因此，$|e-rv|<\Delta/2$ 是正确性的充分条件，其中 $r=\epsilon t=q\bmod t$。更保守而简便的条件是 $|e|+r|v|<\Delta/2$。这既需要噪声界，也需要 $v$ 的界。例如，取 $q=1024$、$t=3$、$\Delta=341$、$m=513=171t$ 和 $e=0$，中心化相位为 $-171$，解码结果为 $\lceil-171/341\rfloor\bmod3=2$，但 $m\bmod3=0$。仅让 $q$ 相对 $t$ 和 $e$ 足够大，不能保证明文无限次溢出后仍可解密。
 
-可以将总结~\ref*{subsec:lwe-enc}（见 \autoref{subsec:lwe-enc}）中的明文尺度因子公式推广为 $\left\lfloor\dfrac{q}{t}\right\rfloor$，其中 $t$ 为奇数（素数）。
+可以将总结~\ref*{subsec:lwe-enc}（见 \autoref{subsec:lwe-enc}）中的明文尺度因子公式推广为 $\left\lfloor\dfrac{q}{t}\right\rfloor$，其中 $t$ 为奇整数。
 
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:lwe-noise-bound}} 奇数明文模数 $\bm{t}$ 下的噪声预算}}]
 
 
-给定明文尺度因子 $\Delta=\left\lfloor\dfrac{q}{t}\right\rfloor$，且 $t$ 为奇数（素数），只要满足以下误差界条件，LWE 解密就能正确进行：
+给定明文尺度因子 $\Delta=\left\lfloor\dfrac{q}{t}\right\rfloor$，且 $t$ 为奇整数，只要满足以下误差界条件，LWE 解密就能正确进行：
 
 $|-\epsilon vt + e| < \dfrac{\Delta}{2}$
 

@@ -1,9 +1,10 @@
 # 全同态加密入门教材 · 中文版
 
-本仓库在保留英文源码的基础上，提供对应的 **34 个章节中文初译**和独立中文 PDF 编译入口。
+本仓库在保留英文源码的基础上，提供对应的 **34 个章节中文译本**和独立中文 PDF 编译入口。
 
+- [逐项学术审校报告](audit/ACADEMIC_REVIEW.md)：原英文基线、问题依据、反例、双语修订与验证边界
 - [中文编译与阅读说明](README.zh-CN.md)
-- [翻译范围、术语及原文待核对问题](TRANSLATION.md)
+- [翻译范围、术语及维护记录](TRANSLATION.md)
 - 中文入口：`00-main-zh.tex`；中文正文：`zh-CN/`
 - 快速编译：`python3 scripts/build.py zh`（需要 XeLaTeX 和 latexmk）
 - 英文入口仍为 `00-main.tex`；同时编译两版：`python3 scripts/build.py all`
@@ -23,10 +24,32 @@
 
 We implemented this library for educational purposes. Because it is written in pure Python and does not use an RNS-optimized backend, computations are relatively slow. For this reason, the default parameters are intentionally small—for example, the ring dimension / polynomial modulus degree ($N$) and ciphertext modulus ($Q$) are set to small values (e.g., $N=4$, $Q = 2^{30}$).
 
-In the source code, the global variable `N` denotes the polynomial modulus degree (i.e., computations are performed modulo $x^N + 1$. The variable `Q` denotes the ciphertext modulus (or modulus chain, depending on the scheme configuration) for BFV and TFHE. For CKKS and BGV (when using a modulus chain), `Q_BIT` and `Q_LEVEL` control the per-prime bit-size and the number of levels in the modulus chain.
+In the source code, the global variable `N` denotes the polynomial modulus degree (i.e., computations are performed modulo $x^N + 1$). The variable `Q` denotes the ciphertext modulus (or modulus chain, depending on the scheme configuration) for BFV and TFHE. For CKKS and BGV (when using a modulus chain), `Q_BIT` and `Q_LEVEL` control the per-prime bit-size and the number of levels in the modulus chain.
 
-You may adjust these globals to experiment with larger parameters. However, when increasing `N`, you should also increase the ciphertext modulus (`Q` or `Q_BIT`, and potentially `Q_LEVEL`) and, when selecting NTT-friendly primes, increase the `max_span` used in `pick_ntt_primes`. Otherwise, ciphertext noise may overflow the available modulus and decryption results can become incorrect.
+You may adjust these globals for algebra experiments, but each change requires a new correctness and security analysis. Increasing the ciphertext modulus alone may weaken RLWE security at fixed dimension. Noise bounds, the modulus chain, encoding scale, and NTT-prime conditions must be considered together. The toy dimensions and Python/NumPy random samplers in these demos are not production cryptographic parameters or cryptographic randomness.
 
+
+### Implemented operations and simulations
+
+The four `*_example.py` runners demonstrate encryption, addition, multiplication and key switching; the ring examples also demonstrate encoding and rotations, and CKKS includes conjugation. The TFHE multiplication runner uses a tensor-product construction with relinearization; it does not benchmark standard TFHE PBS.
+
+| Component | Actual capability |
+| --- | --- |
+| `tfhe_mock_pbs` and `tfhe_circuit_bootstrap` | Local functional simulation: decrypt, apply a LUT, re-encrypt. The `mock_bk` dictionary contains the **plaintext secret key** and must not be published as an evaluation key. |
+| BFV / CKKS / BGV `fhe_bootstrapping` | Unimplemented; raises `NotImplementedError`. |
+| `bfv.py`, `bfv_rotation_only.py`, `ckks.py` | Earlier plaintext encoding/rotation experiments, without ciphertext encryption. |
+| `rns.py`, `bgv.py`, `bfv_j_matrix_inverse_proof.py` | Standalone algebra experiments; their printouts are not generic correctness proofs. |
+
+Decryption helpers return `(message, diagnostic)`. The diagnostic is `None` when an expected plaintext was not supplied. CKKS multiplication mutates the modulus-factor list; the caller must use the actual output scale `scale_left * scale_right / dropped_prime` (see `ckks_rescaled_scale` and the updated example). The CKKS example checks an absolute error tolerance per real/imaginary component, not a percentage error.
+
+The academic review added deterministic counterexamples and regression checks. After installing the dependencies below, run:
+
+```bash
+python3 audit/check_summary.py
+python3 audit/check_python.py
+```
+
+The complete audit commands and scope are in [the review report](audit/ACADEMIC_REVIEW.md). Tests demonstrate the checked finite cases; they do not certify cryptographic security or unlimited circuit depth.
 
 ### Installation
 
@@ -58,14 +81,13 @@ options:
 ```
 | Test Operations | Command |
 |---|---|
-| Encrypt | `python3 tfhe_example.py --encryption` |
+| Encrypt | `python3 tfhe_example.py --encrypt` |
 | Add Cipher-Cipher | `python3 tfhe_example.py --add-cipher-cipher` |
 | Add Cipher-Plain | `python3 tfhe_example.py --add-cipher-plain` |
 | Multiply Cipher-Plain | `python3 tfhe_example.py --mult-cipher-plain` |
 | Multiply Cipher-Cipher | `python3 tfhe_example.py --mult-cipher-cipher` |
 | Key Switching | `python3 tfhe_example.py --keyswitch` |
 | Random 1000 'Encrypt' Tests | `python3 tfhe_example.py --random --encrypt` |
-| Random 1000 'Rotate' Tests | `python3 tfhe_example.py --random --rotate` |
 | Random 1000 Any Tests | `python3 tfhe_example.py --all` |
 
 
@@ -91,7 +113,7 @@ options:
 | Test Operations | Command |
 |---|---|
 | Encode | `python3 bfv_example.py --encode` |
-| Encrypt | `python3 bfv_example.py --encryption` |
+| Encrypt | `python3 bfv_example.py --encrypt` |
 | Add Cipher-Cipher | `python3 bfv_example.py --add-cipher-cipher` |
 | Add Cipher-Plain | `python3 bfv_example.py --add-cipher-plain` |
 | Multiply Cipher-Plain | `python3 bfv_example.py --mult-cipher-plain` |
@@ -126,7 +148,7 @@ options:
 | Test Operations | Command |
 |---|---|
 | Encode | `python3 ckks_example.py --encode` |
-| Encrypt | `python3 ckks_example.py --encryption` |
+| Encrypt | `python3 ckks_example.py --encrypt` |
 | Add Cipher-Cipher | `python3 ckks_example.py --add-cipher-cipher` |
 | Add Cipher-Plain | `python3 ckks_example.py --add-cipher-plain` |
 | Multiply Cipher-Plain | `python3 ckks_example.py --mult-cipher-plain` |
@@ -142,7 +164,7 @@ options:
 
 ### BGV Library
 ```
-usage: ckks_example.py [-h] [--encode] [--encrypt] [--add-cipher-cipher] 
+usage: bgv_example.py [-h] [--encode] [--encrypt] [--add-cipher-cipher]
                     [--add-cipher-plain] [--mult-cipher-cipher] [--mult-cipher-plain] \
                     [--rotate] [--keyswitch] [--random] [--all]
 
@@ -161,8 +183,8 @@ options:
 ```
 | Test Operations | Command |
 |---|---|
-| Encode | `python3 bgv_example.py --encoding` |
-| Encrypt | `python3 bgv_example.py --encryption` |
+| Encode | `python3 bgv_example.py --encode` |
+| Encrypt | `python3 bgv_example.py --encrypt` |
 | Add Cipher-Cipher | `python3 bgv_example.py --add-cipher-cipher` |
 | Add Cipher-Plain | `python3 bgv_example.py --add-cipher-plain` |
 | Multiply Cipher-Plain | `python3 bgv_example.py --mult-cipher-plain` |

@@ -100,7 +100,7 @@ $e^{i\theta} = \cos\theta + i\cdot\sin\theta$
 
 \begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:vandermonde-euler}} 以复数上指标为 2 的幂的分圆多项式的根构造 Vandermonde 矩阵}}]
 
-假设有一个 $n \times n$ 的 Vandermonde 矩阵（其中 $n$ 是 2 的幂），由第 $\mu$ 个分圆多项式的 $n$ 个互异根组成（见 \autoref{subsec:cyclotomic-theorem} 中的定理~\ref*{subsec:cyclotomic-theorem}.1），其中 $\mu$ 是 2 的幂，且 $n = \dfrac{\mu}{2}$。换言之，$V = \mathit{Vander}(x_0, x_1, \cdots, x_{n-1})$，并且对于 $1 \leq j \leq n$，每个根均为 $x_j = (e^{i\pi/n})^{2j-1}$，即 $\mu$ 次本原单位根。则有：
+假设有一个 $n \times n$ 的 Vandermonde 矩阵（其中 $n$ 是 2 的幂），由第 $\mu$ 个分圆多项式的 $n$ 个互异根组成（见 \autoref{subsec:cyclotomic-theorem} 中的定理~\ref*{subsec:cyclotomic-theorem}.1），其中 $\mu$ 是 2 的幂，且 $n = \dfrac{\mu}{2}$。换言之，$V = \mathit{Vander}(x_0, x_1, \cdots, x_{n-1})$，并且对于 $0 \leq j<n$，每个根均为 $x_j = (e^{i\pi/n})^{2j+1}$，即 $\mu$ 次本原单位根。则有：
 
 $V \cdot V^T = \begin{bmatrix}
 0 & \cdots & 0 & 0 & n\\
@@ -123,7 +123,7 @@ $ $
 
 \begin{enumerate}
 
-\item 给定 $\omega = e^{i\pi/n}$，其中每个 $x_j = (\omega)^{2j-1}$。因此，可以展开如下：
+\item 给定 $\omega = e^{i\pi/n}$，其中每个 $x_j = (\omega)^{2j+1}$。因此，可以展开如下：
 
 $V \cdot V^T = \begin{bmatrix}
 1 & (\omega) & (\omega)^2 & \cdots & (\omega)^{n-1}\\
@@ -189,7 +189,7 @@ $S_n = \dfrac{x^n - 1}{x - 1}$ \textcolor{red}{ $\rhd$ 其中要求 $x \neq 1$}
 
 利用等比数列求和公式 $\sum\limits_{i=0}^{n-1}x^i = \dfrac{x^n - 1}{x - 1}$，
 
-对于 $1 \leq m \leq (2n - 1)$，有 $\sum\limits_{k=0}^{n-1} \omega^{2mk} = \dfrac{(\omega^{2m})^n - 1}{\omega^{2m} - 1} = \dfrac{(\omega^{2n})^{m} - 1}{\omega^{2m} - 1} = \dfrac{1 - 1}{\omega^{2m} - 1} = 0$ \textcolor{red}{ $\rhd$ 因为 $\textsf{Ord}(\omega) = 2n$}
+对于满足 $m\ne n$ 的 $1 \leq m \leq (2n - 1)$，有 $\sum\limits_{k=0}^{n-1} \omega^{2mk} = \dfrac{(\omega^{2m})^n - 1}{\omega^{2m} - 1} = \dfrac{(\omega^{2n})^{m} - 1}{\omega^{2m} - 1} = \dfrac{1 - 1}{\omega^{2m} - 1} = 0$ \textcolor{red}{ $\rhd$ 因为 $\textsf{Ord}(\omega) = 2n$}
 
 $ $
 
@@ -223,7 +223,7 @@ $V^{-1} = \dfrac{V^T \cdot I_n^R}{n}$
 \end{enumerate}
 \end{proof}
 
-后续在 CKKS 方案（\autoref{sec:ckks}）中，将使用 $V^{-1}$ 将复向量编码为实向量，并使用 $V^T$ 将实向量解码为复向量（见 \autoref{subsec:ckks-enc-dec}）。
+后续在 CKKS 方案（\autoref{sec:ckks}）中，将使用 $V^{-1}$ 将复向量编码为实向量，并使用 $V$ 将实向量解码为复向量（见 \autoref{subsec:ckks-enc-dec}）。
 
 $ $
 
@@ -253,6 +253,8 @@ $(\mu=2n)$ 次单位根，是选择二幂分圆环的结果。同时，只要 $\
 
 \subsection{以环（$\mathbb{Z}_p$）上分圆多项式的根构造 Vandermonde 矩阵}
 \label{subsec:vandermonde-euler-integer-ring}
+
+假设 $p$ 为素数且 $2n\mid p-1$，并固定阶为 $2n$ 的 $\omega\in\mathbb Z_p^\times$。按 $x_j=\omega^{2j+1}$（$0\le j<n$）排列节点。下面所有矩阵恒等式均在 $\mathbb Z_p$ 中成立；特别地，$n^{-1}$ 存在。所展示的逆序单位矩阵依赖于这一节点顺序；任意置换矩阵行会改变配对矩阵。
 
 定理~\ref*{subsec:vandermonde-euler}（见 \autoref{subsec:vandermonde-euler}）证明了 $V \cdot V^T = n \cdot I^R_n$，其中 $V$ 为 Vandermonde 矩阵 $V = \mathit{Vander}(x_0, x_1, \cdots, x_{n-1})$，每个 $x_i$ 是 $X \in \mathbb{C}$（即复数）上的 $\mu$ 次本原单位根，且 $\mu$ 为 2 的幂。本小节将证明，即使每个 $x_i$ 是 $X \in \mathbb{Z}_p$（即环）上的 $\mu$ 次本原单位根，关系 $V \cdot V^T = n \cdot I^R_n$ 也成立。具体地，将证明定理~\ref*{subsec:vandermonde-euler}：
 
@@ -369,10 +371,8 @@ $V^{-1} = n^{-1}\cdot V^T \cdot I_n^R$
 \end{enumerate}
 \end{proof}
 
-最终证明了 $V\cdot V^T = n \cdot I_n^R$ 和 $V^{-1} = n^{-1}\cdot V^T \cdot I_n^R$。后续在 BFV 方案（\autoref{sec:bfv}）中，将使用 $V^{-1}$ 将整数向量编码为多项式系数向量，再使用 $V^T$ 将其解码回整数向量（见 \autoref{subsec:bfv-batch-encoding}）。
+最终证明了 $V\cdot V^T = n \cdot I_n^R$ 和 $V^{-1} = n^{-1}\cdot V^T \cdot I_n^R$。后续在 BFV 方案（\autoref{sec:bfv}）中，将使用 $V^{-1}$ 将整数向量编码为多项式系数向量，再使用 $V$ 将其解码回整数向量（见 \autoref{subsec:bfv-batch-encoding}）。
 
 $ $
 
-\para{关于 $\bm \mu$ 的条件：}与 CKKS 中的情况类似，如果 $\mu$（表示第 $\mu$ 个分圆多项式的指标）不是 2 的幂，性质 $V\cdot V^T = n\cdot I_n^R$ 就不成立。具体来说，当 $\mu$ 不是 2 的幂时，证明的步骤 3 不再成立：
-
-$\sum\limits_{k=0}^{n-1} \omega^{2k} \neq \sum\limits_{k=0}^{n-1} \omega^{4k} \neq \sum\limits_{k=0}^{n-1} \omega^{6k} \neq \cdots \neq \sum\limits_{k=0}^{n-1} \omega^{2(n-1)k} \neq \sum\limits_{k=0}^{n-1} \omega^{2(n+1)k} \neq \cdots \neq \sum\limits_{k=0}^{n-1} \omega^{2(2n-1)k} \neq 0$
+\para{关于 $\bm \mu$ 的条件：}当 $p$ 为素数、$2n\mid p-1$，且节点按 $\omega^{2j+1}$ 排列时，几何级数证明对所有 $n\ge1$ 都给出 $V V^T=n I_n^R$，并不限于二幂。例如，$n=3$、$p=7$、$\omega=3$ 就满足这些条件。二幂假设用于将 $X^n+1$ 识别为单个分圆多项式 $\Phi_{2n}$，并将其全部根识别为 $2n$ 次本原单位根；该矩阵恒等式本身不要求二幂。

@@ -1,6 +1,5 @@
-我们提供用于教学的 Python FHE 演示库，涵盖 TFHE、BFV、CKKS 和 BGV。
+\texttt{source code/} 中的 Python 文件用于教学演示。维护中的命令行示例为 \texttt{tfhe\_example.py}、\texttt{bfv\_example.py}、\texttt{ckks\_example.py} 和 \texttt{bgv\_example.py}，支持的操作见 README。上游源码位于 \url{https://github.com/fhetextbook/fhetextbook.github.io}，经审校的双语分支位于 \url{https://github.com/wang2000star/fhe-textbook-cn}。
 
-源代码与使用手册：
-\href{https://github.com/fhetextbook/fhe-textbook}{\nolinkurl{https://github.com/fhetextbook/fhe-textbook}}。
+应区分已实现的操作、功能模拟和未实现的函数。TFHE 的 \texttt{tfhe\_mock\_pbs} 会读取秘密密钥，解密、查询表格，再重新加密；其“自举密钥”字典直接包含该秘密密钥。因此，它是客户端功能模拟，不能当作公开求值密钥或安全的服务器端可编程自举或电路自举实现。默认密文乘法示例演示的是张量乘积及密钥切换构造，并未对标准 TFHE 自举进行性能测试。BFV、CKKS 和 BGV 的自举函数尚未实现，会明确抛出 \texttt{NotImplementedError}。
 
-本仓库的 \texttt{source code/} 目录保留同一套演示实现，可配合中英文教材使用。
+示例使用很小的教学维数、有界误差采样和 Python/NumPy 伪随机数来展示代数关系；这些并非经过验证的密码学参数集或生产用途的随机数生成器。示例运行成功仅验证所选输入，不能据此认定安全等级、任意深度正确性或优化 FHE 库的性能。较早的独立编码和 RNS 脚本属于代数实验，其覆盖范围与限制见学术审校报告。

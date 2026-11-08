@@ -107,12 +107,12 @@ $ $
 \textbf{{($+$) Operation}} & We know how to add numbers & $f_a = a_0 + a_1x^1 + a_2x^2 \cdots + a_{d_a-1}x^{d_a-1}$ \\
  & & $f_b = b_0 + b_1x^1 + b_2x^2 \cdots + b_{d_b-1}x^{d_b-1}$ \\
  & & Then, $f_a + f_b$ is computed as: \\
- & & $f_c = \sum\limits_{i=0}^{\textsf{max}(d_a,d_b)}(a_i+b_i)x^i$ \\
+ & & $f_c = \sum\limits_{i=0}^{\textsf{max}(d_a,d_b)-1}(a_i+b_i)x^i$ \\
 \hline
 \textbf{{($\cdot$) Operation}} & We know how to multiply numbers & $f_a = a_0 + a_1x^1 + a_2x^2 \cdots + a_{d_a-1}x^{d_a-1}$ \\
  & & $f_b = b_0 + b_1x^1 + b_2x^2 \cdots + b_{d_b-1}x^{d_b-1}$ \\
  & & Then, $f_a \cdot f_b$ is computed as: \\
- & & $f_c = \sum\limits_{i=0}^{d_a+d_b}\sum\limits_{j=0}^{i}a_jb_{i-j}x^i$ \\
+ & & $f_c = \sum\limits_{i=0}^{d_a+d_b-2}\sum\limits_{j=0}^{i}a_jb_{i-j}x^i$ \\
 \hline
 & For $a, b \in \mathbb{Z}_p$ & For $f_a, f_b \in \mathbb{Z}_p[x]/(x^n + 1)$,\\
 \textbf{{Commutative}}  & $ a + b = b + a$ & $f_a + f_b = f_b + f_a$\\
@@ -132,15 +132,17 @@ $ $
 \caption{Comparison between a number ring and a polynomial ring.
 }
 \label{tab:ring-comparison}
+
+The table uses zero coefficients outside the displayed ranges; after multiplication, reduce modulo $x^n+1$ and coefficient-wise modulo $p$.
 \end{table}
 
 \para{Congruency:} If two numbers are congruent, they belong to the same \textit{congruence class}. The same is true for two congruent polynomials. If the computation results of two mathematical formulas belong to the same congruency class, then their computations wrap around within the modulus of their congruency. This is a useful property for cryptographic schemes where encryption \& decryption computations wrap around their values within a limited set of binary bits. Congruency is useful for simplifying computations. For example, a large number or a complex polynomial can be \textit{normalized} to a simpler number or polynomial by using the congruency rule, which reduces the computational overhead. 
 
-\para{Polynomial Evaluation:} Note that two numbers that belong to the same congruence class are not necessarily the same number. For example, $5 \equiv 10$ modulo 5, but these two numbers are not the same. Likewise, two congruent polynomials are not the same. While two congruent polynomials in a polynomial ring can be interchangeably used for polynomial operations supported in the ring (i.e., $(+, \cdot)$), such as $f_1 + f_2$ or $f_1 \cdot (f_2 - f_3)$, two congruent polynomials do not necessarily yield the same result when evaluated for a certain variable value $x = a$. For example, in the previous example of \autoref{subsubsec:poly-ring-ex}, the two polynomials $x^4 + 3x^3 + 11x^2 + 6x + 10$ and $3x$ are congruent in the polynomial ring $\mathbb{Z}_7[x] / (x^2 + 1)$. However, these two polynomials do not give the same evaluation results for $x = 0$: the original polynomial gives 10, whereas the reduced (i.e., simplified) polynomial gives 0. This discrepancy in evaluation occurs because we defined two polynomials $M_1$ and $M_2$ to be congruent over $x^n + 1$ (i.e., $M_1 \equiv M_2$) if their remainder is the same after being divided by $x^n + 1$ (i.e., $M_1 = Q \cdot (x^n + 1) + M_2$ for some polynomial $Q$). Therefore, $M_1$ and $M_2$ will be evaluated to the same polynomial $M_2$ if they are evaluated at the $x$ values such that $x^n = -1$, which makes the $x^n +1$ term 0. The solutions for $x^n = -1$ are called the $n$-th roots of unity, which we will learn in \autoref{sec:roots} and \autoref{sec:cyclotomic-polynomial-integer-ring}. We summarize as follows: 
+\para{Polynomial Evaluation:} Congruence classes need not have equal integer or polynomial representatives. In the example of \autoref{subsubsec:poly-ring-ex}, evaluating the displayed integer polynomials at $x=0$ gives $10$ and $0$, respectively, although they represent the same element of $\mathbb{Z}_7[x]/(x^2+1)$. Evaluation of a quotient class is well-defined only in a target algebra that respects the coefficient modulus and sends the polynomial modulus to zero. Specifically, take an extension field of $\mathbb{Z}_p$ when $p$ is prime and choose $x_i$ with $x_i^n+1=0$. Then $M_1-M_2=Q(x)(x^n+1)$ in $\mathbb{Z}_p[x]$ implies $M_1(x_i)=M_2(x_i)$ in that extension. Evaluating arbitrary integer lifts at a complex root does not in general preserve reduction modulo $p$. In characteristic different from $2$, the roots of $x^n+1$ are $2n$-th roots of unity; when $n$ is a power of $2$, they are primitive $2n$-th roots. See \autoref{sec:roots} and \autoref{sec:cyclotomic-polynomial-integer-ring}.
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:polynomial-ring-discuss}} Polynomial Evaluation over Polynomial Ring}}]
 
-Suppose polynomials $M_1$ and $M_2$ are congruent over the polynomial ring $x^n + 1$. This is equivalent to the following relation: $M_1 = Q \cdot (x^n + 1) + M_2$ for some polynomial $Q$. Then, $M_1(X)$ and $M_2(X)$ are guaranteed to be evaluated to the same value if $X=x_i$ is the solution for $x^n + 1$ (i.e., $X$ is the $n$-th root of unity). That is , $M_1(x_i) = M_2(x_i)$. 
+Suppose $M_1-M_2=Q(x)(x^n+1)$ in a coefficient field $F$. For a root $x_i$ of $x^n+1$ in an extension of $F$, evaluation gives $M_1(x_i)=M_2(x_i)$. If $F=\mathbb{Z}_p$, all coefficient arithmetic and evaluation take place in characteristic $p$.
 
 \end{tcolorbox}
 
@@ -149,6 +151,8 @@ Suppose polynomials $M_1$ and $M_2$ are congruent over the polynomial ring $x^n 
 
 \subsection{Coefficient Rotation}
 \label{subsec:coeff-rotation}
+
+The displayed formula assumes $0\le h<n$. The element $x$ is a unit in this quotient, since $x(-x^{n-1})=1$; hence negative powers are defined. General shifts reduce modulo $2n$, including the sign change after $n$ positions.
 
 Coefficient rotation is a process of shifting the entire coefficients of a polynomial (either to the left or right) in a polynomial ring. In order to rotate the entire coefficients of a polynomial by $h$ positions to the left, we multiply $x^{-h}$ with the polynomial. 
 

@@ -4,6 +4,8 @@
 \subsection{背景与动机}
 \label{subsec:ntt-motivation}
 
+本章计算模 $X^n+1$ 的负循环乘积，而非未经约减的 $2n-2$ 次乘积。使用商环约减时，求值节点必须为 $X^n+1$ 的根。卷积公式中，指标超出 $0,\ldots,n-1$ 的系数视为零。复杂度计算的是域上的算术运算次数，而非位操作次数或浮点误差。
+
 给定两个 $(n-1)$ 次多项式：
 
 $A(X) = \sum\limits_{i=0}^{n-1}a_iX^i$, \textcolor{white}{...} $B(X) = \sum\limits_{i=0}^{n-1}b_iX^i$
@@ -12,7 +14,7 @@ $A(X) = \sum\limits_{i=0}^{n-1}a_iX^i$, \textcolor{white}{...} $B(X) = \sum\limi
 
 $C(X) = \sum\limits_{i=0}^{2n-2}c_iX^{i}$，其中 $c_i = \sum\limits_{k=0}^{i}a_kb_{i-k}$
 
-计算 $\vec{c} = (c_0, c_1, \cdots, c_{2n-1})$ 的这一运算也称为 $\vec a$ 与 $\vec b$ 的卷积，记为 $\vec{c} = \vec{a} \otimes \vec{b}$。其时间复杂度，即两个数之间乘法运算的总次数，为 $O(n^2)$。
+计算 $\vec{c} = (c_0, c_1, \cdots, c_{2n-2})$ 的这一运算也称为 $\vec a$ 与 $\vec b$ 的卷积，记为 $\vec{c} = \vec{a} \otimes \vec{b}$。其时间复杂度，即两个数之间乘法运算的总次数，为 $O(n^2)$。
 
 另一种多项式乘法方法基于\textbf{点值表示}。次数为 $(n-1)$ 或更低的多项式 $A(X)$ 的点值表示，是由 $n$ 个坐标点 $\{(x_0, y_0), (x_1, y_1), \cdots (x_{n-1}, y_{n-1})\}$ 组成的集合，其中各个 $x_i$ 是互不相同的 $X$ 坐标，而各个 $y_i$ 不必是互不相同的 $Y$ 坐标。给定次数为 $(n-1)$ 或更低的多项式的点值表示，可以通过多项式插值（见 \autoref{sec:polynomial-interpolation}）恢复该多项式。
 将次数为 $(n-1)$ 或更低的多项式 $A(X)$ 和 $B(X)$ 的点值表示记为：
@@ -35,6 +37,8 @@ $C(X)$：$\bm ( ({x}_0, {y}_0^{\langle c \rangle}), ({x}_1, {y}_1^{\langle c \ra
 \subsection{正向 FFT 或 NTT}
 \label{subsec:ntt-forward}
 
+基二递归取 $n=2^L$。对于有限域 NTT，还要求素数 $p$ 满足 $2n\mid p-1$，并在 $\mathbb Z_p^\times$ 中选取阶为 $2n$ 的 $\omega$。这些条件保证节点互异，且 $n$ 及几何级数中的所有非零分母可逆。复数变换则取 $\omega=e^{\pi i/n}$。
+
 对于 FFT，使用多项式环 $\mathbb{R}[X]/ (X^n + 1)$；对于 NTT，使用 $\mathbb{Z}_p[X]/ (X^n + 1)$，其中 $X^n + 1$ 为分圆多项式。目标多项式的求值坐标 $x$ 选为 $X^n + 1$ 的 $n$ 个互异根，即 $\omega^1$、$\omega^3, \ldots, \omega^{2n-1}$，其中 $\omega$ 为 $2n$ 次本原单位根。于是，多项式 $A(X)$ 的点值表示为 $\bm ( ({x}_0, {y}_0^{\langle a \rangle}), ({x}_1, {y}_1^{\langle a \rangle}), \cdots ({x}_{n-1}, {y}_{n-1}^{\langle a \rangle}) \bm )$，其中：
 
 ${y}_i^{\langle a \rangle} = A(\omega^{2i + 1}) = \sum\limits_{j=0}^{n-1}a_{j}\cdot (\omega^{2i + 1})^j = \sum\limits_{j=0}^{n-1}a_{j}\cdot \omega^{(2i + 1)\cdot j}$
@@ -56,7 +60,7 @@ $A_0(X) = a_0 + a_2X + a_4X^2 + \cdots + a_{n-2}X^{\frac{n}{2} - 1}$
 
 $A_1(X) = a_1 + a_3X + a_5X^2 + \cdots + a_{n-1}X^{\frac{n}{2} - 1}$
 
-将一个多项式拆成两个次数减半的多项式的上述过程，称为 Cooley-Tukey 步骤。将 $A(X)$ 拆成低次多项式 $A_0(X)$ 和 $A_1(X)$ 后，在 $2n$ 次本原单位根的奇数次幂 $\{\omega^1, \omega^3, \omega^5, \cdots, \omega^{2n-1}\}$ 处求 $A(X)$ 的值，等价于在 $n$ 个 $n$ 次单位根的\textit{平方} $\{(\omega^2)^1, (\omega^2)^3, (\omega^2)^5, \ldots, (\omega^2)^{2n-1}\}$ 处求 $A_0(X)$ 和 $A_1(X)$ 的值，再计算 $A_0(X^2) + X\cdot A_1(X^2)$。但是，$2n$ 次本原单位根 $\omega$ 的阶为 $2n$，即 $\omega^{2n} = 1$，并且对于所有 $m < 2n$，都有 $\omega^m \neq 1$。因此，$\{(\omega^2)^1, (\omega^2)^3, (\omega^2)^5, \ldots, (\omega^2)^{2n-1}\}$ 的后半部分只是前半部分的重复。这意味着，只需分别在 $\dfrac{n}{2}$ 个互异的 $x$ 坐标处求 $A_0(X)$ 和 $A_1(X)$ 的值，而无需在 $n$ 个互异坐标处求值，因为另一半的求值结果与前半部分相同：代入多项式的 $x$ 本身就相同。
+将一个多项式拆成两个次数减半的多项式的上述过程，称为 Cooley-Tukey 步骤。将 $A(X)$ 拆成低次多项式 $A_0(X)$ 和 $A_1(X)$ 后，在 $2n$ 次本原单位根的奇数次幂 $\{\omega^1, \omega^3, \omega^5, \cdots, \omega^{2n-1}\}$ 处求 $A(X)$ 的值，等价于在所列的 $n$ 个平方节点（其中仅有 $n/2$ 个互异节点） $\{(\omega^2)^1, (\omega^2)^3, (\omega^2)^5, \ldots, (\omega^2)^{2n-1}\}$ 处求 $A_0(X)$ 和 $A_1(X)$ 的值，再计算 $A_0(X^2) + X\cdot A_1(X^2)$。但是，$2n$ 次本原单位根 $\omega$ 的阶为 $2n$，即 $\omega^{2n} = 1$，并且对于所有整数 $1\le m < 2n$，都有 $\omega^m \neq 1$。因此，$\{(\omega^2)^1, (\omega^2)^3, (\omega^2)^5, \ldots, (\omega^2)^{2n-1}\}$ 的后半部分只是前半部分的重复。这意味着，只需分别在 $\dfrac{n}{2}$ 个互异的 $x$ 坐标处求 $A_0(X)$ 和 $A_1(X)$ 的值，而无需在 $n$ 个互异坐标处求值，因为另一半的求值结果与前半部分相同：代入多项式的 $x$ 本身就相同。
 
 继续递归地将 $A_0(X)$ 和 $A_1(X)$ 拆为次数减半的多项式，并在数量减半，即 $n/2$ 个 $n$ 次单位根处求值。拆分总轮数为 $\log n$，每轮单位根与系数相乘的次数至多为 $n$，总计为 $O(n \log n)$。
 
@@ -123,13 +127,13 @@ $ $
 
 $ $
 
-\para{一般化：}假设目标多项式的次数至多为 $n-1$，包含 $n$ 项，定义 $L = \log n$ 为 FFT 的总层数。正向 FFT 共需 $L$ 层，其中第 $l$ 层需要对 $2^{L - l}$ 个多项式，分别在 $2^l$ 个互异的 $X$ 值处求值。因此，正向 FFT 的基本计算总次数为 $\sum_{l=1}^{L}(2^{L-l} \cdot 2^l) = L \cdot 2^L = n \log n$
+\para{一般化：}假设目标多项式的次数至多为 $n-1$，包含 $n$ 项，定义 $L = \log_2 n$ 为 FFT 的总层数。正向 FFT 共需 $L$ 层，其中第 $l$ 层需要对 $2^{L - l}$ 个多项式，分别在 $2^l$ 个互异的 $X$ 值处求值。因此，正向 FFT 的基本计算总次数为 $\sum_{l=1}^{L}(2^{L-l} \cdot 2^l) = L \cdot 2^L = n \log n$
 %$\log (n) \cdot (2^{L - l} \cdot 2^l) = 2^L \log n = n \log n$
 。所以，正向 FFT 的时间复杂度为 $O(n \log n)$。
 
 
 
-使用 FFT 时，层数每降低一级，需要求值的 $x$ 点数就减半，而待求值的多项式数量加倍；两者相互抵消，使每层的计算量保持为 $O(n)$。由于共有 $\log n$ 层，总时间复杂度为 $O(n \log n)$。这一优化的关键在于求值坐标 $x$ 的特殊性质：它的幂，即 $\omega^i$，具有周期性。为保证这种周期性，FFT 将 $x$ 的求值点选为 $2n$ 次本原单位根的奇数次幂。
+使用 FFT 时，层数每降低一级，需要求值的 $x$ 点数就减半，而待求值的多项式数量加倍；两者相互抵消，使每层的计算量保持为 $O(n)$。由于共有 $\log n$ 层，总时间复杂度为 $O(n \log n)$。这一优化的关键在于求值坐标 $x$ 的特殊性质：它的幂，即 $\omega^i$，具有周期性。为保证这种周期性，本章的负循环 FFT 将求值点选为 $2n$ 次本原单位根的奇数次幂；通常的循环 DFT 则使用 $n$ 次本原单位根的所有幂。
 
 
 \subsection{逐点乘法}
@@ -149,7 +153,7 @@ $ $
 最后一步是将 ${y}_i^{\langle c \rangle}$ 转回 $C(X)$ 的多项式系数 $\vec{c}$。这一逆向操作称为逆 FFT。
 
 给定 $(n-1)$ 次多项式
-$C(X) = \sum\limits_{i=0}^{n-1}c_iX^i$，正向 FFT 在计算上等价于在 $X^n + 1$ 的 $n$ 个互异 $n$ 次单位根处对多项式求值，如下所示：
+$C(X) = \sum\limits_{i=0}^{n-1}c_iX^i$，正向 FFT 在计算上等价于在 $X^n + 1$ 的 $n$ 个互异根（即 $2n$ 次单位根）处对多项式求值，如下所示：
 
 ${y}_i^{\langle c \rangle} = C(\omega^{2i+1}) = \sum\limits_{j=0}^{n-1}c_{j}\cdot (\omega^{2i + 1})^j = \sum\limits_{j=0}^{n-1}c_{j}\cdot \omega^{(2i+1)j}$
 
@@ -159,7 +163,7 @@ $ $
 
 
 
-${y}_i^{\langle c \rangle} = W \cdot \vec{c}$，\text{ }其中 $W = \begin{bmatrix}
+$\vec y^{\langle c \rangle} = W \cdot \vec{c}$，\text{ }其中 $W = \begin{bmatrix}
 (\omega^1)^0 & (\omega^1)^1 & \cdots & (\omega^1)^{n-1}\\
 (\omega^3)^0 & (\omega^3)^1 & \cdots & (\omega^3)^{n-1}\\
 \vdots & \vdots & \ddots & \vdots \\
@@ -168,7 +172,7 @@ ${y}_i^{\langle c \rangle} = W \cdot \vec{c}$，\text{ }其中 $W = \begin{bmatr
 
 $ $
 
-将 $W$ 的各元素记为 $(W)_{i,j} = \omega^{(2i+1)j}$。逆 FFT 就是将上述计算反过来。为实现这种反演，需要找到逆矩阵 $W^{-1}$，使得 $W^{-1} \cdot {y}_i^{\langle c \rangle} = W^{-1} \cdot (W \cdot \vec{c}) = (W^{-1} \cdot W) \cdot \vec{c} = I_n \cdot \vec{c} =  \vec{c}$。
+将 $W$ 的各元素记为 $(W)_{i,j} = \omega^{(2i+1)j}$。逆 FFT 就是将上述计算反过来。为实现这种反演，需要找到逆矩阵 $W^{-1}$，使得 $W^{-1} \cdot \vec y^{\langle c \rangle} = W^{-1} \cdot (W \cdot \vec{c}) = (W^{-1} \cdot W) \cdot \vec{c} = I_n \cdot \vec{c} =  \vec{c}$。
 可以构造如下逆矩阵 $W^{-1}$：
 
 $(W^{-1})_{j,k} = n^{-1}\cdot \omega^{-(2k+1)j}$
@@ -228,7 +232,7 @@ $ $
 
 $c_i = \sum_{j=0}^{n-1} (W^{-1})_{i,j} \cdot y_j^{\langle c \rangle}$
 
-$ \sum\limits_{j=0}^{n-1} \left( n^{-1} \cdot \omega^{-(2j+1)i} \right) \cdot y_j^{\langle c \rangle}$ \textcolor{red}{ $\rhd$ 因为 $(W^{-1})_{j,k} = n^{-1} \cdot \omega^{-(2k+1)j}$，且 $(W^{-1})_{i,j} = n^{-1} \cdot \omega^{-(2j+1)i}$}
+$ = \sum\limits_{j=0}^{n-1} \left( n^{-1} \cdot \omega^{-(2j+1)i} \right) \cdot y_j^{\langle c \rangle}$ \textcolor{red}{ $\rhd$ 因为 $(W^{-1})_{j,k} = n^{-1} \cdot \omega^{-(2k+1)j}$，且 $(W^{-1})_{i,j} = n^{-1} \cdot \omega^{-(2j+1)i}$}
 
 $ = n^{-1}\cdot \sum\limits_{j=0}^{n-1}{y}_j^{\langle c \rangle} \cdot \omega^{-(2j+1)i}$
 

@@ -1,3 +1,5 @@
+密文与 $\Lambda$ 的整数提升使用相同的环和尺度。为得到所述模 $t$ 的解码明文，假设 $t\mid q$、$\Delta=q/t$ 且 $\|E\|_\infty<\Delta/2$。
+
 假设有一个 GLWE 密文 \textsf{ct} 和一个新的明文多项式 $\Lambda$，如下所示：
 
 
@@ -56,4 +58,4 @@ $= \textsf{GLWE}_{S, \sigma}(\Delta (M + \Lambda) + E)$
 \end{myproof}
 
 
-\para{噪声增长：} 注意，解密时密文 $\textsf{ct} +\Delta\Lambda$ 中的噪声 $E$ 与原来相同。这意味着密文与明文的加法不会增大噪声。
+\para{噪声增长：}相对于未约减消息 $M+\Lambda$，相位误差仍为 $E$。当 $t\mid q$ 时，将消息模 $t$ 约减不会改变有效误差。若 $t\nmid q$，消息回绕可能引入 \autoref{subsubsec:lwe-noise-bound} 描述的溢出误差；此时“噪声不变”只能理解为相对于未约减消息而言。

@@ -13,3 +13,5 @@ __pycache__/
 *.synctex.gz
 /00-main.pdf
 /00-main-zh.pdf
+
+.audit-venv/

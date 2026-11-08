@@ -1,0 +1,1252 @@
+[
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "introduction",
+    "heading": "Introduction",
+    "original_line": 1,
+    "label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-009",
+      "TB-033"
+    ],
+    "review": "核对 TFHE 深电路/PBS 范围，删除函数加密等同表述并增加 CGGI 原论文引用。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsection-41",
+    "heading": "Encryption and Decryption",
+    "original_line": 41,
+    "original_end_line": 81,
+    "label": "subsec:tfhe-enc-dec",
+    "own_label": "subsec:tfhe-enc-dec",
+    "status": "corrected",
+    "findings": [
+      "TB-001"
+    ],
+    "review": "复核 b−a·s 相位、t|q 编码、秘密域、最近舍入；修正绝对误差界和二元/三元定义。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsection-82",
+    "heading": "Homomorphic Ciphertext-to-Ciphertext Addition",
+    "original_line": 82,
+    "original_end_line": 99,
+    "label": "subsec:tfhe-add-cipher",
+    "own_label": "subsec:tfhe-add-cipher",
+    "status": "reviewed_correct",
+    "findings": [
+      "TB-002"
+    ],
+    "review": "逐分量相加与相位相加恒等式正确；误差相加，均值不替代误差预算，关联 TB-002。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsection-100",
+    "heading": "Homomorphic Ciphertext-to-Plaintext Addition",
+    "original_line": 100,
+    "original_end_line": 115,
+    "label": "subsec:tfhe-add-plain",
+    "own_label": "subsec:tfhe-add-plain",
+    "status": "reviewed_correct",
+    "findings": [],
+    "review": "常数加法需把 Δλ 加到 b；现有分量与尺度公式正确，t|q 使消息约减一致。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsection-116",
+    "heading": "Homomorphic Ciphertext-to-Plaintext Multiplication",
+    "original_line": 116,
+    "original_end_line": 131,
+    "label": "subsec:tfhe-mult-plain",
+    "own_label": "subsec:tfhe-mult-plain",
+    "status": "reviewed_correct",
+    "findings": [],
+    "review": "用未缩放整数 λ 乘全部分量，消息和误差同时乘 λ；现有标量公式正确。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsection-132",
+    "heading": "Homomorphic Key Switching",
+    "original_line": 132,
+    "original_end_line": 147,
+    "label": "subsec:tfhe-key-switching",
+    "own_label": "subsec:tfhe-key-switching",
+    "status": "corrected",
+    "findings": [
+      "TB-001",
+      "TB-003"
+    ],
+    "review": "核对减号相位对应 (0,b)−内积，保持正确公式，修正与替代加号约定的说明；分解残差由基础章节和 TB-003 约束。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsection-148",
+    "heading": "Homomorphic Ciphertext-to-Ciphertext Multiplication",
+    "original_line": 148,
+    "original_end_line": 275,
+    "label": "subsec:tfhe-mult-cipher",
+    "own_label": "subsec:tfhe-mult-cipher",
+    "status": "corrected",
+    "findings": [
+      "TB-003",
+      "TB-004"
+    ],
+    "review": "逐项展开 LWE×GSW 外积，发现求值钥误差括号、精确分解参数和 GSW 维数问题；补完整条件。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-276",
+    "heading": "Generalization to GLWE-to-GGSW Multiplication",
+    "original_line": 276,
+    "original_end_line": 391,
+    "label": "subsubsec:tfhe-glwe-to-ggsw-multiplication",
+    "own_label": "subsubsec:tfhe-glwe-to-ggsw-multiplication",
+    "status": "corrected",
+    "findings": [
+      "TB-003"
+    ],
+    "review": "逐环元素复核 GLWE×GGSW，完整输出误差含 M2E、分解残差和各行求值误差，使用卷积范数。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsection-392",
+    "heading": "Coefficient Extraction",
+    "original_line": 392,
+    "original_end_line": 540,
+    "label": "subsec:tfhe-extraction",
+    "own_label": "subsec:tfhe-extraction",
+    "status": "reviewed_correct",
+    "findings": [
+      "TB-004"
+    ],
+    "review": "逐 h,j 推导提取掩码正负号和展平秘密，28 个位置独立检查通过；只修明文环类型，提取不新增噪声。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsection-541",
+    "heading": "Noise Bootstrapping",
+    "original_line": 541,
+    "original_end_line": 578,
+    "label": "subsec:tfhe-noise-bootstrapping",
+    "own_label": "subsec:tfhe-noise-bootstrapping",
+    "status": "corrected",
+    "findings": [
+      "TB-002",
+      "TB-033"
+    ],
+    "review": "零均值论证错误；分别给独立与重复同一密文的方差增长，自举仅替换为新有界误差。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-579",
+    "heading": "Overview",
+    "original_line": 579,
+    "original_end_line": 617,
+    "label": "subsec:bootstrapping-overview",
+    "own_label": "subsec:bootstrapping-overview",
+    "status": "corrected",
+    "findings": [
+      "TB-004",
+      "TB-006"
+    ],
+    "review": "核对概念 Vq 与实际小环，明确中心查表、ΔV 累加器、公开 BK 和输出秘密及刷新误差条件。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-618",
+    "heading": "Modulus Switch for Noise Bootstrapping",
+    "original_line": 618,
+    "original_end_line": 640,
+    "label": "subsec:bootstrapping-modulus-switch",
+    "own_label": "subsec:bootstrapping-modulus-switch",
+    "status": "corrected",
+    "findings": [
+      "TB-005"
+    ],
+    "review": "重新展开逐分量模数舍入，保留 δb−Σsδa，明确 t|2n。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "para-641",
+    "heading": "The degree of $V(X)$ and Security",
+    "original_line": 641,
+    "original_end_line": 644,
+    "label": "subsec:bootstrapping-modulus-switch",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-005"
+    ],
+    "review": "区分多项式次数 n−1 与旋转周期 2n；安全性须评估完整参数而非一个次数。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-645",
+    "heading": "Halving the Plaintext Space To be Used",
+    "original_line": 645,
+    "original_end_line": 703,
+    "label": "subsec:tfhe-zero-padding",
+    "own_label": "subsec:tfhe-zero-padding",
+    "status": "corrected",
+    "findings": [
+      "TB-006"
+    ],
+    "review": "从 X^n=−1 推得反周期 LUT 条件，核查中心区间和允许输入半域，替换原禁止大旋转的解释。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "para-704",
+    "heading": "Solution:",
+    "original_line": 704,
+    "original_end_line": 756,
+    "label": "subsec:tfhe-zero-padding",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-006"
+    ],
+    "review": "具体说明反周期延拓和允许域内最近舍入，不把负循环等同逻辑循环。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-757",
+    "heading": "Blind Rotation",
+    "original_line": 757,
+    "original_end_line": 794,
+    "label": "subsec:bootstrapping-blind-rotation",
+    "own_label": "subsec:bootstrapping-blind-rotation",
+    "status": "corrected",
+    "findings": [
+      "TB-004",
+      "TB-005",
+      "TB-006"
+    ],
+    "review": "独立验证 b−a·s 下先−b后+a_i s_i符号正确（272 例）；修 BK/秘密对象、括号和 accumulator 尺度说明。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "para-795",
+    "heading": "Homomorphic MUX Logic Gate:",
+    "original_line": 795,
+    "original_end_line": 796,
+    "label": "subsec:bootstrapping-blind-rotation",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-004"
+    ],
+    "review": "核对 CMux 的二分支公式及二元选择位，改数据类型为 GLWE、选择密文为 GGSW。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "para-797",
+    "heading": "Dimensions of the GLWE and GGSW Ciphertexts:",
+    "original_line": 797,
+    "original_end_line": 798,
+    "label": "subsec:bootstrapping-blind-rotation",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-004"
+    ],
+    "review": "按环元素与模数系数两种计数核验 (k′+1)n 和 l(k′+1)^2n，并纠正被加密秘密位的归属。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-799",
+    "heading": "Coefficient Extraction",
+    "original_line": 799,
+    "original_end_line": 805,
+    "label": "subsec:tfhe-noise-bootstrapping",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-004",
+      "TB-007"
+    ],
+    "review": "提取输出密钥为展平 GLWE 秘密，长度 k′n；提取本身无新误差，旧误差仅在正确查表条件下被消除出消息。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-806",
+    "heading": "Key Switching",
+    "original_line": 806,
+    "original_end_line": 812,
+    "label": "subsec:bootstrapping-key-switch",
+    "own_label": "subsec:bootstrapping-key-switch",
+    "status": "reviewed_correct",
+    "findings": [
+      "TB-001",
+      "TB-004"
+    ],
+    "review": "从展平输出秘密切回输入秘密的目标正确；输出误差另计密钥切换，不能承诺原 σ 分布。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-813",
+    "heading": "Noise Bootstrapping Summary",
+    "original_line": 813,
+    "original_end_line": 870,
+    "label": "subsec:tfhe-summary",
+    "own_label": "subsec:tfhe-summary",
+    "status": "corrected",
+    "findings": [
+      "TB-004",
+      "TB-005",
+      "TB-006",
+      "TB-007"
+    ],
+    "review": "逐步对照正文修正总流程：分量切换、ΔV、加密选择、提取和最终切换，保留正确盲旋转符号。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "para-871",
+    "heading": "\\underline{Halving the Usable Plaintext Range}: ",
+    "original_line": 871,
+    "original_end_line": 874,
+    "label": "subsec:tfhe-summary",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-006"
+    ],
+    "review": "半域限制来自 F(j+n)=−F(j)，不是旋转指数不能超过 n−1。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "para-875",
+    "heading": "\\underline{Choice of $k'$}:",
+    "original_line": 875,
+    "original_end_line": 881,
+    "label": "subsec:tfhe-summary",
+    "own_label": null,
+    "status": "conditions_added",
+    "findings": [
+      "TB-004",
+      "TB-033"
+    ],
+    "review": "k′=1 是效率选择，对应 RLWE/RGSW；保持该观察，不能从此独立推出安全性。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-882",
+    "heading": "Example: Noise Bootstrapping",
+    "original_line": 882,
+    "original_end_line": 1075,
+    "label": "subsec:tfhe-noise-bootstrapping-ex",
+    "own_label": "subsec:tfhe-noise-bootstrapping-ex",
+    "status": "corrected",
+    "findings": [
+      "TB-005",
+      "TB-006",
+      "TB-007"
+    ],
+    "review": "完整复算 q64/n16 示例的 mask、phase、误差0、中心 LUT、展开、输出尺度和128维提取，加入回切说明。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-1076",
+    "heading": "Discussion",
+    "original_line": 1076,
+    "original_end_line": 1084,
+    "label": "subsec:tfhe-noise-bootstrapping-discussion",
+    "own_label": "subsec:tfhe-noise-bootstrapping-discussion",
+    "status": "corrected",
+    "findings": [
+      "TB-009",
+      "TB-033"
+    ],
+    "review": "区分 PBS 与函数加密，对误差刷新和表加密的条件作限定。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-1085",
+    "heading": "Application: Gate Bootstrapping",
+    "original_line": 1085,
+    "original_end_line": 1161,
+    "label": "subsec:tfhe-noise-bootstrapping-gate",
+    "own_label": "subsec:tfhe-noise-bootstrapping-gate",
+    "status": "corrected",
+    "findings": [
+      "TB-006",
+      "TB-008"
+    ],
+    "review": "逐格核对 AND 编码表，补 n8、总切换误差界和尺度化常数 Δ，抽取后回切。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "para-1162",
+    "heading": "Division:",
+    "original_line": 1162,
+    "original_end_line": 1163,
+    "label": "subsec:tfhe-noise-bootstrapping-gate",
+    "own_label": null,
+    "status": "conditions_added",
+    "findings": [
+      "TB-011"
+    ],
+    "review": "区分模逆、整数商和取整；有限域查表/门电路可实现所定除法，说明除零约定。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsubsection-1164",
+    "heading": "Application: Neural Networks Bootstrapping",
+    "original_line": 1164,
+    "original_end_line": 1193,
+    "label": "subsec:tfhe-neural-network",
+    "own_label": "subsec:tfhe-neural-network",
+    "status": "corrected",
+    "findings": [
+      "TB-011",
+      "TB-033"
+    ],
+    "review": "核对加权和偏置尺度、公开整数量化权重、有限 LUT 输入域、输出量化和总失败概率；图中 b 以图注明确已编码。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d01-tfhe.tex",
+    "unit": "subsection-1194",
+    "heading": "TFHE on a Discrete Torus",
+    "original_line": 1194,
+    "original_end_line": 1242,
+    "label": "subsec:torus",
+    "own_label": "subsec:torus",
+    "status": "corrected",
+    "findings": [
+      "TB-010"
+    ],
+    "review": "从整数相位除 q 推导环面表示，检查维数、内积索引、m/t 编码、定长整数实现和 T 的代数类型。",
+    "original_sha256": "6a0ace8c0dfd57bf1f11597f0a2b8e7019ab69c4e941d920a02125fa8f4c67bd"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "introduction",
+    "heading": "Introduction",
+    "original_line": 1,
+    "label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-015",
+      "TB-033"
+    ],
+    "review": "限定 BFV 精确结果为满足噪声界的明文环运算，区分整数语义，并增加 FV 原论文引用。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-45",
+    "heading": "Single Value Encoding",
+    "original_line": 45,
+    "original_end_line": 111,
+    "label": "subsec:bfv-single-encoding",
+    "own_label": "subsec:bfv-single-encoding",
+    "status": "conditions_added",
+    "findings": [
+      "TB-012"
+    ],
+    "review": "核查 M(2) 的整数加乘恒等式及商环反例，补 m<2^n、次数<n 和系数无模t回绕。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-112",
+    "heading": "Batch Encoding",
+    "original_line": 112,
+    "original_end_line": 120,
+    "label": "subsec:bfv-batch-encoding",
+    "own_label": "subsec:bfv-batch-encoding",
+    "status": "conditions_added",
+    "findings": [
+      "TB-013",
+      "TB-014"
+    ],
+    "review": "核查 CRT 完全分裂条件、输入槽与系数域、标量槽位数以及 W 转置命名。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-121",
+    "heading": "\\textsf{Encoding\\textsubscript{1}}",
+    "original_line": 121,
+    "original_end_line": 186,
+    "label": "subsubsec:bfv-encoding-1",
+    "own_label": "subsubsec:bfv-encoding-1",
+    "status": "corrected",
+    "findings": [
+      "TB-013",
+      "TB-014"
+    ],
+    "review": "独立求值推导 v=W^T m 和 m=n^-1 W I_R v；修缺 I_R、向量维数、展开指数终点及环同构对象。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-187",
+    "heading": "\\textsf{Encoding\\textsubscript{2}}",
+    "original_line": 187,
+    "original_end_line": 192,
+    "label": "subsec:bfv-batch-encoding",
+    "own_label": null,
+    "status": "reviewed_correct",
+    "findings": [
+      "TB-014"
+    ],
+    "review": "理想明文多项式乘 Δ 的编码步骤正确；Δ 统一为 floor(q/t)，未声称此处已经完成加密。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-193",
+    "heading": "\\textsf{Decoding\\textsubscript{1}}",
+    "original_line": 193,
+    "original_end_line": 200,
+    "label": "subsubsec:bfv-enc-dec-decoding1",
+    "own_label": "subsubsec:bfv-enc-dec-decoding1",
+    "status": "conditions_added",
+    "findings": [
+      "TB-014",
+      "TB-015"
+    ],
+    "review": "示意除 Δ 仅适用于理想未约减编码；真实密文先标准解码再矩阵求槽。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-201",
+    "heading": "\\textsf{Decoding\\textsubscript{2}}",
+    "original_line": 201,
+    "original_end_line": 208,
+    "label": "subsec:bfv-batch-encoding",
+    "own_label": null,
+    "status": "reviewed_correct",
+    "findings": [
+      "TB-013",
+      "TB-014"
+    ],
+    "review": "按行求值恢复槽的方向正确；成立条件为完全分裂和可逆矩阵，未盲改成另一章同名矩阵。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-209",
+    "heading": "Summary",
+    "original_line": 209,
+    "original_end_line": 265,
+    "label": "subsubsec:bfv-encoding-summary",
+    "own_label": "subsubsec:bfv-encoding-summary",
+    "status": "corrected",
+    "findings": [
+      "TB-013",
+      "TB-014",
+      "TB-015"
+    ],
+    "review": "逐式核对编码/解码总结的逆矩阵、尺度和域，加入实际密文解码与理想示意的区别。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-266",
+    "heading": "Encryption and Decryption",
+    "original_line": 266,
+    "original_end_line": 320,
+    "label": "subsec:bfv-enc-dec",
+    "own_label": "subsec:bfv-enc-dec",
+    "status": "corrected",
+    "findings": [
+      "TB-013",
+      "TB-015",
+      "TB-033"
+    ],
+    "review": "规范 BFV Dec 用 t/q 和最后 modt，明确 noisy phase 记号及 centered代表；推导准确充分条件。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-321",
+    "heading": "Ciphertext-to-Ciphertext Addition",
+    "original_line": 321,
+    "original_end_line": 337,
+    "label": "subsec:bfv-add-cipher",
+    "own_label": "subsec:bfv-add-cipher",
+    "status": "conditions_added",
+    "findings": [
+      "TB-016"
+    ],
+    "review": "分量加法恒等式正确；约减明文后的有效误差须加 −r_q H。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-338",
+    "heading": "Noise Bound Analysis",
+    "original_line": 338,
+    "original_end_line": 444,
+    "label": "subsubsec:bfv-noise-analysis",
+    "own_label": "subsubsec:bfv-noise-analysis",
+    "status": "corrected",
+    "findings": [
+      "TB-015",
+      "TB-016"
+    ],
+    "review": "重做保留内层 modq 的证明，给 tE−rM 条件及加法明文进位误差，删除非法约减步骤。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-445",
+    "heading": "Ciphertext-to-Plaintext Addition",
+    "original_line": 445,
+    "original_end_line": 462,
+    "label": "subsec:bfv-add-plain",
+    "own_label": "subsec:bfv-add-plain",
+    "status": "conditions_added",
+    "findings": [
+      "TB-016"
+    ],
+    "review": "确认 ΔΛ 加入 B 正确；补明文约减 H 后误差 E−r_qH。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-463",
+    "heading": "Ciphertext-to-Plaintext Multiplication",
+    "original_line": 463,
+    "original_end_line": 482,
+    "label": "subsec:bfv-mult-plain",
+    "own_label": "subsec:bfv-mult-plain",
+    "status": "conditions_added",
+    "findings": [
+      "TB-016",
+      "TB-019"
+    ],
+    "review": "确认未缩放 Λ 乘全部分量，补卷积范数及 −r_qH。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-483",
+    "heading": "Ciphertext-to-Ciphertext Multiplication",
+    "original_line": 483,
+    "original_end_line": 499,
+    "label": "subsec:bfv-mult-cipher",
+    "own_label": "subsec:bfv-mult-cipher",
+    "status": "corrected",
+    "findings": [
+      "TB-017",
+      "TB-018",
+      "TB-020",
+      "TB-021"
+    ],
+    "review": "明确原四阶段为 Q=qΔ、1/Δ 教学变体，和 FV t/q 的规范算法分别陈述。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-500",
+    "heading": "\\textsf{ModRaise}",
+    "original_line": 500,
+    "original_end_line": 533,
+    "label": "subsubsec:bfv-mult-cipher-modraise",
+    "own_label": "subsubsec:bfv-mult-cipher-modraise",
+    "status": "corrected",
+    "findings": [
+      "TB-017"
+    ],
+    "review": "选择整数提升时保留 qK；否定把同一分量直接称为干净 Enc_Q，以及无条件不回绕保证。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-534",
+    "heading": "Polynomial Multiplication",
+    "original_line": 534,
+    "original_end_line": 575,
+    "label": "subsubsec:bfv-mult-cipher-multiplication",
+    "own_label": "subsubsec:bfv-mult-cipher-multiplication",
+    "status": "corrected",
+    "findings": [
+      "TB-017",
+      "TB-020"
+    ],
+    "review": "验证 D0,D1,D2 张量恒等式；改 S²平方根错误及秘密次数增长说明。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-576",
+    "heading": "Relinearization",
+    "original_line": 576,
+    "original_end_line": 675,
+    "label": "subsubsec:bfv-mult-cipher-relinearization",
+    "own_label": "subsubsec:bfv-mult-cipher-relinearization",
+    "status": "corrected",
+    "findings": [
+      "TB-020"
+    ],
+    "review": "逐行核查 RLev gadget 和 D2 分解，使用一般 Q 的整数权重 β^{i−1}，显式累计 Erl 和安全假设。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-676",
+    "heading": "Rescaling",
+    "original_line": 676,
+    "original_end_line": 796,
+    "label": "subsubsec:bfv-mult-cipher-rescaling",
+    "own_label": "subsubsec:bfv-mult-cipher-rescaling",
+    "status": "corrected",
+    "findings": [
+      "TB-018",
+      "TB-019"
+    ],
+    "review": "独立展开所有乘法项并保留 q r_q K1K2/Δ 与两分量舍入；脚本180例核对恒等式。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-797",
+    "heading": "Noise Analysis:",
+    "original_line": 797,
+    "original_end_line": 806,
+    "label": "subsubsec:bfv-mult-cipher-rescaling",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-019"
+    ],
+    "review": "以环卷积 l1×linf 范数替代逐系数界；补 RA S+RB 的秘密范数因子。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-807",
+    "heading": "Modulus Switch v.s. Rescaling: ",
+    "original_line": 807,
+    "original_end_line": 811,
+    "label": "subsubsec:bfv-mult-cipher-rescaling",
+    "own_label": null,
+    "status": "conditions_added",
+    "findings": [
+      "TB-021"
+    ],
+    "review": "区分模数变化与尺度变化的目的；本步骤同时实现二者不推出术语处处等价。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-812",
+    "heading": "Summary",
+    "original_line": 812,
+    "original_end_line": 900,
+    "label": "subsubsec:bfv-mult-cipher-summary",
+    "own_label": "subsubsec:bfv-mult-cipher-summary",
+    "status": "corrected",
+    "findings": [
+      "TB-017",
+      "TB-018",
+      "TB-020",
+      "TB-021"
+    ],
+    "review": "逐阶段同步总结，使用完整乘积相位和错误界，避免总结重新引入干净高模加密假设。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-901",
+    "heading": "The Purpose of \\textsf{ModRaise}: ",
+    "original_line": 901,
+    "original_end_line": 904,
+    "label": "subsubsec:bfv-mult-cipher-summary",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-017",
+      "TB-018"
+    ],
+    "review": "解释辅助模数与缩放约定，删除 Q 必足以容纳一切产品的无条件承诺。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-905",
+    "heading": "Swapping the Order of \\textsf{Relinearization} and \\textsf{Rescaling}: ",
+    "original_line": 905,
+    "original_end_line": 908,
+    "label": "subsubsec:bfv-mult-cipher-summary",
+    "own_label": null,
+    "status": "conditions_added",
+    "findings": [
+      "TB-021"
+    ],
+    "review": "可有不同顺序的算法设计，但需匹配新的 eval key、模数、分解与误差证明，不是字面互换。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-909",
+    "heading": "Application to TFHE's Ciphertext-to-Ciphertext Multiplication",
+    "original_line": 909,
+    "original_end_line": 1026,
+    "label": "subsubsec:bfv-mult-cipher-tfhe",
+    "own_label": "subsubsec:bfv-mult-cipher-tfhe",
+    "status": "partially_verified",
+    "findings": [
+      "TB-018",
+      "TB-022"
+    ],
+    "review": "核对加号相位的标量秘密张量积，并明确 TFHE mask 取负转换；仅给概念推广，完整参数与新求值钥仍需指定。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-1027",
+    "heading": "Homomorphic Key Switching",
+    "original_line": 1027,
+    "original_end_line": 1038,
+    "label": "subsec:bfv-key-switching",
+    "own_label": "subsec:bfv-key-switching",
+    "status": "conditions_added",
+    "findings": [
+      "TB-020",
+      "TB-022"
+    ],
+    "review": "加号相位密钥切换对应加内积；补一般模数整数 gadget 与截断残差要求。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-1039",
+    "heading": "Homomorphic Rotation of Input Vector Slots",
+    "original_line": 1039,
+    "original_end_line": 1054,
+    "label": "subsec:bfv-rotation",
+    "own_label": "subsec:bfv-rotation",
+    "status": "conditions_added",
+    "findings": [
+      "TB-013",
+      "TB-023"
+    ],
+    "review": "核查实际目标为两半行槽位旋转，区分多项式系数旋转和槽位旋转及参数条件。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-1055",
+    "heading": "Rotating Input Vector Slots by Updating the Plaintext Polynomial",
+    "original_line": 1055,
+    "original_end_line": 1141,
+    "label": "subsec:bfv-rotation",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-014",
+      "TB-023"
+    ],
+    "review": "逐求值点推导自同构，实现正确的双行轮转；修局部矩阵名、列置换和几何和错误。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-1142",
+    "heading": "Converting $\\bm{M(X)}$ into $\\bm{M'(X)}$:",
+    "original_line": 1142,
+    "original_end_line": 1175,
+    "label": "subsec:bfv-rotation",
+    "own_label": null,
+    "status": "reviewed_correct",
+    "findings": [
+      "TB-023"
+    ],
+    "review": "核验二次幂 2n 下 ±5^j 的指数覆盖、周期 n/2，以及 M(X^{5^h}) 的槽位位置。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-1176",
+    "heading": "Decoding $\\bm{M'(X)}$ into \\boldmath$\\vec{v}^{\\langle h \\rangle}$",
+    "original_line": 1176,
+    "original_end_line": 1388,
+    "label": "subsec:bfv-rotation",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-014",
+      "TB-023"
+    ],
+    "review": "核对新节点排序、W* W_hat=nI_R、inverse/transpose方向；修漏 −1 指数和帽号记号。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-1389",
+    "heading": "Updating the Plaintext Polynomial by Updating the Ciphertext Polynomials",
+    "original_line": 1389,
+    "original_end_line": 1418,
+    "label": "subsec:bfv-rotation",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-023"
+    ],
+    "review": "自同构把秘密变为 S(X^{J(h)})；切回原密钥产生新分量和新误差，修同一元组对象混用。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-1419",
+    "heading": "Summary",
+    "original_line": 1419,
+    "original_end_line": 1489,
+    "label": "subsubsec:bfv-rotation-summary",
+    "own_label": "subsubsec:bfv-rotation-summary",
+    "status": "corrected",
+    "findings": [
+      "TB-013",
+      "TB-023"
+    ],
+    "review": "逐项核对原旋转总结参数、J(h)、矩阵和密钥切换流程，交叉引用改回 BFV 本节。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-1490",
+    "heading": "Encoding Example",
+    "original_line": 1490,
+    "original_end_line": 1681,
+    "label": "subsubsec:bfv-batch-encoding-ex",
+    "own_label": "subsubsec:bfv-batch-encoding-ex",
+    "status": "corrected",
+    "findings": [
+      "TB-014",
+      "TB-015"
+    ],
+    "review": "独立重算 n4/t17/ω9 的矩阵、m1、m2、加法槽值，实际解码改为 t/q；主要矩阵数字保留。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-1682",
+    "heading": "Rotation Example",
+    "original_line": 1682,
+    "original_end_line": 1903,
+    "label": "subsubsec:bfv-rotation-ex",
+    "own_label": "subsubsec:bfv-rotation-ex",
+    "status": "corrected",
+    "findings": [
+      "TB-023"
+    ],
+    "review": "独立重算 n8/t17/ω3 编码及 h3 结果 [4,1,2,3,8,5,6,7]；补正确解密密钥/回切说明。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-1904",
+    "heading": "Source Code:",
+    "original_line": 1904,
+    "original_end_line": 1907,
+    "label": "subsubsec:bfv-rotation-ex",
+    "own_label": null,
+    "status": "reviewed_scope_external",
+    "findings": [],
+    "review": "本段仅指向可执行演示，不包含新定理；程序的学术正确性由独立代码审校记录，不以链接存在代替验证。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-1908",
+    "heading": "Application: Matrix Multiplication",
+    "original_line": 1908,
+    "original_end_line": 1955,
+    "label": "subsec:bfv-matrix-multiplication",
+    "own_label": "subsec:bfv-matrix-multiplication",
+    "status": "corrected",
+    "findings": [
+      "TB-024"
+    ],
+    "review": "按索引验证对角矩阵法，指出前节双行旋转不等于全循环；补 m≤n、前m投影和实现全循环的条件。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsection-1956",
+    "heading": "Noise Bootstrapping",
+    "original_line": 1956,
+    "original_end_line": 1981,
+    "label": "subsec:bfv-bootstrapping",
+    "own_label": "subsec:bfv-bootstrapping",
+    "status": "conditions_added",
+    "findings": [
+      "TB-025",
+      "TB-026",
+      "TB-027",
+      "TB-028",
+      "TB-029",
+      "TB-030",
+      "TB-031",
+      "TB-032",
+      "TB-033"
+    ],
+    "review": "核对引用的 GV/HS 构造范围并阅读全文；明确后文只是有条件解密分解而非完整可用自举参数集。GV §2.3 要求 p 与分圆指标互素，本书二次幂环的这条 CRT 路线因此要求 p 奇数。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-1982",
+    "heading": "High-level Idea",
+    "original_line": 1982,
+    "original_end_line": 2062,
+    "label": "subsubsec:bfv-bootstrapping-high-level",
+    "own_label": "subsubsec:bfv-bootstrapping-high-level",
+    "status": "partially_verified",
+    "findings": [
+      "TB-025",
+      "TB-026",
+      "TB-027",
+      "TB-028",
+      "TB-033"
+    ],
+    "review": "核对五阶段语义和原论文式9，修低模相位/高模封装/数字舍入；明确 p2 偏移仅是标量恒等式，完整流程受 CRT 互素条件限制；全程噪声和安全参数证明仍不由原书提供。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-2063",
+    "heading": "Modulus Switch",
+    "original_line": 2063,
+    "original_end_line": 2067,
+    "label": "subsubsec:bfv-bootstrapping-modulus-switch",
+    "own_label": "subsubsec:bfv-bootstrapping-modulus-switch",
+    "status": "corrected",
+    "findings": [
+      "TB-025"
+    ],
+    "review": "精确展开 P/q 分量舍入，保留比例余数和 RA S+RB，并明确 ||E′||<p^{ε−r}/2。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-2068",
+    "heading": "Homomorphic Decryption",
+    "original_line": 2068,
+    "original_end_line": 2114,
+    "label": "subsubsec:bfv-bootstrapping-homomorphic-decryption",
+    "own_label": "subsubsec:bfv-bootstrapping-homomorphic-decryption",
+    "status": "corrected",
+    "findings": [
+      "TB-026"
+    ],
+    "review": "修常数 Δ′B′，保留 A′E_s−r_P K 以及自加密密钥安全性要求。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-2115",
+    "heading": "\\textsf{CoeffToSlot} and \\textsf{SlotToCoeff}",
+    "original_line": 2115,
+    "original_end_line": 2160,
+    "label": "subsubsec:bfv-bootstrapping-coefftoslot",
+    "own_label": "subsubsec:bfv-bootstrapping-coefftoslot",
+    "status": "partially_verified",
+    "findings": [
+      "TB-024",
+      "TB-027"
+    ],
+    "review": "完全分裂条件下正逆线性变换经代数确认；一般扩域路线也要求 gcd(p,2n)=1，故本书二次幂环下 p 必须奇数。p2 时有重因子，须另选与2互素的分圆指标或另证构造，不能仅换矩阵。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-2161",
+    "heading": "Digit Extraction",
+    "original_line": 2161,
+    "original_end_line": 2192,
+    "label": "subsubsec:bfv-bootstrapping-digit-extraction",
+    "own_label": "subsubsec:bfv-bootstrapping-digit-extraction",
+    "status": "corrected",
+    "findings": [
+      "TB-027",
+      "TB-028",
+      "TB-029",
+      "TB-030",
+      "TB-032"
+    ],
+    "review": "对照平衡位舍入、最低位提升和精确除法，修 floor/round 混用、G 类型、内层复合起点和剩余模数。p2 的半单位偏移只说明标量舍入，不提供本书二次幂环上的 CRT 自举。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-2193",
+    "heading": "1st Recursion:",
+    "original_line": 2193,
+    "original_end_line": 2198,
+    "label": "subsubsec:bfv-bootstrapping-digit-extraction",
+    "own_label": null,
+    "status": "reviewed_correct",
+    "findings": [
+      "TB-030"
+    ],
+    "review": "第一轮从任意输入保留最低位到模p²；在已给精度正确的 F1 构造下成立。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-2199",
+    "heading": "2nd Recursion:",
+    "original_line": 2199,
+    "original_end_line": 2204,
+    "label": "subsubsec:bfv-bootstrapping-digit-extraction",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-030"
+    ],
+    "review": "正文复合应 F2∘F1，原红字反写顺序；同步更正并核查模p³。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-2205",
+    "heading": "3rd Recursion:",
+    "original_line": 2205,
+    "original_end_line": 2210,
+    "label": "subsubsec:bfv-bootstrapping-digit-extraction",
+    "own_label": null,
+    "status": "reviewed_correct",
+    "findings": [
+      "TB-030"
+    ],
+    "review": "前两轮确保所需同余后，F3 提升到模p⁴；逐层不变量成立。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-2211",
+    "heading": "$\\bm{(\\varepsilon-1)}$-th Recursion:",
+    "original_line": 2211,
+    "original_end_line": 2239,
+    "label": "subsubsec:bfv-bootstrapping-digit-extraction",
+    "own_label": null,
+    "status": "reviewed_correct",
+    "findings": [
+      "TB-030",
+      "TB-032"
+    ],
+    "review": "从 F1 至 Fε−1 复合提取最低位到模pε；不能把此内层起点改成 r。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-2240",
+    "heading": "Scaling Factor Re-interpretation:",
+    "original_line": 2240,
+    "original_end_line": 2279,
+    "label": "subsubsec:bfv-bootstrapping-digit-extraction",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-029",
+      "TB-031"
+    ],
+    "review": "重做 Δj p w 与 Δj−1w 的差值，纠正指数括号、漂移因子和加明文/乘明文尺度区别。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-2280",
+    "heading": "Designing \\boldmath$F_{\\varepsilon'}(z_i)$:",
+    "original_line": 2280,
+    "original_end_line": 2407,
+    "label": "subsubsec:bfv-bootstrapping-digit-extraction",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-030"
+    ],
+    "review": "证明节点差为单位的 Z_p^j 插值合法，显式构造 H_j 和 F_j=X^p−pH_j；验证次数p及提升不变量。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "subsubsection-2408",
+    "heading": "Summary",
+    "original_line": 2408,
+    "original_end_line": 2469,
+    "label": "subsubsec:bfv-bootstrapping-summary",
+    "own_label": "subsubsec:bfv-bootstrapping-summary",
+    "status": "partially_verified",
+    "findings": [
+      "TB-025",
+      "TB-026",
+      "TB-027",
+      "TB-028",
+      "TB-029",
+      "TB-030",
+      "TB-031",
+      "TB-032",
+      "TB-033"
+    ],
+    "review": "逐阶段同步修正总结；明确完整 CRT 流程需分圆指标与p互素，本书二次幂环要求 p 奇数。局部代数成立，但通用扩域变换、完整参数预算、总失败概率仍需另外证明。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-2470",
+    "heading": "\\underline{Scaling Factor Re-interpretation}:",
+    "original_line": 2470,
+    "original_end_line": 2485,
+    "label": "subsubsec:bfv-bootstrapping-summary",
+    "own_label": null,
+    "status": "corrected",
+    "findings": [
+      "TB-031",
+      "TB-032"
+    ],
+    "review": "总结尺度序列终点为 floor(q/p^r)，每次重新解释计漂移；乘明文不再统一额外缩放。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  },
+  {
+    "file": "d02-bfv.tex",
+    "unit": "para-2486",
+    "heading": "The purpose of Homomorphic Decryption:",
+    "original_line": 2486,
+    "original_end_line": 2487,
+    "label": "subsubsec:bfv-bootstrapping-summary",
+    "own_label": null,
+    "status": "conditions_added",
+    "findings": [
+      "TB-026",
+      "TB-031",
+      "TB-033"
+    ],
+    "review": "解释同态解密把低模相位重新封装为高模加密，尺度重释有预算代价，不声称仅调尺度就自动正确。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+  }
+]

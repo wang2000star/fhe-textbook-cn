@@ -1,3 +1,5 @@
+两个输入必须具有相同的秘密密钥、环、模数 $q$ 和尺度 $\Delta=q/t$；所述模 $t$ 的明文运算假设 $t\mid q$。在这些运算章节中，$\textsf{GLWE}_{S,\sigma}(\text{phase})$ 是具有所列相位的密文的简写；求值后的密文不一定具有新鲜加密时相同的高斯分布或标准差 $\sigma$。所有噪声界均针对系数约减前的整数提升。
+
 \textbf{- 参考资料：}
 \href{https://www.zama.ai/post/tfhe-deep-dive-part-2}{深入理解 TFHE（二）：编码与线性分层运算}~\cite{tfhe-2}
 
@@ -31,7 +33,7 @@ $= \textsf{GLWE}_{S, \sigma}(\Delta(M^{\langle 1 \rangle} + M^{\langle 2 \rangle
 \end{tcolorbox}
 
 
-这意味着，将分别加密 $M^{\langle 1 \rangle}$ 和 $M^{\langle 2 \rangle}$ 的两个 GLWE 密文相加，再解密所得密文，便得到 $M^{\langle 1 \rangle} + M^{\langle 2 \rangle}$。
+相位恒等式在代数上无条件成立。若 $\|E^{\langle1\rangle}+E^{\langle2\rangle}\|_\infty<\Delta/2$，解码才会返回 $M^{\langle1\rangle}+M^{\langle2\rangle}\bmod t$；例如，两个输入的噪声界之和小于 $\Delta/2$ 就是充分条件。
 
 $ $
 
@@ -70,14 +72,14 @@ $= \textsf{GLWE}_{S, \sigma}(\Delta (M^{\langle 1 \rangle} + M^{\langle 2 \rangl
 \subsection{讨论}
 \label{subsubsec:glwe-add-cipher-discuss} 
 
-\para{噪声消除：} 使用私钥 $S$ 解密 $\textsf{GLWE}_{S, \sigma}(\Delta(M^{\langle 1 \rangle} + M^{\langle 2 \rangle}) + E^{\langle 3 \rangle})$，即可得到明文 $M^{\langle 1 \rangle} + M^{\langle 2 \rangle}$。与此同时，无论加密时随机采样的值为何，$A_1^{\langle 3 \rangle}, A_2^{\langle 3 \rangle}, \ldots,  A_{k-1}^{\langle 3 \rangle}, E^{\langle 3 \rangle}$ 都会在解密及舍入过程中被消去。
+\para{噪声消除：}使用秘密密钥作减法会精确消去掩码乘积；只有所得误差各系数的绝对值仍小于 $\Delta/2$ 时，舍入才会去除误差。若合并后的误差超出此界，两个有效输入也可能相加得到无法正确解码的输出。
 
 $ $
 
-\para{噪声增长：} 注意，解密时原密文 $C$ 所含的噪声已由 $E^{\langle 1 \rangle}$ 和 $E^{\langle 2 \rangle}$ 增大为 $E^{\langle 3 \rangle} = E^{\langle 1 \rangle} + E^{\langle 2 \rangle}$。如果噪声来自均值为 $\mu = 0$ 的高斯分布，则噪声方差随加法次数线性增长，最终耗尽 $\Delta/2$ 的噪声预算。不过，这一增长速度远低于同态乘法；后者的噪声通常呈乘法增长。
+\para{噪声增长：}新误差为 $E^{\langle3\rangle}=E^{\langle1\rangle}+E^{\langle2\rangle}$。独立零均值误差的方差相加；若各自方差为 $\sigma^2$，则 $h$ 个独立样本之和的方差为 $h\sigma^2$。仅有零均值并不充分。一般有 $\operatorname{Var}(e_1+e_2)=\operatorname{Var}(e_1)+\operatorname{Var}(e_2)+2\operatorname{Cov}(e_1,e_2)$。密文与自身相加得到 $2e$，其方差为 $4\sigma^2$，并非 $2\sigma^2$。确定性的系数界可由三角不等式给出，无需独立性假设。
 
 $ $
 
-\para{未对 $t$ 取模时明文值的硬性界限：} 在同态运算（例如加法或乘法）和解密过程中，关系式 $B = AS + \Delta M + E + vq$ 中的 $AS$ 与 $B$ 项可以在模 $q$ 下反复回绕。无论回绕多少次，最终解密步骤都会从 $B$ 中减去 $AS$，得到 $\Delta M + E + v'q = \Delta M + E \pmod q$，而 $v'q$ 项总能通过对 $q$ 取模而精确消去。随后计算 $\left\lceil \dfrac{\Delta M + E \bmod q}{\Delta}\right\rfloor$，即可消除噪声 $E$ 并正确恢复 $M$。但是，如总结~\ref*{subsubsec:lwe-noise-bound}（见 \autoref{subsubsec:lwe-noise-bound}）所述，若不再满足误差界 $|-\epsilon v t + e| < \dfrac{\Delta}{2}$（其中 $e$ 可以是 $E$ 的任意系数），则对 $q$ 取模会开始影响放大后的明文比特。当噪声 $e$ 在同态运算中增长过大，或者密文模数 $q$ 相对于明文模数 $t$ 不够大时，就会违反这一误差界。如果 $q \gg t$，方案便能容纳较大的 $vt$ 值，也就是说，明文值在多次同态运算中可以绕明文模数 $t$ 回绕多次。BFV 方案使用误差界约束 $\dfrac{vt + e}{\lfloor\frac{q}{t}\rfloor} < \dfrac{1}{2}$。 %原文关于 \autoref{sec:modulus-rescaling} 的补充注释未参与排版。
+\para{$t\nmid q$ 时的明文溢出：}掩码乘积和密文分量始终按模 $q$ 解释。当 $t\mid q$ 时，明文模 $t$ 的回绕与乘以 $\Delta=q/t$ 相容。当 $t\nmid q$ 且 $\Delta=\lfloor q/t\rfloor$ 时，将未约减明文的每个系数写为 $m=m'+vt$，其中 $m'$ 为中心化代表元，则有效误差是 $e-(q\bmod t)v$。在 \autoref{subsubsec:lwe-noise-bound} 的假设下，要求 $|e-(q\bmod t)v|<\Delta/2$。这一条件依赖溢出次数 $v$，并非仅由 $q\gg t$ 保证。最后模 $t$ 的约减也是消息解密的一部分。
 
  

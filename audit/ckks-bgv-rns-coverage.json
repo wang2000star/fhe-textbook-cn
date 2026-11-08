@@ -1,0 +1,2032 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-11-08",
+  "reviewer_scope": "CKKS/BGV/RNS English original and synchronized Chinese edition",
+  "baseline_commit": "2a901038078fe054371e53089c86caaaa1112209",
+  "baseline_policy": "English original is an object of review, not a correctness oracle. Baseline hashes preserve the reviewed claims.",
+  "coverage_counts": {
+    "heading_units": 98,
+    "introduction_units": 3,
+    "total_units": 101,
+    "by_file": {
+      "d03-ckks.tex": 51,
+      "d04-bgv.tex": 21,
+      "d05-rns.tex": 26
+    }
+  },
+  "status_definitions": {
+    "corrected": "Confirmed error, proof gap, or missing essential applicability condition corrected bilingually.",
+    "validated_under_conditions": "Read and checked; core claim retained with stated conditions or clarification.",
+    "reviewed_no_material_issue": "Read the unit and found no independent material issue within this unit; scope limitations are stated in reasoning.",
+    "partially_verified": "Confirmed local defects corrected, but full primary-paper quantitative guarantees were not independently verified."
+  },
+  "sources": {
+    "P1": {
+      "url": "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+      "access": "full_text_read_relevant_sections"
+    },
+    "P2": {
+      "url": "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf",
+      "access": "full_text_read_relevant_sections"
+    },
+    "P3": {
+      "url": "https://yongsoosong.github.io/files/papers/RNS.pdf",
+      "access": "full_text_read_relevant_sections"
+    },
+    "P4": {
+      "url": "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf",
+      "access": "full_text_read_relevant_sections"
+    },
+    "P5": {
+      "url": "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+      "access": "full_text_read_relevant_sections"
+    },
+    "P6": {
+      "url": "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+      "access": "full_text_read_relevant_sections"
+    },
+    "P7": {
+      "url": "https://www.shoup.net/papers/rns-bfv.pdf",
+      "access": "full_text_read_relevant_sections"
+    },
+    "META": {
+      "url": "https://eprint.iacr.org/2022/1167",
+      "access": "primary-paper cached body: sections 1.1, 3.2 Theorem 3.2, 4.1 Corollary 4.2; full PDF not obtained; complete quantitative guarantee not verified"
+    },
+    "ARCSIN": {
+      "url": "https://eprint.iacr.org/2020/552",
+      "author_index": "https://ccl.snu.ac.kr/publication/intl-journal",
+      "full_text": "https://drive.google.com/file/d/1Leyad-pmhT69ugUpdA3K04aetgoocIV5/view",
+      "access": "author_full_text_read_sections_4_5.1_5.2; SEAL experiments not reproduced",
+      "sha256": "8ac106e04d7ce614ea08d3fb6271480477fb7aad97180070153b23e6c9954999"
+    }
+  },
+  "limitations": [
+    "No cryptographic security certification or parameter-specific failure-probability proof.",
+    "No full bootstrap implementation or formal proof of every intermediate circuit.",
+    "Arcsin author full text and parameter-dependent cost checked; experiments not rerun. Meta-BTS full-paper quantitative guarantee remains partially verified.",
+    "Linked educational Python implementations and figure labels are owned by the root audit, not silently certified here."
+  ],
+  "validation": {
+    "script": "audit/check_ckks_bgv_rns.py",
+    "groups": 12,
+    "checked_cases": 16368,
+    "status": "pass",
+    "translation_check": "python scripts/check_translation.py --math passed; complete build recorded by root audit"
+  },
+  "files": [
+    {
+      "file": "d03-ckks.tex",
+      "baseline_sha256": "f030a044332c61bb31d3eba4513021fc78765c2d1d78aa5ebb95f4b1e07a8be4",
+      "revised_sha256": "8092bbad822c805dcdfeba96e0d1906618f69916fdba8d3614542ad92763a319",
+      "chinese_file": "zh-CN/d03-ckks.tex",
+      "chinese_revised_sha256": "4b192d5c417b529e3cb95a9c2ba8408c9f2dd90db5eb041468b866610d5a9e03",
+      "heading_units": 51,
+      "introduction_units": 1
+    },
+    {
+      "file": "d04-bgv.tex",
+      "baseline_sha256": "a836258302ff0cceb40650587da5622741e157af79c2a749bee36bded887a59e",
+      "revised_sha256": "fa4100ff039ccb34a8356a2fa35c6747acc7f1c43a6547263b27b3e73608eb7c",
+      "chinese_file": "zh-CN/d04-bgv.tex",
+      "chinese_revised_sha256": "518caab620d53f4dad8e9d78784884d491dc90df9ff1525e5968fc53db5dfd2a",
+      "heading_units": 21,
+      "introduction_units": 1
+    },
+    {
+      "file": "d05-rns.tex",
+      "baseline_sha256": "6fae4611858495cf91abf2a0750abc351feba6f2b4d6a6ad63ce6f00c40c0daa",
+      "revised_sha256": "5ef84e4a80e54b4c04d0b99e22f0f87a7ab00db02997c1b86f913df81a2b4874",
+      "chinese_file": "zh-CN/d05-rns.tex",
+      "chinese_revised_sha256": "efe9278664b6f5077d6775cb05a466815cea31e0a3f8ee0fe3e255d3589ec8a2",
+      "heading_units": 26,
+      "introduction_units": 1
+    }
+  ],
+  "units": [
+    {
+      "file": "d03-ckks.tex",
+      "unit_id": "d03-ckks-intro",
+      "heading": "[章首导言]",
+      "heading_command": "introduction",
+      "label": null,
+      "own_label": null,
+      "line_start": 1,
+      "line_end": 76,
+      "status": "corrected",
+      "findings": [
+        "CBR-001",
+        "CBR-009"
+      ],
+      "reasoning": "核查复数/实数近似语义、实际整数加密、与其他方案的原生语义区别和一般能力边界。删除复数不是环与其他方案只能处理整数的断言。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Encoding and Decoding",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-encoding-decoding",
+      "own_label": "subsec:ckks-encoding-decoding",
+      "line_start": 77,
+      "unit_id": "d03-ckks-001",
+      "line_end": 125,
+      "status": "corrected",
+      "findings": [
+        "CBR-001",
+        "CBR-002"
+      ],
+      "reasoning": "逐式核查共轭对称嵌入和主编码矩阵。原主式 n^-1 W I_R 成立；修正复数非环、实际加密实系数和旋转处矩阵颠倒等混淆。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Structure of \\boldmath$\\vec{v}_{'} \\in \\mathbb{\\hat C}^n$:",
+      "heading_command": "para",
+      "label": "subsec:ckks-encoding-decoding",
+      "own_label": null,
+      "line_start": 126,
+      "unit_id": "d03-ckks-002",
+      "line_end": 265,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-002"
+      ],
+      "reasoning": "阅读正序 Hermitian 向量与逆序矩阵的完整说明；按 J(j)=5^j、J_*(j)=-5^j 核对共轭配对，实维数为 n，独立复槽数为 n/2。主结构保留。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "CKKS's Approximation Property:",
+      "heading_command": "para",
+      "label": "subsec:ckks-encoding-decoding",
+      "own_label": null,
+      "line_start": 266,
+      "unit_id": "d03-ckks-003",
+      "line_end": 268,
+      "status": "corrected",
+      "findings": [
+        "CBR-004"
+      ],
+      "reasoning": "核查整数格舍入误差：每系数≤1/2，只能由单位根求值推出保守槽位界 n/(2Δ)；误差非仅来自无理平方根，也不能一般用解码舍入消除。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Example",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-encoding-ex",
+      "own_label": "subsubsec:ckks-encoding-ex",
+      "line_start": 269,
+      "unit_id": "d03-ckks-004",
+      "line_end": 456,
+      "status": "corrected",
+      "findings": [
+        "CBR-003"
+      ],
+      "reasoning": "从输入 (1.1+4.3i,3.5-1.4i) 重算每个实系数、1024缩放整数和解码值；修正1.1657、根和cos符号，最终整数本来正确。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Source Code:",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-encoding-ex",
+      "own_label": null,
+      "line_start": 457,
+      "unit_id": "d03-ckks-005",
+      "line_end": 460,
+      "status": "reviewed_no_material_issue",
+      "findings": [],
+      "reasoning": "读源码链接段落，确认它指向编码例子；数学例子由本审查独立复算。链接程序的执行与生产适用性归总审校，不凭此链接宣称算法实现已经验证。",
+      "primary_sources": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Encryption and Decryption",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-enc-dec",
+      "own_label": "subsec:ckks-enc-dec",
+      "line_start": 461,
+      "unit_id": "d03-ckks-006",
+      "line_end": 509,
+      "status": "corrected",
+      "findings": [
+        "CBR-004"
+      ],
+      "reasoning": "逐步区分相位 B+AS、中心化约减、尺度除法和槽位求值；给完整不回绕条件，删除一般CKKS误差被舍入去除的错误结论。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Ciphertext-to-Ciphertext Addition",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-add-cipher",
+      "own_label": "subsec:ckks-add-cipher",
+      "line_start": 510,
+      "unit_id": "d03-ckks-007",
+      "line_end": 528,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-004",
+        "CBR-009"
+      ],
+      "reasoning": "逐分量加法公式成立；补充相同密钥、相容模数与尺度、误差相加及完整相位界。没有把结果当新鲜独立加密分布。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Ciphertext-to-Plaintext Addition",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-add-plain",
+      "own_label": "subsec:ckks-add-plain",
+      "line_start": 529,
+      "unit_id": "d03-ckks-008",
+      "line_end": 548,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-004",
+        "CBR-008"
+      ],
+      "reasoning": "只在B分量加入编码明文的公式成立；明确编码需使用密文实际尺度，编码舍入误差仍计入预算。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Ciphertext-to-Ciphertext Multiplication",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-mult-cipher",
+      "own_label": "subsec:ckks-mult-cipher",
+      "line_start": 549,
+      "unit_id": "d03-ckks-009",
+      "line_end": 584,
+      "status": "corrected",
+      "findings": [
+        "CBR-005",
+        "CBR-008",
+        "CBR-009"
+      ],
+      "reasoning": "核对乘法各阶段职责：张量积增尺度、重线性化减分量数、实际模数比重缩放；不从层级编号自动推出正确性。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Synthetic Ciphertext Derivation",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-mult-cipher-relation",
+      "own_label": "subsubsec:ckks-mult-cipher-relation",
+      "line_start": 585,
+      "unit_id": "d03-ckks-010",
+      "line_end": 653,
+      "status": "corrected",
+      "findings": [
+        "CBR-005"
+      ],
+      "reasoning": "展开三分量相位并保留 ΔM1E2、ΔM2E1、E1E2；统一(A,B)顺序，重线性化不自动恢复尺度。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Relinearization  Method 1 -- Ciphertext Decomposition",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:relinearization-gadget-decomposition",
+      "own_label": "subsubsec:relinearization-gadget-decomposition",
+      "line_start": 654,
+      "unit_id": "d03-ckks-011",
+      "line_end": 686,
+      "status": "corrected",
+      "findings": [
+        "CBR-006"
+      ],
+      "reasoning": "发现下降q/β^i和升序β^(i-1)的数位/权重混用；对任意q显式给出升序整数gadget和完整精确分解，求值密钥按同一权重生成。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Relinearization Method 2 -- Ciphertext Modulus Switch",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:relinearization-modulus-switch",
+      "own_label": "subsubsec:relinearization-modulus-switch",
+      "line_start": 687,
+      "unit_id": "d03-ckks-012",
+      "line_end": 831,
+      "status": "corrected",
+      "findings": [
+        "CBR-007"
+      ],
+      "reasoning": "逐式核查模gq乘法、代表元与除g舍入；原舍入分配错误。新增RA、RB，保留RB+RA S及扩大g仍不能消掉的舍入项。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Rescaling",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-mult-cipher-rescale",
+      "own_label": "subsubsec:ckks-mult-cipher-rescale",
+      "line_start": 832,
+      "unit_id": "d03-ckks-013",
+      "line_end": 894,
+      "status": "corrected",
+      "findings": [
+        "CBR-008"
+      ],
+      "reasoning": "实际除数w_l决定输出scale；推导Δout=Δin/w_l和F/w_l+RB+RA S。区分尺度元数据和系数舍入，补充RNS总模数安全语义。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Initial Scaling Factor $\\bm\\Delta$ Upon Encryption:",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-mult-cipher-rescale",
+      "own_label": null,
+      "line_start": 895,
+      "unit_id": "d03-ckks-014",
+      "line_end": 896,
+      "status": "corrected",
+      "findings": [
+        "CBR-008"
+      ],
+      "reasoning": "初始Δ不是必须等于最高链素数；应由精度、消息界和链安排选择。近似相等的素数不能代替实际尺度追踪。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Noise Growth:",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-mult-cipher-rescale",
+      "own_label": null,
+      "line_start": 897,
+      "unit_id": "d03-ckks-015",
+      "line_end": 899,
+      "status": "corrected",
+      "findings": [
+        "CBR-008",
+        "CBR-009"
+      ],
+      "reasoning": "检查“噪声缩小/必增”的量纲和相位：旧误差缩小但新增舍入，绝对/相对误差不同，不能对任意输入断言同一增减规律。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Comparing BFV and CKKS Bootstrapping",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:bfv-bootstrapping-ckks-comparison",
+      "own_label": "subsubsec:bfv-bootstrapping-ckks-comparison",
+      "line_start": 900,
+      "unit_id": "d03-ckks-016",
+      "line_end": 906,
+      "status": "corrected",
+      "findings": [
+        "CBR-009",
+        "CBR-013"
+      ],
+      "reasoning": "阅读BFV/CKKS比较及后续自举叙述；删除固定BFV模数支持无限乘法的结论，说明CKKS提升直接暴露相位而非另做秘密内积。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Multiplicative Level:",
+      "heading_command": "para",
+      "label": "subsubsec:bfv-bootstrapping-ckks-comparison",
+      "own_label": null,
+      "line_start": 907,
+      "unit_id": "d03-ckks-017",
+      "line_end": 908,
+      "status": "corrected",
+      "findings": [
+        "CBR-009"
+      ],
+      "reasoning": "层级是模数链/缩放预算；固定BFV也有噪声限额，CKKS常量尺度1乘法等不必自动消耗重缩放层。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Limitation of Noise Handling:",
+      "heading_command": "para",
+      "label": "subsubsec:bfv-bootstrapping-ckks-comparison",
+      "own_label": null,
+      "line_start": 909,
+      "unit_id": "d03-ckks-018",
+      "line_end": 911,
+      "status": "corrected",
+      "findings": [
+        "CBR-008",
+        "CBR-009"
+      ],
+      "reasoning": "分析重缩放同时改变旧误差和模数，并引入舍入；自举恢复空间不等于恢复丢失精度，不用单一比率代替全部正确性。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Summary",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-mult-cipher-summary",
+      "own_label": "subsubsec:ckks-mult-cipher-summary",
+      "line_start": 912,
+      "unit_id": "d03-ckks-019",
+      "line_end": 1006,
+      "status": "corrected",
+      "findings": [
+        "CBR-005",
+        "CBR-007",
+        "CBR-008"
+      ],
+      "reasoning": "对照前面乘法、求值密钥和重缩放关系逐行检查总结；使用明确输出scale和误差，纠正把所有步骤视为精确加密恒等式的表述。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Swapping the Order of \\textsf{Relinearization} and \\textsf{Rescaling}: ",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-mult-cipher-summary",
+      "own_label": null,
+      "line_start": 1007,
+      "unit_id": "d03-ckks-020",
+      "line_end": 1011,
+      "status": "corrected",
+      "findings": [
+        "CBR-009"
+      ],
+      "reasoning": "先缩放三分量时舍入由(1,S,S²)传播，后续relinearization key必须适用于新模数；交换顺序不是无条件同噪声等价。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Ciphertext-to-Plaintext Multiplication",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-mult-plain",
+      "own_label": "subsec:ckks-mult-plain",
+      "line_start": 1012,
+      "unit_id": "d03-ckks-021",
+      "line_end": 1057,
+      "status": "corrected",
+      "findings": [
+        "CBR-008"
+      ],
+      "reasoning": "检查明文编码尺度及乘后误差传播；一般输出scale为ΔΔΛ，精确整数可取ΔΛ=1，不必强制每次重缩放。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "\\textsf{ModDrop}",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-moddrop",
+      "own_label": "subsec:ckks-moddrop",
+      "line_start": 1058,
+      "unit_id": "d03-ckks-022",
+      "line_end": 1109,
+      "status": "corrected",
+      "findings": [
+        "CBR-010"
+      ],
+      "reasoning": "按q′|q证明相位同余；补漏掉的分量回绕经S传播，用完整小模数相位界判断消息是否保持。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Difference between Modulus Switch and \\textsf{ModDrop}",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-moddrop-vs-modswitch",
+      "own_label": "subsubsec:ckks-moddrop-vs-modswitch",
+      "line_start": 1110,
+      "unit_id": "d03-ckks-023",
+      "line_end": 1116,
+      "status": "corrected",
+      "findings": [
+        "CBR-008",
+        "CBR-010"
+      ],
+      "reasoning": "区分rescale实际除法与ModDrop裸约减；保留尺度和噪声的条件已明确，并说明可用于中途层级对齐。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Homomorphic Key Switching",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-key-switching",
+      "own_label": "subsec:ckks-key-switching",
+      "line_start": 1117,
+      "unit_id": "d03-ckks-024",
+      "line_end": 1130,
+      "status": "corrected",
+      "findings": [
+        "CBR-006",
+        "CBR-007"
+      ],
+      "reasoning": "用与重线性化一致的整数gadget重写密钥切换；新相位含ΣdiEi，输出秘密S′与输入S一致对应。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Homomorphic Rotation of Input Vector Slots",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-rotation",
+      "own_label": "subsec:ckks-rotation",
+      "line_start": 1131,
+      "unit_id": "d03-ckks-025",
+      "line_end": 1174,
+      "status": "corrected",
+      "findings": [
+        "CBR-002",
+        "CBR-011"
+      ],
+      "reasoning": "按指数乘法检查两个根轨道旋转方向；两半同向左移。修正编码矩阵次序、不同域的矩阵语义和自同构后的秘密。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Rotation within Half Slots:",
+      "heading_command": "para",
+      "label": "subsec:ckks-rotation",
+      "own_label": null,
+      "line_start": 1175,
+      "unit_id": "d03-ckks-026",
+      "line_end": 1179,
+      "status": "corrected",
+      "findings": [
+        "CBR-011"
+      ],
+      "reasoning": "一个5^h自同构只旋转各轨道，不等于所有掩码/自同构组合都不能全局置换；CKKS n/2独立复槽与BFV n标量槽区别已更正。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Example",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-rotation-ex",
+      "own_label": "subsubsec:ckks-rotation-ex",
+      "line_start": 1180,
+      "unit_id": "d03-ckks-027",
+      "line_end": 1277,
+      "status": "corrected",
+      "findings": [
+        "CBR-003",
+        "CBR-011"
+      ],
+      "reasoning": "逐行验证X→X5的负循环系数、解码复数向量。修正未旋转输入误标h=1及缺少回到原密钥的key switching。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Source Code:",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-rotation-ex",
+      "own_label": null,
+      "line_start": 1278,
+      "unit_id": "d03-ckks-028",
+      "line_end": 1283,
+      "status": "reviewed_no_material_issue",
+      "findings": [],
+      "reasoning": "阅读旋转源码示例链接；本报告验证环自同构及数值结果，完整程序由总审校处理，不把教育示例当生产库。",
+      "primary_sources": []
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Contemplation on CKKS Encoding",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-encoding-contemplate",
+      "own_label": "subsec:ckks-encoding-contemplate",
+      "line_start": 1284,
+      "unit_id": "d03-ckks-029",
+      "line_end": 1286,
+      "status": "corrected",
+      "findings": [
+        "CBR-002"
+      ],
+      "reasoning": "审查为何选二次幂分圆环的论证。任意互异点都给可逆Vandermonde；单位根另提供环乘法兼容、共轭及快速变换，原因不能只归于可逆。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Why CKKS's Encoding Uses the $\\bm{(\\mu=2n)}$-th Cyclotomic Polynomial:",
+      "heading_command": "para",
+      "label": "subsec:ckks-encoding-contemplate",
+      "own_label": null,
+      "line_start": 1287,
+      "unit_id": "d03-ckks-030",
+      "line_end": 1291,
+      "status": "corrected",
+      "findings": [
+        "CBR-002"
+      ],
+      "reasoning": "逐句检查“只有此类根才保证逆矩阵”的逻辑，改为互异点的普遍可逆性及分圆环的额外性质。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Homomorphic Conjugation",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-conjugation",
+      "own_label": "subsec:ckks-conjugation",
+      "line_start": 1292,
+      "unit_id": "d03-ckks-031",
+      "line_end": 1330,
+      "status": "corrected",
+      "findings": [
+        "CBR-011"
+      ],
+      "reasoning": "验证实系数M满足conj(M(ζ))=M(ζ^-1)，保留原选定根序；操作后需要从S(X^-1)切回S(X)。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Sparsely Packing Ciphertexts",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-sparse-packing",
+      "own_label": "subsec:ckks-sparse-packing",
+      "line_start": 1331,
+      "unit_id": "d03-ckks-032",
+      "line_end": 1353,
+      "status": "corrected",
+      "findings": [
+        "CBR-012"
+      ],
+      "reasoning": "检查稀疏子环与重复槽的双向关系；正向包含成立，逆向补等维与单射论证，并声明n′为至少2的因子。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Forward Proof: Decoding of Sparsely Packed Ciphertext",
+      "heading_command": "subsubsection",
+      "label": "subsec:ckks-sparse-packing",
+      "own_label": null,
+      "line_start": 1354,
+      "unit_id": "d03-ckks-033",
+      "line_end": 1389,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-012"
+      ],
+      "reasoning": "实际检查正向根指数计算和重复周期；在二次幂n、偶因子n′下成立。新增逆向证明位于上一单元，未篡改正确正向计算。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Modulus Bootstrapping",
+      "heading_command": "subsection",
+      "label": "subsec:ckks-bootstrapping",
+      "own_label": "subsec:ckks-bootstrapping",
+      "line_start": 1390,
+      "unit_id": "d03-ckks-034",
+      "line_end": 1411,
+      "status": "corrected",
+      "findings": [
+        "CBR-013"
+      ],
+      "reasoning": "核对bootstrap入口相位及模数恢复目标；保留整数lift的q0K，输出只能在支付电路后剩余层级，不承诺直接回qL。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "High-level Idea",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-bootstrapping-high-level",
+      "own_label": "subsubsec:ckks-bootstrapping-high-level",
+      "line_start": 1412,
+      "unit_id": "d03-ckks-035",
+      "line_end": 1481,
+      "status": "corrected",
+      "findings": [
+        "CBR-013",
+        "CBR-014"
+      ],
+      "reasoning": "核对lift的无回绕界、正弦周期/局部斜率、输入r/q0小量要求。新增可检查的三次正弦误差界，修正表格将函数编码一次乘法当求值。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Mathematical Expansion of the High-level Idea",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-bootstrapping-high-level-correctness",
+      "own_label": "subsubsec:ckks-bootstrapping-high-level-correctness",
+      "line_start": 1482,
+      "unit_id": "d03-ckks-036",
+      "line_end": 1509,
+      "status": "corrected",
+      "findings": [
+        "CBR-013"
+      ],
+      "reasoning": "原Enc/Dec消去推导在随机带噪语义下不成立；逐步骤改为相位解释和实际密文电路，保留原五个para标题。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "\\textsf{\\textbf{\\underline{ModRaise}:}}",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-bootstrapping-high-level-correctness",
+      "own_label": null,
+      "line_start": 1510,
+      "unit_id": "d03-ckks-037",
+      "line_end": 1517,
+      "status": "corrected",
+      "findings": [
+        "CBR-013"
+      ],
+      "reasoning": "ModRaise只提升公共分量代表元，不在明文中算AS或暴露秘密。要求工作模数容纳完整lift相位。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "\\textsf{\\textbf{\\underline{CoeffToSlot}:}}",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-bootstrapping-high-level-correctness",
+      "own_label": null,
+      "line_start": 1518,
+      "unit_id": "d03-ckks-038",
+      "line_end": 1543,
+      "status": "corrected",
+      "findings": [
+        "CBR-002",
+        "CBR-013"
+      ],
+      "reasoning": "实际逆嵌入是实线性变换，需旋转、共轭、明文常数乘和加法；n个实系数分入两个n/2槽密文。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "\\textsf{\\textbf{\\underline{EvalExp}:}}",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-bootstrapping-high-level-correctness",
+      "own_label": null,
+      "line_start": 1544,
+      "unit_id": "d03-ckks-039",
+      "line_end": 1557,
+      "status": "corrected",
+      "findings": [
+        "CBR-013",
+        "CBR-014"
+      ],
+      "reasoning": "EvalExp是非线性多项式电路，输出定义含原误差及新误差；不能和线性矩阵交换，也不是单次乘函数的编码。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "\\textsf{\\textbf{\\underline{SlotToCoeff}:}}",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-bootstrapping-high-level-correctness",
+      "own_label": null,
+      "line_start": 1558,
+      "unit_id": "d03-ckks-040",
+      "line_end": 1568,
+      "status": "corrected",
+      "findings": [
+        "CBR-002",
+        "CBR-013"
+      ],
+      "reasoning": "逆线性打包恢复多项式系数，最终保持tracked scale和全部误差；与另一个独立加密或精确恢复不同。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "\\textsf{\\textbf{\\underline{Bootstrapping Without a Secret Key}:}}",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-bootstrapping-high-level-correctness",
+      "own_label": null,
+      "line_start": 1569,
+      "unit_id": "d03-ckks-041",
+      "line_end": 1609,
+      "status": "corrected",
+      "findings": [
+        "CBR-013"
+      ],
+      "reasoning": "检查无需秘密的理由；公开求值密钥支持实际电路，但Enc(Dec(ct))≠ct。删除用随机加密恒等式形式化消去步骤的解释。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Details: \\textsf{CoeffToSlot}",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-bootstrapping-coefftoslot-details",
+      "own_label": "subsubsec:ckks-bootstrapping-coefftoslot-details",
+      "line_start": 1610,
+      "unit_id": "d03-ckks-042",
+      "line_end": 1667,
+      "status": "corrected",
+      "findings": [
+        "CBR-002",
+        "CBR-013"
+      ],
+      "reasoning": "用U尺寸n/2×n及U0/U1推导两半系数，明确共轭项与1/n；矩阵和向量在槽语义下同态实现，不能直接操作不可见系数。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Details: \\textsf{EvalExp}",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-bootstrapping-evalexp-details",
+      "own_label": "subsubsec:ckks-bootstrapping-evalexp-details",
+      "line_start": 1668,
+      "unit_id": "d03-ckks-043",
+      "line_end": 1751,
+      "status": "corrected",
+      "findings": [
+        "CBR-014"
+      ],
+      "reasoning": "逐式阅读Taylor、Euler、重复平方和三步算法；纠正指数复杂度、角度界、重复平方误差和最后漏乘q0/(2π)。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Details: \\textsf{SlotToCoeff}",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-bootstrapping-slottocoeff-details",
+      "own_label": "subsubsec:ckks-bootstrapping-slottocoeff-details",
+      "line_start": 1752,
+      "unit_id": "d03-ckks-044",
+      "line_end": 1795,
+      "status": "corrected",
+      "findings": [
+        "CBR-002",
+        "CBR-013"
+      ],
+      "reasoning": "验证U0b0+U1b1恢复n/2复槽。隐含共轭半不是第二次相同多项式加密；最终变换误差和实际输出scale均保留。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Reducing the Bootstrapping Overhead by Sparsely Packing Ciphertext",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-bootstrapping-time-reduction",
+      "own_label": "subsubsec:ckks-bootstrapping-time-reduction",
+      "line_start": 1796,
+      "unit_id": "d03-ckks-045",
+      "line_end": 1822,
+      "status": "corrected",
+      "findings": [
+        "CBR-015"
+      ],
+      "reasoning": "对照原论文§5.2发现缺PartialSum；脚本验证子群迹。修正n′与n/n′数量、复制移位和log轮数，并说明归一化与节省依参数。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Summary",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-bootstrapping-summary",
+      "own_label": "subsubsec:ckks-bootstrapping-summary",
+      "line_start": 1823,
+      "unit_id": "d03-ckks-046",
+      "line_end": 1883,
+      "status": "corrected",
+      "findings": [
+        "CBR-013",
+        "CBR-015"
+      ],
+      "reasoning": "逐行检查总流程与高层/细节一致性，明确普通/稀疏分支、非线性近似和输出剩余模数；不遗漏旧误差及新增误差。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Comparison between BFV and CKKS Bootstrapping:",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-bootstrapping-summary",
+      "own_label": null,
+      "line_start": 1884,
+      "unit_id": "d03-ckks-047",
+      "line_end": 1893,
+      "status": "corrected",
+      "findings": [
+        "CBR-009",
+        "CBR-013"
+      ],
+      "reasoning": "删除所有误差必然按固定量积累最终溢出的无条件断言；指出数值算法、预算和输入范围决定可执行工作，自举不恢复已丢信息。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Reducing the Bootstrapping Noise",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:ckks-bootstrapping-noise-reduction",
+      "own_label": "subsubsec:ckks-bootstrapping-noise-reduction",
+      "line_start": 1894,
+      "unit_id": "d03-ckks-048",
+      "line_end": 1920,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-013",
+        "CBR-017"
+      ],
+      "reasoning": "阅读三类自举误差分类，分类可作解释但不是相互独立/固定常数的定理；需联合量化算术、近似及局部正弦误差。",
+      "primary_sources": [
+        "https://eprint.iacr.org/2020/552",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "$\\bm{\\arcsin(\\sin(x))}$ Approximation (\\href{https://dl.acm.org/doi/10.1007/978-3-030-77870-5_22}{EUROCRYPT 2021}~\\cite{cryptoeprint:2020/552}):",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-bootstrapping-noise-reduction",
+      "own_label": null,
+      "line_start": 1921,
+      "unit_id": "d03-ckks-049",
+      "line_end": 1924,
+      "status": "corrected",
+      "findings": [
+        "CBR-017"
+      ],
+      "reasoning": "独立主值反例和作者提供全文§5.1式(4)核实局部定义域0<epsilon<1/4；§5.2 Table7的次数15/9/7/5/5否定普遍固定三层。§4误差限制限于固定参数/实现；未重跑SEAL实验。",
+      "primary_sources": [
+        "https://eprint.iacr.org/2020/552",
+        "https://drive.google.com/file/d/1Leyad-pmhT69ugUpdA3K04aetgoocIV5/view"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Meta-BTS (\\href{https://dl.acm.org/doi/10.1145/3548606.3560696}{CCS 2022}~\\cite{cryptoeprint:2022/1167}):",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-bootstrapping-noise-reduction",
+      "own_label": null,
+      "line_start": 1925,
+      "unit_id": "d03-ckks-050",
+      "line_end": 1935,
+      "status": "partially_verified",
+      "findings": [
+        "CBR-016"
+      ],
+      "reasoning": "独立代数及原论文§1.1、Theorem3.2/Corollary4.2正文缓存确认纠错符号、尺度和剩余模数条件；未取得并逐段核查全文，保留完整定量保证边界。",
+      "primary_sources": [
+        "https://eprint.iacr.org/2022/1167"
+      ]
+    },
+    {
+      "file": "d03-ckks.tex",
+      "heading": "Limitation in Noise Handling:",
+      "heading_command": "para",
+      "label": "subsubsec:ckks-bootstrapping-noise-reduction",
+      "own_label": null,
+      "line_start": 1936,
+      "unit_id": "d03-ckks-051",
+      "line_end": 1939,
+      "status": "partially_verified",
+      "findings": [
+        "CBR-016",
+        "CBR-017"
+      ],
+      "reasoning": "不接受无输入/参数条件的指数收敛或无限精度提高；保留纠错可改善新增误差的条件式说明，精度floor和完整论文参数仍待具体实例。",
+      "primary_sources": [
+        "https://eprint.iacr.org/2020/552",
+        "https://eprint.iacr.org/2022/1167"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "unit_id": "d04-bgv-intro",
+      "heading": "[章首导言]",
+      "heading_command": "introduction",
+      "label": null,
+      "own_label": null,
+      "line_start": 1,
+      "line_end": 46,
+      "status": "corrected",
+      "findings": [
+        "CBR-018",
+        "CBR-019",
+        "CBR-021"
+      ],
+      "reasoning": "核查有限明文精确性、BFV/BGV相位差别和高低位图像；固定BFV也受noise budget限制，BGV t为整除因子而非不断平方的消息scale。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Encoding and Decoding",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-encoding-decoding",
+      "own_label": "subsec:bgv-encoding-decoding",
+      "line_start": 47,
+      "unit_id": "d04-bgv-001",
+      "line_end": 103,
+      "status": "corrected",
+      "findings": [
+        "CBR-018"
+      ],
+      "reasoning": "核对n标量槽编码需要t素且1 mod2n；明确选定代表元不是环包含，更一般BGV可使用素数幂或扩张槽，未将本特例当定义。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Encryption and Decryption",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-enc-dec",
+      "own_label": "subsec:bgv-enc-dec",
+      "line_start": 104,
+      "unit_id": "d04-bgv-002",
+      "line_end": 172,
+      "status": "corrected",
+      "findings": [
+        "CBR-019"
+      ],
+      "reasoning": "核查B=-AS+M+tE的符号、相位约减顺序、噪声整除与中心化q/2界；纠正E自身为t倍数的说法并限定高低位比喻。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Ciphertext-to-Ciphertext Addition",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-add-cipher",
+      "own_label": "subsec:bgv-add-cipher",
+      "line_start": 173,
+      "unit_id": "d04-bgv-003",
+      "line_end": 188,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-019"
+      ],
+      "reasoning": "逐分量相加和t整除误差闭合，原基本式成立；沿章节统一约定要求相同参数、结果相位界，并允许消息mod t约减带来的整数进位。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Ciphertext-to-Plaintext Addition",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-add-plain",
+      "own_label": "subsec:bgv-add-plain",
+      "line_start": 189,
+      "unit_id": "d04-bgv-004",
+      "line_end": 204,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-019"
+      ],
+      "reasoning": "只向B加Λ、不乘BFV尺度的公式正确；按选定明文代表元和整体相位界解释，保持原算法。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Ciphertext-to-Plaintext Multiplication",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-mult-plain",
+      "own_label": "subsec:bgv-mult-plain",
+      "line_start": 205,
+      "unit_id": "d04-bgv-005",
+      "line_end": 225,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-019",
+        "CBR-021"
+      ],
+      "reasoning": "A、B同乘Λ，phase=MΛ+tEΛ正确；多项式卷积与消息约减可增误差，不能因形式相同就忽略BGV特有整除条件。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "\\textsf{ModDrop}",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-moddrop",
+      "own_label": "subsec:bgv-moddrop",
+      "line_start": 226,
+      "unit_id": "d04-bgv-006",
+      "line_end": 275,
+      "status": "corrected",
+      "findings": [
+        "CBR-019"
+      ],
+      "reasoning": "逐项分析删除模数后的相位；新增||M+tE||<qnew/2，否则回绕可改mod t消息。裸ModDrop不是噪声重置。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Modulus Switch",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-modulus-switch",
+      "own_label": "subsec:bgv-modulus-switch",
+      "line_start": 276,
+      "unit_id": "d04-bgv-007",
+      "line_end": 496,
+      "status": "corrected",
+      "findings": [
+        "CBR-020"
+      ],
+      "reasoning": "完整审读原长证明，用same overflow K和congruence correction构造Y；补纠正后的严格phase余量。q≡qhat≡1只作为明确特例。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Difference between Modulus Switch and \\textsf{ModDrop}",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:bgv-moddrop-vs-modswitch",
+      "own_label": "subsubsec:bgv-moddrop-vs-modswitch",
+      "line_start": 497,
+      "unit_id": "d04-bgv-008",
+      "line_end": 505,
+      "status": "corrected",
+      "findings": [
+        "CBR-020",
+        "CBR-021"
+      ],
+      "reasoning": "区分因子t固定与相位大小变化；纠正把模切换说成改变t或reset噪声，说明ModDrop减少余量。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Source Code:",
+      "heading_command": "para",
+      "label": "subsubsec:bgv-moddrop-vs-modswitch",
+      "own_label": null,
+      "line_start": 506,
+      "unit_id": "d04-bgv-009",
+      "line_end": 508,
+      "status": "reviewed_no_material_issue",
+      "findings": [],
+      "reasoning": "阅读bgv.py例子链接，说明实现须满足本节参数/相位条件；完整源码审查由总任务处理，此标题单元不是正确性证明。",
+      "primary_sources": []
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Ciphertext-to-Ciphertext Multiplication",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-mult-cipher",
+      "own_label": "subsec:bgv-mult-cipher",
+      "line_start": 509,
+      "unit_id": "d04-bgv-010",
+      "line_end": 577,
+      "status": "corrected",
+      "findings": [
+        "CBR-021"
+      ],
+      "reasoning": "直接展开乘积并给t整除的relinearization key；统一(A,B)顺序，实际BGV切换替代“除t到t倍数”误解。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Swapping the Order of \\textsf{Relinearization} and \\textsf{Rescaling}: ",
+      "heading_command": "para",
+      "label": "subsec:bgv-mult-cipher",
+      "own_label": null,
+      "line_start": 578,
+      "unit_id": "d04-bgv-011",
+      "line_end": 581,
+      "status": "corrected",
+      "findings": [
+        "CBR-021"
+      ],
+      "reasoning": "交换次序需要按三分量秘密(1,S,S²)计舍入且新层key可用；不是无条件相同噪声的等价。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Details of the Optional Rescaling:",
+      "heading_command": "para",
+      "label": "subsec:bgv-mult-cipher",
+      "own_label": null,
+      "line_start": 582,
+      "unit_id": "d04-bgv-012",
+      "line_end": 586,
+      "status": "corrected",
+      "findings": [
+        "CBR-021"
+      ],
+      "reasoning": "反驳t→t²→t4作为scheme factor；w>t不能单独保证误差比两个输入都小，卷积、消息和密钥误差共同决定。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Homomorphic Key Switching",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-key-switching",
+      "own_label": "subsec:bgv-key-switching",
+      "line_start": 587,
+      "unit_id": "d04-bgv-013",
+      "line_end": 597,
+      "status": "corrected",
+      "findings": [
+        "CBR-021"
+      ],
+      "reasoning": "改为显式整数gadget和g_i S+tEi求值密钥，给输出phase及ΣdiEi；普通未乘t的key误差会改明文。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Homomorphic Rotation of Input Vector Slots",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-rotation",
+      "own_label": "subsec:bgv-rotation",
+      "line_start": 598,
+      "unit_id": "d04-bgv-014",
+      "line_end": 630,
+      "status": "corrected",
+      "findings": [
+        "CBR-018",
+        "CBR-021"
+      ],
+      "reasoning": "核对5^h在完全分裂两个轨道中的左移；自同构后用含t倍误差的key切回S，其他布局不强行套同一排列。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Modulus Bootstrapping",
+      "heading_command": "subsection",
+      "label": "subsec:bgv-bootstrapping",
+      "own_label": "subsec:bgv-bootstrapping",
+      "line_start": 631,
+      "unit_id": "d04-bgv-015",
+      "line_end": 708,
+      "status": "corrected",
+      "findings": [
+        "CBR-022",
+        "CBR-023",
+        "CBR-024"
+      ],
+      "reasoning": "逐式对照GV式8/10，发现旧帽分量误用、K′界缺项、ModRaise/同态解密链不完整；替换为有来源的公开预处理+加密秘密内积流程；补gcd(p,cyclotomic index)=1，本书二次幂环需奇p。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "\\underline{Handling the Divisions by $p$}:",
+      "heading_command": "para",
+      "label": "subsec:bgv-bootstrapping",
+      "own_label": null,
+      "line_start": 709,
+      "unit_id": "d04-bgv-016",
+      "line_end": 776,
+      "status": "corrected",
+      "findings": [
+        "CBR-023"
+      ],
+      "reasoning": "确认p只在cipher modulus下可逆；digit subtraction使phase可整除后才能精确除p，并将plaintext modulus pj降为pj−1。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Discussion",
+      "heading_command": "subsubsection",
+      "label": "subsec:bgv-bootstrapping",
+      "own_label": null,
+      "line_start": 777,
+      "unit_id": "d04-bgv-017",
+      "line_end": 778,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-022",
+        "CBR-024"
+      ],
+      "reasoning": "通读下面三个讨论段落，检查特殊modulus、epsilon和pr推广与新流程一致；不额外断言完整失败概率或性能。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "The Reason for Modulus Switch from $q_l \\rightarrow \\hat{q}$",
+      "heading_command": "para",
+      "label": "subsec:bgv-bootstrapping",
+      "own_label": null,
+      "line_start": 779,
+      "unit_id": "d04-bgv-018",
+      "line_end": 782,
+      "status": "corrected",
+      "findings": [
+        "CBR-022",
+        "CBR-024"
+      ],
+      "reasoning": "qhat≡1 mod pe的作用是让qhat K′在plaintext modulus下变K′，不能自动bound K′；普通modswitch也不要求目标为原模数因子。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "The Choice of $\\varepsilon$:",
+      "heading_command": "para",
+      "label": "subsec:bgv-bootstrapping",
+      "own_label": null,
+      "line_start": 783,
+      "unit_id": "d04-bgv-019",
+      "line_end": 787,
+      "status": "corrected",
+      "findings": [
+        "CBR-022"
+      ],
+      "reasoning": "epsilon增大也放大pe E/q，不能只看高低数字gap；须选确定性界或明确secret/noise分布和目标失败率。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Generalization to $\\Delta = p^r$:",
+      "heading_command": "para",
+      "label": "subsec:bgv-bootstrapping",
+      "own_label": null,
+      "line_start": 788,
+      "unit_id": "d04-bgv-020",
+      "line_end": 795,
+      "status": "corrected",
+      "findings": [
+        "CBR-023",
+        "CBR-024"
+      ],
+      "reasoning": "推广t=pr时用p^(epsilon-r)、相应rounding gap与epsilon-r轮；BFV公开缩放预处理不同，不能交换scheme尺度。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download"
+      ]
+    },
+    {
+      "file": "d04-bgv.tex",
+      "heading": "Comparing the Bootstrapping in BFV, BGV, and CKKS",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:bootstrapping-differences",
+      "own_label": "subsubsec:bootstrapping-differences",
+      "line_start": 796,
+      "unit_id": "d04-bgv-021",
+      "line_end": 806,
+      "status": "corrected",
+      "findings": [
+        "CBR-013",
+        "CBR-024"
+      ],
+      "reasoning": "对照三种已核实自举，区分精确digit extraction与CKKS approximate periodic reduction；删除固定噪声单调增减及一般reinterpretation说法。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "unit_id": "d05-rns-intro",
+      "heading": "[章首导言]",
+      "heading_command": "introduction",
+      "label": null,
+      "own_label": null,
+      "line_start": 1,
+      "line_end": 40,
+      "status": "corrected",
+      "findings": [
+        "CBR-025",
+        "CBR-038"
+      ],
+      "reasoning": "核查RNS定义、奇数中心化端点、机器字表示和security参数；不把某个bit length或TFHE实现选择说成所有方案的定理。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://www.shoup.net/papers/rns-bfv.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Fast Base Conversion: \\textsf{FastBConv}",
+      "heading_command": "subsection",
+      "label": "subsec:rns-fastbconv",
+      "own_label": "subsec:rns-fastbconv",
+      "line_start": 41,
+      "unit_id": "d05-rns-001",
+      "line_end": 114,
+      "status": "corrected",
+      "findings": [
+        "CBR-025"
+      ],
+      "reasoning": "逐项检查CRT权重、目标base维数和shared lift；原较松u界可成立但证明漏x。使用odd centered convention给|u|≤floor(k/2)。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Small Montgomery Reduction Algorithm: \\textsf{SmallMont}",
+      "heading_command": "subsection",
+      "label": "subsec:rns-smallmont",
+      "own_label": "subsec:rns-smallmont",
+      "line_start": 115,
+      "unit_id": "d05-rns-002",
+      "line_end": 216,
+      "status": "corrected",
+      "findings": [
+        "CBR-026"
+      ],
+      "reasoning": "检查辅助residue数据流与整除性；原nested mod丢bα信息。给中心化变体的bα>Uk+1/2充分界，明确非exact。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Improving \\textsf{FastBConv} by Using \\textsf{SmallMont}",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-smallmont-fastbconv",
+      "own_label": "subsubsec:rns-smallmont-fastbconv",
+      "line_start": 217,
+      "unit_id": "d05-rns-003",
+      "line_end": 233,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-026"
+      ],
+      "reasoning": "前乘bα→FastBConv→SmallMont的组合成立，但只能得到x+u′q；保留预处理及辅助条件，并区别FastBConvEx。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "RNS-based ModRaise: \\textsf{ModRaise\\textsubscript{RNS}}",
+      "heading_command": "subsection",
+      "label": "subsec:rns-modraise",
+      "own_label": "subsec:rns-modraise",
+      "line_start": 234,
+      "unit_id": "d05-rns-004",
+      "line_end": 300,
+      "status": "corrected",
+      "findings": [
+        "CBR-027"
+      ],
+      "reasoning": "验证拼接原/新base表示同一个x+uq；不是自然环包含。cipher phase扰动q(UB+UA S)而非单个qU。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "RNS-based ModDrop: \\textsf{ModDrop\\textsubscript{RNS}}",
+      "heading_command": "subsection",
+      "label": "subsec:rns-moddrop",
+      "own_label": "subsec:rns-moddrop",
+      "line_start": 301,
+      "unit_id": "d05-rns-005",
+      "line_end": 344,
+      "status": "corrected",
+      "findings": [
+        "CBR-028"
+      ],
+      "reasoning": "删除base坐标是exact，但BFVscale改变可使消息变化；明确CKKS/BGV较小phase界，给q105→35消息1→3反例。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "RNS-based Modulus Switch: \\textsf{ModSwitch\\textsubscript{RNS}}",
+      "heading_command": "subsection",
+      "label": "subsec:rns-modswitch",
+      "own_label": "subsec:rns-modswitch",
+      "line_start": 345,
+      "unit_id": "d05-rns-006",
+      "line_end": 444,
+      "status": "corrected",
+      "findings": [
+        "CBR-029"
+      ],
+      "reasoning": "推导r=[x]b、lift=r+ub后输出round(x/b)−u；单因子exact，多因子error受控，除数与目标的大小关系非定义前提。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Comparing \\textsf{ModSwitch\\textsubscript{RNS}}, \\textsf{ModRaise\\textsubscript{RNS}}, and \\textsf{ModDrop\\textsubscript{RNS}}",
+      "heading_command": "subsubsection",
+      "label": "subsec:rns-modswitch",
+      "own_label": null,
+      "line_start": 445,
+      "unit_id": "d05-rns-007",
+      "line_end": 451,
+      "status": "corrected",
+      "findings": [
+        "CBR-027",
+        "CBR-028",
+        "CBR-029"
+      ],
+      "reasoning": "按整数lift、精确约减、近似除法区分三者，不能用同一个“都保持消息/都加噪声”的叙述，补scheme-dependent条件。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "RNS-based Decryption",
+      "heading_command": "subsection",
+      "label": "subsec:rns-dec",
+      "own_label": "subsec:rns-dec",
+      "line_start": 452,
+      "unit_id": "d05-rns-008",
+      "line_end": 457,
+      "status": "reviewed_no_material_issue",
+      "findings": [],
+      "reasoning": "此父小节是BFV/CKKS/BGV解密说明的引导句；已读并检查其下两个算法，发现分别记录在后续单元，不在引导句重复宣称新算法正确。",
+      "primary_sources": []
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "BFV Decryption: $\\textsf{Dec}_{\\textsf{RNS}}^{\\textsf{BFV}}$",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-dec-bfv",
+      "own_label": "subsubsec:rns-dec-bfv",
+      "line_start": 458,
+      "unit_id": "d05-rns-009",
+      "line_end": 576,
+      "status": "corrected",
+      "findings": [
+        "CBR-030"
+      ],
+      "reasoning": "通读原冗余模数证明与全部算法步骤；统一负AS约定、标准t/q解码、nearest-vs-floor和gamma/2门槛。穷举展示任意互素gamma不足。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://www.shoup.net/papers/rns-bfv.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "CKKS and BGV Decryption",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-dec-ckks-bgv",
+      "own_label": "subsubsec:rns-dec-ckks-bgv",
+      "line_start": 577,
+      "unit_id": "d05-rns-010",
+      "line_end": 583,
+      "status": "corrected",
+      "findings": [
+        "CBR-028"
+      ],
+      "reasoning": "原一律ModDrop到最低层解密不成立；要求完整phase适合最低模数，否则CRT重构或方案正确缩放。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "BGV's RNS-based Modulus Switch: $\\textsf{ModSwitch}_{\\textsf{RNS}}^{\\textsf{BGV}}$",
+      "heading_command": "subsection",
+      "label": "subsec:rns-modswitch-bgv",
+      "own_label": "subsec:rns-modswitch-bgv",
+      "line_start": 584,
+      "unit_id": "d05-rns-011",
+      "line_end": 616,
+      "status": "corrected",
+      "findings": [
+        "CBR-031"
+      ],
+      "reasoning": "发现复用BFVdecoder时q_l逆mod qhat不存在；提供明确q=Qw,w≡1 modt的整数RNS纠正实现及phase bound，不泛化任意链。",
+      "primary_sources": [
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Exact Fast Base Conversion: \\textsf{FastBConvEx}",
+      "heading_command": "subsection",
+      "label": "subsec:rns-fastbconvex",
+      "own_label": "subsec:rns-fastbconvex",
+      "line_start": 617,
+      "unit_id": "d05-rns-012",
+      "line_end": 698,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-032"
+      ],
+      "reasoning": "原冗余纠正核心正确；逐步验证同一个CRT和、gamma恢复有符号μ+u及exact cancellation。量化范围条件，保留与SmallMont区别。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Necessity of the Centered (i.e., Signed) Residue Representation:",
+      "heading_command": "para",
+      "label": "subsec:rns-fastbconvex",
+      "own_label": null,
+      "line_start": 699,
+      "unit_id": "d05-rns-013",
+      "line_end": 705,
+      "status": "corrected",
+      "findings": [
+        "CBR-032"
+      ],
+      "reasoning": "signed residue的必要性针对本证明直接还原整数；unsigned实现也可显式恢复符号，不能说数学上绝无其他表示。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Decomposing Multiplication: \\textsf{DecompMult\\textsubscript{RNS}}",
+      "heading_command": "subsection",
+      "label": "subsec:rns-decompmult",
+      "own_label": "subsec:rns-decompmult",
+      "line_start": 706,
+      "unit_id": "d05-rns-014",
+      "line_end": 814,
+      "status": "corrected",
+      "findings": [
+        "CBR-033"
+      ],
+      "reasoning": "校验RNS gadget reconstruct及evaluation key；每个小整数digit必须映到所有moduli，不是其余坐标补零；改(A,B)顺序、secret和误差。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Applying RNS Techniques to FHE Operations",
+      "heading_command": "subsection",
+      "label": "subsec:rns-application",
+      "own_label": "subsec:rns-application",
+      "line_start": 815,
+      "unit_id": "d05-rns-015",
+      "line_end": 820,
+      "status": "reviewed_no_material_issue",
+      "findings": [],
+      "reasoning": "逐段阅读RNS应用引导，确认RNS仅改变表示，后面的方案特定缩放/噪声条件不可由该引导自动推出。",
+      "primary_sources": []
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Addition and Multiplication of Polynomials",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-application-basic",
+      "own_label": "subsubsec:rns-application-basic",
+      "line_start": 821,
+      "unit_id": "d05-rns-016",
+      "line_end": 858,
+      "status": "corrected",
+      "findings": [
+        "CBR-033"
+      ],
+      "reasoning": "标量CRT加乘等式正确且保留；新增negacyclic convolution与NTT逐点乘法区分，反例(1+X)^2验证。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Key Switching",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-application-key-switching",
+      "own_label": "subsubsec:rns-application-key-switching",
+      "line_start": 859,
+      "unit_id": "d05-rns-017",
+      "line_end": 877,
+      "status": "corrected",
+      "findings": [
+        "CBR-033"
+      ],
+      "reasoning": "逐式检查(0,B)+ΣAi evki的phase，包含ΣAiEi；BGV需t倍error，输出秘密S′一致，不能写新鲜RLWE分布恒等。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Input Slot Rotation",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-rotation",
+      "own_label": "subsubsec:rns-rotation",
+      "line_start": 878,
+      "unit_id": "d05-rns-018",
+      "line_end": 912,
+      "status": "validated_under_conditions",
+      "findings": [
+        "CBR-011",
+        "CBR-033"
+      ],
+      "reasoning": "自同构在各base中同步置换并取负是exact；随后key switching增加error。按n/2复槽和n标量槽布局说明，不改变底层置换。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "BFV's Ciphertext-to-Ciphertext Multiplication",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-cipher-mult-bfv",
+      "own_label": "subsubsec:rns-cipher-mult-bfv",
+      "line_start": 913,
+      "unit_id": "d05-rns-019",
+      "line_end": 1041,
+      "status": "corrected",
+      "findings": [
+        "CBR-026",
+        "CBR-032",
+        "CBR-033",
+        "CBR-034"
+      ],
+      "reasoning": "完整六步逐式阅读；aux range、双辅助模数、approx scale-and-round、exact-return bound、component rounding secret powers及(A,B)顺序均修正。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://www.shoup.net/papers/rns-bfv.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "CKKS's Ciphertext-to-Ciphertext Multiplication",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-cipher-mult-ckks",
+      "own_label": "subsubsec:rns-cipher-mult-ckks",
+      "line_start": 1042,
+      "unit_id": "d05-rns-020",
+      "line_end": 1049,
+      "status": "corrected",
+      "findings": [
+        "CBR-008",
+        "CBR-036"
+      ],
+      "reasoning": "按实际CKKS phase/scale补条件；tensor不自动保证fit，single-prime rescale虽分量exact仍有RA S+RB，hybrid key switching可有aux base。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN.pdf",
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "BGV's Ciphertext-to-Ciphertext Multiplication",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-cipher-mult-bgv",
+      "own_label": "subsubsec:rns-cipher-mult-bgv",
+      "line_start": 1050,
+      "unit_id": "d05-rns-021",
+      "line_end": 1055,
+      "status": "corrected",
+      "findings": [
+        "CBR-021",
+        "CBR-031"
+      ],
+      "reasoning": "tensor/relin须BGV t-divisible keys，modswitch保同余；不能直接替换为普通CKKS rescale，t保持固定。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://people.csail.mit.edu/vinodv/6892-Fall2013/BGV.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "BFV's Bootstrapping",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-bfv-bootstrapping",
+      "own_label": "subsubsec:rns-bfv-bootstrapping",
+      "line_start": 1056,
+      "unit_id": "d05-rns-022",
+      "line_end": 1139,
+      "status": "corrected",
+      "findings": [
+        "CBR-035"
+      ],
+      "reasoning": "审读原九步及未激活comment区别；prime-power禁止理由错误，替代链无充分证明。用GV式9及公开exact preprocessing路线替换；明确plaintext CRT要求p与分圆指标互素，二次幂环不能直接套p=2槽方案。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "CKKS's Bootstrapping",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-ckks-bootstrapping",
+      "own_label": "subsubsec:rns-ckks-bootstrapping",
+      "line_start": 1140,
+      "unit_id": "d05-rns-023",
+      "line_end": 1149,
+      "status": "corrected",
+      "findings": [
+        "CBR-015",
+        "CBR-027",
+        "CBR-036"
+      ],
+      "reasoning": "原explicit homdecrypt/finalreinterpret与D3不一致；统一基础流程、稀疏PartialSum和total overflow range，避免误把component ±1变phase ±1。",
+      "primary_sources": [
+        "https://yongsoosong.github.io/files/papers/HEAAN_boot.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "BGV's Bootstrapping",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-bgv-bootstrapping",
+      "own_label": "subsubsec:rns-bgv-bootstrapping",
+      "line_start": 1150,
+      "unit_id": "d05-rns-024",
+      "line_end": 1184,
+      "status": "corrected",
+      "findings": [
+        "CBR-022",
+        "CBR-023",
+        "CBR-024",
+        "CBR-037"
+      ],
+      "reasoning": "原digit extraction后再除p^(epsilon-1)重复；qhat→Q不满足ModRaise含子base定义。跟随P5内积/ptmod下降，明确泛化未证明。",
+      "primary_sources": [
+        "https://imec-publications.be/bitstreams/5e8ee1f6-f7f1-4a12-983b-52a6677361fb/download",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Noise Impact of RNS Operations",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-noise",
+      "own_label": "subsubsec:rns-noise",
+      "line_start": 1185,
+      "unit_id": "d05-rns-025",
+      "line_end": 1189,
+      "status": "corrected",
+      "findings": [
+        "CBR-026",
+        "CBR-027",
+        "CBR-029",
+        "CBR-032",
+        "CBR-038"
+      ],
+      "reasoning": "原FastBConvEx需SmallMont消噪直接混淆exact与approx；给不同原语实际作用及δB+δA S统一phase传播，不能笼统加噪。",
+      "primary_sources": [
+        "https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf",
+        "https://www.shoup.net/papers/rns-bfv.pdf",
+        "https://yongsoosong.github.io/files/papers/RNS.pdf"
+      ]
+    },
+    {
+      "file": "d05-rns.tex",
+      "heading": "Python Source Code of RNS Primitives",
+      "heading_command": "subsubsection",
+      "label": "subsubsec:rns-source-code",
+      "own_label": "subsubsec:rns-source-code",
+      "line_start": 1190,
+      "unit_id": "d05-rns-026",
+      "line_end": 1204,
+      "status": "reviewed_no_material_issue",
+      "findings": [],
+      "reasoning": "实际阅读列出的六种Python原语链接；其算法说明已分别核查。源代码本身由总审校任务处理，coverage不把链接文字当执行证据。",
+      "primary_sources": []
+    }
+  ],
+  "final_integration_hashes_updated": "2026-11-08"
+}

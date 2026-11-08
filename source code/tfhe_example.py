@@ -41,7 +41,6 @@ def build_parser():
 	 parser.add_argument('--mult-cipher-plain', action='store_true', help='Cipher-plain multiplication test')
 	 parser.add_argument('--mult-cipher-cipher', action='store_true', help='Cipher-cipher multiplication test')
 	 parser.add_argument('--keyswitch', action='store_true', help='Key switch test')
-	 #parser.add_argument('--bootstrapping', action='store_true', help='Bootstrapping test')
 	 parser.add_argument('--random', action='store_true', help='A bulk of random tests')
 	 parser.add_argument('--all', action='store_true', help='All test')
 	 return parser
@@ -57,25 +56,25 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 
 	if Q <= 0 or (Q & (Q - 1)) != 0:
 		print("[Error] Q is not a power of 2: " + str(Q))
-		sys.exit()
+		sys.exit(1)
 	if P <= 0 or (P & (P - 1)) != 0:
 		print("[Error] P is not a power of 2: " + str(P))
-		sys.exit()
+		sys.exit(1)
 	if P >= Q:
 		print("[Error] Q is not greater than P: " + str(P) + ", " + str(Q))
-		sys.exit()
+		sys.exit(1)
 
 	scale = Q // P
 
 	# print_cyclotomic_polynomial_info(N=N, P=P, is_complex=False)
 
 	if is_random_param:
-		m1 = random.randint(0, math.floor(math.sqrt(P - 1)))
-		m2 = random.randint(0, math.floor(math.sqrt(P - 1)))
+		m1 = random.randint(0, P - 1)
+		m2 = random.randint(0, P - 1)
 
-	if m1 >= P or m2 >= P:
+	if not (0 <= m1 < P and 0 <= m2 < P):
 		print('[Error] TFHE\'s message should not overflor P=' + str(P) + ': ' + str(m1) + ", " + str(m2))
-		sys.exit()
+		sys.exit(1)
 	
 	print("<The TFHE plaintext value>")
 	print('message 1: ' + str(m1))
@@ -89,9 +88,9 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 	a2, b2 = tfhe_encrypt(m2, K, P, Q, s, scale)
 	print('<Encrypted ciphertexts>')
 	print('A1: ', a1)
-	print('B1: ', a2)
+	print('B1: ', b1)
 	print()
-	print('A2: ', b1)
+	print('A2: ', a2)
 	print('B2: ', b2)
 	print()
 
@@ -101,21 +100,21 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 		print("<<Add_Cipher_Cipher Test>>")
 		print('m3 = m1 + m2')
 		print()
-		m3 = (m1 + m2)
+		m3 = (m1 + m2) % P
 		a3, b3 = tfhe_add_cipher_cipher(a1, b1, a2, b2, Q)
 
 	if run_choice == 'add_cipher_plain':
 		print("<<Add_Cipher_Plain Test>>")
 		print('m3 = m1 + m2')
 		print()
-		m3 = (m1 + m2)
+		m3 = (m1 + m2) % P
 		a3, b3 = tfhe_add_cipher_plain(a1, b1, m2, Q, scale)
 
 	if run_choice == 'mult_cipher_plain':
 		print("<<Multiply_Cipher_Plain Test>>")
-		print('m3 = m1 * m2')
+		print('m3 = (m1 * m2) % P')
 		print()
-		m3 = (m1 * m2)
+		m3 = (m1 * m2) % P
 		a3, b3 = tfhe_mult_cipher_plain(a1, b1, m2, Q)
 
 	if run_choice == 'keyswitch':
@@ -131,27 +130,18 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 		print("<<Multiply_Cipher_Cipher Test>>")
 		print('m3: m1 * m2')
 		print()
-		m3 = m1 * m2
+		m3 = (m1 * m2) % P
 
 		### <mult-cipher-cipher by the same way as BFV (more efficient)>
 		s_kron = np.outer(s, s).flatten() # Flattened tensor product of s
 		relin_key = tfhe_keyswitch_keygen(s_kron, s, K, Q)
 		a3, b3 = tfhe_mult_cipher_cipher(a1, b1, a2, b2, K, P, Q, scale, relin_key)
 
-		### <mult-cipher-cipher by circuit bootstrapping (less efficient)>
+		### <INSECURE local circuit-bootstrapping simulation; requires the secret>
 		# bk = tfhe_bootstrap_keygen(s)
 		# a3, b3 = tfhe_mult_cipher_cipher_circuit_bootstrapping(a1, b1, a2, b2, K, P, Q, scale, bk)
 
-	if run_choice == 'bootstrapping':
-		print("<<Bootstrapping Test>>")
-		print('m3: m1 encrypted in a bootstrapped ciphertext')
-		print()
-		m3 = m1
-		a3, b3 = tfhe_bootstrapping(a1, b1, N, P, Q)
 
-	if run_choice != 'encrypt' and (m3 >= P or m3 < 0):
-		print('[Error] m3 is out of P: ' + str(m3) + ' vs ' + str(P))
-		sys.exit()
 
 	# =========== Decryption Stage ===============
 	print('<Decrypted Values>')
@@ -181,11 +171,11 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 		print("[Error] decoded messages mismatch")
 		print("- m1:", m1, dec_m1)
 		print("- m2:", m2, dec_m2)
-		sys.exit(0)
+		sys.exit(1)
 	if run_choice != 'encrypt' and dec_m3 != m3:
 		print("[Error] decoded vectors mismatch")
 		print("- m3:", m3, dec_m3)
-		sys.exit(0)
+		sys.exit(1)
 
 	print(f"[TEST {test_index + 1}] '{run_choice}': all values exactly match")
 	print()
@@ -198,14 +188,13 @@ if __name__ == "__main__":
 	if args.all:
 		args.random = True
 	is_random_param = args.random
-	if args.all or args.random and not (args.encrypt or args.add_cipher_cipher or args.add_cipher_plain or args.mult_cipher_cipher or args.mult_cipher_plain or args.keyswitch or args.bootstrapping): 
+	if args.all or args.random and not (args.encrypt or args.add_cipher_cipher or args.add_cipher_plain or args.mult_cipher_cipher or args.mult_cipher_plain or args.keyswitch):
 		args.encrypt = True
 		args.add_cipher_cipher = True
 		args.add_cipher_plain = True
 		args.mult_cipher_cipher = True
 		args.mult_cipher_plain = True
 		args.keyswitch = True
-		args.bootstrapping = True
 	run_slot = []
 	if args.encrypt:
 		run_slot.append('encrypt')
@@ -219,8 +208,6 @@ if __name__ == "__main__":
 		run_slot.append('mult_cipher_plain')
 	if args.keyswitch:
 		run_slot.append('keyswitch')
-	#if args.bootstrapping:
-	#	run_slot = ['bootstrapping']
 	test_index = 0
 	while True:
 		main(test_index, args.encrypt, random.choice(run_slot) if run_slot else '', is_random_param)

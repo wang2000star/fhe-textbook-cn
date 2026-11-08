@@ -24,7 +24,7 @@
 \usepackage{mathtools}            % optional but harmless
 \usepackage{rotating}
 
-\usepackage[margin=1cm, paperwidth=8.5in, paperheight=11in]{geometry}
+\usepackage[margin=1cm, footskip=5mm, paperwidth=8.5in, paperheight=11in]{geometry}
 \usepackage[
   hypertexnames=false
 ]{hyperref}
@@ -259,12 +259,12 @@
 \clearpage
 
 \section*{前言}
-全同态加密（Fully Homomorphic Encryption，FHE）是一类允许直接对加密数据进行计算的密码方案，操作方式如同处理明文数据。对加密数据完成全部计算后，解密即可得到结果；该结果与对明文数据执行相同计算所得到的结果一致。
+全同态加密（Fully Homomorphic Encryption，FHE）是一类允许直接对加密数据进行计算的密码方案，操作方式如同处理明文数据。对加密数据完成全部计算后，解密即可得到结果；正确解密要求所选参数和被求值电路满足该方案的噪声界及失败概率界。精确方案在指定的有限明文环中计算；CKKS 返回需要跟踪误差的近似结果，并非精确的实数计算结果。
 
-FHE 支持加密数值的加法、乘法等基本运算。基于这些基本运算，可以构造更复杂的计算，包括减法、除法、逻辑门（例如 AND、OR、XOR、NAND、MUX），以及 ReLU、sigmoid 和三角函数（例如 sin、cos）等更复杂的数学函数。根据计算效率与精度之间的取舍，这些函数可以用精确公式或近似公式实现。
+FHE 支持加密数值的加法、乘法等基本运算。基于这些基本运算，可以构造更复杂的计算，包括减法、除法、逻辑门（例如 AND、OR、XOR、NAND、MUX），以及 ReLU、sigmoid 和三角函数（例如 sin、cos）等更复杂的数学函数。运算的含义及实现方式取决于明文定义域和允许的输入范围。例如，有限环中的除法要求分母可逆；实数倒数和激活函数通常需要有界区间近似或合适的离散电路。
 
-FHE 可以支持隐私保护机器学习，使服务器通过机器学习模型处理客户端的加密数据。服务器既不能获知输入特征的明文，也不能获知推理结果。只有客户端能够在服务协议结束后使用自己的私钥解密并读取结果。
-FHE 也可用于保密区块链服务，使智能合约中的敏感数据在保持加密和保密状态的同时，保留执行过程的透明性与完整性。
+FHE 可以支持隐私保护机器学习，使服务器通过机器学习模型处理客户端的加密数据。在安全假设和正确设计的协议下，不持有解密密钥的求值方无法从密文中恢复加密输入或输出。协议元数据、主动公开的结果和访问模式需要另外分析。
+FHE 也可帮助保护智能合约数据的机密性。FHE 本身不证明求值方正确执行了指定计算；完整性和可验证性需要额外的协议机制。
 FHE 的其他应用还包括安全外包数据分析、加密数据库查询、隐私保护搜索以及面向数字签名的高效多方计算等。
 
 本书旨在帮助读者从数学层面理解 FHE 的工作原理，共分为以下四个部分：
@@ -288,9 +288,9 @@ $ $
 
 %$ $
 
-本书英文原版提供\href{https://arxiv.org/abs/2503.05136}{\textbf{arXiv PDF}}和\href{https://fhetextbook.github.io}{\textbf{自动生成的动态网站}}（由\href{https://www.kodymirus.cz/overleaf-html-sample/main.html}{make4ht}生成）。作者还提供用于教学的 Python FHE 演示库，涵盖 TFHE、BFV、BGV 和 CKKS，可在\href{https://github.com/fhetextbook/fhe-textbook}{\texttt{https://github.com/fhetextbook/fhe-textbook}}获取。
-英文原稿中的问题可在上游\href{https://github.com/fhetextbook/fhe-textbook/issues}{\textbf{问题跟踪页面}}反馈。
-\paragraph*{中文译本说明} 本译本保留原书的章节结构、公式、交叉引用和参考文献。图中已嵌入的英文文字及代码标识保留原样。本版本为完整初译，尚未经过逐式学术审校；原文中已发现的待核对问题记录于仓库的 \texttt{TRANSLATION.md}，使用时请结合英文原文阅读。
+本书英文原版提供\href{https://arxiv.org/abs/2503.05136}{\textbf{arXiv PDF}}和\href{https://fhetextbook.github.io}{\textbf{自动生成的动态网站}}（由\href{https://www.kodymirus.cz/overleaf-html-sample/main.html}{make4ht}生成）。作者还提供用于教学的 Python FHE 演示库，涵盖 TFHE、BFV、BGV 和 CKKS，可在\href{https://github.com/fhetextbook/fhetextbook.github.io}{\texttt{https://github.com/fhetextbook/fhetextbook.github.io}}获取。
+英文原稿中的问题可在上游\href{https://github.com/fhetextbook/fhetextbook.github.io/issues}{\textbf{问题跟踪页面}}反馈。
+\paragraph*{中文译本说明} 本译本保留原书的章节结构、公式、交叉引用和参考文献。图中已嵌入的英文文字及代码标识保留原样。本分支在完整初译后进行了逐项学术审校，已确认的勘误同步应用于中英文稿。审校范围、逐项依据、反例和剩余限制记录于 \texttt{audit/ACADEMIC\_REVIEW.md}；这不等同于完整的形式化验证或独立安全认证。
 
 
 

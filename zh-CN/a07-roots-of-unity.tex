@@ -79,13 +79,13 @@ $ $
 \begin{myproof}
     \begin{enumerate}
     \item 注意，对于 $k = 1$，有 $\zeta^n = 1$ 和 $\zeta = \omega$。因此，$\textsf{ord}_{\mathbb{C}}(\omega) = n$。
-    \item 定理~\ref*{subsec:order-theorem}.2 表明，若 $ord_{\mathbb{F}}(a) = k$，则对于任意 $n \geq 1$，都有 $ord_{\mathbb{F}}(a^n) = \dfrac{k}{\text{gcd}(k,n)}$。类似地，若 $\textsf{ord}_{\mathbb{C}}(\omega) = n$，则对于任意 $k \geq 1$，都有 $\textsf{ord}_{\mathbb{C}}(\omega^k) = \dfrac{n}{\text{gcd}(k, n)}$。
+    \item 定理~\ref*{subsec:order-theorem}.2 表明，若 $ord_{\mathbb{F}}(a) = k$，则对于任意 $n \geq 1$，都有 $ord_{\mathbb{F}}(a^n) = \dfrac{k}{\text{gcd}(k,n)}$。类似地，若 $\textsf{ord}_{\mathbb{C}}(\omega) = n$，则对于任意 $k \geq 1$，都有 $\textsf{ord}_{\mathbb{C}}(\omega^k) = \dfrac{n}{\text{gcd}(k, n)}$。 当 $k=0$ 时，也可直接验证同一公式：$\operatorname{ord}(\omega^0)=1=n/\gcd(n,0)$；这包括 $n=1$ 的情况。
     \item 由步骤 2 可知，$\textsf{ord}_{\mathbb{C}}(\omega^k) = n$（即 $\omega^k$ 是 $n$ 次本原单位根），当且仅当 $\text{gcd}(k, n) = 1$。
     \end{enumerate}
 \end{myproof}
 
 \begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:roots-theorem}.5} $\bm{n}$ 次本原单位根的个数}}]
-$n$ 次本原单位根的个数为 $\phi(n)$，即 $\{1, \cdots, n-1 \}$ 中与 $n$ 互素的元素个数。
+$n$ 次本原单位根的个数为 $\phi(n)$，即 $\{1, \cdots, n \}$ 中与 $n$ 互素的元素个数。
 \end{tcolorbox}
 
 \begin{proof}
@@ -95,6 +95,6 @@ $ $
 \item 根据定义，$\omega^k$ 是 $n$ 次本原单位根，当且仅当 $\textsf{ord}_{\mathbb{C}}(\omega^k) = n$。
 \item $\omega$ 是 $n$ 次本原单位根，因为 $\textsf{ord}_{\mathbb{C}}(\omega) = n$。
 \item 根据定理~\ref*{subsec:order-theorem}.2，若 $\textsf{ord}_{\mathbb{C}}(\omega) = n$，则有 $\textsf{ord}_{\mathbb{C}}(\omega^k) = \dfrac{n}{\text{gcd}(k,n)}$。因此，要使 $\textsf{ord}_{\mathbb{C}}(\omega^k) = n$ 成立，$\text{gcd}(k,n)$ 必须为 1。换言之，$k$ 与 $n$ 必须互素。
-$n$ 与 $k = \{1, 2, \cdots, n-1\}$ 之间这样的互素数共有 $\phi(n)$ 个（排除 0，因为 $\text{gcd}(0, n)= n$，且 $\textsf{ord}_{\mathbb{C}}(\omega^0) = \textsf{ord}_{\mathbb{C}}(1) = 1 \neq n$），这也就是 $n$ 次本原单位根的总数。
+当 $n>1$ 时，允许的指数为满足 $1\le k<n$ 且与 $n$ 互素的整数，共有 $\phi(n)$ 个。当 $n=1$ 时，唯一的根为 $1$，其阶为 $1$，且 $\phi(1)=1$；此时允许指数 $k=0$。
 \end{enumerate}
 \end{proof}

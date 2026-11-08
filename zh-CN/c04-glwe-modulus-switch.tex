@@ -1,10 +1,10 @@
-在 GLWE 密码体制中，模数切换是将密文的模数域改为更小（或更大）的模数域，同时保证密文仍能解密得到相同明文的过程。例如，设有密文 $\textsf{LWE}_{S, \sigma}(\Delta m) \in \mathbb{Z}_q^{k+1}$。如果将密文模数按 $q \rightarrow q'$ 切换，则密文变为 $\textsf{LWE}_{S, \sigma}\left(\Delta\dfrac{q'}{q} m + e'\right) \in \mathbb{Z}_{q'}^{k+1}$。密文的其他分量，例如噪声（$e$）和公钥分量（$a_0, a_1, \cdots, a_{k-1}$、$b$），均按 $\dfrac{q'}{q}$ 缩放，变为 $\left\lceil e\dfrac{q'}{q} \right\rfloor$ 和 $\left(\left\lceil a_0\dfrac{q'}{q}\right\rfloor, \left\lceil a_1\dfrac{q'}{q}\right\rfloor, \cdots, \left\lceil a_{k-1}\dfrac{q'}{q}\right\rfloor, \left\lceil b\dfrac{q'}{q}\right\rfloor\right)$。为切换 LWE 密文的模数，我们使用 \autoref{sec:modulus-rescaling} 介绍的模数重缩放技术。
-相同的模数切换技术也适用于 RLWE 密文。本节将介绍如何切换（即重缩放）LWE 和 RLWE 密文的模数，并证明其正确性。
-%That is, after  LWE/RLWE ciphertexts, we will prove why they are still valid LWE/RLWE ciphertexts.
+模数切换将密文公开系数从模数 $q$ 缩放并舍入到模数 $\hat q$。能否保持解码消息取决于所得噪声界。评估者不会直接计算隐藏噪声；它的变化由新相位推导得到。这里使用 \autoref{sec:modulus-rescaling} 的精确缩放与舍入恒等式，并保留全部舍入误差项。
 
 
 \subsection{LWE 模数切换}
 \label{subsec:modulus-switch-lwe}
+
+本章始终假设 $t\mid q$ 且 $t\mid\hat q$，因此 $\Delta=q/t$ 和 $\hat\Delta=\hat q/t$ 均为整数。记 $r=\hat q/q$，并固定平局舍入规则 $R(x)=\lfloor x+1/2\rfloor$。所有缩放表达式先作用于整数提升，最终密文系数再模 $\hat q$ 约减。若在不满足这些整除条件时以向下取整选取尺度，新误差还会包含依赖消息的项 $(r\Delta-\hat\Delta)m$（或 $(r\Delta-\hat\Delta)M$），并且还须使用 \autoref{subsubsec:lwe-noise-bound} 的溢出分析。不能通过直接省去这些项来推广所展示的正确性结论。
 
 \textbf{- 参考资料：}
 \href{https://www.jeremykun.com/2022/07/16/modulus-switching-in-lwe/}{LWE 中的模数切换}
@@ -31,7 +31,7 @@ $ $
 $ $
 
 
-在 LWE 密码体制中，模数切换将原 LWE 密文的模数域转换成较小的模数域。可以将这一过程看作：除明文 $m$ 和私钥 $S$ 外，将原密文的所有分量缩小到更小的域中。该操作保持原明文 $m$ 的数值和完整性，同时将尺度因子 $\Delta$ 缩小为 $\hat{\Delta}$，将噪声 $e$ 缩小为 $\hat{e}$（注意，噪声的变化不影响原明文 $m$，因为噪声最终会在解密后的舍入过程中被消去），并将 $\vv{a}$ 缩小为 $\vv{\hat{a}}$。TFHE 在自举过程中使用模数切换来提高计算效率（详见 \autoref{subsec:tfhe-noise-bootstrapping}）。此外，BGV（\autoref{subsec:bfv-mult-cipher}）和 CKKS（\autoref{subsec:ckks-mult-cipher}）的密文与密文乘法算法也会使用模数切换。
+缩小模数时，$0<r<1$。消息与小秘密保持不变，而公开密文系数及尺度缩小。旧误差乘以 $r$，但逐系数舍入还会加入依赖秘密的额外误差，因此总误差不一定减小。\autoref{subsec:tfhe-noise-bootstrapping}、\autoref{subsec:bfv-mult-cipher} 和 \autoref{subsec:ckks-mult-cipher} 等应用必须采用各自的尺度与正确性条件。
 
 LWE 模数切换的核心思想是对 LWE 方案中的同余关系进行重缩放。LWE 的同态运算包括密文与密文加法、密文与明文加法、密文与明文乘法以及密文与密文乘法。这些算法中使用的同余关系本质上都可由同一个基本关系改写得到：$b = \vv{a}\cdot \vv{s} + \Delta m + e \bmod q$。因此，将 LWE 密文的模数按 $q \rightarrow q'$ 切换，等价于将上述同余关系的模数按 $q \rightarrow q'$ 重缩放。
 
@@ -42,7 +42,7 @@ LWE 模数切换的核心思想是对 LWE 方案中的同余关系进行重缩�
 给定满足 $b = \vv{a}\cdot \vv{s} + \Delta m + e \bmod q$ 且 $m \in \mathbb{Z}_t$ 的 LWE 密文 $(\vv{a}, b)$，将其模数从 $q$ 切换到 $\hat q$，等价于将 $(A, b)$ 更新为 $(\vv{\hat{a}}, \hat b)$，具体如下：
 
 
-$\vv{\hat{a}} = (\hat{a}_0, \hat{a}_1, \ldots, \hat{a}_{k-1})$，其中各分量满足 $\hat{a}_i = \Big\lceil a\dfrac{\hat{q}}{q} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$ \textcolor{red}{ $\rhd$ $\lceil \rfloor$ 表示舍入到最近的整数}
+$\vv{\hat{a}} = (\hat{a}_0, \hat{a}_1, \ldots, \hat{a}_{k-1})$，其中各分量满足 $\hat{a}_i = \Big\lceil a_i\dfrac{\hat{q}}{q} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$ \textcolor{red}{ $\rhd$ $\lceil \rfloor$ 表示舍入到最近的整数}
 
  $\hat{b} = \Big\lceil b \dfrac{\hat{q}}{q} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$
 
@@ -68,7 +68,7 @@ $ $
 
 注意，要说明 $(\hat{a}_0, \hat{a}_1, \ldots, \hat{b}) \in \mathbb{Z}_{\hat{q}}^{k + 1}$ 是 $\hat{\Delta}m$ 的有效 LWE 密文，需要证明以下关系成立：
 
-$\hat{b} = \sum\limits_{i=0}^{k-1}\hat{a}_i \cdot s_i + \hat{\Delta} m + \hat{e} \in \mathbb{Z}_{\hat{q}}$
+$\hat{b} = \sum\limits_{i=0}^{k-1}\hat{a}_i \cdot s_i + \hat{\Delta} m + \hat{e}+\epsilon_{\textit{all}} \in \mathbb{Z}_{\hat{q}}$
 
 $ $
 
@@ -77,11 +77,11 @@ $ $
 \begin{enumerate}
 \item 注意以下关系：
 
-$\hat{b} = \Big\lceil b \dfrac{\hat{q}}{q} \Big\rfloor = b\dfrac{\hat{q}}{q} + \epsilon_b$（其中 $-0.5 < \epsilon_b < 0.5$，表示舍入产生的偏差）
+$\hat{b} = \Big\lceil b \dfrac{\hat{q}}{q} \Big\rfloor = b\dfrac{\hat{q}}{q} + \epsilon_b$（其中 $-0.5 \le \epsilon_b \le 0.5$，表示舍入产生的偏差）
 
-$\hat{a_i} = \Big\lceil a_i \dfrac{\hat{q}}{q} \Big\rfloor = a_i\dfrac{\hat{q}}{q} + \epsilon_{a_i}$（其中 $-0.5 < \epsilon_{a_i} < 0.5$）
+$\hat{a_i} = \Big\lceil a_i \dfrac{\hat{q}}{q} \Big\rfloor = a_i\dfrac{\hat{q}}{q} + \epsilon_{a_i}$（其中 $-0.5 \le \epsilon_{a_i} \le 0.5$）
 
-$\hat{e} = \Big\lceil e \dfrac{\hat{q}}{q} \Big\rfloor = e\dfrac{\hat{q}}{q} + \epsilon_e$（其中 $-0.5 < \epsilon_e < 0.5$）
+$\hat{e} = \Big\lceil e \dfrac{\hat{q}}{q} \Big\rfloor = e\dfrac{\hat{q}}{q} + \epsilon_e$（其中 $-0.5 \le \epsilon_e \le 0.5$）
 \item 注意以下关系：
 
 $b = \vv{a} \cdot \vv{s} + \Delta  m + e = \sum\limits_{i=0}^{k-1}(a_is_i) + \Delta m + e  \in \mathbb{Z}_q$
@@ -108,22 +108,26 @@ $= \sum\limits_{i=0}^{k-1}\hat{a}_is_i + \hat{\Delta} m + \hat{e} + \epsilon_{\t
 
 $ $
 
-$\epsilon_{\textit{all}}$ 的最大可能值为：
+这个辅助误差具有确定性上界
+\[
+|\epsilon_{\textit{all}}|\le1+\tfrac12\|\vec s\|_1\le1+\tfrac{k}{2}
+\]
+其中最后一步适用于二元或三元秘密。它是上界，而非实际误差值。解码必须去除的总误差为
+\[
+e_{\mathrm{new}}=\hat e+\epsilon_{\textit{all}}=re+\epsilon_b-\sum_i\epsilon_{a_i}s_i,
+\qquad |e_{\mathrm{new}}|\le r|e|+\tfrac12(1+\|\vec s\|_1).
+\]
+要求这一上界小于 $\hat\Delta/2$，即可保证正确解码。这些项不一定独立或零均值，因为 $b$ 依赖掩码。增大 $k$ 本身不会使误差变小。
 
-$\epsilon_{\textit{all}} = |-0.5| + |0.5| + |-0.5 \cdot k| = 1 + 0.5k$ 
-
-因此，LWE 模数切换得到的是一个近似同余关系（\autoref{sec:modulus-rescaling}）。不过，只要 $\hat \Delta$ 足够大，$\epsilon_{\textit{all}} = 1 + 0.5k$ 就会在 LWE 解密的右移过程中被消去，最终恢复原明文 $m$。此外，在实际应用中，当 $k$ 足够大时，$\sum\limits_{i=0}^{k-1}\epsilon_{a_i}s_i$
-相对于密文模数仍较小，因为每个 $a_i$ 和 $s_i$ 都由均匀采样产生。
-
-\para{注意：} 如果 $\hat \Delta$ 不够大，$\epsilon_{\textit{all}}$ 就可能无法在解密时被消去，从而破坏明文 $m$。此外，如果 $\Delta \rightarrow \hat\Delta$ 缩小得过多，$\hat\Delta m$ 与 $\hat e$ 之间的距离会变得过小；此时 $\hat e = \Big\lceil e \dfrac{\hat{q}}{q} \Big\rfloor$ 的舍入过程可能影响 $\hat \Delta m$ 的最低有效位，从而破坏明文。
+\para{注意：}仅约束 $\epsilon_{\textit{all}}$ 并不充分，还须计入缩放后的输入误差。纯粹的精确缩放保持比值 $|e|/\Delta$ 不变；额外的舍入误差才可能耗尽缩小后的输出预算。
 
 $ $
 
 \item 综上，$\hat{b}$ 近似满足：
 
-$\hat{b} = \sum\limits_{i=0}^{k-1}\hat{a}_is_i + \hat{\Delta} m + \hat{e} + \epsilon_{\textit{all}}  \approx \sum\limits_{i=0}^{k-1}\hat{a}_i  s_i + \hat{\Delta} m + \hat{e} \in \mathbb{Z}_{\hat{q}}$
+$\hat{b} = \sum\limits_{i=0}^{k-1}\hat{a}_is_i + \hat{\Delta} m + \hat{e} + \epsilon_{\textit{all}} \in \mathbb{Z}_{\hat{q}}$
 
-因此，$(\hat{a}_0, \hat{a}_1, \ldots, \hat{b}) = \textsf{LWE}_{{S},\sigma}(\hat{\Delta} m + \hat{e} + \epsilon_{\textit{all}})$，对其解密即可得到 $m$。
+因此，$(\hat{a}_0, \hat{a}_1, \ldots, \hat{b}) = \textsf{LWE}_{{S},\sigma}(\hat{\Delta} m + \hat{e} + \epsilon_{\textit{all}})$，当 $|e_{\mathrm{new}}|<\hat\Delta/2$ 时，它才解码得到 $m$。
 
 %\begin{flushright}
 %\qedsymbol{} 
@@ -142,7 +146,7 @@ $t = 4$
 
 $q = 64$
 
-$n = 4$
+$k = 4$
 
 $\Delta = \dfrac{q}{t} = 16$
 
@@ -156,7 +160,7 @@ $e = 1 \in \mathbb{Z}_q$
 
 $b = a_0s_0 + a_1s_1 + a_2s_2 + a_3s_3 + \Delta m + e = 26 \in \mathbb{Z}_q$
 
-$\textsf{LWE}_{S, \sigma}(\Delta m + e) = \textsf{ct} = (a_0, a_1, a_2, a_3, b) = (-25, 12, -3, 7, 26) \in \mathbb{Z}_q^{n+1}$
+$\textsf{LWE}_{S, \sigma}(\Delta m + e) = \textsf{ct} = (a_0, a_1, a_2, a_3, b) = (-25, 12, -3, 7, 26) \in \mathbb{Z}_q^{k+1}$
 
 $ $
 
@@ -170,19 +174,19 @@ $\textsf{LWE}_{S, \sigma}(\hat{\Delta} m + \hat{e} + \epsilon_{\textit{all}}) = 
 
 $ = \left(\Big\lceil -25\cdot\dfrac{32}{64}\Big\rfloor, \Big\lceil12\cdot\dfrac{32}{64}\Big\rfloor, \Big\lceil-3\cdot\dfrac{32}{64}\Big\rfloor, \Big\lceil7\cdot\dfrac{32}{64}\Big\rfloor, \Big\lceil26\cdot\dfrac{32}{64}\Big\rfloor\right)$
 
-$ = (-12, 6, -1, 4, 13) \in \mathbb{Z}_{\hat{q}}^{n+1}$
+$ = (-12, 6, -1, 4, 13) \in \mathbb{Z}_{\hat{q}}^{k+1}$
 
 $ $
 
 接下来验证以下 LWE 约束是否成立：
 
-$\hat{b} = \hat{a}_0s_0 + \hat{a}_1s_1 + \hat{a}_2s_2 + \hat{a}_3s_3 + \hat{\Delta}m + \hat{e} \in \mathbb{Z}_{32}$
+$\hat{b} = \hat{a}_0s_0 + \hat{a}_1s_1 + \hat{a}_2s_2 + \hat{a}_3s_3 + \hat{\Delta}m + \hat{e}+\epsilon_{\textit{all}} \in \mathbb{Z}_{32}$
 
-$13 = 0 + 6 - 1 + 0 + 8 \cdot 1 + 1 \in \mathbb{Z}_{32}$
+$13 = 0 + 6 - 1 + 0 + 8 \cdot 1 + 1 - 1 \in \mathbb{Z}_{32}$
 
-$13 \approx 14 \in \mathbb{Z}_{32}$
+$\epsilon_{\textit{all}}=-1,\qquad e_{\mathrm{new}}=\hat e+\epsilon_{\textit{all}}=1-1=0$
 
-此处出现了大小为 1 的微小差异，来源于以下舍入偏差：
+辅助舍入修正项为 $-1$，计入后同余关系精确成立。各个舍入值为：
 
 $\hat {a_0} = \lceil -12.5 \rfloor = -12$、$\hat {a_2} = \lceil -1.5 \rfloor = -1$、$\hat{a_3} =  \lceil 3.5 \rfloor = 4$ 和 $\hat{e} = \lceil 0.5 \rfloor = 1 $
 
@@ -190,7 +194,7 @@ $ $
 
 代入 LWE 解密公式计算：
 
-$\hat b - (\hat{a}_0s_0 + \hat{a}_1s_1 + \hat{a}_2s_2 + \hat{a}_3s_3) = 13 - (0(-12) + 1(6) + 1(-1) + 0(4)) = 13 - (6 - 1) = 8 = \hat m + \hat e \in \mathbb{Z}_{32}$
+$\hat b - (\hat{a}_0s_0 + \hat{a}_1s_1 + \hat{a}_2s_2 + \hat{a}_3s_3) = 13 - (0(-12) + 1(6) + 1(-1) + 0(4)) = 13 - (6 - 1) = 8 = \hat\Delta m + \hat e+\epsilon_{\textit{all}} \in \mathbb{Z}_{32}$
 
 $ $
 
@@ -207,7 +211,7 @@ $m = \left \lceil \dfrac{8}{\hat \Delta} \right \rfloor = \left \lceil \dfrac{8}
   \label{fig:modulus-switch}
 \end{figure}
 
-\para{$m$ 与 $e$ 之间的距离缩小：} 将 LWE 密文的模数按 $q \rightarrow \hat{q}$ 切换后，底层含噪明文 $\Delta m + e$ 缩小为 $\hat{\Delta}m + \hat{e}$，如 \autoref{fig:modulus-switch} 所示。注意，在按 $q \rightarrow \hat{q}$ 切换模数后，$\Delta m$ 缩小为 $\hat{\Delta} m$，但不会丢失明文比特信息。具体而言，明文值 $m$ 保持不变，而尺度因子 $\Delta$ 缩小为 $\hat{\Delta}$，噪声 $e$ 缩小为 $\hat e$。不过，与 $e$ 的最高有效位和 $\Delta m$ 的最低有效位之间的距离相比，模数切换后 $\hat e$ 的最高有效位与 $\hat \Delta m$ 的最低有效位之间的距离更小。
+\para{相对噪声与舍入：}图~\ref{fig:modulus-switch} 展示了数值尺度的缩小。若没有舍入，$re/(r\Delta)=e/\Delta$，因此模数减小本身不会恶化相对噪声。实际逐系数舍入引入 $\epsilon_b-\sum_i\epsilon_{a_i}s_i$；相对于 $\hat\Delta=r\Delta$，这一额外误差可能变得显著。正确性必须依据总误差界，而不能仅比较二进制位的位置。
 
 
 
@@ -255,7 +259,7 @@ RLWE 模数切换过程如下：
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:modulus-switch-rlwe}} RLWE 模数切换}}]
 
-对于满足 $B = AS + \Delta M + E$ 且 $M \in \mathcal{R}_{\langle n, q \rangle}$ 的 RLWE 密文 $(A, B)$，将模数从 $q$ 切换到 $\hat q$，等价于将 $(A, B)$ 更新为 $(\hat A, \hat B)$，具体如下：
+对于满足 $B = AS + \Delta M + E$ 且 $M \in \mathcal{R}_{\langle n, t \rangle}$ 的 RLWE 密文 $(A, B)$，将模数从 $q$ 切换到 $\hat q$，等价于将 $(A, B)$ 更新为 $(\hat A, \hat B)$，具体如下：
 
 
 $\hat{A} = \hat{a}_0 + \hat{a}_1X + \hat{a}_2X^2 + \cdots + \hat{a}_{n-1}X^{n-1}$，其中每个系数满足 $\hat{a}_i = \Big\lceil a_i\dfrac{\hat{q}}{q} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$
@@ -287,11 +291,11 @@ $ $
 \begin{enumerate}
 \item 注意以下关系：
 
-$\hat{b}_i = \Big\lceil b_i \dfrac{\hat{q}}{q} \Big\rfloor = b_i\dfrac{\hat{q}}{q} + \epsilon_{b_i}$（其中 $-0.5 < \epsilon_{b_i} < 0.5$，表示舍入产生的偏差）
+$\hat{b}_i = \Big\lceil b_i \dfrac{\hat{q}}{q} \Big\rfloor = b_i\dfrac{\hat{q}}{q} + \epsilon_{b_i}$（其中 $-0.5 \le \epsilon_{b_i} \le 0.5$，表示舍入产生的偏差）
 
-$\hat{a}_i = \Big\lceil a_i \dfrac{\hat{q}}{q} \Big\rfloor = a_i\dfrac{\hat{q}}{q} + \epsilon_{a_i}$（其中 $-0.5 < \epsilon_{a_i} < 0.5$）
+$\hat{a}_i = \Big\lceil a_i \dfrac{\hat{q}}{q} \Big\rfloor = a_i\dfrac{\hat{q}}{q} + \epsilon_{a_i}$（其中 $-0.5 \le \epsilon_{a_i} \le 0.5$）
 
-$\hat{e}_i = \Big\lceil e_i \dfrac{\hat{q}}{q} \Big\rfloor = e_i\dfrac{\hat{q}}{q} + \epsilon_{e_i}$（其中 $-0.5 < \epsilon_{e_i} < 0.5$）
+$\hat{e}_i = \Big\lceil e_i \dfrac{\hat{q}}{q} \Big\rfloor = e_i\dfrac{\hat{q}}{q} + \epsilon_{e_i}$（其中 $-0.5 \le \epsilon_{e_i} \le 0.5$）
 
 \item 注意以下关系：
 
@@ -342,11 +346,11 @@ $ $
 $B = A \cdot S + \Delta  M + E$ 
 
 
-$\sum\limits_{h=0}^{n-1}  b_h  X^{h}  = \sum\limits_{h=0}^{n-1}  \left(\sum\limits_{i=0}^{h}(a_{h-i}s_{i}) - \sum\limits_{i=h+1}^{n-1}(a_{n+h-i}s_{i}) \right)\cdot X^{h}  + \Delta \sum\limits_{h=0}^{n-1}  m_h  X^{h} + \sum\limits_{h=0}^{n-1}  e_h  X^{h}  \in \mathbb{Z}_q$
+$\sum\limits_{h=0}^{n-1}  b_h  X^{h}  = \sum\limits_{h=0}^{n-1}  \left(\sum\limits_{i=0}^{h}(a_{h-i}s_{i}) - \sum\limits_{i=h+1}^{n-1}(a_{n+h-i}s_{i}) \right)\cdot X^{h}  + \Delta \sum\limits_{h=0}^{n-1}  m_h  X^{h} + \sum\limits_{h=0}^{n-1}  e_h  X^{h}  \in \mathcal{R}_{\langle n,q\rangle}$
 
 $\sum\limits_{h=0}^{n-1}  b_h  X^{h}  = \sum\limits_{h=0}^{n-1}  \left(\sum\limits_{i=0}^{h}(a_{h-i}s_{i}) - \sum\limits_{i=h+1}^{n-1}(a_{n+h-i}s_{i}) \right)\cdot X^{h}  + \Delta \sum\limits_{h=0}^{n-1}  m_h  X^{h} + \sum\limits_{h=0}^{n-1}  e_h  X^{h} + H \cdot q$
 
-（这里将模 $q$ 的关系改写为加上 $H \cdot q$；它是一个 $(n-1)$ 次多项式，其中每个系数 $c_i$ 都是 $q$ 的某个倍数。）
+这里 $H=\sum_i c_iX^i$ 的系数 $c_i$ 为整数，因此 $Hq$ 的系数为 $c_iq$。这将同余关系写成整数多项式提升之间的等式。
 
 $ $
 
@@ -385,7 +389,7 @@ $
 
 \textcolor{red}{ $\rhd$ 其中 $\epsilon_{\textit{all}} = \epsilon_{b_j} - \epsilon_{e_j}
 - \sum\limits_{i=0}^{j}(\epsilon_{a_{j-i}} s_i)
-+ \sum\limits_{i=j+1}^{n-1}(\epsilon_{a_{n+j-i}} s_i) \approx 0$}
++ \sum\limits_{i=j+1}^{n-1}(\epsilon_{a_{n+j-i}} s_i)$}
 
 
 $ $
@@ -397,11 +401,9 @@ $\hat{b}_j =  \left(\sum\limits_{i=0}^{j}(\hat{a}_{j-i}s_i)
 + \hat{\Delta} m_j + \hat{e}_j 
 + \epsilon_{\textit{all}}$
 
-$ \approx \left(\sum\limits_{i=0}^{j}(\hat{a}_{j-i}s_i) 
-- \sum\limits_{i=j+1}^{n-1}(\hat{a}_{n+j-i}s_i)\right)
-+ \hat{\Delta} m_j + \hat{e}_j$
 
-因此，$(\hat{A}, \hat{B}) = \textsf{RLWE}_{{S},\sigma}(\hat{\Delta} M + \hat{E} + E^{\langle \epsilon_{\textit{all}} \rangle})$，对其解密即可得到 $M$。
+
+因此，$(\hat{A}, \hat{B}) = \textsf{RLWE}_{{S},\sigma}(\hat{\Delta} M + \hat{E} + E^{\langle \epsilon_{\textit{all}} \rangle})$，只有满足下面的总系数误差界时，它才解码得到 $M$。
 
 \begin{flushright}
 \qedsymbol{} 
@@ -444,7 +446,7 @@ GLWE 模数切换过程如下：
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:modulus-switch-glwe}} GLWE 模数切换}}]
 
-给定满足 $B = \vv A\cdot \vv S + \Delta M + E \bmod q$ 且 $M \in \mathcal{R}_{\langle n, q \rangle}$ 的 GLWE 密文 $(\{A_i\}_{i=0}^{k-1}, B)$，将其模数从 $q$ 切换到 $\hat q$，等价于将 $(\{A\}_{i=0}^{k-1}, B)$ 更新为 $(\{\hat{A}_i\}_{i=0}^{k-1}, \hat B)$，具体如下：
+给定满足 $B = \vv A\cdot \vv S + \Delta M + E \bmod q$ 且 $M \in \mathcal{R}_{\langle n, t \rangle}$ 的 GLWE 密文 $(\{A_i\}_{i=0}^{k-1}, B)$，将其模数从 $q$ 切换到 $\hat q$，等价于将 $(\{A\}_{i=0}^{k-1}, B)$ 更新为 $(\{\hat{A}_i\}_{i=0}^{k-1}, \hat B)$，具体如下：
 
 
 $\hat{A_i} = \hat{a}_{i,0} + \hat{a}_{i,1}X + \hat{a}_{i,2}X^2 + \cdots + \hat{a}_{i, {n-1}}X^{n-1}$，其中每个系数满足 $\hat{a}_{i,j} = \Big\lceil a_{i,j}\dfrac{\hat{q}}{q} \Big\rfloor \in \mathbb{Z}_{\hat{q}}$
@@ -484,4 +486,10 @@ $\epsilon_{j, all} = \epsilon_{b_j} - \epsilon_{e_j}
 
 $ $
 
-注意，GLWE 模数切换产生的舍入误差可能比 RLWE 模数切换大约 $k$ 倍。不过，从长期来看，该误差相对于密文模数仍较小，因为各舍入误差独立且均匀分布，其和相对于模数增长较慢（中心极限定理）。
+对于 GLWE 密文，以 $\epsilon_B$ 和 $\epsilon_{A_l}$ 表示逐系数舍入误差多项式。精确的新误差为
+\[
+E_{\mathrm{new}}=rE+\epsilon_B-\sum_{l=0}^{k-1}\epsilon_{A_l}S_l,
+\qquad
+\|E_{\mathrm{new}}\|_\infty\le r\|E\|_\infty+\tfrac12\left(1+\sum_{l=0}^{k-1}\|S_l\|_1\right).
+\]
+对于三元秘密，上界至多为 $r\|E\|_\infty+(1+kn)/2$；RLWE 对应 $k=1$。要求该上界小于 $\hat\Delta/2$，即可保证逐系数正确解码。证明中使用的辅助项满足 $|\epsilon_{j,\mathrm{all}}|\le1+\frac12\sum_l\|S_l\|_1$。更紧的概率估计需要明确的分布或独立性假设；独立性和小误差都不能仅由中心极限定理推出。隐藏的 $\hat E$ 是分析工具，并非评估者另行计算的数值。

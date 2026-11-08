@@ -10,8 +10,8 @@ $\gamma = \gamma_1 \dfrac{q}{\beta^1} + \gamma_2 \dfrac{q}{\beta^2} + \cdots + \
 
 $ $
 
-\noindent 其中，$\beta\ge 2$ 是基数，$\ell\ge 1$ 是分解层数。假设 $\beta^\ell \mid q$，并令各位数字满足 $\gamma_i\in\{0,1,\ldots,\beta-1\}$；在这些条件下，分解是唯一的。\autoref{fig:decomp} 给出了直观示意。（若 $\beta^\ell\nmid q$，请参见 \autoref{subsec:approx-decomp}。）
-每个 $\gamma_i$ 都是 $\gamma$ 在基数 $\beta$ 下表示的一位数字，其中 $i=1$ 对应最高位。当 $q$ 为 2 的幂时，这对应于移动 $i\cdot \log_2\beta$ 个二进制位。
+\noindent 其中，$\beta\ge 2$ 和 $\ell\ge1$ 均为整数。若要求每个规范代表元 $0\le\gamma<q$ 都具有满足 $\gamma_i\in\{0,1,\ldots,\beta-1\}$ 的唯一展开，应假设 $q=\beta^\ell$。更一般地，$\beta^\ell\mid q$ 仅保证权重为整数；若 $d=q/\beta^\ell>1$，则精确展开存在当且仅当 $d\mid\gamma$。图~\ref{fig:decomp} 展示完整分解；截断情形见 \autoref{subsec:approx-decomp}。
+当 $q=\beta^\ell$ 时，每个 $\gamma_i$ 是 $\gamma$ 的基 $\beta$ 展开的一个数位，其中 $i=1$ 为最高位。当 $q$ 和 $\beta$ 均为 $2$ 的幂时，才可用二进制位移解释这些权重。
 
 \begin{figure}[h!]
     \centering
@@ -53,7 +53,7 @@ $\textsf{Decomp}^{2, 4}(13) = (1, 1, 0, 1)$
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:poly-decomp}} 多项式分解}}]
 
-给定 $f\in \mathbb{Z}_q[x]/(x^n+1)$，固定满足 $\beta^\ell\mid q$ 的 $\beta\ge 2$ 和 $\ell\ge 1$。写成
+给定 $f\in \mathbb{Z}_q[x]/(x^n+1)$，选取满足 $q=\beta^\ell$ 的整数 $\beta\ge2$、$\ell\ge1$，写为
 
 $ $
 
@@ -124,19 +124,18 @@ $\textsf{Decomp}^{4, 2}(6x^3 + 3x^2 + 14x + 7) = (1x^3 + 0x^2 + 3x + 1, 2x^3 + 3
   \label{fig:decomp3}
 \end{figure}
 
-如果不存在满足 $\beta^\ell \mid q$ 的分解层数 $\ell$，则在分解时必须丢弃 $q$ 在基数 $\beta$ 表示下的部分低位数字，如 \autoref{fig:decomp3} 所示。在分解过程中，可通过舍入将这些低位处理为最接近的 $\dfrac{q}{\beta^\ell}$ 的整数倍。这种分解称为近似分解。
-形式化地，当 $\beta^\ell\nmid q$ 时，可以写成
+选取满足 $\beta^\ell\mid q$ 的整数 $\beta\ge2$、$\ell\ge1$，并令 $d=q/\beta^\ell$。即使整除条件成立，只要 $d>1$ 且输入不是 $d$ 的倍数，就仍须截断。将 $\gamma$ 的规范代表元舍入到最接近的 $d$ 的整数倍，再将该整数倍模 $q$ 约减，并按上述权重分解。固定最近整数舍入的平局规则后，结果满足
 $$
-\gamma=\sum_{i=1}^{\ell}\gamma_i\,\frac{q}{\beta^{i}}+\varepsilon,\qquad
-\gamma_i\in\{0,\ldots,\beta-1\},\quad
-|\varepsilon|\le \frac{q}{2\beta^{\ell}}
+\gamma\equiv\sum_{i=1}^{\ell}\gamma_i\frac{q}{\beta^i}+\varepsilon\pmod q,
+\qquad \gamma_i\in\{0,\ldots,\beta-1\},\qquad |\varepsilon|\le\frac{q}{2\beta^\ell}.
 $$
-（采用最近整数舍入，并将 $\gamma$ 视为其整数代表。）多项式的情形与此类似，只需逐个系数进行处理。
-
+残差取圆周舍入误差的一个整数提升。这里必须使用同余：例如 $q=16$、$\beta=2$、$\ell=2$ 时，输入 $15$ 舍入到 $16\equiv0\pmod{16}$，此时 $\varepsilon=-1$。多项式情形逐系数处理。若 $\beta^\ell\nmid q$，上述有理数权重不能定义这里的整数环 Gadget；可以改用 \autoref{subsec:gadget-decomposition} 中的整数 Gadget。
 
 
 \subsection{Gadget 分解}
 \label{subsec:gadget-decomposition}
+
+Gadget 权重和允许的数位集合都是定义的一部分；任意权重不一定能表示每个剩余类。对于任意 $q\ge2$，一种精确的整数选择是 $g_i=\beta^{i-1}$，取 $\ell=\lceil\log_\beta q\rceil$，并使用规范代表元的普通进制数位。它在整数中满足 $\gamma=\sum_{i=1}^{\ell}\gamma_i g_i$。这与下面的降序权重不同，两种权重的数位向量不可混用。对于截断 Gadget，应使用带残差的模 $q$ 重构式，并在后续噪声分析中计入该残差。
 
 Gadget 分解是数的分解（\autoref{subsec:number-decomp}）的一般化形式。在数的分解中，数 $\gamma$ 被分解如下：
 

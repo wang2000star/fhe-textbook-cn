@@ -12,6 +12,8 @@ Notice that RLWE's setup parameters are similar to that of LWE. One difference i
 \subsection{Encryption}
 \label{subsec:rlwe-enc}
 
+Polynomial representatives have degree at most $n-1$, including when leading coefficients vanish. Noise coefficients are integer samples reduced modulo $q$, using the convention of \autoref{subsec:lwe-dec}. A correctness inequality is a condition on these lifted coefficients, not a deterministic guarantee for an unbounded Gaussian distribution.
+
 \begin{enumerate}
 \item Suppose we have an $(n-1)$-degree polynomial $M \in \mathcal{R}_{\langle n, t \rangle}$ whose coefficients represent the plaintext numbers to encrypt. 
 \item Randomly pick an $(n-1)$-degree polynomial $A \in \mathcal{R}_{\langle n,q \rangle}$ as a one-time random public mask (denoted as $A \xleftarrow{\$} \mathcal{R}_{\langle n, q \rangle}$). 
@@ -72,6 +74,6 @@ $ $
 
 \end{enumerate}
 
-For correct decryption, every noise coefficient $e_i$ of polynomial $E$ should be: $|e_i| < \dfrac{\Delta}{2}$. And in case $t$ does not divide $q$, $q$ should be sufficiently larger than $t$.
+For $t\mid q$, require $\|E\|_\infty<\Delta/2$. If $t\nmid q$, use the coefficientwise effective-error bound from \autoref{subsubsec:lwe-noise-bound}: for unreduced coefficient $m_i=m_i'+v_it$ with centered $m_i'$, require $|e_i-(q\bmod t)v_i|<\Delta/2$ under that subsection's odd-$t$ assumptions. The condition $q\gg t$ alone is insufficient.
 
 \end{tcolorbox}

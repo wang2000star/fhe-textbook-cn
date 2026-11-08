@@ -1,9 +1,11 @@
+下面的精确降幂 gadget 假设 $q=\beta^l$、整数 $\beta\ge2$，并采用 \autoref{subsec:poly-decomp} 的无符号系数数位。两个密钥使用相同的环和模数，但分量数量 $k$ 与 $k'$ 可以不同。密钥持有者预先计算旧秘密各分量在新密钥下的加密。解码消息的误差界假设 $t\mid q$。公开求值密钥还需要整体方案的安全论证，尤其是在密钥形成环路时；下面的算术证明并不是这种安全证明。
+
 \textbf{- 参考资料：}
 \href{https://www.zama.ai/post/tfhe-deep-dive-part-3}{深入理解 TFHE（三）：密钥切换与分层乘法}~\cite{tfhe-3}
 
 $ $
 
-密钥切换是在不解密密文的情况下，将 GLWE 密文所对应的私钥从 $S$ 改为新私钥 $S'$ 的过程。这等价于将密文 $\textsf{GLWE}_{S,\sigma}(\Delta M + E)$ 转换为新密文 $\textsf{GLWE}_{S',\sigma}(\Delta M + E - E')$。
+密钥切换通过公开求值和预先生成的密钥切换密钥，将 GLWE 密文的秘密密钥从 $S$ 换为 $S'$，而不公开明文。它保持相位的消息项，但将 $E$ 换为一般不同的误差 $E'$。能否正确解码取决于新误差界；密钥切换并不是噪声刷新。
 
 $ $
 
@@ -38,9 +40,7 @@ $ $
 
 给定 $\textsf{GLWE}_{S,\sigma}(\Delta M + E) = (A, B)$，
 
-$\textsf{GLWE}_{S',\sigma}(\Delta M + E') = (\overbrace{0, 0, \ldots, 0}^{k'}, B) - \sum \limits_{i=0}^{k-1} A_i \cdot S_i$
-
-\text{ } \text{ } $ = (0, 0, \ldots, 0, B) - \sum \limits_{i=0}^{k-1} \langle \textsf{Decomp}^{\beta, l}(A_i), \mathit{KSK}_i \rangle$
+$\textsf{GLWE}_{S',\sigma}(\Delta M + E') = (\overbrace{0, 0, \ldots, 0}^{k'}, B) - \sum \limits_{i=0}^{k-1} \langle \textsf{Decomp}^{\beta, l}(A_i), \mathit{KSK}_i \rangle$
 \end{tcolorbox}
 
 
@@ -84,7 +84,7 @@ $ $
  A_i  S_i  + E_i)) $ 
  
  $= \textsf{GLWE}_{S', \sigma} \left ( \sum \limits_{i=0}^{k-1}  
- A_i  S_i   + E_i \right ) $
+ (A_i  S_i   + E_i) \right ) $
 
 $ $
  
@@ -122,14 +122,28 @@ $= B - \sum\limits_{i=0}^{k-1} A_iS_i - \sum\limits_{i=0}^{k-1}E_i$
 
 $= \Delta M + E - \sum\limits_{i=0}^{k-1}E_i $
 
-$= \Delta M + E' \approx \Delta M + E$ \textcolor{red}{ $\rhd$ 其中 $E' = E - \sum\limits_{i=0}^{k-1}E_i$}
+$= \Delta M + E'$ \textcolor{red}{ $\rhd$ 其中 $E' = E - \sum\limits_{i=0}^{k-1}E_i$}
 
 严格来说，$B - \sum\limits_{i=0}^{k-1} A_iS_i = \Delta M + E + Kq$，其中 $K$ 是一个多项式，以 $q$ 的倍数表示系数回绕的量。不过，上述所有运算均在模 $q$ 下进行，因此 $Kq$ 项会被消去。
 
 $ $
 
-\item 因此，$ (0, 0, \ldots , B) - \sum \limits_{i=0}^{k-1} \langle \textsf{Decomp}^{\beta, l}(A_i), \mathit{KSK}_i \rangle = \textsf{GLWE}_{S',\sigma}(\Delta M + E') \approx \textsf{GLWE}_{S',\sigma}(\Delta M + E) $
+\item 因此，$ (0, 0, \ldots , B) - \sum \limits_{i=0}^{k-1} \langle \textsf{Decomp}^{\beta, l}(A_i), \mathit{KSK}_i \rangle = \textsf{GLWE}_{S',\sigma}(\Delta M + E') $
 
 $\textsf{GLWE}_{S',\sigma}(\Delta M + E')$ 是对明文 $\Delta M$ 的加密，其明文尺度因子为 1。不过，也可以将该密文重新解释为对明文 $M$ 的加密，其尺度因子为 $\Delta$。这样，无需任何额外计算，就能恢复密文原来的尺度因子 $\Delta$。
 \end{enumerate}
 \end{myproof}
+
+
+\para{噪声与截断：}精确分解时，
+\[
+E'=E-\sum_{i=0}^{k-1}\sum_{j=1}^l A_{i,j}E_{i,j},\qquad
+\|E'\|_\infty\le\|E\|_\infty+\sum_{i,j}\|A_{i,j}\|_1\|E_{i,j}\|_\infty.
+\]
+若所有密钥切换误差的范数至多为 $B_{\mathrm{ks}}$，无符号数位给出的上界为 $\|E'\|_\infty\le\|E\|_\infty+knl(\beta-1)B_{\mathrm{ks}}$。为了保证解码，它必须仍小于 $\Delta/2$。代数上的相位恒等式并不意味着新密文具有原先的误差分布。
+
+对于权重为整数的截断降幂 gadget，写成 $A_i\equiv\sum_jA_{i,j}(q/\beta^j)+\rho_i\pmod q$，同一公开算法得到
+\[
+E'=E-\sum_{i,j}A_{i,j}E_{i,j}+\sum_i\rho_iS_i,
+\]
+因此上界中还必须包含 $\sum_i\|\rho_i\|_\infty\|S_i\|_1$。省略这一残差会使证明失效。一般 $q$ 也可采用精确整数 gadget，但必须在密文数位与密钥切换密钥中一致地定义其权重和分解。

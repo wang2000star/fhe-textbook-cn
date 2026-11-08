@@ -18,7 +18,7 @@ $\textsf{GGSW}_{S, \sigma}^{\beta, l}(M) = \Bigl \{ \{ \textsf{GLev}_{S, \sigma}
 
 \subsection{解密}
 
-为了恢复消息 $M$，只需使用秘密密钥 $S$ 解密最后一个 GLev 密文，即加密 $M$ 的那一个。解密其他行会得到 $-S_i \cdot M$，但只有当 $S_i$ 可逆，即满足 $S_i \neq 0$ 时，才能从这些行中恢复 $M$。
+在 GLev 的消息范围与噪声条件下，解密最后一个 GLev 块即可恢复 $M$。其他块的第一行在相应误差界下解码得到 $-S_iM\bmod\beta$。要从该乘积恢复 $M\bmod\beta$，要求 $S_i$ 是 $\mathbb Z_\beta[X]/(X^n+1)$ 中的单位。非零并不充分：在 $\mathbb Z_5[X]/(X^2+1)$ 中，$X-2$ 和 $X+2$ 均非零，但 $(X-2)(X+2)=0$。使用最后一个块时，无需对 $S_i$ 求逆。
 
 
 

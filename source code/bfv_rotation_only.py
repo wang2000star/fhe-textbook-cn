@@ -1,3 +1,6 @@
+"""Plaintext encoding/rotation experiment; no ciphertext encryption is performed.
+Use the corresponding *_example.py for maintained ciphertext demonstrations.
+"""
 import numpy as np
 from numpy.polynomial import Polynomial
 from fastcore.foundation import patch_to
@@ -67,13 +70,8 @@ primitive_root_of_unity = -1
 test_index = 0
 M = N*2
 
-def IsPowerOf2(N : int):
-	n_checker = N
-	while n_checker > 1:
-		if n_checker % 2 == 1:
-			return False
-		n_checker /= 2 
-	return True
+def IsPowerOf2(N: int):
+    return isinstance(N, (int, np.integer)) and N > 0 and (int(N) & (int(N) - 1)) == 0
 
 
 def Egcd(a, b):
@@ -120,10 +118,10 @@ def GenerateParam():
 	else:
 		if len(bfv_vector) != N or len(bfv_vector2) != N:
 		  print("Error: The dimensions of the input vectors are not " + str(N) + ", but " + str(len(bfv_vector)) + ", " + str(len(bfv_vector2)))
-		  sys.exit()
+		  sys.exit(1)
 	if M <= 0:
 		print("Error: M has to be specified for a targeted test")
-		sys.exit()
+		sys.exit(1)
 
 	# Fermit's Little theorem: if A and p are co-primes, then A^{p-1} ≡ 1 mod p 
 	# ==> If p is a prime, then any number A in [0, p - 1] has co-prime with p, thus any number A in [0, p - 1] has a multiplicative inverse, which is A^{p-2} mod p, and A * A^{p-2} = A^{p-1} ≡ 1 mod p
@@ -155,7 +153,7 @@ def GenerateParam():
 		N_inverse = ModInv(N, P) # If P is a prime, the multiplicative inverse of N (< P) is guaranteed to exist (by Fermit's Little theorem)
 		if not is_random_param and N_inverse <= 0:
 			print("Error: N=" + str(N) + "has no inverse modulo P=" + str(P))
-			sys.exit()
+			sys.exit(1)
 		primitive_root_of_unity = -1
 		for i in range(P):
 			result = False
@@ -170,7 +168,7 @@ def GenerateParam():
 		#if not is_random_param: 
 		if len(root_values) == 0 and not is_random_param: 
 			print("Modulus P=" + str(P) + " has no primitive " + str(M) + "-th root of unity")
-			sys.exit(0)
+			sys.exit(1)
 
 	primitive_root_of_unity = min(root_values)
 	'''
@@ -303,7 +301,7 @@ class BFVEncoder:
 			new_root = (primitive_root_of_unity ** JFunction(h, True)) % P 
 			if new_root in cyclic_x_values_ordered:
 				 print("Error 1: root " + str(new_root) + " is already in " + str(cyclic_x_values_ordered))
-				 sys.exit(0)
+				 sys.exit(1)
 			cyclic_x_values_ordered.append(new_root)
 			power_array.append(JFunction(h, True))
 		for h in reversed(range(int(N/2))):
@@ -311,7 +309,7 @@ class BFVEncoder:
 			if new_root in cyclic_x_values_ordered:
 				 print("Error 2: root " + str(new_root) + " is already in " + str(cyclic_x_values_ordered))
 				 print("N: " + str(N))
-				 sys.exit(0)
+				 sys.exit(1)
 			cyclic_x_values_ordered.append(new_root)
 			power_array.append(JFunction(h, False))
 
@@ -489,7 +487,7 @@ def reduce_polynomial(poly, n, q):
 	coef = poly.coef
 	for co in coef:
 		if degree >= n:
-			new_coef[degree % n] += co * (-1 ** (degree / n))
+			new_coef[degree % n] += co * ((-1) ** (degree // n))
 			new_coef[degree % n] %= q 
 		else:
 			new_coef.append(co % q)
@@ -534,7 +532,7 @@ def main():
 	#p = encoder.encode(z)
 	#decoded_z = encoder.decode(p)
 	#print('decoded vector 1: ' + str(decoded_z))
-	#sys.exit()
+	#sys.exit(1)
 	print()
 
 	print("<The encoded BFV plaintext polynomial>")
@@ -562,7 +560,7 @@ def main():
 		rotated_index = (i - rotation_offset) % (len(z)//2)
 		if z[original_index] != decoded_z_rotated[rotated_index] or z[original_index + len(z)//2] != decoded_z_rotated[rotated_index + len(z)//2]:
 			print("Rotation Wrong!")
-			sys.exit(0)
+			sys.exit(1)
 	print("Rotation is CORRECT")
 
 if __name__ == "__main__":

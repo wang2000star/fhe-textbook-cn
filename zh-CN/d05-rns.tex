@@ -1,8 +1,8 @@
-在满足足够安全性的 BFV、BGV 或 CKKS 参数设置中，多项式系数所在环的模数有时需要达到 1000 位或更多，这会给 64 位 CPU 架构带来显著的计算开销。为了提高效率，可以使用剩余数系统（RNS，见 \autoref{subsec:crt-application}）表示密文多项式的系数。RNS 将若干小环（例如 32$\sim$64 位）中计算的结果组合起来，实现大环（例如 1000 位）上元素的模加法和模乘法；每个小环中的值都可以容纳在 64 位 CPU 寄存器中。现代 BFV、BGV 和 CKKS 方案默认采用 RNS 方法，以高效处理大数。这些方案称为 FHE 方案的 RNS 变体。
+BFV、BGV 和 CKKS 的参数可能需要超过机器字长的系数模数。剩余数系统（RNS，\autoref{subsec:crt-application}）使用较小且两两互素模数下的剩余类来表示这些系数，使精确模算术可以由机器字长运算实现，而不缩小总模数或改变基础安全参数。所需模数大小取决于方案、电路、精度和安全目标，没有普遍适用的固定比特长度。
 
-RNS 可以直接计算模加法和模乘法，却不直接支持 \textsf{ModRaise}、模数切换等其他操作，而这些操作对于 FHE 方案至关重要。本节说明如何在 RNS 下设计这些特殊操作，从而构建完整的基于 RNS 的 FHE 方案。除 BFV、BGV 和 CKKS 外，TFHE 理论上也可以用 RNS 表示密文系数。不过，TFHE 实际使用的系数大小小于 $2^{32}$（或 $2^{64}$），可以直接容纳在现代 CPU 的 32 位（或 64 位）寄存器中，因此 TFHE 不需要 RNS。本节将重点讨论 BFV、BGV 和 CKKS 的 RNS 运算。
+CRT 使模加法与模乘法易于实现，但改变基以及实现缩放舍入还需要额外算法。本节针对 BFV、BGV 和 CKKS 介绍这些原语。常见 TFHE 实现采用可由一个机器字表示的环面系数，因此不需要这种特定的大整数分解；这一实现选择，并不是禁止其他 TFHE 变体采用 RNS 技术的定理。
 
-本节特别约定，模约减 $a \bmod q = |a|_q$ 默认采用中心化（即有符号）剩余表示（\autoref{subsec:modulo-centered}），其模溢出的上、下边界分别为 $\dfrac{q}{2} - 1$ 和 $-\dfrac{q}{2}$。在设计 \textsf{FastBconvEx}（\autoref{subsec:rns-fastbconvex}）时，需要利用这一约定限制某些剩余运算结果的范围，从而省略一次模约减，详见 \autoref{subsec:modulo-centered}。
+本节中，$[x]_q=|x|_q$ 表示区间 $[-q/2,q/2)$ 中的唯一整数代表元（\autoref{subsec:modulo-centered}）。除非另有说明，RNS 模数均为两两互素的奇整数；使用素数模数很方便，但中国剩余定理本身并不要求它们是素数。对于奇数 $q$，最小与最大代表元分别是 $-(q-1)/2$ 和 $(q-1)/2$。必须区分这些整数代表元的界与同余关系，这对近似和精确基转换都至关重要。
 
 \begin{tcolorbox}[
     title = \textbf{所需背景知识},    % box title
@@ -36,415 +36,135 @@ RNS 可以直接计算模加法和模乘法，却不直接支持 \textsf{ModRais
 \end{itemize}
 \end{tcolorbox}
 
-\clearpage 
+\clearpage
 
 \subsection{快速基转换：\textsf{FastBConv}}
 \label{subsec:rns-fastbconv}
 
-\noindent \textbf{- 参考文献 1：}
-\href{https://eprint.iacr.org/2016/510}{A Full RNS Variant of FV-like Somewhat Homomorphic Encryption Schemes}~\cite{rns-bfv}
+\noindent \textbf{- 参考文献：} \href{https://eprint.iacr.org/2016/510}{A Full RNS Variant of FV-like Somewhat Homomorphic Encryption Schemes}~\cite{rns-bfv}；\href{https://eprint.iacr.org/2022/657}{BASALISC: Programmable Hardware Accelerator for BGV FHE}~\cite{rns-bfv2}。
 
-\noindent \textbf{- 参考文献 2：}
-\href{https://eprint.iacr.org/2022/657}{BASALISC: Programmable Hardware Accelerator for BGV FHE}~\cite{rns-bfv2}
-
-$ $
-
-
-设有 $x \in \mathbb{Z}_q$，其中 $q$ 是一个大模数。利用 RNS（\autoref{subsec:crt-application}），可以将 $x$ 表示为 $(x_1, x_2, \cdots, x_k)$，其中每个 $x_i \in \mathbb{Z}_{q_i}$，$\prod\limits_{i=1}^k q_i = q$，并且 $\{q_1, q_2, \cdots, q_k\}$ 两两互素。在 RNS 中，基转换是指将 RNS 剩余向量 $(x_1, x_2, \cdots, x_k) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$ 转换为 $(c_1, c_2, \cdots, c_k) \in \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l}$，其中 $\{b_1, b_2, \cdots, b_l\}$ 是新的基，且 $\{q_1, q_2, \cdots, q_k\}$ 与 $\{b_1, b_2, \cdots, b_l\}$ 中的所有模数两两互素。$x$ 与 $c$ 的关系为 $c = |x|_b$，其中 $x \in \mathbb{Z}_{q}$ 且 $c \in \mathbb{Z}_b$。标准的基转换方法是先计算 $x = \sum\limits_{i=1}^k |x_i z_i|_{q_i} \cdot y_i \bmod q$（其中 $y_i = \dfrac{q}{q_i} \text{ 且 } z_i = y_i^{-1} \bmod q_i$），将 $(x_1, x_2, \cdots, x_k)$ 重构为 $x$，然后对 $j \in [1, l]$ 计算 $c_j \equiv x \bmod b_j$。但是，当模数 $q$ 较大时，这种计算较慢。为了\textit{快速}完成基转换，设计如下快速基转换操作 $\textsf{FastBConv}$：
-
-
+令 $q=\prod_{i=1}^kq_i$、$b=\prod_{j=1}^lb_j$，所有基模数两两互素。输入剩余类 $x_i=[x]_{q_i}$ 确定中心化整数 $x=[x]_q$。精确基转换应输出 $([x]_{b_j})_{j=1}^l$。快速基转换省略一次大模数约减，而在每个输出坐标使用同一个未经约减的 CRT 和：
+\[
+y_i=q/q_i,\qquad z_i=y_i^{-1}\bmod q_i,\qquad
+T=\sum_{i=1}^k[x_iz_i]_{q_i}y_i.
+\]
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rns-fastbconv}} 快速基转换：\textsf{FastBConv}}}]
-
-
-\textbf{\underline{输入}：}$(x_1, x_2, \cdots, x_k) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$ \textcolor{red}{ $\rhd$ 表示大数 $x \in \mathbb{Z}_q$，其中 $q = \prod\limits_{i=1}^kq_i$，并且 $\{q_1, q_2, \cdots, q_k\}$ 两两互素}
-
-$ $
-
-$\textsf{FastBConv}(x, q, b)= \textsf{FastBConv}(\{x_i\}_{i=1}^{k}, \{q_i\}_{i=1}^{k}, \{b_i\}_{i=1}^{l})$
-
-$ = \left( \sum\limits_{i=1}^{k} |x_i \cdot z_i|_{q_i} \cdot y_i \bmod b_j \right)_{j \in [1,l]}$  
-
-\textcolor{red}{ $\rhd$ 其中 $y_i = \dfrac{q}{q_i} \text{, } z_i = y_i^{-1} \bmod q_i$，且 $b = \prod\limits_{i=1}^lb_i$}
-
-$ $
-
-$ = (c_1, c_2, \cdots, c_l) \in \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l}$ \textcolor{red}{ $\rhd$ 表示大数 $c \in \mathbb{Z}_b$}
-
-$ $
-
-$ $
-
-\textsf{FastBConv} 函数的输入是以素数模数 $(q_1, q_2, \cdots, q_k)$ 为基的 RNS 剩余列表 $(x_1, x_2, \cdots, x_k)$。该 RNS 向量表示如下大数：
-
-$x = \left(\sum\limits_{i=1}^k x_i\cdot y_i \cdot z_i\right) \bmod q = \left(\sum\limits_{i=1}^k |x_i\cdot z_i|_{q_i} \cdot y_i\right) \bmod q$ \textcolor{red}{ $\rhd$ 定理~\ref*{sec:chinese-remainder}.1}
-
-$ $
-
-\textsf{FastBConv} 函数的输出是以素数模数 $(b_1, b_2, \cdots, b_l)$ 为基的 RNS 剩余列表 $(c_1, c_2, \cdots, c_l)$。该 RNS 向量表示如下大数
-
-$c = \left(\sum\limits_{i=1}^l c_i\cdot y'_i \cdot z'_i\right) \bmod b = \left(\sum\limits_{i=1}^l |c_i\cdot z'_i|_{b_i} \cdot y'_i\right) \bmod b$ \textcolor{red}{ $\rhd$ 其中 $y'_i = \dfrac{b}{b_i}$ 且 $z'_i = {y_{i}'}^{-1} \bmod b_i$}
-
-$ $
-
-$c$ 与 $x$ 的关系如下：
-
-$c = x + uq \bmod b$（其中 $u$ 是满足 $|u| \leq \dfrac{k}{2} + 1$ 的整数）
-
-\textcolor{red}{ $\rhd$ 即快速基转换后的 $c$ 引入噪声 $|uq|_b$}
-
-
+\[
+\textsf{FastBConv}(x,q,b)=([T]_{b_1},\ldots,[T]_{b_l}).
+\]
+存在整数 $u$ 使 $T=x+uq$。对于上述奇模数中心化约定，
+\[
+|T|<kq/2,\quad |x|<q/2,\quad |u|<(k+1)/2,
+\quad |u|\leq\lfloor k/2\rfloor.
+\]
+因此输出表示 $x+uq\pmod b$，不一定表示 $x\pmod b$。记该界为 $U_k=\lfloor k/2\rfloor$。
 \end{tcolorbox}
 
-
 \begin{myproof}
-
-下面证明，与标准基转换相比，将 $x$ 快速基转换为 $c$ 为什么会额外引入噪声 $|u\cdot q|_b$，其中整数满足 $|u| \leq \dfrac{k}{2}+1$。如果对 $x$ 执行从基模数 $(q_1, \cdots, q_k)$ 到 $(b_1, \cdots, b_l)$ 的标准（即精确）基转换，则计算为：
-
-$$
-\left( \left( \sum\limits_{i=1}^{k} |x_i \cdot z_i|_{q_i} \cdot y_i \bmod q \right) \bmod b_j \right)_{j \in [1,l]} = \left( x \bmod b_j \right)_{j \in [1,l]}
-$$
-
-而 $\textsf{FastBConv}$ 为了提高速度，省略了中间的大模数 $q$ 约减，直接执行小模数 $b_j$ 约减，从而不必在转换过程中处理幅度可达 $\pm\dfrac{q}{2}$ 的大数。在这种快速基转换方法中，对每个 $i \in [1, k]$，$|x_i \cdot z_i|_{q_i} \cdot y_i$ 的计算结果位于 $\left[-\left\lceil\dfrac{q}{2}\right\rceil, \left\lfloor\dfrac{q}{2}\right\rfloor\right]$ 范围内，因为 $|x_i \cdot z_i|_{q_i}$ 是 $\left[-\left\lceil\dfrac{q_i}{2}\right\rceil, \left\lfloor\dfrac{q_i}{2}\right\rfloor\right]$ 范围内的整数，且 $y_i = \dfrac{q}{q_i}$。因此，$-\dfrac{q+1}{2} \leq |x_i \cdot z_i|_{q_i} \cdot y_i \leq \dfrac{q}{2}$。若将 $i \in [1, k]$ 对应的 $k$ 个这样的值相加，则总和为 $x' = \sum\limits_{i=1}^{k} |x_i \cdot z_i|_{q_i} \cdot y_i = x + u\cdot q$（\autoref{sec:chinese-remainder} 中的总结~\ref*{sec:chinese-remainder}），其中 $u$ 为某个整数，$u\cdot q$ 表示 $q$ 的整数倍溢出。又因为已经证明对每个 $i \in [1, k]$ 均有 $-\dfrac{q+1}{2} \leq |x_i \cdot z_i|_{q_i} \cdot y_i \leq \dfrac{q}{2}$，所以 $uq$ 必须大于 $-k\cdot\dfrac{q+1}{2}$ 且小于 $k\cdot\dfrac{q}{2}$，即 $u$ 是满足 $-\dfrac{k}{2} - 1 \leq u \leq \dfrac{k}{2}$ 的整数。因此，$\sum\limits_{i=1}^{k} |x_i \cdot z_i|_{q_i} \cdot y_i$ 的下溢最多可达 $-\left(\dfrac{k}{2} + 1\right)\cdot q$，上溢最多可达 $\dfrac{k}{2}\cdot q$。所以，标准（即精确）基转换将每个剩余计算为 $\hat{c}_j = \left(\sum\limits_{i=1}^{k} |x_i \cdot z_i|_{q_i} \cdot y_i \bmod q\right) \bmod b_j$（即 $\hat{c}_j = x \bmod b_j$），而快速（即近似）基转换将每个剩余计算为 $c_j = \left(\sum\limits_{i=1}^{k} |x_i \cdot z_i|_{q_i} \cdot y_i\right) \bmod b_j$（即 $c_j = x + uq \bmod b_j$，其中整数满足 $|u| \leq \dfrac{k}{2} + 1$）。注意，每对 $\hat{c}_j$ 与 $c_j$ 之间的剩余差（即误差）为 $uq \bmod b_j$，从 $q \rightarrow  b$ 进行快速基转换产生的总噪声为 $uq \bmod b$。还要注意，RNS 剩余向量 $(c_1, c_2, \cdots, c_l) \in \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l}$ 表示的大数为 $c = x + uq \bmod b$。
-
-需要注意，\textsf{FastBConv} 不保证基转换的精确性，因为 $q$ 的整数倍溢出会产生不可忽略的误差。不过，\textsf{FastBConv} 仍是多种 RNS 运算的重要组成部分，例如 \textsf{ModRaise\textsubscript{RNS}}（\autoref{subsec:rns-modraise}）和 \textsf{ModSwitch\textsubscript{RNS}}（\autoref{subsec:rns-modswitch}）。
-
+每个加项的绝对值小于 $q/2$，且 CRT 同余关系给出 $T\equiv x\pmod q$。对 $u=(T-x)/q$ 的界必须同时考虑 $T$ 与 $x$；只约束 $T$，不能将同一区间直接用作 $uq$ 的界。所有输出剩余类都由共同的 $T$ 计算，因此误差是在整个目标基上一致的倍数 $uq$。其他剩余类约定会得到不同的界，包括~\cite{rns-bfv} 采用的无符号约定。
 \end{myproof}
 
-
+这是基转换的近似实现，而不是中国剩余定理失效。后续算法必须消除该 $q$ 的倍数，将其通过除法转化为受控误差，或明确将其计入正确性界。
 
 \subsection{小蒙哥马利约减算法：\textsf{SmallMont}}
 \label{subsec:rns-smallmont}
 
-\textsf{FastBConv}（即快速基转换）的一个问题是会产生不可忽略的噪声。具体而言，设通过 \textsf{FastBConv} 将 $x \in \mathbb{Z}_q$（模数满足 $q = q_1 \cdot q_2 \cdot \cdots \cdot q_k$）转换为 $c = x + uq \bmod b$（模数满足 $b = b_1 \cdot b_2 \cdot \cdots \cdot b_l$），其中整数满足 $|u| \leq \dfrac{k}{2}+1$，则转换产生的噪声介于 $-\left(\dfrac{k}{2}+1\right)\cdot q \bmod b$ 与 $\left(\dfrac{k}{2}+1\right)\cdot q \bmod b$ 之间。为减小这一噪声，下面介绍小蒙哥马利算法（\textsf{SmallMont}），将快速基转换产生的噪声从 $uq$ 减小为 $u'q$，其中 $u' \in \{-1, 0, 1\}$。算法设计如下：
+Small Montgomery 约减限制快速基转换引入的 $q$ 的倍数，一般不会使基转换变为精确操作。下面的中心化剩余类变体明确列出所需条件；原始无符号剩余类算法及其参数界见~\cite{rns-bfv} 的算法 2 和引理 4。
 
-\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rns-smallmont}} 快速模约减：\textsf{SmallMont}}}]
-
-
-\textbf{\underline{输入}：}$c = (c_1, c_2, \cdots, c_l, c_{l+1}) \in \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l} \times \mathbb{Z}_{b_\alpha}$ \textcolor{red}{ $\rhd$ $b_\alpha$ 是与 $b$ 互素的素数，其中 $b = \prod\limits_{i=1}^lb_i$}
-
-$ $
-
-其中 $c = \textsf{FastBConv}\bm(|b_\alpha \cdot x|_q, q, bb_\alpha\bm) = |b_\alpha \cdot x|_q + uq$ \textcolor{red}{ $\rhd$ 其中 $x \in \mathbb{Z}_q$，且整数满足 $|u| \leq \dfrac{k}{2}+1$}
-
-$ $
-
-\textbf{\underline{主要步骤}}
-
-\textbf{$\textsf{SmallMont}(c, bb_\alpha, b_\alpha, q): $} 
-
+令 $x=[x]_q$，选取与 $q$、$b$ 均互素的奇数辅助模数 $b_\alpha$，并计算 $[b_\alpha x]_q$ 的快速 CRT 提升：
+\[
+T=[b_\alpha x]_q+uq=b_\alpha x+(v+u)q,
+\qquad |u|\leq U_k.
+\]
+输入由同一个 $T$ 在各个 $b_j$ 及 $b_\alpha$ 下的剩余类组成。
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rns-smallmont}} Small Montgomery 约减：\textsf{SmallMont}}}]
 \begin{enumerate}
-\item $c' = |c \cdot q^{-1}|_{b_\alpha}$
-\item 对每个 $i \in [1, l]$，计算 $r_i = \Big|(c_{b_i} - |q|_{b_i}\cdot c') \cdot b_\alpha^{-1} \Big|_{b_i}$
+\item 使用给定的 $b_\alpha$ 剩余类，计算 $a=[Tq^{-1}]_{b_\alpha}$。
+\item 对 $j=1,\ldots,l$，输出 $r_j=[(T_{b_j}-qa)b_\alpha^{-1}]_{b_j}$。
 \end{enumerate}
-
-$ $
-
-\textbf{\underline{输出：}}$r = (\overbrace{r_1, r_2, \cdots, r_l}^{l}) \in \overbrace{\mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l}}^{l}$ \textcolor{red}{ $\rhd$ 不包含 $r_\alpha \in \mathbb{Z}_{b_\alpha}$}
-
-$ $
-
-输出满足关系：$r = x + u'q \bmod b$，其中 $u' \in \{-1, 0, 1\}$
-
+结果表示 $r=(T-qa)/b_\alpha=x+u'q\pmod b$。若 $b_\alpha>U_k+1/2$，则 $u'\in\{-1,0,1\}$。
 \end{tcolorbox}
 
 \begin{myproof}
-
-\begin{enumerate}
-\item 给定 $c' = |c \cdot q^{-1}|_{b_\alpha}$，注意 $c - q \cdot c'$ 可被 $b_\alpha$ 整除，如下所示：
-
-$c - q \cdot c' \bmod b_\alpha$
-
-$= c - q \cdot |c \cdot q^{-1}|_{b_\alpha} \bmod b_\alpha$ \textcolor{red}{ $\rhd$ 代入 $c' = |c \cdot q^{-1}|_{b_\alpha}$}
-
-$= c - c \bmod b_\alpha$ \textcolor{red}{ $\rhd$ 消去相互抵消的 $|q|_{b_\alpha}$ 与 $|q|^{-1}_{b_\alpha}$}
-
-$= 0 \bmod b_\alpha$
-
-$ $
-
-由于 $c - q \cdot c' = 0 \bmod b_\alpha$，所以 $c - q \cdot c'$ 是 $b_\alpha$ 的整数倍，即 $c - q \cdot c'$ 可被 $b_\alpha$ 整除。这也说明 $\dfrac{c - q \cdot c'}{b_\alpha}$ 是整数。
-
-$ $
-
-\item 给定 $c = |b_\alpha \cdot x|_q + uq \bmod b$ 与 $c' = |c \cdot q^{-1}|_{b_\alpha}$，可将 $\dfrac{c - q \cdot c'}{b_\alpha} \bmod b$ 表示为：
-
-%%%$\left|\dfrac{c - q \cdot c'}{b_\alpha}\right|_{bb_\alpha} = \left|\dfrac{c - q \cdot c'}{b_\alpha}\right|_{b}$ \textcolor{red}{ $\rhd$ since $c < bb_\alpha$, it is guaranteed that $\dfrac{c - q \cdot c'}{b_\alpha} < b$}
-$\left|\dfrac{c - q \cdot c'}{b_\alpha}\right|_{b}$
-
-
-$ = \left|\dfrac{c - q \cdot |c \cdot q^{-1}|_{b_\alpha}}{b_\alpha}\right|_{b}$ \textcolor{red}{ $\rhd$ 代入 $c' = |c \cdot q^{-1}|_{b_\alpha}$}
-
-
-$ = \left|\dfrac{|b_\alpha \cdot x|_q + uq - q \cdot \Bigg|\Big||b_\alpha \cdot x|_q + uq\Big|_{b} \cdot q^{-1}\Bigg|_{b_\alpha}}{b_\alpha}\right|_{b}$ \textcolor{red}{ $\rhd$ 代入 $c = \Big||b_\alpha \cdot x|_q + uq\Big|_{b}$}
-
-
-$ = \Bigg|\dfrac{b_\alpha\cdot x + vq + uq - q \cdot \Big||b_\alpha\cdot x + vq + uq|_{b} \cdot q^{-1}\Big|_{b_\alpha}}{b_\alpha}\Bigg|_{b}$ \textcolor{red}{ $\rhd$ 将 $|b_\alpha\cdot x|_{q}$ 改写为 $b_\alpha\cdot x + vq$，其中 $v$ 是表示 $b_\alpha\cdot x$ 关于 $q$ 的溢出倍数的整数}
-
-$ $
-
-$ = \Bigg|x + \dfrac{vq + uq - q \cdot \Big||b_\alpha\cdot x + vq + uq|_{b} \cdot q^{-1}\Big|_{b_\alpha}}{b_\alpha}\Bigg|_{b}$ \textcolor{red}{ $\rhd$ 因为 $x = \dfrac{b_\alpha \cdot x}{b_\alpha}$}
-
-$ = \Bigg|x + q\cdot \dfrac{v + u - \Big||b_\alpha\cdot x + vq + uq|_{b} \cdot q^{-1}\Big|_{b_\alpha}}{b_\alpha}\Bigg|_{b}$ \textcolor{red}{ $\rhd$ 提取公因子 $q$}
-
-
-
-$ $
-
-上述计算结果必为整数，这已在证明的第一步中说明。并且，根据输入定义，$q$ 与 $b_\alpha$ 互素。因此可知，
-
-$ \dfrac{v + u - \Big||b_\alpha\cdot x + vq + uq|_{b} \cdot q^{-1}\Big|_{b_\alpha}}{b_\alpha}$ 必为整数。所以，只要将 $b_\alpha$（即一个同时与 $q$ 和 $b$ 互素的素数）选得足够大，$ \dfrac{v + u - \Big||b_\alpha\cdot x + vq + uq|_{b} \cdot q^{-1}\Big|_{b_\alpha}}{b_\alpha}$ 就会收敛到 $\{-1, 0, 1\}$。原因在于，随着 $b_\alpha$ 增大：（1）$v$ 的增长速度慢于 $b_\alpha$，因为 $|b_\alpha\cdot x|_q = b_\alpha\cdot x + vq$；（2）$u$ 的幅度保持小于 $\dfrac{k}{2} + 1$，因为整数满足 $|u| \leq \dfrac{k}{2}+1$；（3）$\Big||b_\alpha\cdot x + vq + uq|_{b} \cdot q^{-1}\Big|_{b_\alpha}$ 必为 $\left[-\dfrac{b_\alpha+1}{2}, \dfrac{b_\alpha}{2} - 1\right]$ 范围内的整数。综上，若 $b_\alpha$ 足够大，则有：
-
-$\left|\dfrac{c - q\cdot c'}{b_\alpha}\right|_{b} = x + u'q \bmod b$ \textcolor{red}{ $\rhd$ 其中 $u' \in \{-1, 0, 1\}$}
-
-$ $
-
-此外，下式成立：
-
-$\dfrac{c - q\cdot c'}{b_\alpha} \bmod b = (c - q\cdot c')\cdot b_\alpha^{-1} \bmod b$ \textcolor{red}{ $\rhd$ 因为 $b_\alpha$ 整除 $c - q\cdot c'$，且 $b_\alpha$ 与 $b$ 互素}
-
-$ $
-
-\item 最终输出 $x + u'q \bmod b$ 可以表示为以模数 $(b_1, \cdots, b_l)$ 为基的 RNS 剩余向量。为此，对每个 $i \in [1, l]$ 执行以下计算，将 $(c - q\cdot c')\cdot b_\alpha^{-1}$ 转换为 RNS 向量 $(r_1, r_2, \cdots, r_l) \in \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l}$：
-
-$r_i = |(c - q\cdot c')\cdot b_\alpha^{-1}|_{b_i}$
-
-$ = |(c_{b_i} - |q|_{b_i}\cdot c') \cdot b_\alpha^{-1} |_{b_i}$
-
-
-\end{enumerate}
+因为 $a\equiv v+u\pmod{b_\alpha}$，商 $u'=(v+u-a)/b_\alpha$ 是整数。中心化代表元给出 $|v|<(b_\alpha+1)/2$ 和 $|a|<b_\alpha/2$，因此
+\[
+|u'|<1+\frac{U_k+1/2}{b_\alpha}<2.
+\]
+这就证明了所述的三种可能整数值。分子 $T-qa$ 被 $b_\alpha$ 整除，可以在每个 $b_j$ 下通过乘以 $b_\alpha^{-1}\bmod b_j$ 计算其商的剩余类。
 \end{myproof}
+
+计算过程中必须始终保留辅助剩余类。先重构 $[T]_b$，再将该值对 $b_\alpha$ 取模，通常会丢失原来的 $b_\alpha$ 剩余类。此外，$v$ 可能随 $b_\alpha$ 线性增长；声称其增长更慢并不能证明该界。
 
 \subsubsection{使用 \textsf{SmallMont} 改进 \textsf{FastBConv}}
 \label{subsubsec:rns-smallmont-fastbconv}
 
-利用总结~\ref*{subsec:rns-smallmont} 中的 \textsf{SmallMont}，可以将原始输出 $\textsf{FastBConv}(x, q, b) = |x + uq|_b$（其中整数满足 $|u| \leq \dfrac{k}{2}+1$）的精度改进为 $|x + u'q|_b$（其中 $u' \in \{-1, 0, 1\}$），具体如下：
-
-$\textsf{SmallMont}\bm(\textsf{FastBConv}\bm(|b_\alpha \cdot x|_q, q, bb_\alpha\bm), bb_\alpha, b_\alpha, q\bm) $
-
-$\textsf{SmallMont}\bm(\Big||b_\alpha \cdot x|_q + uq\Big|_{bb_\alpha}, bb_\alpha, b_\alpha, q\bm) $
-
-
-$= |x + u'q|_b$ \textcolor{red}{ $\rhd$ 其中 $u' \in \{-1, 0, 1\}$}
-
-$ $
-
-
+满足 \autoref{subsec:rns-smallmont} 的参数条件时，
+\[
+\textsf{SmallMont}\bigl(\textsf{FastBConv}([b_\alpha x]_q,q,bb_\alpha),bb_\alpha,b_\alpha,q\bigr)
+=[x+u'q]_b,\qquad u'\in\{-1,0,1\}.
+\]
+预先乘以 $b_\alpha$ 是必要步骤。结果仍是中心化 $x$ 的近似提升，与 \autoref{subsec:rns-fastbconvex} 的 \textsf{FastBConvEx} 不同。
 
 
 \subsection{基于 RNS 的 ModRaise：\textsf{ModRaise\textsubscript{RNS}}}
 \label{subsec:rns-modraise}
 
-\noindent \textbf{- 参考文献：}
-\href{https://eprint.iacr.org/2018/931.pdf}{A Full RNS Variant of
-Approximate Homomorphic Encryption}~\cite{rns-ckks}
+\noindent \textbf{- 参考文献：} \href{https://eprint.iacr.org/2018/931}{A Full RNS Variant of Approximate Homomorphic Encryption}~\cite{rns-ckks}，第 3.2 节。
 
-$ $
-
-\textsf{ModRaise} 用于将密文模数从 $q$ 提升至 $qb$，其中 $q \ll qb$。此前，在 BFV 的密文与密文相乘（\autoref{subsubsec:bfv-mult-cipher-summary} 中的总结~\ref*{subsubsec:bfv-mult-cipher-summary}）和 CKKS 的模数自举（\autoref{subsubsec:ckks-bootstrapping-summary} 中的总结~\ref*{subsubsec:ckks-bootstrapping-summary}）中都使用过 \textsf{ModRaise}。基于 RNS 的 \textsf{ModRaise} 设计如下：
-
-
+从 $q$ 到 $qb$ 的基扩展保留模各个 $q_i$ 的剩余类，并附加模各个 $b_j$ 的剩余类。使用快速基转换时，它选择一个近似整数提升：
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rns-modraise}} \textsf{ModRaise\textsubscript{RNS}}}}]
-
-\textbf{\underline{输入}：}$(x_1, x_2, \cdots, x_k) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$ \textcolor{red}{ $\rhd$ 表示大数 $x \in \mathbb{Z}_q$}
-
-$ $
-
-
-$\textsf{ModRaise\textsubscript{RNS}}({\{x_i\}_{i=1}}^k, q, qb)$ \textcolor{red}{ $\rhd$ 其中 $q$ 与 $b$ 互素}
-
-$= \textsf{FastBConv\textsubscript{RNS}}({\{x_i\}_{i=1}}^k, q, qb)$ 
-
-$ = (x_1, x_2, \cdots, x_k, \textsf{FastBConv}(\{x_i\}_{i=1}^k, q, b))$ 
-
-$ = (x_1, x_2, \cdots, x_k, c_1, c_2, \cdots, c_l) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k} \times \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l}$
-
-$ = (\chi_1, \chi_2, \cdots, \chi_{k+l}) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k} \times \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l}$
-
-\textcolor{red}{ $\rhd$ 表示数值 $\chi \in \mathbb{Z}_{qb}$}
-
-$ $
-
-
-$\chi$ 与 $x$ 的关系如下：
-
-$\chi \equiv x + u\cdot q \bmod qb$ \textcolor{red}{ $\rhd$ \textsf{ModRaise\textsubscript{RNS}} 产生的噪声为 $|uq|_{qb}$，其中整数满足 $|u| \leq \dfrac{k}{2}+1$}
-
-$\chi \equiv x \bmod q$
-
+\[
+\textsf{ModRaise}_{\mathrm{RNS}}(x,q,qb)
+=(x_1,\ldots,x_k,\textsf{FastBConv}(x,q,b)).
+\]
+组合后的向量表示 $x+uq\pmod{qb}$，其中 $|u|\leq U_k$。采用 \autoref{subsec:rns-smallmont} 中的 Montgomery 预处理，可以将其限制为满足 $|u'|\leq1$ 的适当提升 $x+u'q$。
 \end{tcolorbox}
 
-
-\begin{myproof}
-
-在 \autoref{subsec:rns-fastbconv} 中，已经证明 $x' = \sum\limits_{i=1}^{k} |x_i \cdot z_i|_{q_i} \cdot y_i = x + u\cdot q$，其中整数满足 $|u| \leq \dfrac{k}{2}+1$。因此，有：
-
-对于 $i \in [1, k]$，$x' \equiv x_i \bmod q_i$ \textcolor{red}{ $\rhd$ 因为 $x' = x + u\cdot q \equiv x_i \bmod q_i$；由于 $q_i$ 整除 $q$，所以 $u \cdot q \equiv 0 \pmod{q_i}$，且 $x \equiv x_i \bmod q_i$}
-
-对于 $j \in [1, l]$，$x' \equiv c_j \bmod b_j$ \textcolor{red}{ $\rhd$ 其中每个 $c_j = x + uq \bmod b_j$}
-
-$ $
-
-因此，$x' \bmod qb$ 可以表示为以下 RNS 剩余：
-
-$(x_1, x_2, \cdots, x_k, c_1, c_2, \cdots, c_l) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k} \times \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l}$
-
-$ = (x_1, x_2, \cdots, x_k, \textsf{FastBConv}(\{x_i\}_{i=1}^k, q, b)) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k} \times \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l}$ 
-
-$ $
-
-对 $x \in \mathbb{Z}_q$ 执行模数提升 $q \rightarrow qb$ 的理想目标，是得到 $x \bmod qb$ 的 RNS 向量。然而，上述 RNS 向量表示的是 $x' \bmod qb$，其中 $x' = x + uq$，且整数满足 $|u| \leq \dfrac{k}{2}+1$。因此，可以将该 RNS 向量理解为带有额外噪声 $|uq|_{qb}$ 的 $x \bmod qb$。
-
-
-
-\end{myproof}
+这是整数代表元的选择，并不是从 $\mathbb Z_q$ 到 $\mathbb Z_{qb}$ 的典范环嵌入。若逐系数作用于密文分量，将新代表元写为 $A+qU_A$ 和 $B+qU_B$，则其相位改变
+\[
+q(U_B+U_AS).
+\]
+因此，分量界 $\|U_A\|_\infty,\|U_B\|_\infty\leq U_k$ 给出的相位界是 $qU_k(1+\|S\|_1)$，而不只是 $qU_k$。整数相位 $B+AS$ 中还可能已经含有 $q$ 的倍数。这些项必须由后续乘法或自举算法处理，不能视为独立的新 RLWE 误差。
 
 \subsection{基于 RNS 的 ModDrop：\textsf{ModDrop\textsubscript{RNS}}}
 \label{subsec:rns-moddrop}
 
-\textsf{ModDrop}（\autoref{subsec:ckks-moddrop}、\autoref{subsec:bgv-moddrop}）用于按 $q \rightarrow q'$ 降低密文模数，其中 $q'$ 整除 $q$，同时保持明文尺度因子（CKKS 情形）或噪声尺度因子（BGV 情形）不变。
-
-在 RNS 密文表示中，\textsf{ModDrop} 等价于删除密文基中的部分模数，同时不影响尺度因子 $\Delta$。具体而言，将密文的基从 $q$ 转换为 $\bar{q}$，其中 $\bar{q}$ 的基模数集合是 $q$ 的子集，即 $\bar{q}$ 整除 $q$。设输入为 $(x_1, x_2, \cdots, x_k) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$，新的子集基为 $\bar{q} = q_1 \cdot q_2 \cdot \cdots \cdot q_{k'}$，其中 $k' < k$。在这一设置下，从 $q \rightarrow \bar{q}$ 执行快速基转换，只需提取输入值中与基模数 $(q_1, q_2, \cdots, q_{k'})$ 对应的 RNS 剩余。理由如下：
-
-$\textsf{FastBConv}(\{x_i\}_{i=1}^{k}, q, \bar{q}) = \left( \sum\limits_{i=1}^{k} |x_i \cdot z_i|_{q_i} \cdot y_i \bmod q_j \right)_{j \in [1,k']}$  
-
-$ = x + uq \bmod \bar{q}$ \textcolor{red}{ $\rhd$ \autoref{subsec:rns-fastbconv} 中的总结~\ref*{subsec:rns-fastbconv}}
-
-$ = x \bmod \bar{q} $ \textcolor{red}{ $\rhd$ 由于 $\bar{q}$ 整除 $uq$，$uq$ 被消去}
-
-
-$ = (x_1, x_2, \cdots, x_{k'}) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_{k'}}$ 
-
-
-$ $
-
-注意，上述从 $q \rightarrow \bar{q}$ 开始的快速基转换（其中 $\bar{q}$ 整除 $q$）不会产生任何噪声。这与从 $q \rightarrow b$ 开始的快速基转换（\autoref{subsec:rns-fastbconv} 中的总结~\ref*{subsec:rns-fastbconv}）不同：后者中 $q$ 与 $b$ 互素，会产生噪声 $|uq|_b$，其中整数满足 $|u| \leq \dfrac{k}{2}+1$。
-
-所有采用 RNS 表示的 BFV、BGV 和 CKKS 密文都支持 \textsf{ModDrop}。但必须保证，模数降低后，缩放后的明文（BFV、CKKS 情形）或缩放后的噪声（BGV 情形）不超过新的密文模数，否则无法正确解密。\textsf{ModDrop\textsubscript{RNS}} 总结如下：
-
+\textsf{ModDrop\textsubscript{RNS}} 从模 $qb$ 的表示中删除对应于 $b$ 的各因子的剩余类：
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rns-moddrop}} \textsf{ModDrop\textsubscript{RNS}}}}]
-
-
-\textbf{\underline{输入}：}$(x_1, x_2, \cdots, x_k) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$
-
-$ $
-
-$\textsf{FastBConv}(\{x_i\}_{i=1}^{k}, q, \bar{q}) = \left( \sum\limits_{i=1}^{k} |x_i \cdot z_i|_{q_i} \cdot y_i \bmod q_j \right)_{j \in [1,k']}$  
-
-\textcolor{red}{ $\rhd$ 其中 $\bar{q}$ 是两两互素的 $q_1 \cdot q_2 \cdot \cdots \cdot q_{k'}$ 的乘积，并且 $\bar{q}$ 整除 $q$}
-
-
-$ = (x_1, x_2, \cdots, x_{k'}) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_{k'}}$ \textcolor{red}{ $\rhd$ 转换过程中不产生噪声}
-
-
+\[
+(x_{q_1},\ldots,x_{q_k},x_{b_1},\ldots,x_{b_l})
+\longmapsto(x_{q_1},\ldots,x_{q_k}).
+\]
+这是精确的模 $q$ 约减，不进行缩放或舍入。
 \end{tcolorbox}
 
-
-
-
+对于 CKKS 或 BGV，只有原中心化整数相位的每个系数都已经位于 $[-q/2,q/2)$ 内，才能保持同一相位。此时 CKKS 保持尺度不变，BGV 保持明文模数不变。否则，相位回绕可能改变解码消息。对于 BFV，即使相位不变，也通常不能保持消息，因为标准尺度从 $\lfloor qb/t\rfloor$ 变为 $\lfloor q/t\rfloor$。例如，初始模数为 $105$、$t=7$，无噪声相位 $15$ 编码 $m=1$；降至模数 $35$ 后相位仍为 $15$，但标准 BFV 解码得到 $3$。需要保持消息时，应采用 BFV 专用的缩放舍入操作。
 
 \subsection{基于 RNS 的模数切换：\textsf{ModSwitch\textsubscript{RNS}}}
 \label{subsec:rns-modswitch}
 
-模数切换将密文模数从 $q$ 降低为 $q'$（其中 $q' < q$），并将目标值从 $x$ 更新为 $\left\lceil x\cdot \dfrac{q'}{q}\right\rfloor$。模数切换用于在每次密文与密文相乘后降低密文的乘法层级（BFV、CKKS 或 BGV 情形），甚至在每次密文与明文相乘后也会使用（CKKS 情形）。每次对密文执行模数切换 $q \rightarrow q'$，其中明文的尺度因子也按相同比例降低：$\dfrac{q'}{q}$。
-
-RNS 密文上的模数切换记为 \textsf{ModSwitch\textsubscript{RNS}}，要求输出基模数是输入基模数的子集。换言之，与 \textsf{ModDrop\textsubscript{RNS}} 类似，它只支持形如 $qb \rightarrow q$ 的模数切换，其中 $q$ 与 $b$ 互素。
-
-
-设有 $(\chi_1, \chi_2, \cdots, \chi_{k+l}) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k} \times \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l} $，它表示数值 $\chi = \left(\sum\limits_{i=1}^{k}\left|\chi_i\cdot\left(\dfrac{qb}{q_i}\right)^{-1}\right|_{q_i}\cdot\dfrac{qb}{q_i}\right) + \left(\sum\limits_{j=k+1}^{k+l}\left|\chi_j\cdot\left(\dfrac{qb}{b_j}\right)^{-1}\right|_{b_j}\cdot\dfrac{qb}{b_j}\right) \bmod qb$。
-
-$ $
-
-给定 $\chi \in \mathbb{Z}_{qb}$，执行模数切换 $qb \rightarrow q$ 的 \textsf{ModSwitch\textsubscript{RNS}}，就是将 $\chi \in \mathbb{Z}_{qb}$ 更新为某个满足 $y \approx \left\lceil\dfrac{\chi}{b}\right\rfloor$ 的 $y \in \mathbb{Z}_q$。常规模数切换可以直接将 $\chi$ 除以 $b$ 并舍入，但 RNS 向量的各剩余分量不支持直接算术除法。因此，改用以下策略：寻找某个满足 $\chi \equiv \hat{\chi} \bmod b$ 的小数值 $\hat{\chi}$。找到这样的 $\hat\chi$ 后，$\chi - \hat{\chi} \bmod qb$ 就可以被 $b$ 整除，因为二者之差是 $b$ 的整数倍，从而可以计算 $\dfrac{\chi - \hat{\chi}}{b} \approx \left\lceil\dfrac{\chi}{b}\right\rfloor$。注意，在此计算中，用 $\chi - \hat\chi$ 替换 $\chi$ 所额外引入的模数切换误差等于 $\Bigg|\left\lceil\dfrac{\chi}{b}\right\rfloor - \dfrac{\chi - \hat\chi}{b}\Bigg| \approx \left\lceil\dfrac{\hat\chi}{b}\right\rfloor$。精确除以 $\dfrac{\chi - \hat\chi}{b}$ 后，直接将模数 $qb$ 替换为 $q$。这种直接替换在算术上是允许的，因为 $\dfrac{\chi - \hat{\chi}}{b}$ 的结果必定位于 $-\dfrac{q}{2}$ 与 $\dfrac{q}{2} -1$ 之间，原因是 $-\dfrac{qb}{2}\leq \chi \leq \dfrac{qb}{2}-1$。因此，可得以下公式：
-
-$\dfrac{\chi - \hat{\chi}}{b} \bmod q = |b^{-1}|_{q}\cdot (\chi - \hat{\chi}) \bmod q$  %\textcolor{red}{ $\rhd$ since $\chi - \hat\chi$ is divisible by $b$, and $b$ has an inverse in $\mathbb{Z}_q$}
-
-$ $
-
-在上述关系中，可以将 $b$ 替换为 $|b^{-1}|_q$，因为 $\chi - \hat{\chi}$ 可被 $b$ 整除，且 $b$ 在模 $q$ 下必定存在逆元，因为 $b$ 与 $q$ 互素。接下来，可基于 RNS 剩余按如下方式计算 $|b^{-1}|_{q}\cdot (\chi - \hat{\chi}) \bmod q$：
-
-$|b^{-1}|_q\cdot (\chi - \hat{\chi}) \bmod q$
-
-$= \bm(|b^{-1}|_{q_1} \cdot (\chi_1 - \hat\chi_1), \text{ } |b^{-1}|_{q_2} \cdot (\chi_2 - \hat\chi_2), \text{ } \cdots, \text{ } |b^{-1}|_{q_k} \cdot (\chi_k - \hat\chi_k)\bm) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k} $
-
-$= (y_1, y_2, \cdots, y_k) $ \textcolor{red}{ $\rhd$ 其中每个 $y_i = |b^{-1}|_{q_i} \cdot (\chi_i - \hat\chi_i) \bmod q_i$}
-
-$ $
-
-现在需要推导一个较小的 $\hat\chi$ 的表达式，使 $\chi - \hat\chi$ 可被 $b$ 整除。令 $\hat\chi = |\chi|_b + ub$，其中 $|u| \leq \dfrac{l}{2}+1$ 是某个较小整数。于是，$\chi - \hat\chi$ 可被 $b$ 整除：
-
-$|\chi - \hat\chi|_b = \Big||\chi|_b - (|\chi|_b + ub)\Big|_b = |-ub|_b = 0$
-
-
-$ $
-
-接下来推导 $\hat\chi \bmod q = |\chi|_b + ub \bmod q$ 的 RNS 向量，以代入 $|b^{-1}|_q\cdot (\chi - \hat{\chi}) \bmod q$。首先，推导 $|\chi|_{b}$ 的 RNS 向量：
-
-$(|\chi|_{b_1}, |\chi|_{b_2}, \cdots, |\chi|_{b_l}) = (\chi_{k+1}, \chi_{k+2}, \cdots, \chi_{k+l}) \in \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l}$
-
-
-
-$ $
-
-然后，按如下方式执行其快速基转换 $b \rightarrow q$：
-
-$\textsf{FastBConv}(\{\chi_{k+i}\}_{i=1}^{l}, b, q)$
-
-$= (\hat\chi_1, \hat\chi_2, \cdots, \hat\chi_{k}) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$
-
-$ $ 
-
-注意，上述 RNS 剩余向量 $(\hat\chi_1, \hat\chi_2, \cdots, \hat\chi_k)$ 表示数值 $\hat\chi = |\chi|_b + u \cdot b \bmod q$，其中整数满足 $|u| \leq \dfrac{l}{2}+1$，这正是所需的 $\hat\chi$ 的表达式。因此，$\hat\chi = \textsf{FastBConv}(\{\chi_{k+i}\}_{i=1}^{l}, b, q)$。
-
-注意，$\hat\chi \ll \dfrac{q}{2}-1$ 且 $-\dfrac{q}{2} \ll \hat\chi$，因为 $\Big||\chi|_b + u\cdot b\Big| < \left(\dfrac{l}{2} + 1\right)\cdot b + \dfrac{b}{2} \ll \dfrac{q}{2}$。这里假设 $b \ll q$，即模数切换只从较大的基 $q$ 中移除一个素数因子。因此，计算 $ b^{-1} \cdot (\chi - \hat\chi)$ 所产生误差的幅度近似为 $\left\lceil\dfrac{\hat\chi}{b}\right\rfloor <  \left\lceil\dfrac{\left(\dfrac{l}{2} + 1\right)\cdot b + \dfrac{b}{2}}{b}\right\rfloor = \left\lceil\dfrac{lb + 3b}{2b}\right\rfloor = \left\lceil\dfrac{l + 3}{2}\right\rfloor < \dfrac{l}{2} + 2$。
-
-%the relationship between $\$
-
-$ $
-
-\textsf{ModSwitch\textsubscript{RNS}} 操作总结如下：
-
-
+令整数 $x$ 以 $q$ 与 $b$ 的组合基给出。对于奇数 $b$，定义 $r=[x]_b$，则 $(x-r)/b=\lfloor x/b\rceil$。下面的操作近似除以 $b$，并删除其基因子：
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rns-modswitch}} \textsf{ModSwitch\textsubscript{RNS}}}}]
-
-
-\textbf{\underline{输入}：}$(\chi_1, \chi_2, \cdots, \chi_{k+l}) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k} \times \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l} $
-
-\textcolor{red}{ $\rhd$ 表示 $\chi = \left(\sum\limits_{i=1}^{k}\left|\chi_i\cdot\left(\dfrac{qb}{q_i}\right)^{-1}\right|_{q_i}\cdot\dfrac{qb}{q_i}\right) + \left(\sum\limits_{j=k+1}^{k+l}\left|\chi_j\cdot\left(\dfrac{qb}{b_j}\right)^{-1}\right|_{b_j}\cdot\dfrac{qb}{b_j}\right) \bmod qb$}
-
-$ $
-
-\textbf{\underline{记号}}
-
-\begin{itemize}
-
-\item RNS 向量 $(\chi_{1}, \chi_{2}, \cdots, \chi_{k}) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$ 表示数值：$|\chi|_q \in \mathbb{Z}_q$
-
-\item $\textsf{FastBConv}(\{\chi_{k+1}\}_{i=1}^{l}, b, q) = (\hat{\chi}_1, \hat{\chi}_2, \cdots, \hat{\chi}_k) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$ 
-
-它表示数值 $\hat{\chi} = |\chi|_b + ub \in \mathbb{Z}_q$ \textcolor{red}{ $\rhd$ 其中 $|u| \leq \dfrac{l}{2}+1$}
-
-\end{itemize}
-
-$ $
-
-
-\textbf{\underline{主要步骤}}
-
-
-$\textsf{ModSwitch\textsubscript{RNS}}(\{\chi_i\}_{i=1}^{k+l}, qb, q)$
-
-
-$= \{|b^{-1}|_{q_i}\cdot (\chi_i - \hat{\chi}_i) \bmod q_i\}_{i=1}^{k} \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$ 
-
-$ $
-
-其 RNS 剩余向量表示数值 $|b^{-1}|_{q} \cdot (\chi - \hat{\chi}) \bmod q$。\textsf{ModSwitch\textsubscript{RNS}} 产生的噪声幅度约为 $\left\lceil\dfrac{\hat{\chi}}{b}\right\rfloor < \dfrac{l}{2} + 2$。
-
+\begin{enumerate}
+\item 使用 \textsf{FastBConv} 将 $r$ 的剩余类从基 $b$ 转换到基 $q$。其共同整数提升是 $r+ub$，其中 $|u|\leq U_l$。
+\item 对每个 $i=1,\ldots,k$，输出
+\[
+y_i=[b^{-1}(x_{q_i}-(r+ub)_{q_i})]_{q_i}.
+\]
+\end{enumerate}
+结果表示
+\[
+y=\left\lfloor\frac{x}{b}\right\rceil-u\pmod q,\qquad |u|\leq U_l.
+\]
 \end{tcolorbox}
+
+代入 $x-r=b\lfloor x/b\rceil$ 即可得到该式。此同余关系不要求 $b\ll q$。只删除一个奇模数时，$l=1$ 且 $u=0$，结果就是精确的最近整数除法。删除多个因子时，必须将额外误差 $-u$ 计入密文相位界。作用于 $(A,B)$ 后，总扰动还包含分量误差与 $S$ 的乘积，不能只用单个系数的 $u$ 作为其界。
+
+CKKS 可将其用作重缩放原语，同时跟踪实际除以 $b$ 后的尺度和全部舍入误差。BFV 和 BGV 需要各自的明文保持规则。特别地，普通的缩放舍入并不是 \autoref{subsec:rns-modswitch-bgv} 中的 BGV 模数切换。
 
 \subsubsection{\textsf{ModSwitch\textsubscript{RNS}}、\textsf{ModRaise\textsubscript{RNS}} 与 \textsf{ModDrop\textsubscript{RNS}} 的比较}
 
-给定以 RNS 向量表示的大数 $x \in \mathbb{Z}_q$，\textsf{ModSwitch\textsubscript{RNS}} 按 $q \rightarrow  q'$ 降低模数，并显式地将模值 $x$ 按比例 $\dfrac{q'}{q}$ 缩小，即将 $x$ 更新为 $ \left\lceil x \cdot \dfrac{q'}{q}\right\rfloor$。相比之下，执行 $q \rightarrow q'$ 的 \textsf{ModDrop\textsubscript{RNS}} 会按 $x \rightarrow |x|_{q'}$ 更新模值，其中 $q'$ 整除 $q$；这不同于模数切换中将 $x$ 按比例 $\dfrac{q'}{q}$ 缩小的操作。执行 $q \rightarrow qb$ 的 \textsf{ModRaise\textsubscript{RNS}}（其中 $q$ 整除 $qb$）会增大模数，而不显式修改模值 $x$，但会产生一定的 $q$ 溢出噪声。\textsf{ModSwitch\textsubscript{RNS}} 与 \textsf{ModRaise\textsubscript{RNS}} 都会产生噪声，而 \textsf{ModDrop\textsubscript{RNS}} 不产生噪声。
+\textsf{ModRaise\textsubscript{RNS}} 选择进入更大组合基的提升，\textsf{ModDrop\textsubscript{RNS}} 精确约减到更小的子基，\textsf{ModSwitch\textsubscript{RNS}} 则还会对所表示整数作近似除法。这是不同的操作。它们能否保持密文的明文，取决于具体方案、尺度或明文模数，以及完整的中心化相位界。
 
 
 
@@ -458,358 +178,118 @@ $ $
 \subsubsection{BFV 解密：$\textsf{Dec}_{\textsf{RNS}}^{\textsf{BFV}}$}
 \label{subsubsec:rns-dec-bfv}
 
-设有满足 $B = A\cdot S + \Delta M + E$ 的 BFV 密文 $(A, B)$，其中 $\Delta = \left\lfloor\dfrac{q}{t}\right\rfloor$。其解密计算为 $M = \left\lceil\dfrac{B - A\cdot S}{\Delta}\right\rfloor$（\autoref{subsec:bfv-enc-dec} 中的总结~\ref*{subsec:bfv-enc-dec}）。但 RNS 不支持直接除法与舍入，因此必须将这一除法并舍入的操作表达为加法和乘法。
+采用本书的密文约定 $B=-AS+\Delta M+E\pmod q$。对每个中心化相位系数 $x=[B+AS]_q$，标准 BFV 解码操作是 $[\lfloor tx/q\rceil]_t$；除以 $\Delta=\lfloor q/t\rfloor$ 并不是代数上相同的运算。下面的冗余模数纠正在满足舍入余量时实现缩放舍入，参见~\cite{rns-bfv} 第 3 节。
 
-记 $\textsf{ct}(s) = \Delta m + e + kq$，即对密文 $\textsf{ct}$ 解密但不执行模 $q$ 约减。为简洁起见，下面只考虑分别从多项式 $M$、$E$ 与 $K$ 中取出的一组系数 $m$、$e$ 与 $k$。
-
-如 \autoref{subsec:modulo-division} 所述，模运算不支持直接除法。但是，如果 $b$ 整除 $a$，且 $b$ 在模 $p$ 下存在逆元（即 $b$ 与 $p$ 互素），则特殊关系 $\dfrac{a}{b} \bmod p = a \cdot b^{-1} \bmod p$ 成立。据此，可以将解密后的明文 $m$ 表示为：
-
-$m = \left\lceil\dfrac{|\textsf{ct}(s)|_q}{\Delta}\right\rfloor = \left\lfloor\dfrac{|\textsf{ct}(s)|_q}{\Delta}\right\rfloor + e_r$ \textcolor{red}{ $\rhd$ 其中 $e_r \in [0, 1]$ 是舍入误差}
-
-$ = \left\lfloor |\textsf{ct}(s)|_q\cdot \dfrac{t}{q} \right\rfloor + e_r + e_d$  \textcolor{red}{ $\rhd$ 其中 $e_d = \left\lfloor\dfrac{|\textsf{ct}(s)|_q}{\Delta}\right\rfloor - \left\lfloor |\textsf{ct}(s)|_q\cdot \dfrac{t}{q} \right\rfloor$ 是缩放误差}
-
-$= \left\lfloor\dfrac{t\cdot |\textsf{ct}(s)|_q}{q}\right\rfloor + e_r + e_d$ 
-
-$= \dfrac{t\cdot |\textsf{ct}(s)|_q - |t\cdot \textsf{ct}(s)|_q}{q} + e_r + e_d$ \textcolor{red}{ $\rhd$ 其中 $|t\cdot \textsf{ct}(s)|_q \equiv t\cdot |\textsf{ct}(s)|_q \bmod q$，所以 $t\cdot |\textsf{ct}(s)|_q - |t\cdot \textsf{ct}(s)|_q$ 可被 $q$ 整除}
-
-$ $
-
-
-现在选择一个与 $t$ 和 $q$ 均互素的素数 $\gamma$。于是，可推导 $\gamma \cdot m$ 的表达式：
-
-$\gamma \cdot m =  \gamma\cdot \left\lceil\dfrac{ |\textsf{ct}(s)|_q}{\Delta}\right\rfloor$
-
-$ = \left\lceil\dfrac{\gamma\cdot |\textsf{ct}(s)|_q}{\Delta}\right\rfloor + e'_s $ \textcolor{red}{ $\rhd$ 其中 $e'_s = \gamma\cdot \left\lceil\dfrac{ |\textsf{ct}(s)|_q}{\Delta}\right\rfloor - \left\lceil\dfrac{\gamma\cdot |\textsf{ct}(s)|_q}{\Delta}\right\rfloor$ 是乘法误差}
-
-$ =  \left\lfloor\dfrac{\gamma \cdot |\textsf{ct}(s)|_q}{\Delta}\right\rfloor + e'_s + e'_r$ \textcolor{red}{ $\rhd$ 其中 $e'_r \in [0, 1]$ 是舍入误差}
-
-$ =  \left\lfloor\gamma \cdot | \textsf{ct}(s)|_q\cdot \dfrac{t}{q} \right\rfloor + e'_s + e'_r + e'_d$  \textcolor{red}{ $\rhd$ 其中 $e'_d =  \left(\left\lfloor\dfrac{\gamma \cdot |\textsf{ct}(s)|_q}{\Delta}\right\rfloor - \left\lfloor \gamma \cdot |\textsf{ct}(s)|_q\cdot \dfrac{t}{q} \right\rfloor\right)$ 是缩放误差}
-
-$=  \left\lfloor\dfrac{\gamma \cdot t\cdot |\textsf{ct}(s)|_q}{q}\right\rfloor + e'_s + e'_r + e'_d$ 
-
-$= \dfrac{\gamma \cdot t\cdot |\textsf{ct}(s)|_q -  |\gamma \cdot t\cdot \textsf{ct}(s)|_q}{q} + e'_s + e'_r + e'_d$ 
-
-$ $
-
-接下来，推导 $|\gamma \cdot m|_{\gamma t}$ 的表达式：
-
-$|\gamma \cdot m|_{\gamma t} = \left|\dfrac{\gamma\cdot t\cdot |\textsf{ct}(s)|_q - |\gamma\cdot t\cdot \textsf{ct}(s)|_q}{q} + e'_s + e'_r + e'_d\right|_{\gamma t}$
-
-$= \left|\dfrac{\gamma\cdot t\cdot |\textsf{ct}(s)|_q -  |\gamma\cdot t\cdot \textsf{ct}(s)|_q}{q}\right|_{\gamma t} + |e'_s|_{\gamma t} + |e'_r|_{\gamma t} + |e'_d|_{\gamma t}$
-
-$= \left|\dfrac{\gamma\cdot t\cdot |\textsf{ct}(s)|_q -  |\gamma\cdot t\cdot \textsf{ct}(s)|_q}{q}\right|_{\gamma t} + e'_s + e'_r + e'_d$ \textcolor{red}{ $\rhd$ 假设 $|e'_s| \ll \dfrac{\gamma t}{2}$、$|e'_r| \ll \dfrac{\gamma t}{2}$ 且 $|e'_d| \ll \dfrac{\gamma t}{2}$}
-
-$= \Big|(\gamma\cdot t\cdot |\textsf{ct}(s)|_q -  |\gamma\cdot t\cdot \textsf{ct}(s)|_q)\cdot q^{-1}\Big|_{\gamma t} + e'_s + e'_r + e'_d$  \textcolor{red}{ $\rhd$ 因为 $\gamma\cdot t\cdot |\textsf{ct}(s)|_q - |\gamma\cdot t\cdot \textsf{ct}(s)|_q$ 可被 $q$ 整除，且 $q$ 与 $\gamma t$ 互素}
-
-$ $
-
-$= \left|-  |\gamma\cdot t\cdot \textsf{ct}(s)|_q\cdot q^{-1}\right|_{\gamma t} + e'_s + e'_r + e'_d$ \textcolor{red}{ $\rhd$ 因为 $\gamma \cdot t\cdot |\textsf{ct}(s)|_q$ 是 $\gamma t$ 的整数倍}
-
-$= \Big||\gamma\cdot t\cdot \textsf{ct}(s)|_q\Big|_{\gamma t} \cdot |-q^{-1}|_{\gamma t} + e'_s + e'_r + e'_d$
-
-
-$ $
-
-根据上述关系，$\textsf{FastBConv}\bm(\gamma\cdot t\cdot \textsf{ct}(s), q, \gamma t\bm) \cdot |-q^{-1}|_{\gamma t}$ 的计算结果可表示为：
-
-$\textsf{FastBConv}\bm(\gamma\cdot t\cdot \textsf{ct}(s), q, \gamma t\bm) \cdot |-q^{-1}|_{\gamma t}$
-
-$ = \Big||\gamma t \cdot \textsf{ct}(s)|_q + uq\Big|_{\gamma t} \cdot |-q^{-1}|_{\gamma t} $ \textcolor{red}{ $\rhd$ 对于基模数 $q_1, q_2, \cdots, q_k$，有 $|u| \leq \dfrac{k}{2}+1$}
-
-$ =  \Big||\gamma t \cdot \textsf{ct}(s)|_q \cdot |-q^{-1}|_{\gamma t}  - u\Big|_{\gamma t}$
-
-$= |\gamma \cdot m|_{\gamma t}  - e'_s - e'_r - e'_d - u$ \textcolor{red}{ $\rhd$ 因为此前已证明 $|\gamma \cdot m|_{\gamma t} = \Big||\gamma\cdot t\cdot \textsf{ct}(s)|_q\Big|_{\gamma t} \cdot |-q^{-1}|_{\gamma t} +  e'_s + e'_r + e'_d$}
-
-$= y$ \textcolor{red}{ $\rhd$ 将上述表达式记为 $y$}
-
-$ $
-
-若 $e'_s, e'_r, e'_d, u$ 足够小，使 $|e'_s + e'_r + e'_d + u| < \gamma$ 成立，则 $|y|_{\gamma} = -e'_s -e'_r - e'_d - u$，因为 $|\gamma \cdot m|_{\gamma t} \bmod \gamma = 0$ 是 $\gamma$ 的整数倍。因此，可以有效消去噪声项 $e'_s, e'_r, e'_d, u$，按如下方式得到 $m$：
-
-$\bm{\Big|}(y - |y|_{\gamma}) \cdot |\gamma^{-1}|_t\bm{\Big|}_t$
-
-$ = \bm{\Big|}|\gamma\cdot m|_{\gamma t} \cdot |\gamma^{-1}|_t\bm{\Big|}_t$
-
-$ = \bm{\Big|}|\gamma\cdot m|_{t} \cdot |\gamma^{-1}|_t\bm{\Big|}_t$ \textcolor{red}{ $\rhd$ 因为 $\Big||\gamma\cdot m|_{\gamma t}\Big|_t = |\gamma\cdot m|_{t}$}
-
-$= |m|_t$
-
-$ $
-
-这就是所需的 \textsf{ct} 的最终解密结果。将 $y$ 的 RNS 向量记为 $(y_{\gamma}, y_{t}) \in \mathbb{Z}_{\gamma} \times \mathbb{Z}_{t}$，则可按如下方式高效计算 $\Big|(y - |y|_{\gamma}) \cdot |\gamma^{-1}|_t\Big|_t$：
-
-$\Big|(y - |y|_{\gamma}) \cdot |\gamma^{-1}|_t\Big|_t$
-
-$= \Bigg|\Big( \overbrace{\Big|y_{\gamma}\cdot t \cdot |t^{-1}|_{\gamma} + y_{t}\cdot \gamma \cdot |\gamma^{-1}|_{t} \Big|_{\gamma t}}^{y} - \overbrace{\Big|y_{\gamma}\cdot t \cdot |t^{-1}|_{\gamma} + y_{t}\cdot \gamma \cdot |\gamma^{-1}|_{t}\Big|_{\gamma}}^{|y|_{\gamma}}\Big) \cdot |\gamma^{-1}|_t\Bigg|_t$
-
-$= \Bigg|\Big( \overbrace{\Big|y_{\gamma}\cdot t \cdot |t^{-1}|_{\gamma} + y_{t}\cdot \gamma \cdot |\gamma^{-1}|_{t} \Big|_{t}}^{y} - \overbrace{\Big|y_{\gamma}\cdot t \cdot |t^{-1}|_{\gamma} + y_{t}\cdot \gamma \cdot |\gamma^{-1}|_{t}\Big|_{\gamma}}^{|y|_{\gamma}}\Big) \cdot |\gamma^{-1}|_t\Bigg|_t$ \textcolor{red}{ $\rhd$ 因为 $\Big||y|_{\gamma t}\Big|_t = |y|_t$}
-
-
-$= \Bigg|\Big( \overbrace{\Big|y_{\gamma}\cdot t \cdot |t^{-1}|_{\gamma} + y_{t}\cdot \gamma \cdot |\gamma^{-1}|_{t} \Big|_t}^{y} - \overbrace{\Big|y_{\gamma}\cdot t \cdot |t^{-1}|_{\gamma}\Big|_{\gamma}}^{|y|_{\gamma}}\Big) \cdot |\gamma^{-1}|_t\Bigg|_t$ \textcolor{red}{ $\rhd$ 因为 $y_{t}\cdot \gamma \cdot |\gamma^{-1}|_{t} \bmod \gamma = 0$}
-
-$= \Bigg|\Big( \overbrace{\Big|y_{t}\cdot \gamma \cdot |\gamma^{-1}|_{t}\Big|_t}^{y} - \overbrace{\Big|y_{\gamma}\cdot t \cdot |t^{-1}|_{\gamma}\Big|_{\gamma}}^{|y|_{\gamma}}\Big) \cdot |\gamma^{-1}|_t\Bigg|_t$ \textcolor{red}{ $\rhd$ 因为 $y_{\gamma}\cdot t \cdot |t^{-1}|_{\gamma} \bmod t = 0$}
-
-$= \Big|(y_t - y_{\gamma}) \cdot |\gamma^{-1}|_t\Big|_t$ \textcolor{red}{ $\rhd$ 因为 $|\gamma \cdot \gamma^{-1}|_t = 1$ 且 $|t \cdot t^{-1}|_{\gamma} = 1$}
-
-$ $
-
-$\textsf{Dec}_{\textsf{RNS}}^{\textsf{BFV}}$ 总结如下：
+令 $q=\prod_{i=1}^kq_i$ 为奇数、$\gcd(q,t)=1$，并选择与 $qt$ 互素的奇数 $\gamma$。记
+\[
+m_0=\left\lfloor\frac{tx}{q}\right\rceil,\quad
+\delta=\frac{tx}{q}-m_0,\quad v=[t\gamma x]_q.
+\]
+$v$ 的快速 CRT 提升为 $v+uq$，其中 $|u|\leq U_k$。计算其模 $\gamma$ 和 $t$ 的剩余类，并分别乘以对应模数下的 $-q^{-1}$，得到 $(y_\gamma,y_t)$。于是
+\[
+y\equiv-q^{-1}(v+uq)
+\equiv\left\lfloor\frac{t\gamma x}{q}\right\rceil-u
+=\gamma m_0+\eta\pmod{\gamma t},
+\qquad \eta=\lfloor\gamma\delta\rceil-u.
+\]
+若 $|\eta|<\gamma/2$，其中心化剩余类恰为 $y_\gamma=\eta$，因此
+\[
+[m_0]_t=[(y_t-y_\gamma)\gamma^{-1}]_t.
+\]
+一个充分条件是 $\gamma|\delta|+1/2+U_k<\gamma/2$。
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:rns-dec-bfv}} $\textsf{Dec}_{\textsf{RNS}}^{\textsf{BFV}}$}}]
-
-
-\textbf{\underline{输入}：}$\textsf{ct}(s) = \Delta m + e + kq$
-
 \begin{enumerate}
-\item 选择一个同时与 $t$ 和 $q$ 互素的素数 $\gamma$。
-
-\item 计算 $\textsf{FastBConv}(|\gamma \cdot t \cdot \textsf{ct}(s)|_q, q, \gamma t) \cdot |-q^{-1}|_{\gamma t}$
-
-$ = (y_{\gamma}, y_{t}) \in \mathbb{Z}_{\gamma} \times \mathbb{Z}_{t}$
-
-\item 计算 $|m|_t = \Big|(y_{t} - y_{\gamma})\cdot |\gamma^{-1}|_t\Big|_t$
-
+\item 计算相位剩余类 $x_i=[B+AS]_{q_i}$。
+\item 选择满足互素条件和舍入余量界的 $\gamma$，将 $[t\gamma x]_q$ 快速转换到两个模数 $\gamma,t$。
+\item 将两个剩余类分别乘以对应模数下的 $-q^{-1}$，得到 $(y_\gamma,y_t)$，其中 $y_\gamma$ 取中心化代表元。
+\item 输出 $[(y_t-y_\gamma)\gamma^{-1}]_t$。
 \end{enumerate}
-
 \end{tcolorbox}
+
+BFV 正确解密还要求 $[m_0]_t$ 等于预期明文。仅选择任意互素的 $\gamma$ 并不足够，而且纠正阈值是 $\gamma/2$，不是 $\gamma$。任意接近舍入边界的值需要相应更强的精度或纠正策略。这不是一个适用于任意输入与模数的无条件精确舍入原语。\cite{rns-bfv-hps} 中其他缩放舍入构造也规定了各自的精度和误差条件。
 
 
 \subsubsection{CKKS 与 BGV 解密}
 \label{subsubsec:rns-dec-ckks-bgv}
 
-对 CKKS 与 BGV 密文执行 \textsf{ModDrop}（\autoref{subsec:rns-moddrop} 中的总结~\ref*{subsec:rns-moddrop}），降至最低乘法层级，即可高效解密。此时，RNS 基中只剩一个密文模数，因此可以直接高效执行常规解密算法，无需再处理 RNS 分量。
-
-
+在当前 RNS 基中计算 $[B+AS]_q$。CKKS 按照已跟踪的尺度解码其中心化整数代表元，BGV 则将该代表元对明文模数取模。CRT 重构是一种有效实现。只有整个中心化相位都位于较小模数的一半以内，才能在解码前直接降到单个小模数。当前层级的有效密文不一定满足这个更强的界。必要时，应使用符合方案的重缩放或模数切换并分析误差，不能假设单纯 \textsf{ModDrop} 到最低层始终保持消息。
 
 \subsection{BGV 的 RNS 模数切换：$\textsf{ModSwitch}_{\textsf{RNS}}^{\textsf{BGV}}$}
 \label{subsec:rns-modswitch-bgv}
 
-BGV 的 RNS 模数切换不能直接采用标准的 \textsf{ModSwitch\textsubscript{RNS}}，因为 BGV 原始的非 RNS 模数切换（\autoref{subsec:bgv-modulus-switch} 中的总结~\ref*{subsec:bgv-modulus-switch}）与 BFV 或 CKKS 的非 RNS 模数切换（\autoref{subsec:modulus-switch-rlwe} 中的总结~\ref*{subsec:modulus-switch-rlwe}）采用不同的方式。BGV 的非 RNS 模数切换计算如下：
+BGV 模数切换在降低密文模数的同时，必须保持明文剩余类。\autoref{subsec:rns-modswitch} 中的普通舍入原语不保证这一条件。也不能通过令 $t=\hat q$ 调用 $\textsf{Dec}_{\textsf{RNS}}^{\textsf{BFV}}$ 来获得无条件的舍入操作：若 $\hat q$ 整除 $q_l$，所需逆元 $q_l^{-1}\bmod\hat q$ 根本不存在。
 
-$(A', B') = \left(\left\lceil\dfrac{\hat{q}}{q_l} A\right\rfloor, \left\lceil\dfrac{\hat{q}}{q_l}\cdot B\right\rfloor\right) \in \mathcal{R}_{\langle n, \hat{q} \rangle}^2$
+下面给出一种常用模数链步骤的直接 RNS 实现。令 $q=Qw$，满足 $\gcd(w,Q)=\gcd(w,t)=1$ 和 $w\equiv1\pmod t$。对任一密文分量的每个中心化系数 $a$，定义
+\[
+d=t[t^{-1}a]_w,\qquad a'=\frac{a-d}{w}\pmod Q.
+\]
+由于 $d\equiv a\pmod w$ 且 $d\equiv0\pmod t$，这是整数除法，而且在对 $Q$ 约减前满足 $a'\equiv a\pmod t$。在每个保留模数 $q_i\mid Q$ 下，通过下式计算：
+\[
+a'_i=[w^{-1}(a_i-d)]_{q_i}.
+\]
+若 $w$ 含有多个 RNS 因子，必须重构中心化剩余类 $[t^{-1}a]_w$，或采用精确且具有已证明界限的转换过程；单因子步骤不需要大整数重构。
 
-$ $
-
-$\epsilon'_A = \hat{q}\cdot A - q_l\cdot A'$ \textcolor{red}{ $\rhd$ 其中 $\epsilon'_A \in \mathbb{Z}_{q_l}$}
-
-$\epsilon'_B = \hat{q}\cdot B - q_l\cdot B'$ \textcolor{red}{ $\rhd$ 其中 $\epsilon'_B \in \mathbb{Z}_{q_l}$}
-
-
-$ $
-
-$H_A = q_l^{-1}\cdot\epsilon'_A \bmod t$
-
-$H_B = q_l^{-1}\cdot\epsilon'_B \bmod t$
-
-$ $
-
-$\hat{\textsf{ct}} = (\hat{A}, \hat{B}) = (A' + H_A, B' + H_B) \bmod \hat{q}$
-
-
-$ $
-
-
-因此，BGV 的 RNS 模数切换只需使用 RNS 的 $(+, \cdot)$ 运算，计算上述 $\hat{A}$ 与 $\hat{B}$ 的公式。在这些计算中，唯一无法直接用 RNS 的 $(+, \cdot)$ 运算完成的部分，是 $\left\lceil\dfrac{\hat{q}}{q_l} A\right\rfloor$ 与 $\left\lceil\dfrac{\hat{q}}{q_l}\cdot B\right\rfloor$ 中的舍入。通过设置 $q = q_l$ 和 $t = \hat{q}$，使用 $\textsf{Dec}_{\textsf{RNS}}^{\textsf{BFV}}$ 即可在 RNS 中完成该舍入。
-
-
+令输入相位为 $M+tE$，并使用 \autoref{subsec:bgv-modulus-switch} 中同一个溢出多项式。约减前的输出相位为
+\[
+Y=\frac{M+tE}{w}-\frac{d_B+d_AS}{w}.
+\]
+由于 $q=Qw\equiv Q\pmod t$，该相位在模 $t$ 下与 $M$ 同余。一个充分的不回绕条件是
+\[
+\frac{\|M+tE\|_\infty}{w}+\frac{t}{2}(1+\|S\|_1)<\frac Q2.
+\]
+在此条件下，输出是相同明文的有效 BGV 密文。更一般的模数链可以跟踪明文纠正因子；这里的同余假设是明确声明的特例，并不是对所有 BGV 的限制。
 
 
 \subsection{精确快速基转换：\textsf{FastBConvEx}}
 \label{subsec:rns-fastbconvex}
 
-\textsf{FastBConv}（\autoref{subsec:rns-fastbconv}）将输入值 $x$ 的基模数按 $q \rightarrow b$ 转换，但会产生等于 $uq \bmod b$ 的噪声，其中整数满足 $|u| \leq \dfrac{k}{2}+1$。若将 \textsf{FastBConv} 与 \textsf{SmallMont}（\autoref{subsec:rns-smallmont}）结合使用，可以将噪声从 $uq$ 减小为 $u'q$，其中 $u' \in \{-1, 0, 1\}$。本小节介绍精确快速基转换算法 \textsf{FastBConvEx}，它能够完全消除噪声。不过，\textsf{FastBConvEx} 要求输入值 $x$ 远小于其模数。相比之下，\textsf{FastBConv} 与 \textsf{SmallMont} 的组合对输入 $x$ 没有这种限制，即 $x$ 可以取模数范围内的任意值。\textsf{FastBConvEx} 设计如下：
+与 \textsf{SmallMont} 不同，带冗余模数的精确基转换在满足明确界限时会消除全部 CRT 歧义。这是~\cite{rns-bfv} 第 4.4 节引理 6 使用的 Shenoy--Kumaresan 型纠正。令 $b=\prod_{j=1}^lb_j$，假设已知整数 $x$ 在每个 $b_j$ 以及额外互素奇模数 $b_\alpha$ 下的剩余类。写成
+\[
+\widehat x=[x]_b=x+\mu b,\qquad
+T=\widehat x+ub=x+(\mu+u)b,
+\]
+其中 $T$ 是两次快速转换共同使用的未经约减的 CRT 和，且 $|u|\leq U_l$。要求 $|\mu+u|<b_\alpha/2$；若已知 $|\mu|\leq\lambda$，可以采用充分条件 $b_\alpha>2(\lambda+U_l)$。
 
-\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rns-fastbconvex}} 快速精确基转换：\textsf{FastBConvEx}}}]
-
-\textbf{\underline{输入}：}$x = (x_1, x_2, \cdots, x_l, x_\alpha) \in \mathbb{Z}_{b_1} \times \mathbb{Z}_{b_2} \times \cdots \times \mathbb{Z}_{b_l} \times \mathbb{Z}_{b_\alpha}$
-
-$ $
-
-\textbf{\underline{要求}：}$b_\alpha$ 的大小应满足 $b_{\alpha} \geq 2\cdot(l + \lambda)$，其中 $|x|_{b} = x + \mu \cdot b$ 且 $\mu \in [-\lambda, \lambda]$，即 $\lambda$ 和 $-\lambda$ 分别是 $\mu$ 可能取到的最大值与最小值。
-
-\textcolor{red}{ $\rhd$ 约束 $b_\alpha > \mu$ 意味着输入 $x$ 应远小于其模数 $bb_\alpha$，即 $|x| \ll \dfrac{bb_\alpha}{2}$}
-
-$ $
-
-
-\textbf{\underline{主要步骤}}
-
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rns-fastbconvex}} 精确快速基转换：\textsf{FastBConvEx}}}]
 \begin{enumerate}
-\item $\hat{x} = |x|_b = \textsf{ModDrop}(x, bb_\alpha, b)$ 
-
-\item $x_\alpha = |x|_{b_\alpha} = \textsf{ModDrop}(x, bb_\alpha, b_\alpha)$
-
-\item $\gamma = |(\textsf{FastBConv}(\hat{x}, b, b_\alpha) - x_\alpha)\cdot b^{-1}|_{b_\alpha}$
-
-
-\item $\textsf{FastBConvEx}(x, bb_\alpha, q) = \Big|\textsf{FastBConv}(\hat{x}, b, q) - \gamma \cdot b\Big|_q = |x|_q$
-
+\item 保留 $x$ 的基 $b$ 剩余类，并单独保留给定剩余类 $x_\alpha=[x]_{b_\alpha}$。
+\item 计算 $\gamma=[(\textsf{FastBConv}(\widehat x,b,b_\alpha)-x_\alpha)b^{-1}]_{b_\alpha}$。
+\item 在目标基的各坐标中输出 $[\textsf{FastBConv}(\widehat x,b,q)-\gamma b]_q$。
 \end{enumerate}
-
 \end{tcolorbox}
-                                        
-下面证明为什么 $\Big|\textsf{FastBConv}(\hat{x}, b, q) - \gamma \cdot b\Big|_q = |x|_q$。
 
 \begin{myproof}
-
-
-
-\begin{enumerate}
-
-
-
-\item $\textsf{FastBConv}(\hat{x}, b, b_\alpha) $%$ = \Bigg(\sum\limits_{i=1}^{l}|\hat{x}_i\cdot b_i \cdot b^{-1} |_{b_i} \cdot \dfrac{b}{b_i}\Bigg) \bmod b_\alpha$ 
-
-$ = |\hat{x} + ub|_{b_\alpha}$ \textcolor{red}{ $\rhd$ 其中整数满足 $|u| \leq \dfrac{l}{2}+1$}
-
-$ = \Big||x|_{b} + ub\Big|_{b_\alpha}$ \textcolor{red}{ $\rhd$ 根据定义，$|x|_{b} = \hat{x}$}
-
-$ = |x + \mu b + ub|_{b_\alpha}$ \textcolor{red}{ $\rhd$ 根据定义，$|x|_{b} = x + \mu b$}
-
-$ $
-
-\item $\gamma = |(\textsf{FastBConv}(\hat{x}, b, b_\alpha) - x_\alpha)\cdot b^{-1}|_{b_\alpha}$
-
-$ = |(\textsf{FastBConv}(\hat{x}, b, b_\alpha) - x_\alpha - \mu b)\cdot b^{-1} + \mu|_{b_\alpha} $ \textcolor{red}{ $\rhd$ 加上 $|(-\mu b + \mu b)\cdot b^{-1}|_{b_\alpha}$}
-
-$ = |(x + \mu b + ub - x_\alpha - \mu b)\cdot b^{-1} + \mu|_{b_\alpha} $ \textcolor{red}{ $\rhd$ 第一步已证明 $ \textsf{FastBConv}(\hat{x}, b, b_\alpha) = |x + \mu b + u\cdot b|_{b_\alpha}$}
-
-$ = |u + \mu|_{b_\alpha} $
-
-$ = u + \mu $ \textcolor{red}{ $\rhd$ 因为 $-\dfrac{b_\alpha}{2} \leq u + \mu \leq \dfrac{b_\alpha}{2} - 1$，由 $u + \mu < l + \lambda \leq \dfrac{b_\alpha}{2}$ 及 $-\dfrac{b_\alpha}{2} \leq -(l+\lambda) < u + \mu$ 可知}
-
-$ $
-
-\item $\textsf{FastBConvEx}(x, b, q) = \Big|\textsf{FastBConv}(\hat{x}, b, q) - \gamma \cdot b)\Big|_q $
-
-$ = \Big|\hat{x} + u b - \gamma \cdot b)\Big|_q $ \textcolor{red}{ $\rhd$ 应用 $\textsf{FastBConv}(\hat{x}, b, q) = \hat{x} + u b$ }
-
-$ = \Big|(x + \mu b) + u b - \gamma \cdot b)\Big|_q $ \textcolor{red}{ $\rhd$ 应用 $\hat{x} = |x|_b = x + \mu b$}
-
-$ = \Big|(x + \mu b) + u b - (u + \mu) \cdot b)\Big|_q $ \textcolor{red}{ $\rhd$ 应用证明第二步中的 $\gamma = u + \mu$}
-
-$ = |x + \mu b + ub - ub - \mu b|_q $
-
-$ = |x|_q $
-
-\end{enumerate}
-
+两次转换都使用 $T$。因此在所述界限下，$\gamma=[\mu+u]_{b_\alpha}=\mu+u$，从而 $T-\gamma b=x$，输出恰为 $[x]_q$。这是代数恒等式，不会遗留新的近似误差。若不满足该界，纠正结果可能相差 $bb_\alpha$ 的倍数，而该倍数在模 $q$ 下不一定为零。
 \end{myproof}
 
-\para{采用中心化（有符号）剩余表示的必要性：}在证明的第二步中，使用了 $|u + \mu|_{b_\alpha} = u + \mu$。如果要省略模约减，规范的无符号剩余表示并不适用，因为一旦 $u + \mu$ 为负，剩余就会下溢并需要回绕，这必须执行模约减。为了避免上溢与下溢两种情形，需要采用中心化的有符号剩余表示。
-
-
-
-
+\para{为何需要中心化（即有符号）剩余类表示：} 必须将纠正项 $\gamma$ 解释为有界有符号整数 $\mu+u$。当 $|\mu+u|<b_\alpha/2$ 时，中心化约定提供了这种解释。无符号实现也可以使用，但必须显式恢复符号；直接把无符号剩余类当作该整数是不正确的。所需条件是可量化的范围界，而不是未经量化的“$x$ 远小于模数”。
 
 
 \subsection{乘法分解：\textsf{DecompMult\textsubscript{RNS}}}
 \label{subsec:rns-decompmult}
 
-在 FHE 中，gadget 分解（\autoref{subsec:gadget-decomposition}）用于以较小噪声完成密文与明文相乘。例如，BFV 与 CKKS 的同态密钥切换（\autoref{sec:glwe-key-switching} 中的总结~\ref*{sec:glwe-key-switching}）使用 gadget 分解，以较小噪声计算 $\textsf{RLWE}_{S',\sigma}(\Delta M) = B + A\cdot \textsf{RLWE}_{S', \sigma}(S)$，其中多项式 $A$ 的每个系数都可以取密文模数 $q$ 范围内的任意值。又如，BFV（\autoref{subsubsec:bfv-mult-cipher-summary} 中的总结~\ref*{subsubsec:bfv-mult-cipher-summary}）、CKKS（\autoref{subsubsec:ckks-mult-cipher-summary} 中的总结~\ref*{subsubsec:ckks-mult-cipher-summary}）和 BGV（\autoref{subsec:bgv-mult-cipher} 中的总结~\ref*{subsec:bgv-mult-cipher}）在密文与密文相乘的重线性化过程中，利用 gadget 分解在计算 $\textsf{RLWE}_{S',\sigma}(\Delta^2 M^{\langle 1 \rangle} M^{\langle 2 \rangle}) = D_0 + D_1\cdot S + D_2\cdot S^2 = \textsf{ct}_\alpha + \textsf{ct}_\beta$ 时得到合成密文 $\textsf{RLWE}_{S', \sigma}(D_2\cdot S^2)$，其中 $\textsf{ct}_\alpha = (D_0, D_1)$、$\textsf{ct}_\beta = \textsf{RLWE}_{S', \sigma}(D_2\cdot S^2)$、$D_0 = B_1B_2$、$D_1 = A_1B_2 + A_2B_1$ 和 $D_2 = A_1A_2$。利用 gadget 分解，已有如下关系：
-
-$\textsf{RLWE}_{S', \sigma}(A\cdot S) = \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$ \textcolor{red}{ $\rhd$ 用于密钥切换}
-
-$\textsf{RLWE}_{S', \sigma}(D_2\cdot S^2) = \bm{\langle} \textsf{Decomp}^{\beta, l}(D_2), \text{ } \textsf{RLev}_{S, \sigma}^{\beta, l}( S^2) \bm{\rangle}$ \textcolor{red}{ $\rhd$ 用于重线性化}
-
-$ $
-
-然而，将一个值（例如 $x$）转换为 RNS 向量后，无法直接将其表示为基于参数 $\beta$ 与 $l$ 的 gadget 分解形式。另一方面，给定数值 $x$ 与其 RNS 剩余之间的关系 $x = \sum\limits_{i=1}^k x \cdot \dfrac{q}{q_i} \cdot \left|\left(\dfrac{q}{q_i}^{-1}\right)\right|_{q_i} \bmod q$，可以把每个 RNS 剩余视为一个分解分量。例如，设目标是分解 $\textsf{RLWE}_{S', \sigma}( A \cdot S)$，其中 $A = (A_1, A_2, \cdots, A_k)$ 的 RNS 向量采用基模数 $(q_1, q_2, \cdots, q_k)$。换言之，多项式 $A$ 的 RNS 表示是一组满足 $A_i = A \bmod q_i$ 的多项式 $\{A_i\}_{i=1}^k$。于是，$\textsf{RLWE}_{S', \sigma}( A \cdot S)$ 可以按如下方式分解：
-
-$\textsf{RLWE}_{S', \sigma}(A\cdot S) \bmod q$
-
-$= \textsf{RLWE}_{S', \sigma}\left( S \cdot \left(A_{1}\dfrac{q}{q_1}\cdot\left|\left(\dfrac{q}{q_1}\right)^{-1}\right|_{q_1} + A_{2}\dfrac{q}{q_2}\cdot\left|\left(\dfrac{q}{q_2}\right)^{-1}\right|_{q_2} + \cdots + A_{k}\dfrac{q}{q_k}\cdot\left|\left(\dfrac{q}{q_k}\right)^{-1}\right|_{q_k}\right)\right)  \bmod q$ 
-
-$= \textsf{RLWE}_{S', \sigma}\left(S \cdot A_{1}\dfrac{q}{q_1}\cdot\left|\left(\dfrac{q}{q_1}\right)^{-1}\right|_{q_1}\right) + \textsf{RLWE}_{S', \sigma}\left(S \cdot A_{2}\dfrac{q}{q_2}\cdot\left|\left(\dfrac{q}{q_2}\right)^{-1}\right|_{q_2}\right) + $
-
-$\cdots + \textsf{RLWE}_{S', \sigma}\left(S \cdot A_{k}\dfrac{q}{q_k}\cdot\left|\left(\dfrac{q}{q_k}\right)^{-1}\right|_{q_k}\right) \bmod q$ 
-
-$ $
-
-$ $
-
-$= A_{1}\cdot\textsf{RLWE}_{S', \sigma}\left(S \cdot \dfrac{q}{q_1}\cdot\left|\left(\dfrac{q}{q_1}\right)^{-1}\right|_{q_1}\right) + A_{2}\cdot\textsf{RLWE}_{S', \sigma}\left(S \cdot \dfrac{q}{q_2}\cdot\left|\left(\dfrac{q}{q_2}\right)^{-1}\right|_{q_2}\right) +$
-
-
-$ \cdots + A_{k}\cdot\textsf{RLWE}_{S', \sigma}\left(S \cdot \dfrac{q}{q_k}\cdot\left|\left(\dfrac{q}{q_k}\right)^{-1}\right|_{q_k}\right) \bmod q$ 
-
-$ $
-
-$ $
-
-
-$= \sum\limits_{i=1}^{k}\left(A_{i}\cdot \textsf{RLWE}_{S', \sigma}\left(S \cdot\dfrac{q}{q_i} \cdot \left| \left(\dfrac{q}{q_i}\right)^{-1}\right|_{q_i}\right)\right) \bmod q$
-
-$ $
-
-$ $
-
-其中，$\left\{\textsf{RLWE}_{S', \sigma}\left(S \cdot\dfrac{q}{q_i} \cdot \left| \left(\dfrac{q}{q_i}\right)^{-1}\right|_{q_i}\right)\right\}_{i=1}^{k}$ 可以预先生成，作为 RNS 密钥切换密钥。
-
-$ $
-
-$ $
-
-运用相同推理，也可为重线性化推导出以下关系：
-
-$\textsf{RLWE}_{S, \sigma}(D_2 \cdot S^2) = \sum\limits_{i=1}^{k}\Bigg( D_{2, i}\cdot \textsf{RLWE}_{S, \sigma}\left(S^2 \cdot\dfrac{q}{q_i} \cdot \left| \left(\dfrac{q}{q_i}\right)^{-1}\right|_{q_i}\right)\Bigg) \bmod q$
-
-$ $
-
-$ $
-
-其中，$\left\{\textsf{RLWE}_{S, \sigma}\left(S^2 \cdot\dfrac{q}{q_i} \cdot \left| \left(\dfrac{q}{q_i}\right)^{-1}\right|_{q_i}\right)\right\}_{i=1}^{k}$ 可以预先生成，作为重线性化密钥。
-
-$ $
-
-$ $
-
-基于 RNS 的乘法分解总结如下：
+RNS 为密钥切换和重线性化提供了一个整数 gadget。令 $q=\prod_iq_i$，定义
+\[
+g_i=\frac q{q_i}\left[\left(\frac q{q_i}\right)^{-1}\right]_{q_i},\qquad
+A_i=[A]_{q_i},\qquad A\equiv\sum_iA_ig_i\pmod q.
+\]
+这里将每个 $A_i$ 逐系数提升为小整数多项式。将其乘以 $R_q$ 中的密文时，必须在 RNS 基的\emph{每一个}模数下约减同一组小整数。如果只保留第 $i$ 个坐标、其余填零，就会得到不同的乘数和误差界。
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsec:rns-decompmult}} \textsf{DecompMult\textsubscript{RNS}}}}]
+从 $S$ 切换到 $S'$ 时，生成满足下式的求值密钥 $(a_i,b_i)$：
+\[
+b_i+a_iS'\equiv g_iS+E_i\pmod q.
+\]
+于是 $\sum_iA_i(a_i,b_i)$ 在模 $q$ 下具有相位 $AS+\sum_iA_iE_i$。加上 $(0,B)$ 即完成密钥切换。在 BGV 中应以 $tE_i$ 替代 $E_i$，使新增误差被明文模数整除。
 
-对于密钥切换：
-
-$ $
-
-\textbf{\underline{输入}：}$A = (A_1, A_2, \cdots, A_k) \in \mathcal{R}_{\langle n, q_1 \rangle} \times \mathcal{R}_{\langle n, q_2 \rangle} \times \cdots \times \mathcal{R}_{\langle n, q_k \rangle}$，
-
-\phantom{输入：}$S_{\langle S', \textsf{RNS}\rangle} = \left\{ \textsf{RLWE}_{S', \sigma}\left(S\cdot \dfrac{q}{q_i}\cdot\left|\left(\dfrac{q}{q_i}\right)^{-1}\right|_{q_i}\right) \right\}_{i=1}^{k}$ \textcolor{red}{ $\rhd$ 密钥切换密钥}
-
-$ $
-
-$ $
-
-$\textsf{DecompMult\textsubscript{RNS}}(A, S_{\langle S', \textsf{RNS}\rangle}) = \textsf{RLWE}_{S', \sigma}(A \cdot S) $
-
-$= \sum\limits_{i=1}^{k}\Bigg(A_{i}\cdot \textsf{RLWE}_{S', \sigma}\left(S \cdot\dfrac{q}{q_i} \cdot \left| \left(\dfrac{q}{q_i}\right)^{-1}\right|_{q_i}\right)\Bigg) \bmod q$
-
-
-$ $
-
-\par\noindent\rule{\textwidth}{0.4pt}
-
-
-
-对于重线性化：
-
-$ $
-
-\textbf{\underline{输入}：}$D_2 = (D_{2,1}, D_{2,2}, \cdots, D_{2,k}) \in \mathcal{R}_{\langle n, q_1 \rangle} \times \mathcal{R}_{\langle n, q_2 \rangle} \times \cdots \times \mathcal{R}_{\langle n, q_k \rangle}$，
-
-\phantom{输入：}$S_{\langle S, \textsf{RNS}\rangle}^2 = \left\{ \textsf{RLWE}_{S, \sigma}\left(S^2\cdot \dfrac{q}{q_i}\cdot\left|\left(\dfrac{q}{q_i}\right)^{-1}\right|_{q_i}\right) \right\}_{i=1}^{k}$ \textcolor{red}{ $\rhd$ 重线性化密钥}
-
-$ $
-
-$ $
-
-$\textsf{DecompMult\textsubscript{RNS}}(D_2, S^2_{\langle S, \textsf{RNS}\rangle}) = \textsf{RLWE}_{S, \sigma}(D_2 \cdot S^2) $
-
-$= \sum\limits_{i=1}^{k}\Bigg(D_{2,i}\cdot \textsf{RLWE}_{S, \sigma}\left(S^2 \cdot\dfrac{q}{q_i} \cdot \left| \left(\dfrac{q}{q_i}\right)^{-1}\right|_{q_i}\right)\Bigg) \bmod q$
-
+重线性化时，将密钥中的 $g_iS$ 替换为 $g_iS^2$，分解 $D_2$，再按照本书的 $(A,B)$ 顺序，将结果加到 $(D_1,D_0)$ 上。所得相位为
+\[
+D_0+D_1S+D_2S^2+\sum_iD_{2,i}E_i\pmod q.
+\]
 \end{tcolorbox}
 
-
+对于负循环多项式，$\|A_iE_i\|_\infty\leq n\|A_i\|_\infty\|E_i\|_\infty$，因此新增误差的一个明确界为 $n\sum_i(q_i/2)\|E_i\|_\infty$。也可以把模逆元放入数位 $[A_i(q/q_i)^{-1}]_{q_i}$，并采用权重 $q/q_i$，如~\cite{rns-bfv} 第 4.5 节所示。两种选择都有效，但不能混用它们的数位与密钥。这些恒等式中的加密符号表示相位关系，而不是重新随机采样的密文分布相等。
 
 
 \subsection{将 RNS 技术应用于 FHE 运算}
@@ -821,7 +301,7 @@ $= \sum\limits_{i=1}^{k}\Bigg(D_{2,i}\cdot \textsf{RLWE}_{S, \sigma}\left(S^2 \c
 \subsubsection{多项式加法与乘法}
 \label{subsubsec:rns-application-basic}
 
-在 BFV、CKKS 和 BGV 中，密文与明文相加、密文与密文相加以及密文与明文相乘，都只涉及多项式系数之间的模加法和模乘法。因此，可以将每个多项式系数表示为 RNS 剩余向量，并通过剩余上的 RNS 加法与乘法完成系数运算，详见总结~\ref*{subsec:crt-application}（\autoref{subsec:crt-application}）。例如，设有以下两个多项式 $P^{\langle 1 \rangle}$ 和 $P^{\langle 2 \rangle}$：
+RNS 分解的是系数模数，因此标量加法与标量乘法分别在每个 $q_i$ 下进行（\autoref{subsec:crt-application}）。多项式加法逐系数进行，但多项式乘法仍需要模 $X^n+1$ 的负循环卷积。只有在模数支持适当 NTT 并完成变换后，乘法才变成逐点乘法。下面的标量恒等式描述了这些多项式运算内部使用的系数算术。
 
 $P^{\langle 1 \rangle} = \sum\limits_{a=0}^{n-1} c^{\langle 1 \rangle}_a \cdot X^a \in \mathcal{R}_{\langle n, q\rangle}$
 
@@ -841,13 +321,13 @@ $ $
 
 $c^{\langle 1 \rangle}_a + c^{\langle 2 \rangle}_b \equiv \sum\limits_{i=1}^k (c^{\langle 1 \rangle}_{a,i} + c^{\langle 2 \rangle}_{b,i}) y_i z_i \bmod q $ \textcolor{red}{ $\rhd$ 其中 $y_i = \dfrac{q}{q_i}$、$z_i = |y_i^{-1}|_{q_i}$}
 
-$\Longleftrightarrow (c^{\langle 1 \rangle}_{a,1} + c^{\langle 2 \rangle}_{b,1}, \text{ } c^{\langle 1 \rangle}_{a,2} + c^{\langle 2 \rangle}_{b,2}, \cdots, \text{ } c^{\langle 1 \rangle}_{a,k} + c^{\langle 2 \rangle}_{b,k}) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$ 
+$\Longleftrightarrow (c^{\langle 1 \rangle}_{a,1} + c^{\langle 2 \rangle}_{b,1}, \text{ } c^{\langle 1 \rangle}_{a,2} + c^{\langle 2 \rangle}_{b,2}, \cdots, \text{ } c^{\langle 1 \rangle}_{a,k} + c^{\langle 2 \rangle}_{b,k}) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$
 
 $ $
 
 类似地，每次系数相乘都通过两个 RNS 剩余向量的逐元素乘法计算：
 
-$c^{\langle 1 \rangle}_a \cdot c^{\langle 2 \rangle}_b \equiv \sum\limits_{i=1}^k (c^{\langle 1 \rangle}_{a,i} \cdot c^{\langle 2 \rangle}_{b,i}) y_i z_i \bmod q $ 
+$c^{\langle 1 \rangle}_a \cdot c^{\langle 2 \rangle}_b \equiv \sum\limits_{i=1}^k (c^{\langle 1 \rangle}_{a,i} \cdot c^{\langle 2 \rangle}_{b,i}) y_i z_i \bmod q $
 
 $\Longleftrightarrow (c^{\langle 1 \rangle}_{a,1} \cdot c^{\langle 2 \rangle}_{b,1}, \text{ } c^{\langle 1 \rangle}_{a,2} \cdot c^{\langle 2 \rangle}_{b,2}, \cdots, \text{ } c^{\langle 1 \rangle}_{a,k} \cdot c^{\langle 2 \rangle}_{b,k}) \in \mathbb{Z}_{q_1} \times \mathbb{Z}_{q_2} \times \cdots \times \mathbb{Z}_{q_k}$
 
@@ -859,338 +339,123 @@ $ $
 \subsubsection{密钥切换}
 \label{subsubsec:rns-application-key-switching}
 
-在 BFV 或 CKKS 中，对 RNS 密文执行密钥切换 $S \rightarrow S'$，可以通过对 RNS 向量计算以下公式来实现：
-
-$\textsf{RLWE}_{S', \sigma}(\Delta M) = B + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$
-
-
-$ $
-
-上述公式中的 $\bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$ 可以使用 $\textsf{DecompMult\textsubscript{RNS}}$（\autoref{subsec:rns-decompmult} 中的总结~\ref*{subsec:rns-decompmult}）计算，然后使用常规 RNS 加法加上 $B$。
-
-$ $
-
-类似地，在 BGV 中，对密文执行 RNS 密钥切换 $S \rightarrow S'$，可以通过对 RNS 向量计算以下公式来实现：
-
-$\textsf{RLWE}_{S', \sigma}(M) = B + \bm{\langle} \textsf{Decomp}^{\beta, l}(A), \text{ } \textsf{RLev}_{S', \sigma}^{\beta, l}(S) \bm{\rangle}$
+使用 \autoref{subsec:rns-decompmult} 的求值密钥和提升数位，计算
+\[
+(A',B')=(0,B)+\textsf{DecompMult}_{\mathrm{RNS}}(A,S_{\langle S',\mathrm{RNS}\rangle}).
+\]
+若输入相位为 $B+AS$，则输出相位在模 $q$ 下为 $B+AS+E_{\mathrm{ks}}$，其中 $E_{\mathrm{ks}}=\sum_iA_iE_i$。BFV 和 CKKS 保持当前消息尺度，同时增加该误差。BGV 采用误差被 $t$ 整除的求值密钥，使相位仍在模 $t$ 下与同一消息同余。全部运算均可在当前 RNS 基中执行，但相位界仍取决于具体方案。
 
 
 \subsubsection{输入槽位旋转}
 \label{subsubsec:rns-rotation}
 
-在 BFV 或 CKKS 中，对 RNS 密文的输入槽位执行旋转，可以通过对 RNS 向量计算以下公式来实现：
+对于 $J(h)=5^h\bmod2n$，对两个密文分量施加自同构 $X\mapsto X^{J(h)}$。将指数模 $2n$ 约减，并使用 $X^{n+i}=-X^i$。在系数表示中，这相当于置换整个 RNS 剩余类向量，并在所有模数下对相应向量取负。该步骤本身不引入近似误差。
 
-$ $
-
-\begin{enumerate}
-\item $ \textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(\Delta M(X^{J(h)})\bm) = \bm(A(X^{J(h)})$、$B(X^{J(h)})\bm)$ \textcolor{red}{ $\rhd$ 其中 $J(h) = 5^h \bmod 2n$}
-
-\item 将 $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(\Delta M(X^{J(h)})\bm)$ 密钥切换为 $\textsf{RLWE}_{S(X), \sigma}\bm(\Delta M(X^{J(h)})\bm)$
-\end{enumerate}
-
-$ $
-
-第一步等价于在每个多项式内重新排列系数，并在跨越 $n$ 次项边界时改变其符号。对于 RNS 系数，当其表示的系数被移动到新的次数位置时，将整组 RNS 剩余向量整体移动；当该系数需要变号时，对同一 RNS 向量中的全部剩余同时变号即可。第二步的 RNS 密钥切换可以按照上一小节（\autoref{subsubsec:rns-application-key-switching}）介绍的方法执行。
-
-$ $
-
-类似地，在 BGV 中，对 RNS 密文的输入槽位执行旋转，可以通过对 RNS 向量计算以下公式来实现：
-
-$ $
-
-\begin{enumerate}
-\item $ \textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(M(X^{J(h)})\bm) = \bm(A(X^{J(h)})$、$B(X^{J(h)})\bm)$ \textcolor{red}{ $\rhd$ 其中 $J(h) = 5^h \bmod 2n$}
-
-\item 将 $\textsf{RLWE}_{S(X^{J(h)}), \sigma}\bm(M(X^{J(h)})\bm)$ 密钥切换为 $\textsf{RLWE}_{S(X), \sigma}\bm(M(X^{J(h)})\bm)$
-\end{enumerate}
-
-$ $
-
-使用 BFV 或 CKKS 中介绍的相同策略，即可在 RNS 下计算上述公式。
-
-
+所得相位是原相位在 $X^{J(h)}$ 处的代入结果，秘密密钥变为 $S(X^{J(h)})$。随后使用 \autoref{subsubsec:rns-application-key-switching} 的 RNS 密钥切换，返回 $S(X)$。此步骤会增加密钥切换误差，BGV 的误差含有因子 $t$。产生的槽位置换取决于根的排列：CKKS 具有 $n/2$ 个独立复数槽位，而完全分裂的 BFV/BGV 打包在 $5$ 的幂作用下具有两个各含 $n/2$ 个标量槽位的轨道。RNS 不改变该置换。
 
 \subsubsection{BFV 的密文与密文相乘}
 \label{subsubsec:rns-cipher-mult-bfv}
 
+\cite{rns-bfv} 第 4.2--4.5 节的 BEHZ RNS 乘法依次执行基扩展、张量乘法、近似缩放舍入、精确转换回原基，以及重线性化。辅助基和误差界是算法的一部分。HPS 构造~\cite{rns-bfv-hps} 第 2.2--2.4 节及第 4.5 节使用不同的转换与缩放技术，不能混淆这些变体。
 
-BFV 的密文与密文相乘（\autoref{subsubsec:bfv-mult-cipher-summary} 中的总结~\ref*{subsubsec:bfv-mult-cipher-summary}）包含 \textsf{ModRaise} $\rightarrow$ 多项式乘法 $\rightarrow$ 重线性化 $\rightarrow$ 重缩放，其中重线性化与重缩放的顺序可以互换。在 RNS 密文乘法中，交换这两个步骤，采用以下过程：（1）执行 \textsf{ModRaise\textsubscript{RNS}}，转换 $q \rightarrow qb$；（2）多项式乘法；（3）乘以常数 $t$；（4）执行 \textsf{ModSwitch}，转换 $qb \rightarrow b$；（5）
-执行 \textsf{FastBConvEx}，转换 $b \rightarrow q$；（6）重线性化。其中，步骤 $3 \sim 5$ 对应重缩放操作。下面解释各个步骤。%Throughout the explanation, we denote the polynomial constant to apply the RNS operations (i.e., the coefficients $\{a_0, \cdots, a_{n-1}\}$, $\{b_0, \cdots, b_{n-1}\}$ of polynomial $A, B$ of a ciphertext) as $x$.  
-
-$ $
-
+下面给出本节原语的中心化剩余类版本。令 $b=\prod_jb_j$，使用冗余模数 $b_\alpha$ 进行末尾的精确转换，并使用\emph{另一个不同的}临时 Montgomery 模数 $\widetilde m$ 控制初始提升。所有基模数都必须满足所需互素条件。
 \begin{enumerate}
-
-\item \textbf{\underline{\textsf{ModRaise\textsubscript{RNS}}}：$q \rightarrow qbb_\alpha$}
-
-设 $b$ 为新的 RNS 基，满足 $b > \Delta$，使 $qb$ 足够大，保证密文与密文相乘过程中，相乘后缩放的明文（即 $\Delta^2M^{\langle 1 \rangle}M^{\langle 2 \rangle}$）不会超过允许范围（\autoref{subsec:bfv-enc-dec} 中的总结~\ref*{subsec:bfv-enc-dec}）。同时加入 $b_\alpha$，以便后续执行精确快速基转换。
-具体而言，按如下方式提升密文 $(A^{\langle 1 \rangle}, B^{\langle 1 \rangle})$ 与 $(A^{\langle 2 \rangle}, B^{\langle 2 \rangle})$ 的各多项式系数的模数：
-
-
-$(\hat{A}^{\langle 1 \rangle}, \hat{B}^{\langle 1 \rangle}) = (A^{\langle 1 \rangle} + U_A^{\langle 1 \rangle}q, B^{\langle 1 \rangle} + U_B^{\langle 1 \rangle}q) \bmod qbb_\alpha$
-
-$(\hat{A}^{\langle 2 \rangle}, \hat{B}^{\langle 2 \rangle}) =(A^{\langle 2 \rangle} + U_A^{\langle 2 \rangle}q, B^{\langle 2 \rangle} + U_B^{\langle 2 \rangle}q) \bmod qbb_\alpha$
-
-$ $
-
-其中，$U_A^{\langle 1 \rangle}, U_B^{\langle 1 \rangle}, U_A^{\langle 2 \rangle}, U_B^{\langle 2 \rangle}$ 的每个系数均取 $\{-1, 0, 1\}$ 中的值。使用秘密密钥 $S$ 解密这两个带噪密文，得到：
-
-$\hat{A}^{\langle 1 \rangle}\cdot S + \hat{B}^{\langle 1 \rangle} \bmod qbb_\alpha$
-
-$ = (A^{\langle 1 \rangle} + U_A^{\langle 1 \rangle}q) \cdot S + (B^{\langle 1 \rangle} + U_B^{\langle 1 \rangle}q) \bmod qbb_\alpha$
-
-$ = A^{\langle 1 \rangle}\cdot S + B^{\langle 1 \rangle} + U_A^{\langle 1 \rangle}q \cdot S + U_B^{\langle 1 \rangle}q \bmod qbb_\alpha$ 
-
-$ = \Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + U_A^{\langle 1 \rangle}q \cdot S + U_B^{\langle 1 \rangle}q  + K^{\langle 1 \rangle} q  \bmod qbb_\alpha$ \textcolor{red}{ $\rhd$ 其中 $ + K^{\langle 1 \rangle} q$ 表示解密过程中的 $q$ 溢出}
-
-$ $
-
-$ \hat{A}^{\langle 2 \rangle}\cdot S + \hat{B}^{\langle 2 \rangle}  \bmod qbb_\alpha$ 
-
-$ = (A^{\langle 2 \rangle} + U_A^{\langle 2 \rangle}q) \cdot S + (B^{\langle 2 \rangle} + U_B^{\langle 2 \rangle}q) \bmod qbb_\alpha$
-
-$ = A^{\langle 2 \rangle}\cdot S + B^{\langle 2 \rangle} + U_A^{\langle 2 \rangle}q \cdot S + U_B^{\langle 2 \rangle}q  \bmod qbb_\alpha$ 
-
-$ = \Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + U_A^{\langle 2 \rangle}q \cdot S + U_B^{\langle 2 \rangle}q + K^{\langle 2 \rangle} q  \bmod qbb_\alpha$
-
-
-$ $
-
-\item \textbf{\underline{多项式乘法：}}
-
-计算 $(\hat{B}^{\langle 1 \rangle}\hat{B}^{\langle 2 \rangle}, \hat{A}^{\langle 1 \rangle}\hat{B}^{\langle 2 \rangle} + \hat{A}^{\langle 2 \rangle}B^{\langle 1 \rangle}, \hat{A}^{\langle 1 \rangle}\hat{A}^{\langle 2 \rangle}) \bmod qbb_\alpha$，其解密关系如下：
-
-$\hat{B}^{\langle 1 \rangle}\hat{B}^{\langle 2 \rangle} + (\hat{A}^{\langle 1 \rangle}\hat{B}^{\langle 2 \rangle} + \hat{A}^{\langle 2 \rangle}B^{\langle 1 \rangle})\cdot S + (\hat{A}^{\langle 1 \rangle}\hat{A}^{\langle 2 \rangle})\cdot S^2  \bmod qbb_\alpha$
-
-$ = (\hat{A}^{\langle 1 \rangle}\cdot S + \hat{B}^{\langle 1 \rangle}) \cdot (\hat{A}^{\langle 2 \rangle}\cdot S + \hat{B}^{\langle 2 \rangle})  \bmod qbb_\alpha$
-
-$ = (\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + U_A^{\langle 1 \rangle}q \cdot S + U_B^{\langle 1 \rangle}q + K^{\langle 1 \rangle} q) \cdot ( \Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + U_A^{\langle 2 \rangle}q \cdot S + U_B^{\langle 2 \rangle}q + K^{\langle 2 \rangle} q)  \bmod qbb_\alpha$
-
-$ $
-
-\item \textbf{\underline{常数乘法}：乘以 $\bm t$}
-
-步骤 $3 \sim 5$ 等价于按 $\Delta^2 \rightarrow \Delta$ 重缩放明文尺度因子，同时将密文模数从 $qbb_\alpha$ 切换为 $q$。
-在这一步中，将上一步得到的多项式的每个系数乘以 $t$：
-
-$(t\cdot\hat{B}^{\langle 1 \rangle}\hat{B}^{\langle 2 \rangle}, \text{ } t\cdot\hat{A}^{\langle 1 \rangle}\hat{B}^{\langle 2 \rangle} + t\cdot\hat{A}^{\langle 2 \rangle}B^{\langle 1 \rangle}, \text{ } t\cdot\hat{A}^{\langle 1 \rangle}\hat{A}^{\langle 2 \rangle}) \bmod qbb_\alpha$
-
-$ $
-
-其等价于加密以下明文的密文：
-
-$ t\cdot(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + U_A^{\langle 1 \rangle}q \cdot S + U_B^{\langle 1 \rangle}q  + K^{\langle 1 \rangle} q)\cdot(\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + U_A^{\langle 2 \rangle}q \cdot S + U_B^{\langle 2 \rangle}q  + K^{\langle 2 \rangle} q) \bmod qbb_\alpha$
-
-$ $
-
-
-\item \textbf{\underline{\textsf{ModSwitch\textsubscript{RNS}}}：$qbb_\alpha \rightarrow bb_\alpha$}
-
-使用 \textsf{ModSwitch\textsubscript{RNS}}，按如下方式将密文模数从 $qb$ 切换为 $b$：
-
-
-$\left(\left\lceil\dfrac{t\cdot\hat{B}^{\langle 1 \rangle}\hat{B}^{\langle 2 \rangle}}{q}\right\rfloor, \left\lceil\dfrac{t\cdot\hat{A}^{\langle 1 \rangle}\hat{B}^{\langle 2 \rangle} + t\cdot\hat{A}^{\langle 2 \rangle}B^{\langle 1 \rangle}}{q}\right\rfloor, \left\lceil\dfrac{t\cdot\hat{A}^{\langle 1 \rangle}\hat{A}^{\langle 2 \rangle}}{q}\right\rfloor\right) \bmod bb_\alpha$
-
-$ $
-
-考虑舍入误差后，它近似等价于加密以下明文的密文：
-
-$ \left\lceil\dfrac{t\cdot(\Delta M^{\langle 1 \rangle} + E^{\langle 1 \rangle} + U_A^{\langle 1 \rangle}q \cdot S + U_B^{\langle 1 \rangle}q  + K^{\langle 1 \rangle} q)\cdot(\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + U_A^{\langle 2 \rangle}q \cdot S + U_B^{\langle 2 \rangle}q  + K^{\langle 2 \rangle} q)}{q}\right\rfloor \bmod bb_\alpha$
-
-$ $
-
-$= \left\lceil (M^{\langle 1 \rangle} + \dfrac{t}{q}\cdot E^{\langle 1 \rangle} + U_A^{\langle 1 \rangle}t \cdot S + U_B^{\langle 1 \rangle}t + K^{\langle 1 \rangle} t + \epsilon_d)\cdot(\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + U_A^{\langle 2 \rangle}q \cdot S + U_B^{\langle 2 \rangle}q + K^{\langle 2 \rangle} q)\right\rfloor \bmod bb_\alpha$ 
-
-\textcolor{red}{ $\rhd$ 其中 $\epsilon_d = \dfrac{t}{q}\cdot \Delta M^{\langle 1 \rangle} - M^{\langle 1 \rangle}$ 是采用 $\dfrac{q}{t} \approx \left\lfloor\dfrac{q}{t}\right\rfloor = \Delta$ 这一近似所引入的舍入误差}
-
-
-
-$ $
-
-
-\item \textbf{\underline{\textsf{FastBConvEx\textsubscript{RNS}}}：$b \rightarrow q$}
-
-按如下方式对密文执行精确基转换 $bb_\alpha \rightarrow q$：
-
-$\left(\left\lceil\dfrac{t\cdot\hat{B}^{\langle 1 \rangle}\hat{B}^{\langle 2 \rangle}}{q}\right\rfloor, \left\lceil\dfrac{t\cdot\hat{A}^{\langle 1 \rangle}\hat{B}^{\langle 2 \rangle} + t\cdot\hat{A}^{\langle 2 \rangle}B^{\langle 1 \rangle}}{q}\right\rfloor, \left\lceil\dfrac{t\cdot\hat{A}^{\langle 1 \rangle}\hat{A}^{\langle 2 \rangle}}{q}\right\rfloor\right) \bmod q$
-
-$ $
-
-其等价于加密以下明文的密文：
-
-
-$= \left\lceil (M^{\langle 1 \rangle} + \dfrac{t}{q}\cdot E^{\langle 1 \rangle} + U_A^{\langle 1 \rangle}t \cdot S + U_B^{\langle 1 \rangle}t + K^{\langle 1 \rangle} t + \epsilon_d)\cdot(\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + U_A^{\langle 2 \rangle}q \cdot S + U_B^{\langle 2 \rangle}q + K^{\langle 2 \rangle} q)\right\rfloor \bmod q$
-
-$ = \Big\lceil \Delta M^{\langle 1 \rangle} M^{\langle 2 \rangle} +  \dfrac{t}{q}\cdot \Delta M^{\langle 2 \rangle} E^{\langle 1 \rangle} + U_A^{\langle 1 \rangle}t \Delta M^{\langle 2 \rangle} \cdot S + U_B^{\langle 1 \rangle}t\Delta M^{\langle 2\rangle}  + M^{\langle 1 \rangle} E^{\langle 2 \rangle} + \dfrac{t}{q}\cdot E^{\langle 1 \rangle} E^{\langle 2 \rangle} $
-
-\text{ } \text{ } $+ U_A^{\langle 1 \rangle}  E^{\langle 2 \rangle}t\cdot S + U_B^{\langle 1 \rangle} E^{\langle 2 \rangle}t + K^{\langle 1 \rangle}t\Delta M^{\langle 2 \rangle} + K^{\langle 1 \rangle}t E^{\langle 2 \rangle} 
-+ \epsilon_d\cdot(\Delta M^{\langle 2 \rangle} + E^{\langle 2 \rangle} + U_A^{\langle 2 \rangle}q \cdot S + U_B^{\langle 2 \rangle}q + K^{\langle 2 \rangle} q)\Big\rfloor \bmod q $ 
-
-$ \approx \Delta M^{\langle 1 \rangle} M^{\langle 2 \rangle} \bmod q $ \textcolor{red}{ $\rhd$ 在模 $q$ 下，其余各项都远小于 $\Delta M^{\langle 1 \rangle} M^{\langle 2 \rangle}$}
-
-$ $
-
-
-
-\item \textbf{\underline{重线性化}：}
-
-得到重缩放后的多项式三元组 $(D'_0, D'_1, D'_2) \bmod q$ 后，最后的重线性化步骤等价于构造合成密文 $\textsf{ct}_\alpha$ 与 $\textsf{ct}_\beta$，再计算 $\textsf{ct}_\alpha + \textsf{ct}_\beta$。$\textsf{ct}_\alpha$ 就是 $(D'_0, D'_1)$，而 $\textsf{ct}_\beta = \textsf{RLWE}_{S, \sigma}(D_2 \cdot S^2)$ 可以通过 \textsf{DecompMult\textsubscript{RNS}} 操作（\autoref{subsec:rns-decompmult} 中的总结~\ref*{subsec:rns-decompmult}）得到。最后的密文加法 $\textsf{ct}_\alpha + \textsf{ct}_\beta$ 可使用常规 RNS 加法完成。
-
+\item \textbf{基扩展。} 对每个分量系数 $x$，将 $[\widetilde m x]_q$ 快速转换到组合辅助基 $bb_\alpha\widetilde m$，再以 $\widetilde m$ 为临时模数执行 \textsf{SmallMont}。这样得到模 $bb_\alpha$ 下的提升 $\widehat x=x+uq$，其中 $|u|\leq1$，同时保留原基 $q$ 的剩余类。辅助剩余类 $b_\alpha$ 留作后续精确转换，不能像 Montgomery 模数那样被删除。
+\item \textbf{张量乘法。} 在组合基 $qbb_\alpha$ 中计算负循环整数多项式乘积
+\[
+D_0=\widehat B_1\widehat B_2,\quad
+D_1=\widehat A_1\widehat B_2+\widehat A_2\widehat B_1,\quad
+D_2=\widehat A_1\widehat A_2.
+\]
+选择辅助范围，使预期整数 $tD_j$ 能够无回绕表示，例如验证 $\|tD_j\|_\infty<qbb_\alpha/2$。系数卷积、$n$、$t$ 和分量提升的界都会影响这一条件；仅有 $b>\Delta$ 并不足够。
+\item \textbf{近似缩放舍入。} 将各个 $D_j$ 乘以 $t$，并执行删除基 $q$ 的 \textsf{ModSwitch\textsubscript{RNS}}。输出在基 $bb_\alpha$ 中表示
+\[
+Z_j=\left\lfloor\frac{tD_j}{q}\right\rceil-u_j
+=\frac{tD_j}{q}+\rho_j,\quad
+\|u_j\|_\infty\leq U_k,\quad
+\|\rho_j\|_\infty\leq U_k+\frac12.
+\]
+这是近似缩放舍入，不是精确舍入。
+\item \textbf{精确返回基 $q$。} 对每个 $Z_j$，使用保留的 $b_\alpha$ 剩余类执行 \textsf{FastBConvEx}。每个系数都必须满足 \autoref{subsec:rns-fastbconvex} 中的界 $|\mu+u|<b_\alpha/2$。对 $tD_j$ 的辅助范围界，不能代替这一独立的纠正界。
+\item \textbf{重线性化。} 按 $(A,B)$ 顺序计算 $(Z_1,Z_0)+\textsf{DecompMult}_{\mathrm{RNS}}(Z_2,S^2_{\langle S,\mathrm{RNS}\rangle})$，此步骤增加求值密钥误差 $E_{\mathrm{ks}}$。
 \end{enumerate}
+
+令 $H_i=\widehat B_i+\widehat A_iS$ 表示提升后的整数相位。输出相位满足
+\[
+F\equiv\frac tqH_1H_2+\rho_0+\rho_1S+\rho_2S^2+E_{\mathrm{ks}}\pmod q.
+\]
+不能将三个分量的舍入替换为对 $H_1H_2$ 的单次舍入。误差界必须包含依赖秘密密钥的项、输入误差、提升产生的倍数，以及 $t\Delta^2/q$ 与 $\Delta$ 的差异。例如，将中心化输出相位写为 $\Delta M_{\mathrm{out}}+E_{\mathrm{out}}$，一个充分的解码条件是
+\[
+\|\Delta M_{\mathrm{out}}+E_{\mathrm{out}}\|_\infty<q/2,\qquad
+\left\|\frac tqE_{\mathrm{out}}+\left(\frac{t\Delta}{q}-1\right)M_{\mathrm{out}}\right\|_\infty<1/2.
+\]
+其中 $M_{\mathrm{out}}=[M_1M_2]_t$。这些是绝对误差条件；仅将误差与消息大小比较并不正确，消息系数为零时尤其如此。相应的完整参数分析见 \autoref{subsubsec:bfv-mult-cipher-summary} 和所引论文。
 
 
 \subsubsection{CKKS 的密文与密文相乘}
 \label{subsubsec:rns-cipher-mult-ckks}
 
-CKKS 的密文与密文相乘（\autoref{subsubsec:ckks-mult-cipher-summary} 中的总结~\ref*{subsubsec:ckks-mult-cipher-summary}）与 BFV 基本相同，区别在于 CKKS 不需要最开始的 \textsf{ModRaise}，因为每个乘法层级的模数 $q_l$ 足够容纳相乘后的缩放明文 $\Delta^2M^{\langle 1 \rangle}M^{\langle 2 \rangle}$。因此，CKKS 的 RNS 乘法与 BFV 相同，只是不需要步骤 1（\textsf{ModRaise}）、步骤 3（乘以常数 $t$）和步骤 5（精确快速基转换）。由于 CKKS 密文的尺度因子 $\Delta$ 近似等于每个乘法层级对应的素数模数因子，每次密文乘法只需执行一次
-降至下一层级的模数切换。
-%\textsf{ModSwitch\textsubscript{RNS}} to the lower level.
+直接在当前基中计算张量积，使用适当的 RNS 求值密钥重线性化，并在尺度与噪声预算要求时重缩放（\autoref{subsubsec:ckks-mult-cipher-summary}）。在使用近似解释前，乘积相位必须适合当前模数；仅凭层级编号不能保证这一点。
+
+若输入尺度为 $\Delta_1,\Delta_2$，删除的模数为 $w$，则新尺度是 $\Delta_1\Delta_2/w$。单素数重缩放能精确实现分量的最近整数除法，但仍产生相位误差 $R_B+R_AS$。多因子的近似转换还可能引入其他有界误差。BFV 专用的因子 $t$、用于张量积的大范围辅助基，以及精确返回固定 BFV 模数的最后步骤，不属于这一 CKKS 流程。不过，混合密钥切换仍可能使用自己的辅助基。
 
 
 \subsubsection{BGV 的密文与密文相乘}
 \label{subsubsec:rns-cipher-mult-bgv}
 
-BGV 的密文与密文相乘（\autoref{subsec:bgv-mult-cipher} 中的总结~\ref*{subsec:bgv-mult-cipher}）与 CKKS 基本相同，区别在于 BGV 在重缩放步骤中使用自身的模数切换方法，即 $\textsf{ModSwitch}_{\textsf{RNS}}^{\textsf{BGV}}$（见 \autoref{subsec:bgv-modulus-switch} 中的总结~\ref*{subsec:bgv-modulus-switch}）。因此，BGV 的 RNS 密文乘法与 CKKS 相同，只需将 \textsf{ModSwitch\textsubscript{RNS}} 替换为 $\textsf{ModSwitch}_{\textsf{RNS}}^{\textsf{BGV}}$。
+张量乘法与 RNS 重线性化得到模 $t$ 下的同一明文乘积，误差仍被 $t$ 整除（\autoref{subsec:bgv-mult-cipher}）。求值密钥误差也必须是 $t$ 的倍数。如需模数切换，应使用 \autoref{subsec:rns-modswitch-bgv} 的 $\textsf{ModSwitch}_{\mathrm{RNS}}^{\mathrm{BGV}}$，或显式跟踪纠正因子的更一般同余保持变体，不能用普通 CKKS 重缩放代替。因子 $t$ 保持固定；正确性和有效的噪声降低取决于完整的输出相位界。
 
 
 \subsubsection{BFV 自举}
 \label{subsubsec:rns-bfv-bootstrapping}
 
-BFV 原始的自举过程（\autoref{subsubsec:bfv-bootstrapping-summary} 中的总结~\ref*{subsubsec:bfv-bootstrapping-summary}）如下：（1）模数切换 $q \rightarrow p^\varepsilon$；（2）同态解密；（3）\textsf{CoeffToSlot}；（4）\textsf{EvalExp}；（5）\textsf{SlotToCoeff}；（6）重新解释。
+RNS 是密文系数模数的表示方式，并不禁止明文模数为 $p^\varepsilon$。素数幂也可以作为一个 CRT 模数，只要它与其他基模数互素。无效的只是把重复因子 $p,p,\ldots,p$ 当作不同且互素的 CRT 坐标。
 
-但在 RNS 中，无法将模数切换为 $p^\varepsilon$，因为 RNS 的各基模数必须两两互素，而 $p^\varepsilon$ 的因子不满足这一条件。为避免该问题，基于 RNS 的 BFV 自举改用以下过程：（1）执行 \textsf{ModRaise\textsubscript{RNS}}，转换 $q \rightarrow qbb_\alpha$，其中 $bb_\alpha$ 是辅助基；（2）将系数乘以 $p^\varepsilon$；（3）执行 \textsf{ModSwitch\textsubscript{RNS}}，转换 $qbb_\alpha \rightarrow bb_\alpha$；（4）执行 \textsf{FastBConvEx}，转换 $bb_\alpha \rightarrow q$；（5）同态解密以调整明文尺度因子；（6）\textsf{CoeffToSlot}；（7）\textsf{EvalExp}；（8）\textsf{SlotToCoeff}；（9）重新解释。详细过程如下：
+\cite{cryptoeprint:2022/1363} 第 3.2--3.4 节的 BFV 自举构造采用公开预处理
+\[
+c_i'=\left[\left\lfloor\frac{p^\varepsilon}{q}c_i\right\rceil\right]_{p^\varepsilon},
+\]
+随后使用自举密钥同态计算 $[c_0'+c_1'S]_{p^\varepsilon}$。这里 $(c_0,c_1)=(B,A)$，该同态计算的明文模数为 $p^\varepsilon$。线性变换与数位提取实现将明文模数降至 $p^r$ 的舍入解密映射，之后施加逆变换。方案层面的讨论见 \autoref{subsubsec:bfv-bootstrapping-summary}。
 
-$ $
+这种系数到槽位构造要求明文素数与分圆指标 $\mu$ 满足 $\gcd(p,\mu)=1$（所引论文第 2.3 节）。对于 $\mu=2n$ 且 $n$ 为二次幂的情形，应使用奇数 $p$。二进制数位提取规则本身不能补足该环所缺少的明文环 CRT 分解。
 
-\textbf{\underline{输入}：}待自举的 BFV 密文为 $(A, B) \bmod q$，其解密结果为：
+公开预处理可以从 RNS 重构密文系数并精确舍入，也可以使用精度足够且经过证明的 RNS 缩放舍入例程。此后，同态电路的密文算术可以为工作密文模数使用另一套 RNS 基。若采用近似基转换，必须先把其误差计入舍入解密界，才能声称正确性。仅有 BEHZ/HPS 乘法例程并不能证明新的自举构造，而关于因子不互素的错误论证也不能成为用未经证明的基扩展与重新解释链替换该预处理的理由。
 
-$A\cdot S + B = \Delta M + E + Kq$ \textcolor{red}{ $\rhd$ 其中 $\Delta = \dfrac{q}{p^r}$}
-
-$ $
-
-\begin{enumerate}
-
-\item \textbf{\underline{\textsf{ModRaise\textsubscript{RNS}}}：$q \rightarrow qbb_\alpha$}
-
-将密文 $(A, B) \bmod q$ 提升模数为 $(A, B) \bmod qbb_\alpha$，其解密结果为：
-
-$A\cdot S + B = \Delta M + E + Kq + Uq \pmod{ qbb_\alpha}$ 
-
-\textcolor{red}{ $\rhd$ 其中 $Uq$ 是 \textsf{FastBConv} + \textsf{SmallMont} 的误差，且 $U$ 的系数均取 $\{-1, 0, 1\}$ 中的值}
-
-$ $
-
-\item \textbf{\underline{系数乘法}：乘以 $p^\varepsilon$}
-
-将 $(A, B) \bmod q$ 的各系数乘以 $p^\varepsilon$，使密文更新为 $(p^\varepsilon A,p^\varepsilon B) \bmod{ qbb_\alpha}$，其解密结果为：
-
-$p^\varepsilon A\cdot S + p^\varepsilon B = \Delta p^\varepsilon M + p^\varepsilon E + p^\varepsilon Kq + p^\varepsilon Uq \pmod{qbb_\alpha}$
-
-$ $
-
-\item \textbf{\underline{\textsf{ModSwitch\textsubscript{RNS}}}：$qbb_\alpha \rightarrow bb_\alpha$}
-
-对密文 $(p^\varepsilon A,p^\varepsilon B) \bmod pbb_\alpha$ 执行模数切换，得到 $\left(\left\lceil\dfrac{p^\varepsilon A}{q}\right\rfloor,\left\lceil\dfrac{p^\varepsilon B}{q}\right\rfloor\right) \pmod{bb_\alpha}$，其解密结果为：
-
-$\left\lceil\dfrac{p^\varepsilon A}{q}\right\rfloor\cdot S + \left\lceil\dfrac{p^\varepsilon B}{q}\right\rfloor = \dfrac{\Delta p^\varepsilon M}{q} + \dfrac{p^\varepsilon E}{q} + \dfrac{p^\varepsilon Kq}{q} + \dfrac{p^\varepsilon Uq}{q} + \epsilon  \pmod {bb_\alpha}$ 
-
-\textcolor{red}{ $\rhd$ $\epsilon$ 是较小的舍入误差}
-
-$ = p^{\varepsilon - r}M + \dfrac{p^\varepsilon E}{q} + p^\varepsilon K + p^\varepsilon U +\epsilon \pmod{ bb_\alpha}$ 
-
-$ $
-
-\item \textbf{\underline{\textsf{FastBConvEx}}：$bb_\alpha \rightarrow q$}
-
-将 $(p^\varepsilon A, p^\varepsilon B) \bmod bb_\alpha$ 精确快速基转换为 $(p^\varepsilon A, p^\varepsilon B) \bmod q$，其解密结果为：
-
-$p^{\varepsilon - r}M + \dfrac{p^\varepsilon E}{q} + p^\varepsilon K + p^\varepsilon U +\epsilon \bmod q$
-
-$ $
-
-\item \textbf{\underline{同态解密}：}
-
-现在得到密文 $(p^\varepsilon A, p^\varepsilon B) \bmod q = \textsf{RLWE}_{S, \sigma}\left(p^{\varepsilon - r}M + \dfrac{p^\varepsilon E}{q} + p^\varepsilon K + p^\varepsilon U +\epsilon\right) \bmod q$。使用加密的秘密密钥 $\textsf{RLWE}_{S, \sigma}(\hat\Delta S)$ 进行同态解密，其中 $\hat\Delta = \left\lfloor\dfrac{q}{p^\varepsilon}\right\rfloor$。输出为 $\textsf{RLWE}_{S, \sigma}\bm(\hat\Delta\cdot(p^{\varepsilon - r}M + \dfrac{p^\varepsilon E}{q} + p^\varepsilon K + p^\varepsilon U +\epsilon)\bm) \bmod q$。
-
-$ $
-
-\item 执行 \textsf{CoeffToSlot}、数位提取和 \textsf{SlotToCoeff}。这些操作只需常规 RNS 加法与乘法即可完成。最终经过数位提取的密文为 $\textsf{RLWE}_{S, \sigma}\bm(\hat\Delta\cdot(p^{\varepsilon - r}\cdot M +  Kp^\varepsilon +  Up^\varepsilon)\bm)$，其中所有低于以 $p$ 为基数表示的第 $(\varepsilon-r)$ 位的噪声值都被消除。
-
-\begin{comment}
-$ $
-
-\item \textbf{\underline{Scaling Factor Re-interpretation:}} 
-
-Theoretically re-interpret the ciphertext without any additional mathematical computation. The ciphertext $\textsf{RLWE}_{S, \sigma}\bm(\hat\Delta\cdot(p^{\varepsilon - r}\cdot M +  Kp^\varepsilon +  Up^\varepsilon)\bm)$ is mathematically the same as: 
-
-$\textsf{RLWE}_{S, \sigma}\bm(\hat\Delta\cdot(p^{\varepsilon - r}\cdot M +  Kp^\varepsilon +  Up^\varepsilon)\bm) $
-
-$= \textsf{RLWE}_{S, \sigma}\bm(\Delta M + (K + U)\cdot q\bm) $ \textcolor{red}{ $\rhd$ since $\Delta = \dfrac{q}{p^r}$, and $\hat\Delta = \dfrac{a}{p^\varepsilon}$}
-
-$= \textsf{RLWE}_{S, \sigma}\bm(\Delta M\bm) \bmod q$.
-\end{comment}
-
-
-\end{enumerate}
-
-
-
-
+对于理想化输入相位 $(q/p^r)M+E$，分量舍入贡献 $R_B+R_AS$，舍入解密误差包含 $(p^\varepsilon/q)E+R_B+R_AS$。若实际加密尺度为 $\lfloor q/p^r\rfloor$，在该表达式中必须把尺度差异计入 $E$。恢复 $M$ 要求明确验证该误差小于 $p^{\varepsilon-r}/2$，并且整个同态电路的中间密文都必须有效。
 
 \subsubsection{CKKS 自举}
 \label{subsubsec:rns-ckks-bootstrapping}
 
-CKKS 原始的自举过程（\autoref{subsubsec:ckks-bootstrapping-summary} 中的总结~\ref*{subsubsec:ckks-bootstrapping-summary}）如下：
-（1）\textsf{Modraise}；（2）同态解密；（3）\textsf{CoeffToSlot}；（4）\textsf{EvalExp}；（5）\textsf{SlotToCoeff}；（6）重新解释。在基于 RNS 的 CKKS 自举中，第一步采用 \textsf{ModRaise\textsubscript{RNS}}，其余步骤均使用常规 RNS 加法和乘法。第一步的 \textsf{ModRaise\textsubscript{RNS}} 在 \textsf{FastBConv} 过程中，为每个多项式系数产生
-噪声 $u\cdot q_0$，其中使用 \textsf{SmallMont} 时满足 $u \in \{-1, 0, 1\}$。因此，第二步的同态解密输出 $\Delta M + E + W\cdot q_0 + K\cdot q_0$，其中 $W\cdot q_0$ 表示所有系数噪声项与 \textsf{FastBConv} 及 \textsf{SmallMont} 产生的 $q_0$ 溢出噪声相乘后聚合形成的项。第四步的 \textsf{EvalExp} 会基于周期为 $q_0$ 的正弦曲线求值，执行近似模约减，从而消去 $W\cdot q_0 + K\cdot q_0$。
+采用 \autoref{subsubsec:ckks-bootstrapping-summary} 的 CKKS 流程：模数提升、系数到槽位变换、近似模约减，以及槽位到系数变换。稀疏自举还需要 \autoref{subsubsec:ckks-bootstrapping-time-reduction} 中说明的部分求和操作。该基本 CKKS 构造没有单独显式计算秘密密钥内积的同态步骤，也没有普遍适用的末尾重新解释步骤。
 
-
+若近似 RNS 提升使分量分别增加 $q_0U_A,q_0U_B$，提升后的相位为
+\[
+\Delta M+E+q_0(K+U_B+U_AS).
+\]
+逐系数的额外提升界会经过秘密多项式放大。即使 $U_A,U_B$ 的每个系数都属于 $\{-1,0,1\}$，相应相位倍数也未必如此。周期模约减电路的逼近区间必须覆盖全部溢出，误差预算必须包含线性变换、重缩放、密钥切换、多项式逼近，以及保留的输入误差。仅有周期性，并不能使有限的同态多项式成为精确模约减函数。
 
 
 \subsubsection{BGV 自举}
 \label{subsubsec:rns-bgv-bootstrapping}
 
-BGV 原始的自举过程（\autoref{subsec:bgv-bootstrapping}）如下：
-（1）模数切换 $q_l \rightarrow \hat{q}$；（2）将密文系数乘以 $p^{\varepsilon - 1}$；（3）\textsf{ModRaise}；（4）\textsf{CoeffToSlot}；（5）数位提取；（6）同态乘以 $|p^{-(\varepsilon-1)}|_{q^{l'}}$；（7）\textsf{SlotToCoeff}；（8）重新解释噪声项。基于这一过程，RNS 自举步骤如下。
+遵循 \autoref{subsec:bgv-bootstrapping} 的 BGV 构造。首先进行有效的模数切换，使 $\hat q\equiv1\pmod{p^\varepsilon}$，再计算中心化公开系数 $A'=[p^{\varepsilon-r}A]_{\hat q}$、$B'=[p^{\varepsilon-r}B]_{\hat q}$。该特殊模数不必是当前 RNS 基的成员：精确公开重构配合同余保持的模数切换，是一种有效实现途径。
 
-$ $
+使用明文模数 $p^\varepsilon$、足够大工作密文模数 $Q$ 下的自举密钥，同态计算 $B'+A'S$。RNS 表示的是 $Q$，不要求明文模数等于某个 RNS 因子。随后实现适当的系数与槽位变换，以及采用平衡舍入的数位提取，同时验证 $K'$ 和所有同态中间相位的界。
 
-
-设待自举的 BGV 密文为 $(A, B) \bmod q_l$，其中明文模数（即噪声尺度因子）为 $p$。
-
-\begin{enumerate}
-
-\item \textbf{\underline{$\textsf{ModSwitch}_{\textsf{RNS}}^{\textsf{BGV}}$}}：执行转换 $q_l \rightarrow \hat{q}$，其中 $\hat{q}$ 是满足以下条件的特殊模数：$\hat{q} \equiv 1 \bmod p^\varepsilon$，$\hat{q}$ 是与 $q_l$ 互素的素数，并且 $p^{\varepsilon} < \hat{q} < q_l$。
-
-
-$ $
- 
-\item \textbf{\underline{常数乘法}}：将密文多项式 $(\hat{A}, \hat{B})$ 的系数乘以 $p^{\varepsilon-1}$，使其内部明文的噪声尺度因子 $\Delta$ 以及明文模数按 $p \rightarrow p^{\varepsilon}$ 增大，从而将内部明文更新为 $p^{\varepsilon-1} M + p^{\varepsilon}E$。
-
-$ $
-
-\item \textbf{\underline{\textsf{ModRaise\textsubscript{RNS}}}}：执行转换 $\hat{q} \rightarrow q_L$，产生额外噪声 $|u\cdot \hat{q}|_{q_L}$，其中使用 \textsf{SmallMont} 时满足 $u \in \{-1, 0, 1\}$。此时密文为 $\textsf{RLWE}_{S, \sigma}(p^{\varepsilon-1} M + p^{\varepsilon}E + \hat{q}K) \bmod q_L$，其内部明文为：
-
-$p^{\varepsilon-1} M + p^{\varepsilon}E + \hat{q}K$
-
-$= p^{\varepsilon-1} M + K \bmod p^{\varepsilon}$ \textcolor{red}{ $\rhd$ 因为 $\hat{q} \equiv 1 \bmod p^{\varepsilon}$}
-
-\end{enumerate}
-
-$ $
-
-上述步骤完成后，其余步骤，即 \textsf{CoeffToSlot}、\textsf{EvalExp}、同态乘以 $|p^{-(\varepsilon-1)}|_{q^{l'}}$、\textsf{SlotToCoeff} 和重新解释，均可使用常规 RNS 加法与乘法完成。
+数位提取期间，每次具有正确性依据的对 $p$ 精确除法，都按 $p^j\rightarrow p^{j-1}$ 改变明文模数；经过 $\varepsilon-r$ 次后，明文模数变为 $p^r$。不能再附加一次乘以 $p^{-(\varepsilon-r)}$ 的操作，否则会对消息重复相除。此外，当 $\hat q$ 不整除 $Q$ 时，基扩展原语 $q\rightarrow qb$ 不能直接描述任意的 $\hat q\rightarrow Q$ 转换。采用这类提升的其他自举构造需要独立的正确性证明，仅有 RNS 表示并不能建立该证明。
 
 
 \subsubsection{RNS 运算对噪声的影响}
 \label{subsubsec:rns-noise}
 
-在 FHE 运算中使用 RNS 技术时，\textsf{FastBConv}、\textsf{ModRaise\textsubscript{RNS}} 和 \textsf{ModSwitch\textsubscript{RNS}} 所产生的噪声会直接加到密文多项式 $A$ 和 $B$ 的各个系数上。由于解密关系为 $A\cdot S + B$，即使噪声只是加在多项式 $A$ 的系数上，也会在与 $S$ 进行多项式乘法时被较大的因子放大。因此，应始终结合使用 \textsf{SmallMont}，减小每次 \textsf{FastBConvEx\textsubscript{RNS}} 所产生的噪声。
+应跟踪每个原语的实际作用。\textsf{FastBConv} 选择与原值相差源模数有界倍数的提升；\textsf{SmallMont} 限制该倍数，但通常不将其消除。\textsf{ModSwitch\textsubscript{RNS}} 在除法后将基转换偏差变为有界加性误差。\textsf{FastBConvEx} 在范围界成立时是精确的，不需要 \textsf{SmallMont} 来去除误差。\textsf{ModDrop\textsubscript{RNS}} 是精确的剩余类约减，但新相位或尺度条件不成立时，可能使密文失效。
+
+对于分量扰动 $\delta_A,\delta_B$，引起的相位扰动为 $\delta_B+\delta_AS$，其系数界是 $\|\delta_B\|_\infty+\|\delta_A\|_\infty\|S\|_1$。高阶密文还会相应涉及 $S$ 的幂。这些扰动最终被抵消、近似消除，还是保留为解密误差，取决于使用它们的方案和运算，不能用单一的笼统噪声结论涵盖全部 RNS 原语。
 
 \subsubsection{RNS 基本操作的 Python 源代码}
 \label{subsubsec:rns-source-code}
 
-我们提供了一个 \href{https://github.com/fhetextbook/fhe-textbook/blob/main/source%20code/rns.py}{\underline{Python 脚本}}，实现以下 RNS 基本操作示例：\textsf{FastBConv}、
+我们提供了一个 \href{https://github.com/wang2000star/fhe-textbook-cn/blob/chinese-edition/source%20code/rns.py}{\underline{Python 脚本}}，实现以下 RNS 基本操作示例：\textsf{FastBConv}、
 \textsf{ModRaise\textsubscript{RNS}}、
 \textsf{ModDrop\textsubscript{RNS}}、
 \textsf{ModSwitch\textsubscript{RNS}}、

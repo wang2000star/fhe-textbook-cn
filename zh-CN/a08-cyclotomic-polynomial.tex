@@ -70,27 +70,15 @@ $= (x - i)(x + i) = x^2 + 1$
 分圆多项式的所有系数都是整数。
 \end{tcolorbox}
 \begin{myproof}
-\begin{enumerate}
-    \item 采用归纳法证明。当 $n=1$ 时，$\Phi_1(x) = x - 1$，其每个系数都是整数。
-    \item 设 $x^n - 1 = f(x) \cdot g(x) = (\Sigma_{i=0}^{p}a_ix^i)(\Sigma_{j=0}^{q}b_jx^j)$。对于归纳假设 1，要证明：如果 $f(x)$ 的系数都是整数，那么 $g(x)$ 的系数也都是整数。目标等式为 $x^n - 1$。由 $a_px^p \cdot b_qx^q = x^n$ 可得 $a_pb_q = 1$，即 $a_p = \pm 1$，因为已经假设 $f(x)$ 的系数都是整数。还知道 $a_0b_0 = -1$，而其余系数都应为 0。因此，对于任意 $r < q$，相应系数为以下两种情况之一：(i) $a_pb_{r} + a_{p-1}b_{r + 1} + ... + a_{p-q+r}b_{q} = 0$；(ii) $a_pb_{r} + a_{p-1}b_{r + 1} + ... + a_{0}b_{r+p} = 0$。情况 (i) 和 (ii) 都表示在 $f(x)\cdot g(x)$ 中计算得到的某个 $x^i$ 项的系数，其中 $0 < i < n$。现在，再提出归纳假设 2：$b_{q}, ... \text{ } b_{r+1}$ 都是整数。
-    \item 在情况 (i) 中，$a_pb_{r} = -(a_{p-1}b_{r + 1} + ... + a_{p-q+r}b_{q})$。将两边除以 $a_p$（它等于 $1$ 或 $-1$），得到 $b_{r} = \pm(a_{p-1}b_{r + 1} + ... + a_{p-q+r}b_{q})$；根据假设，每个 $a_i$ 都是整数。由归纳假设 1 和 2，$b_r$ 为整数。情况 (ii) 同理。
-    \item 以 $b_q$（一个整数系数）作为归纳假设 2 的起点。于是，由上述第二层归纳证明可知，对于 $0 \leq j \leq q$，所有 $b_j$ 都是整数。
-    \item 现在，以 $\Phi_1(x)$（一个整系数多项式）作为归纳假设 1 的起点。设 $x^n - 1 = \Phi_{d_1}(x)\Phi_{d_2}(x)...\Phi_{d_k}(x)\Phi_{n}(x)$，其中每个 $d_i \mid n$（见定理~\ref*{subsec:cyclotomic-theorem}.2）。已知 $\Phi_{d_1}(x)\Phi_{d_2}(x)\cdots\Phi_{d_k}(x)$ 是整系数多项式。将 $\Phi_{d_1}(x)\Phi_{d_2}(x)\cdots\Phi_{d_k}(x)$ 视为 $f(x)$，并将 $\Phi_n(x)$ 视为 $g(x)$。
-    根据步骤 4 的归纳证明，$\Phi_{n}(x)$ 是整系数多项式；另外，$\Phi_n(x)$ 是首一多项式，即最高次项的系数为 1。
-    \item 将 $n$ 逐步增加到 $n+1$，以计算 $x^{n+1} - 1 = \Phi_{d'_1}(x)\Phi_{d'_2}(x)...\Phi_{d'_k}(x)\Phi_{n+1}(x)$，其中每个 $d'_i \mid (n+1)$。根据前一步的归纳证明，$\Phi_{d'_1}(x)\Phi_{d'_2}(x)\cdots\Phi_{d'_k}(x)$ 是首一多项式，因此 $\Phi_{n+1}(x)$ 也为首一多项式。
-\end{enumerate}
+对 $n$ 使用强归纳法。当 $n=1$ 时，$\Phi_1(x)=x-1$ 是首一整系数多项式。设 $n>1$，并假设结论对每个正整数 $d<n$ 成立，令
+\[
+F(x)=\prod_{\substack{d\mid n\\d<n}}\Phi_d(x).
+\]
+则 $F(x)$ 是 $\mathbb{Z}[x]$ 中的首一多项式。由定理~\ref*{subsec:cyclotomic-theorem}.2，在 $\mathbb{C}[x]$ 中有 $x^n-1=F(x)\Phi_n(x)$。以首一多项式 $F$ 作长除法只涉及整数运算，因此商和余式均属于 $\mathbb{Z}[x]$。由 $\mathbb{C}$ 上多项式除法的唯一性，商必为 $\Phi_n$，余式为零。因此 $\Phi_n\in\mathbb{Z}[x]$，归纳完成。
 \end{myproof}
 \begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:cyclotomic-theorem}.4} $\bm{\Phi_{nk}(x)}$ 的公式}}]
 若 $k \mid n$，则 $\Phi_{nk}(x) = \Phi_n(x^k)$。
 \end{tcolorbox}
 \begin{myproof}
-\begin{enumerate}
-    \item 定理~\ref*{subsec:order-theorem}.3 表明，给定 $k \mid n$，则 $\text{ord}_{\mathbb{F}}(a) = kn$ 当且仅当 $\text{ord}_{\mathbb{F}}(a^k) = n$。因此，对于 $\zeta \in \mathbb{C}$，$\text{ord}_{\mathbb{C}}(\zeta) = nk$ 当且仅当 $\text{ord}_{\mathbb{C}}(\zeta^k) = n$。换言之，$\zeta$ 是 $nk$ 次本原单位根，当且仅当 $\zeta^k$ 是 $n$ 次本原单位根。这意味着，$\zeta$ 是 $\Phi_{nk}(x)$ 的根，当且仅当 $\zeta^k$ 是 $\Phi_{n}(x)$ 的根。
-    \item 设 $\Phi_{nk}(x) = (x - \zeta_1)(x - \zeta_2)...(x - \zeta_p)$，其中 $P(nk)$ 包含 $p$ 个 $nk$ 次本原单位根。
-    \item $\Phi_{n}(x) = (x - \zeta_1^k)(x - \zeta_2^k)...(x - \zeta_p^k)$. 
-    %Note that $P(n)$ should also have $p$ primitive $n$-th roots of unity, because elements of $P(nk)$ are isomorphic to the elements of $P(n)$ (as they preserved if and only if relationships in step 2). 
-    将 $P(nk)$ 的每个元素取 $k$ 次幂，就得到 $P(n)$ 中的元素，因此这给出了从 $P(nk)$ 到 $P(n)$ 的满射（由步骤 2 的结论可得）。
-    此外，还存在 $\Phi_{n}(y) = (y - \zeta_1^k)(y - \zeta_2^k)...(y - \zeta_p^k)$，其中 $y = x^k$。在这种情况下，$x = \{\zeta_1, \zeta_2, ... \zeta_p\}$。
-    \item $\Phi_{nk}(x)$ 与 $\Phi_{n}(y) = \Phi_{n}(x^k)$ 具有相同的根和相同的系数。因此，$\Phi_{nk}(x) = \Phi_{n}(y) = \Phi_{n}(x^k)$。
-\end{enumerate}
+对于满足 $k\mid n$ 的正整数，由定理~\ref*{subsec:order-theorem}.3，$\operatorname{ord}(\zeta)=nk$ 当且仅当 $\operatorname{ord}(\zeta^k)=n$。因此，$\Phi_n(x^k)$ 与 $\Phi_{nk}(x)$ 具有完全相同的根。这些根均为单根：$\Phi_n$ 的每个根 $\eta$ 都非零且为单根，而多项式 $x^k-\eta$ 的导数 $kx^{k-1}$ 在根处非零，所以它有 $k$ 个互异复根。两个多项式都首一且具有相同的单根，因此相等。映射 $\zeta\mapsto\zeta^k$ 在这些根集合上是 $k$ 对一，而非一对一；若对每个原像都乘入一次因子，就会错误地重复计算 $\Phi_n$ 的根。
 \end{myproof}

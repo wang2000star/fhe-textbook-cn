@@ -7,7 +7,7 @@ In \autoref{sec:roots} and \autoref{sec:cyclotomic}, we learned about the defini
 \item \textbf{The $\bm \mu$-th cyclotomic polynomial} is defined as a polynomial whose roots are the primitive $\mu$-th roots of unity. That is, \[ \Phi_{\mu}(x) = \prod_{\omega \in P({\mu})} (x - \omega) = \prod_{\substack{0 \leq k \leq {\mu}-1,\\ \textsf{gcd}(k, {\mu}) = 1}} (x - \omega^k) \]
 \end{itemize}
 
-In this section, we will explain the $\mu$-th cyclotomic polynomial over $\mathbb{Z}_p$ (with $p$ prime), which is structured as follows:
+Over $\mathbb{Z}_p$, the cyclotomic polynomial means the coefficient-wise reduction modulo the prime $p$ of the integer polynomial $\Phi_\mu$. For the root factorizations in the following box and table, assume $\mu\ge2$ and $\mu\mid p-1$. Then $\mathbb{Z}_p^\times$ contains a primitive $\mu$-th root, and all these roots lie in $\mathbb{Z}_p$. More generally, if $p\nmid\mu$, the same factorization is valid over a splitting field, which may be larger than $\mathbb{Z}_p$. If $p\mid\mu$, roots can be repeated and need not have order $\mu$; the characterization below must not be applied in that case.
 
 \begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{sec:cyclotomic-polynomial-integer-ring}} Roots of Unity and Cyclotomic Polynomial over Ring $\mathbb{Z}_p$}}]
 

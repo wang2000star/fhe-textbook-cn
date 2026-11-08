@@ -3,6 +3,8 @@
 \subsection{向量运算}
 \label{subsec:vector-arithmetic}
 
+本章点积的几何公式使用实欧氏向量。对于复向量，应使用下面定义的 Hermitian 积作为正定内积。
+
 本节介绍向量和矩阵计算的基本运算，以及向量投影、平面投影、平面或空间的基等进一步的概念。
 
 
@@ -244,15 +246,13 @@ $A(x + y) = Ax + Ay$
 
 $ $
 
-但是，$Ax \cdot Ay \neq A(x \cdot y)$，因为结果的维数不匹配。另外，$A(x \odot y) \neq Ax \odot Ay $。还需注意 $A\langle x, y\rangle \neq \langle Ax, Ay\rangle$，以及 $A\langle \langle x, y\rangle\rangle \neq \langle\langle Ax, Ay\rangle\rangle$。
+这些线性恒等式并不声称点积、Hermitian 积或 Hadamard 积也得到保持。例如，取 $A=2I$、$x=y\ne0$，一般有 $A(x\odot y)\ne(Ax)\odot(Ay)$。这里是说它不是普遍成立的恒等式，而不是对每个输入都成立的不等式；例如 $A=I$ 就保持 Hadamard 积。$A\langle x,y\rangle$ 这类表达式是矩阵的标量倍数，而 $\langle Ax,Ay\rangle$ 是标量，不能将它们视为同一向量映射的两个输出进行比较。
 
 $ $
 
 \item \textbf{不满足交换律：}
 
-$Ax \neq xA$
-
-$AB \neq BA$
+矩阵乘法一般不满足交换律。首先必须保证两个乘积有定义且形状相容；某些矩阵确实可交换，例如 $AI=IA$。对于列向量 $x$，即使 $Ax$ 有定义，$xA$ 也可能无定义。
 
 
 \end{itemize}
@@ -270,7 +270,9 @@ $ $
 \subsection{投影}
 \label{subsec:projection}
 
-这里介绍两类投影：向量投影和正交投影（即平面投影）。
+本小节的标量域为 $\mathbb{R}$。所有被投影到的方向向量以及正交基中的向量均假设非零。
+
+下面讨论到一条直线的正交投影（向量投影），以及到更高维子空间的正交投影。
 
 
 
@@ -290,7 +292,11 @@ $ $
 \end{figure}
 
 
-\para{向量投影：}给定同一 $n$ 维向量空间中的两个向量 $\vec{a}$ 和 $\vec{b}$，向量投影 $\textsf{Proj}_{\vec{b}}(\vec{a})$ 描述 $\vec{a}$ 在 $\vec{b}$ 方向上的分量，即 $\vec{a}$ 中平行于 $\vec{b}$ 的部分。在 \autoref{fig:vector-projection} 的例子中，$\vec{a}$ 在 $\vec{b}$ 上的投影是 $\vec{a}_1$，其长度 $\vec{a}_1$ 在几何上等于 $||a_1|| = ||a|| \cos \theta = ||a||\dfrac{a \cdot b}{||a||\cdot||b||} = \dfrac{a \cdot b}{||b||}$。设 $\vec{b'}$ 为 $\vec{b}$ 方向上的单位向量，即 $\vec{b'} = \dfrac{\vec{b}}{||b||}$。于是 $\vec{a}_1 = ||a_1||\cdot\vec{b'} = \dfrac{a \cdot b}{||b||} \cdot \dfrac{\vec{b}}{||b||} = \dfrac{a \cdot b}{||b||^2}\vec{b}$，从而 $\textsf{Proj}_{\vec{b}}(\vec{a}) = \dfrac{a \cdot b}{||b||^2}\vec{b}$。
+\para{向量投影：}对于实向量 $\vec a$ 和 $\vec b\ne0$，沿 $\vec b$ 的有符号标量分量为 $c=(\vec a\cdot\vec b)/\|\vec b\|$，因此
+\[
+\textsf{Proj}_{\vec b}(\vec a)=c\frac{\vec b}{\|\vec b\|}=\frac{\vec a\cdot\vec b}{\|\vec b\|^2}\vec b.
+\]
+当 $\vec a\ne0$ 时，投影的长度为 $\|\vec a\|\,|\cos\theta|$；$\|\vec a\|\cos\theta$ 是可能为负的有符号分量。图~\ref{fig:vector-projection} 展示了这一投影。
 
 \para{正交投影：}给定向量 $\vec{x}$，以及张成子空间 $P$ 的一组两两正交向量 $\vec{p}_0, \vec{p}_1, \cdots, \vec{p}_{n-1}$，正交投影 $\textsf{Proj}_P(\vec{x})$ 描述 $\vec{x}$ 落在 $P$ 内的部分，即 $\vec{x}$ 在 $P$ 中的分量。在图示例子中，$\vec{x}$ 在 $P$ 上的投影（红色箭头），等于 $\vec{x}$ 在张成 $P$ 的各正交基向量 $\vec{p}_i$ 上的投影之和：$\textsf{Proj}_P(\vec{x}) = \sum\limits_{i=0}^{n-1}\textsf{Proj}_{\vec{p}_i}(\vec{x})$。这一计算可以理解为在由 $n$ 个正交向量定义的坐标系中表示 $\vec{x}$。
 
@@ -300,7 +306,7 @@ $ $
 
 \item \textbf{向量投影：}给定同一向量空间中的两个向量 $\vec{a}$ 和 $\vec{b}$，$\vec{a}$ 在 $\vec{b}$ 上的向量投影为：
 
-$\textsf{Proj}_{\vec{b}}(\vec{a}) = \vec{a}_p  = \dfrac{\vec{a} \cdot \vec{b}}{||b||^2} \vec{b}$ \textcolor{red}{ $\rhd$ 其中 $||\vec{a}_p|| = ||\vec{a}|| \cos \theta$}
+$\textsf{Proj}_{\vec{b}}(\vec{a}) = \vec{a}_p  = \dfrac{\vec{a} \cdot \vec{b}}{||b||^2} \vec{b}$ \textcolor{red}{ $\rhd$ 其中 $||\vec{a}_p|| = ||\vec{a}||\,|\cos \theta|$}
 
 $ $
 
@@ -340,13 +346,13 @@ $\textsf{Proj}_P(\vec{a}) = \sum\limits_{i=0}^{n-1} \textsf{Proj}_{\vec{p}_i}(\v
 
 \para{正交基：}在 $n$ 维向量空间中，任意 $n$ 个两两正交的向量所张成的子空间 $P$ 就是整个向量空间。此外，该向量空间中的任意向量在 $P$ 上的正交投影都是唯一确定的向量。
 
-\para{非正交基：}在 $n$ 维向量空间中，假设有 $n$ 个非正交向量满足两个条件：(i) 它们张成整个向量空间；(ii) 它们线性无关，即其中任何一个向量都不能表示为其他向量的线性组合。那么，由这 $n$ 个向量构成的 $n \times n$ 矩阵 $P$ 组成整个向量空间 $V$ 的一组基。对于空间中的每个 $\vec{v}$，矩阵与向量的乘法 $P\vec{v}$ 都得到唯一确定的向量。不过，由于这 $n$ 个基向量并不正交，表达式 $\textsf{Proj}_P(\vec{v})$ 并不是向量 $\vec{v}$ 在 $P$ 上的有效几何投影。尽管如此，计算 $P\vec{v}$ 仍可理解为将 $\vec{v}$ 唯一地变换到另一个坐标系中：该坐标系使用 $P$ 中的 $n$ 个非正交向量描述这个向量空间。
+\para{非正交基：}设可逆矩阵 $P$ 的各行是 $\mathbb R^n$ 的一组基 $\vec p_0,\ldots,\vec p_{n-1}$。若 $\vec v$ 为列向量，则它在这组基下的坐标是 $(P^T)^{-1}\vec v$，因为 $\vec v=P^T\vec c$；一般而言，$P\vec v$ 是另一种可逆线性变换，并非该组基下的坐标。即使所选基不正交，向其张成空间的正交投影仍有良好定义。若实矩阵 $Q$ 满列秩且其列张成某个子空间，则投影为 $Q(Q^TQ)^{-1}Q^T\vec v$。当基张成整个空间时，投影就是 $\vec v$ 本身。只有将各方向投影直接相加的公式才要求基正交。
 
 \begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:projection}} 变换后向量的唯一性}}]
 
 \begin{itemize}
 \item \textbf{正交基：}如果 $n$ 个向量是 $n$ 维向量空间中平面 $P$ 的一组正交基，则 $P$ 等于整个向量空间，且对于空间中的每个向量 $\vec{v}$，$\textsf{Proj}_P(v)$ 都是唯一确定的向量。
-\item \textbf{非正交基：}如果 $n$ 个向量是 $n$ 维向量空间中平面 $P$ 的一组非正交基，即这些向量线性无关并张成 $P$，则 $P$ 等于整个向量空间，并且 $P\vec{v}$ 的结果是唯一确定的向量。
+\item \textbf{非正交基：}将基向量存为 $P$ 的各行时，每个向量 $\vec v$ 都有唯一的坐标向量 $(P^T)^{-1}\vec v$。向这组基所张成的整个空间的正交投影是 $\vec v$ 本身。
 \end{itemize}
 \end{tcolorbox}
 
@@ -356,11 +362,11 @@ $\textsf{Proj}_P(\vec{a}) = \sum\limits_{i=0}^{n-1} \textsf{Proj}_{\vec{p}_i}(\v
 \subsection{多项式环的基}
 \label{subsec:polynomial-ring-basis}
 
-给定 $(n-1)$ 次多项式环 $\mathbb{Z}[X] / (X^n + 1)$，该环的一组基定义为满足以下两个要求的多项式集合：
+环 $\mathbb Z[X]/(X^n+1)$ 是秩为 $n$ 的自由 $\mathbb Z$-模，而不是以 $\mathbb Z$ 为标量域的向量空间。一组基是使每个元素都具有唯一整数线性组合表示的列表 $f_0,\ldots,f_{n-1}$。等价地，要求：
 
 \begin{itemize}
 
-\item \textbf{线性无关：}基中的任何一个多项式，都不能表示为同一组基中其他多项式的线性组合。
+\item \textbf{线性无关：}若 $\sum_i z_i f_i=0$ 且 $z_i\in\mathbb Z$，则每个 $z_i=0$。
 \item \textbf{张成多项式环：}基中多项式的线性组合可以表示该环中的任意多项式。
 \end{itemize}
 
@@ -372,7 +378,7 @@ $\textsf{Proj}_P(\vec{a}) = \sum\limits_{i=0}^{n-1} \textsf{Proj}_{\vec{p}_i}(\v
 
 
 
-现在，定义从 $(n-1)$ 次多项式环到 $n$ 维向量空间的映射 $\sigma$：将输入多项式在 $n$ 个互异的 $X \in \mathbb{Z}_t$ 坐标处（例如 $x_0, x_1, \cdots, x_{n-1}$）求得的 $y$ 值依次排列，构成输出向量。这里要求 $\mathbb{Z}_t$ 为域，即 $t$ 为素数，以保证经过 $(n+1)$ 个互异 $X$ 点的插值多项式 $f(X)$ 定义良好，如 \autoref{subsec:polynomial-interpolation-field-condition} 所述。具体地，$\sigma$ 定义为：
+设 $n$ 为 $2$ 的幂，$t$ 为满足 $2n\mid t-1$ 的素数，并固定 $\mathbb Z_t$ 中 $X^n+1$ 的 $n$ 个互异根 $x_0,\ldots,x_{n-1}$。将 $\sigma$ 定义为在这些根处求值。节点互异保证次数小于 $n$ 的插值唯一性（\autoref{subsec:polynomial-interpolation-field-condition}）；节点为模多项式的根，才保证商环上的求值有良好定义且保持乘法。任意互异节点只能给出系数代表元的线性双射，一般不能给出这里的环同构。具体地：
 
 $\sigma: f(X) \in \mathbb{Z}_t[X] / (X^n + 1) \text{ } \longrightarrow \text{ } (f(x_0), f(x_1), f(x_2), \cdots, f(x_{n-1})) \in \mathbb{Z}^n_t$
 
@@ -485,7 +491,7 @@ $ $
 
 为解决这两个问题，可以将 $n$ 个互异求值坐标 $X$ 选为多项式环模数 $X^n + 1$ 的根，其中 $n$ 是 2 的某个幂；再将 $f_a(X) \cdot f_b(X)$ 模 $X^n + 1$ 约减为次数至多为 $n - 1$ 的新多项式。设 $f_{ab}(X) = f_a(X) \cdot f_b(X)$，并令 $f'_{ab}(X)$ 为约减后的多项式，使得对于某个商多项式 $Q(X)$ 有 $f_{ab}(X) = Q(X)\cdot (X^n + 1) + f'_{ab}(X)$。根据总结~\ref*{subsubsec:polynomial-ring-discuss}（\autoref{subsubsec:polynomial-ring-discuss}），如果在 $X^n + 1$ 的根处求值，$Q(X)$ 项为零，因此 $f_{ab}(X)$ 和 $f'_{ab}(X)$ 的求值结果相同。所以，只要将 $n$ 个互异求值点 $\{x_0, x_1, \cdots, x_{n-1}\}$ 选为 $X^n + 1$ 的根，就能保证 $f'_{ab}(X)$ 的解码向量与预期的 $f_{ab}(X)$ 的解码向量完全相同。于是可以用约减后的多项式 $f'_{ab}(X)$ 替代高次多项式 $f_{ab}(X)$，并继续使用 $f'_{ab}(X)$ 进行后续多项式加法或乘法。多项式环中的约减既能提高多项式加法和乘法的效率，也能保持映射 $\sigma$ 的同构性，因此可以自由地在向量和多项式之间转换，并进行加法和乘法运算。
 
-要应用上述多项式环约减，模多项式可以选择为任何具有至少 $n$ 个互异根的多项式。在实际应用中，常选择 $X^n + 1$ 作为多项式环的模数，它是第 $(\mu=2n)$ 个分圆多项式（见 \autoref{subsec:cyclotomic-def}）。选择分圆多项式，特别是第 $(\mu=2n)$ 个分圆多项式 $X^n + 1$ 作为模数，是因为其 $n$ 个互异的根（即 $(\mu=2n)$ 次本原单位根）有明确的表达，即使 $n$ 很大也能快速找到。
+要应用上述多项式环约减，模多项式可以选择为在系数域内分裂为 $n$ 个互异根的 $n$ 次多项式。在实际应用中，常选择 $X^n + 1$ 作为多项式环的模数，它是第 $(\mu=2n)$ 个分圆多项式（见 \autoref{subsec:cyclotomic-def}）。选择分圆多项式，特别是第 $(\mu=2n)$ 个分圆多项式 $X^n + 1$ 作为模数，是因为其 $n$ 个互异的根（即 $(\mu=2n)$ 次本原单位根）有明确的表达，即使 $n$ 很大也能快速找到。
 
 $ $
 
@@ -524,10 +530,10 @@ $ $
 
 先提出两个约束：(1) 选择 $t$ 为素数；(2) 保证 $t-1$ 是 $2n$ 的倍数。
 
-由定理~\ref*{subsec:order-theorem}.4（\autoref{subsec:order-theorem}）中的费马小定理，已知 $a^{t - 1} \equiv 1 \bmod t$ 当且仅当 $a$ 与 $t$ 互素。这意味着，若 $t$ 为素数，则对于所有 $a \in \mathbb{Z}_t^{\times}$（即 $\mathbb{Z}_t$ 中除去 $\{0\}$ 的元素），都有 $a^{t - 1} \equiv 1 \bmod t$。假设 $g$ 是 $\mathbb{Z}_t^{\times}$ 的生成元，其各次幂能够生成 $\mathbb{Z}_t^{\times}$ 的全部元素。则有 $\textsf{Ord}_{\mathbb{Z}_t}(g) = t - 1$ 和 $g^{t - 1} \equiv 1 \bmod t$。由于对于某个 $k$ 有 $t - 1 = k \cdot 2n$，所以 $g^{k\cdot2n} \equiv (g^{k})^{2n} \equiv 1 \bmod t$，从而 $\textsf{Ord}_{\mathbb{Z}_t}(g^{k}) \leq 2n$。但是，由于 $\textsf{Ord}_{\mathbb{Z}_t}(g) = t - 1$，对于所有满足 $a < t - 1 = k \cdot 2n$ 的 $a$，都有 $g^a \not\equiv 1 \bmod t$。换言之，对于所有满足 $b < 2n$ 的 $b$，都有 $(g^k)^b \not\equiv 1 \bmod t$。因此，$\textsf{Ord}_{\mathbb{Z}_t}(g^{k}) = 2n$。
+由定理~\ref*{subsec:order-theorem}.4（\autoref{subsec:order-theorem}）中的费马小定理，已知 $a^{t - 1} \equiv 1 \bmod t$ 当且仅当 $a$ 与 $t$ 互素。这意味着，若 $t$ 为素数，则对于所有 $a \in \mathbb{Z}_t^{\times}$（即 $\mathbb{Z}_t$ 中除去 $\{0\}$ 的元素），都有 $a^{t - 1} \equiv 1 \bmod t$。假设 $g$ 是 $\mathbb{Z}_t^{\times}$ 的生成元，其各次幂能够生成 $\mathbb{Z}_t^{\times}$ 的全部元素。则有 $\textsf{Ord}_{\mathbb{Z}_t}(g) = t - 1$ 和 $g^{t - 1} \equiv 1 \bmod t$。由于对于某个 $k$ 有 $t - 1 = k \cdot 2n$，所以 $g^{k\cdot2n} \equiv (g^{k})^{2n} \equiv 1 \bmod t$，从而 $\textsf{Ord}_{\mathbb{Z}_t}(g^{k}) \leq 2n$。但是，由于 $\textsf{Ord}_{\mathbb{Z}_t}(g) = t - 1$，对于所有满足 $1\le a < t - 1 = k \cdot 2n$ 的整数 $a$，都有 $g^a \not\equiv 1 \bmod t$。换言之，对于所有满足 $1\le b < 2n$ 的整数 $b$，都有 $(g^k)^b \not\equiv 1 \bmod t$。因此，$\textsf{Ord}_{\mathbb{Z}_t}(g^{k}) = 2n$。
 
 令 $c = g^k$。由于 $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$，有 $c^{2n} \equiv 1 \bmod t$，换言之，$(c^n)^2 \equiv 1 \bmod t$。
-此时，$c^n$ 只能为 1 或 -1。原因是，在关系 $X^2 \equiv 1 \bmod t$ 中，$X$ 只能取 $1$ 或 $-1 \equiv t - 1 \bmod t$。代入 $X = c^n$ 后，$c^n$ 只能取 $1$ 或 $-1 \equiv t - 1 \bmod t$。但由于 $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$，$c^n$ 不可能等于 1，因为 $1^1 = 1$，而 1 小于 $c$ 的阶 $2n > 1$。因此，$c^n$ 只能等于 $-1 \equiv t - 1 \bmod t$。如果 $c^n = -1 \equiv t - 1 \bmod t$，那么 $c$ 就是 $X^n + 1 \bmod t$ 的根，因为 $X^n + 1 = c^n + 1 \equiv (t - 1) + 1 \equiv 0 \bmod t$。
+此时，$c^n$ 只能为 1 或 -1。原因是，在关系 $X^2 \equiv 1 \bmod t$ 中，$X$ 只能取 $1$ 或 $-1 \equiv t - 1 \bmod t$。代入 $X = c^n$ 后，$c^n$ 只能取 $1$ 或 $-1 \equiv t - 1 \bmod t$。但由于 $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$，$c^n$ 不可能等于 1，因为 $c^n=1$ 会与 $\operatorname{ord}(c)=2n$ 矛盾。因此，$c^n$ 只能等于 $-1 \equiv t - 1 \bmod t$。如果 $c^n = -1 \equiv t - 1 \bmod t$，那么 $c$ 就是 $X^n + 1 \bmod t$ 的根，因为 $X^n + 1 = c^n + 1 \equiv (t - 1) + 1 \equiv 0 \bmod t$。
 
 因此，给定分圆多项式 $X^n + 1$，如果选择素数 $t$，使其对于某个整数 $k$ 满足 $t - 1 = k \cdot 2n$，则 $X^n + 1 \bmod t$ 的一个根为 $X = c = g^k$。
 
@@ -539,7 +545,7 @@ $\omega^n \equiv t - 1 \bmod t$
 
 $\omega^{2n} \equiv (t - 1)\cdot(t - 1) \equiv  t^2 - 2t + 1 \equiv   1 \bmod t$
 
-虽然 $\omega^{2n} \equiv 1 \bmod t$，但 $\omega^{n} \not\equiv 1 \bmod t$；否则就有 $X^n + 1 = \omega^n + 1 = 1 + 1 = 2 \neq 0$，这与 $\omega$ 是 $X^n + 1$ 的根相矛盾。因此，$\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$。
+在奇素数 $t$ 对应的 $\mathbb Z_t$ 中，有 $\omega^{2n}=1$ 且 $\omega^n=-1\ne1$。由于 $n$ 为二幂，$2n$ 的每个真因子都整除 $n$。因此，$\omega$ 的阶不能是任何真因子，只能有 $\operatorname{ord}(\omega)=2n$。这一推论使用了二幂假设；对于一般的 $n$，$X^n+1$ 的根不一定是本原根。
 
 接下来，按如下方式推导出 $X^n + 1 \bmod t$ 的其余 $n-1$ 个互异的根：
 
@@ -553,7 +559,7 @@ $(\omega^{2n - 1})^n + 1 \equiv 0 \bmod t$ \\ \textcolor{red}{ $\rhd$ 对任意�
 
 $ $
 
-由于 $\textsf{Ord}_{\mathbb{Z}_t}(c) = 2n$，$\omega, \omega^3, \omega^5, \cdots, \omega^{2n - 1}$ 在 $\mathbb{Z}_t^{\times}$ 中互不相同。因此，$\{\omega^{2i + 1}\}_{i=0}^{n-1}$ 是 $X^n + 1$ 的 $n$ 个互异的根。同时，由于它们是分圆多项式 $X^n + 1$ 的根，所以也是 $n$ 个互异的 $(\mu=2n)$ 次本原单位根。
+由于 $\textsf{Ord}_{\mathbb{Z}_t}(\omega) = 2n$，$\omega, \omega^3, \omega^5, \cdots, \omega^{2n - 1}$ 在 $\mathbb{Z}_t^{\times}$ 中互不相同。因此，$\{\omega^{2i + 1}\}_{i=0}^{n-1}$ 是 $X^n + 1$ 的 $n$ 个互异的根。同时，由于它们是分圆多项式 $X^n + 1$ 的根，所以也是 $n$ 个互异的 $(\mu=2n)$ 次本原单位根。
 
 
 $ $
@@ -598,8 +604,14 @@ $ $
 \subsection{复数上多项式与向量之间的同构}
 \label{subsec:poly-vector-transformation-complex}
 
+这里取 $n=2^r$，其中 $r\ge1$，因此 $n$ 为偶数。涉及 $\hat{\mathbb C}^n$ 的同构均指实向量空间同构及实代数同构。
 
-在定理~\ref*{subsec:polynomial-ring-basis}（\autoref{subsec:polynomial-ring-basis}）中，已经学习了同构映射 $\sigma: f(X) \in \mathbb{Z}_t[X]/(X^n + 1) \longrightarrow (f(x_0),f(x_1),f(x_2), \cdots, f(x_{n-1})) \in \mathbb{Z}_t^n$，其中 $x_0, x_1, x_2, \cdots, x_{n-1} \in \mathbb{Z}$ 是分圆多项式 $X^n + 1$ 的根（即 $(\mu=2n)$ 次本原单位根），具体为 $\omega, \omega^3, \omega^5, \cdots, \omega^{2n-1}$。这里，$\omega$ 可以是 $X^n + 1$ 的任意一个根，因为每个 $\omega$ 都能生成全部根。本小节将说明复数上的向量空间与多项式环之间的同构，具体如下：
+
+在定理~\ref*{subsec:polynomial-ring-basis}（\autoref{subsec:polynomial-ring-basis}）中，已经学习了同构映射
+\[
+\sigma: f(X) \in \mathbb{Z}_t[X]/(X^n + 1) \longrightarrow (f(x_0),f(x_1),f(x_2), \cdots, f(x_{n-1})) \in \mathbb{Z}_t^n
+\]
+，其中 $x_0, x_1, x_2, \cdots, x_{n-1} \in \mathbb{Z}_t$ 是分圆多项式 $X^n + 1$ 的根（即 $(\mu=2n)$ 次本原单位根），具体为 $\omega, \omega^3, \omega^5, \cdots, \omega^{2n-1}$。这里，$\omega$ 可以是 $X^n + 1$ 的任意一个根，因为每个 $\omega$ 都能生成全部根。本小节将说明复数上的向量空间与多项式环之间的同构，具体如下：
 
 $\sigma_c: f(X) \in \mathbb{R}[X]/(X^n + 1) \longrightarrow (f(\omega),f(\omega^3),f(\omega^5), \cdots, f(\omega^{2n-1})) \in \mathbb{\hat{C}}^{n}$
 
@@ -654,7 +666,7 @@ $$i \cdot \vec{v} = (-1+i,\ -2+2i,\ 2+2i,\ 1+i)$$
 
 $ $
 
-更一般地，对于任意 $\vec{v} \in \hat{\mathbb{C}}^n$ 和任意标量 $c$，乘积 $c \cdot \vec{v}$ 保持 Hermitian 对称，当且仅当 $\overline{c} = c$，即 $c$ 为实数。因此，只有将标量限制为实数时，$\hat{\mathbb{C}}^n$ 才构成向量空间。这就是 $\hat{\mathbb{C}}^n$ 必须视为以实数为标量的复向量空间的原因。
+更一般地，对于任意非零 $\vec{v} \in \hat{\mathbb{C}}^n$ 和任意标量 $c$，乘积 $c \cdot \vec{v}$ 保持 Hermitian 对称，当且仅当 $\overline{c} = c$，即 $c$ 为实数。因此，只有将标量限制为实数时，$\hat{\mathbb{C}}^n$ 才构成向量空间。这就是 $\hat{\mathbb{C}}^n$ 必须视为以实数为标量的复向量空间的原因。
 
 $ $
 
@@ -703,7 +715,7 @@ $ $
 
 这种向量结构恰好符合 $\hat{\mathbb{C}}^n$ 的定义：$n$ 维向量 $\vec{\hat v}$ 的后半部分元素，是其前半部分元素逆序排列后的共轭。
 
-为了证明双射性，还需说明：每个 $f(X) \in \mathbb{R}[X] / (X^n + 1)$ 都映射到某个 $\vec{\hat v} \in \hat{\mathbb{C}}^{n}$，并且不存在两个不同的 $f_1(X), f_2(X) \in \mathbb{R}[X] / (X^n + 1)$ 映射到同一个 $\vec{\hat v} \in \hat{\mathbb{C}}^{n}$。第一个要求成立，因为每个多项式 $f(X) \in \mathbb{R}[X] / (X^n + 1)$ 都可以在 $X^n + 1$ 的 $n$ 个互异根处求值，得到有效的数值。第二个要求也成立，因为在 $(n-1)$ 次多项式环中，每组 $n$ 个互异的 $(x, y)$ 坐标点只能对应一个次数不超过 $(n-1)$ 的多项式；这里将 $X$ 坐标固定为 $X^n + 1$ 的 $n$ 个互异根 $\{\omega, \omega^3, \cdots, \omega^{2n - 1}\}$。这一点已由拉格朗日多项式插值证明（见 \autoref{sec:polynomial-interpolation} 中的定理~\ref*{sec:polynomial-interpolation}）。
+为证明双射性，先由拉格朗日插值（\autoref{sec:polynomial-interpolation} 中的定理~\ref*{sec:polynomial-interpolation}）可知：两个不同的、次数小于 $n$ 的实系数多项式，不可能在这 $n$ 个互异根处取值全部相同。对于满射性，任取 $\vec v\in\hat{\mathbb C}^n$，在有序根处对这些值插值，得到唯一的次数小于 $n$ 的 $f\in\mathbb C[X]$。将 $f$ 的系数取共轭，得到的另一个多项式具有相同求值结果，因为节点和数值都成逆序共轭对。由唯一性，共轭系数多项式必须等于 $f$，因此 $f$ 的所有系数都是实数。这就证明每个 $\vec v\in\hat{\mathbb C}^n$ 都有一个实系数多项式原像。
 
 $ $
 
@@ -734,7 +746,7 @@ $ $
 \label{subsec:poly-vector-basis-transfer}
 
 
-假设多项式 $f_0(X), f_1(X), \cdots, f_{n-1}(X)$ 构成 $(n-1)$ 次多项式环的一组基，且 $\sigma$ 是从 $(n-1)$ 次多项式环到 $n$ 维向量空间的同构映射。那么，$(\sigma(f_0(X)), \sigma(f_1(X)), \cdots, \sigma(f_{n-1}(X)))$ 就构成该 $n$ 维向量空间的一组基。这是因为，经 $\sigma$ 映射得到的向量保持关于运算 $(+, \cdot)$ 的代数关系，而基向量与子空间之间的基关系，也就是线性无关性与张成性，可以用由运算 $(+, \cdot)$ 构成的线性代数表达式描述。因此，如果一组多项式构成基，那么它们经 $\sigma$ 映射得到的向量也保持相应的基关系。
+固定标量域上的线性同构将基映为基：线性性保持全部线性组合，单射性保持线性无关性，满射性保持张成性。上面的求值映射 $\sigma$ 在素数 $t$ 对应的 $\mathbb Z_t$ 上线性，而 $\sigma_c$ 在 $\mathbb R$ 上线性。下面的基转换论证使用的正是这两个标量域。
 
 同样的原理适用于多项式环与以实数为标量的复向量空间之间的对应。给定多项式环 $\mathbb{R}[X]/(x^n + 1)$，构造 $\mathbb{R}[X]/(x^n + 1)$ 的一组基最直接的方法如下：
 

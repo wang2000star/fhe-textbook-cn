@@ -79,13 +79,13 @@ Given an $n$-th root of unity $\zeta = \omega^k$ for $k = \{0, 1, \cdots, n-1\}$
 \begin{myproof}
     \begin{enumerate}
     \item Note that $\zeta^n = 1$ and $\zeta = \omega$ for $k = 1$. Thus, $\textsf{ord}_{\mathbb{C}}(\omega) = n$.
-    \item Theorem~\ref*{subsec:order-theorem}.2 states that if $ord_{\mathbb{F}}(a) = k$, then for any $n \geq 1$, $ord_{\mathbb{F}}(a^n) = \dfrac{k}{\text{gcd}(k,n)}$. Similarly, if $\textsf{ord}_{\mathbb{C}}(\omega) = n$, then for any $k \geq 1$, $\textsf{ord}_{\mathbb{C}}(\omega^k) = \dfrac{n}{\text{gcd}(k, n)}$.
+    \item Theorem~\ref*{subsec:order-theorem}.2 states that if $ord_{\mathbb{F}}(a) = k$, then for any $n \geq 1$, $ord_{\mathbb{F}}(a^n) = \dfrac{k}{\text{gcd}(k,n)}$. Similarly, if $\textsf{ord}_{\mathbb{C}}(\omega) = n$, then for any $k \geq 1$, $\textsf{ord}_{\mathbb{C}}(\omega^k) = \dfrac{n}{\text{gcd}(k, n)}$. For $k=0$, the formula also holds directly: $\operatorname{ord}(\omega^0)=1=n/\gcd(n,0)$; this includes $n=1$.
     \item Step 2 implies that $\textsf{ord}_{\mathbb{C}}(\omega^k) = n$ (i.e., $\omega^k$ is a primitive $n$-th root of unity) if and only if $\text{gcd}(k, n) = 1$.
     \end{enumerate}
 \end{myproof}
 
 \begin{tcolorbox}[title={\textbf{\tboxtheorem{\ref*{subsec:roots-theorem}.5} The number of Primitive $\bm{n}$-th Roots of Unity}}]
-The number of primitive $n$-th roots of unity is $\phi(n)$ (i.e., the number of elements in $\{1, \cdots, n-1 \}$ that are coprime to $n$).
+The number of primitive $n$-th roots of unity is $\phi(n)$ (i.e., the number of elements in $\{1, \cdots, n \}$ that are coprime to $n$).
 \end{tcolorbox}
 
 \begin{proof}
@@ -95,6 +95,6 @@ $ $
 \item By definition, $\omega^k$ is a primitive $n$-th root of unity if and only if $\textsf{ord}_{\mathbb{C}}(\omega^k) = n$. 
 \item $\omega$ is a primitive $n$-th root of unity because $\textsf{ord}_{\mathbb{C}}(\omega) = n$. 
 \item According to Theorem~\ref*{subsec:order-theorem}.2, if $\textsf{ord}_{\mathbb{C}}(\omega) = n$, then $\textsf{ord}_{\mathbb{C}}(\omega^k) = \dfrac{n}{\text{gcd}(k,n)}$. Therefore, in order for $\textsf{ord}_{\mathbb{C}}(\omega^k) = n$, $\text{gcd}(k,n)$ has to be 1. In other words, $k$ and $n$ have to be co-prime.
-The total number of such co-primes between $n$ and $k = \{1, 2, \cdots, n-1\}$ (excluding 0 because $\text{gcd}(0, n)= n$ and also $\textsf{ord}_{\mathbb{C}}(\omega^0) = \textsf{ord}_{\mathbb{C}}(1) = 1 \neq n$) is $\phi(n)$, which corresponds to the total number of the primitive $n$-th root of unity.
+For $n>1$, the admissible exponents are the integers $1\le k<n$ coprime to $n$, of which there are $\phi(n)$. For $n=1$, the sole root is $1$, its order is $1$, and $\phi(1)=1$; the exponent $k=0$ is admissible in this case.
 \end{enumerate}
 \end{proof}

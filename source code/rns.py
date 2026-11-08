@@ -1,3 +1,4 @@
+from common import round_div
 from sympy import randprime
 import random
 import sys
@@ -65,7 +66,7 @@ def mod_inverse(x, q):
     arr  = np.asarray(x, dtype=object)          # keeps big ints intact
     invs = np.empty_like(arr)
 
-    it = np.nditer(arr, flags=["multi_index"])
+    it = np.nditer(arr, flags=["multi_index", "refs_ok"])
     while not it.finished:
         invs[it.multi_index] = _scalar_inv_centered(int(it[0]), q)
         it.iternext()
@@ -85,13 +86,12 @@ def _scalar_inv_centered(a, q):
 
 
 def poly_reduce(prod, modulus):
-	# Wrap around for x^N - 1
-	for i in range(N, len(prod)):
-		prod[i - N] += prod[i]
-	reduced = prod[:N]		  # shape (16384,)
-	for i in range(0, N):
-		prod[i] = centered_mod(prod[i], modulus)
-	return reduced
+    """Reduce in Z[X]/(X^N+1), not the cyclic ring X^N-1."""
+    reduced = np.zeros(N, dtype=object)
+    for degree, coefficient in enumerate(prod):
+        reduced[degree % N] += (-1 if (degree // N) % 2 else 1) * coefficient
+    return centered_mod(reduced, modulus)
+
 
 def poly_round(poly):
 	for i in range(0, N):
@@ -133,39 +133,39 @@ def FastBConv(val_rns, q_base, b_base, is_exact=False):
 	merge2 = rns_recover(converted_val_rns, b_base)
 	b = reduce(operator.mul, b_base, 1)
 	print("DIFF 2: ", (merge2 - (centered_mod(rns_recover(val_rns, q_base), b))) / q)
-	sys.exit()	
+	sys.exit(1)
 	print("Check Diff :", centered_mod((rns_recover(converted_poly_rns, b_base[len(q_base):]) - (centered_mod(rns_recover(poly_rns, q_base), b))), q))
 	'''
 	return converted_val_rns;
 
 def ModRaiseRNS(poly_rns, q_base, b_base):
-	converted_poly_rns = FastBConv(poly_rns, q_base, b_base[len(q_base):])
-	merged_poly_rns = poly_rns + converted_poly_rns
-	'''
-	print(q_base)
-	print(b_base[len(q_base):])
-	b = reduce(operator.mul, b_base, 1)
-	print("Check Diff :", (rns_recover(converted_poly_rns, b_base[len(q_base):]) - (centered_mod(rns_recover(poly_rns, q_base), b))) / q)
-	print("Check Diff 2 :", (rns_recover(merged_poly_rns, b_base) - (centered_mod(rns_recover(poly_rns, q_base), b))) / q)
-	sys.exit()
-	'''
-	return merged_poly_rns 
+    """Extend the exact centered CRT representative to a larger base."""
+    if b_base[:len(q_base)] != q_base:
+        raise ValueError("the extended base must start with q_base")
+    return list(poly_rns) + FastBConv(poly_rns, q_base, b_base[len(q_base):], is_exact=True)
 
 
 def ModDropRNS(poly_rns, q_base, subset_base):
-	converted_poly_rns = FastBConv(poly_rns, q_base, subset_base)
-	return converted_poly_rns
+    """Drop residues by selection; no base-conversion approximation is needed."""
+    if any(modulus not in q_base for modulus in subset_base):
+        raise ValueError("ModDrop requires a subset of the original base")
+    return [poly_rns[q_base.index(modulus)] for modulus in subset_base]
+
 
 def ModSwitchRNS(poly_rns, first_second_base, first_base):
-	first_poly_rns = poly_rns[:len(first_base)]
-	second_poly_rns = poly_rns[len(first_base):]
-	second_base = first_second_base[len(first_base):]
-	converted_second_poly_rns = FastBConv(second_poly_rns, second_base, first_base)
-	switched_poly_rns = []
-	b = reduce(operator.mul, b_base, 1)
-	for i in range(0, len(first_base)):
-		switched_poly_rns.append(centered_mod((mod_inverse(b, first_base[i]) * (first_poly_rns[i] - converted_second_poly_rns[i])), first_base[i]))
-	return switched_poly_rns
+    """Exact scale-and-round by the product of the removed base factors."""
+    if first_second_base[:len(first_base)] != first_base:
+        raise ValueError("the retained base must be a prefix")
+    second_base = first_second_base[len(first_base):]
+    if not second_base:
+        raise ValueError("modulus switching must remove at least one factor")
+    first_poly_rns = poly_rns[:len(first_base)]
+    second_poly_rns = poly_rns[len(first_base):]
+    converted = FastBConv(second_poly_rns, second_base, first_base, is_exact=True)
+    removed_modulus = math.prod(second_base)
+    return [centered_mod(mod_inverse(removed_modulus, qi) * (ai - bi), qi)
+            for qi, ai, bi in zip(first_base, first_poly_rns, converted)]
+
 
 def SmallMont(poly_rns, augmented_b_base, sm_modulus, q_base):
 	recovered_poly_rns = rns_recover(poly_rns, augmented_b_base)
@@ -184,7 +184,7 @@ def SmallMont(poly_rns, augmented_b_base, sm_modulus, q_base):
 		for j in range(0, N):
 			if reduced_recovered_poly_rns[j] != poly_rns[i][j]:
 				print("Error: reduced poly_rns is not the same as manually computed one:")
-				sys.exit()
+				sys.exit(1)
 		reduced_q = centered_mod(q, augmented_b_base[i])
 		final_sm_reduced_poly_rns.append(centered_mod(((centered_mod(recovered_poly_rns, augmented_b_base[i]) - reduced_q * common_poly) * mod_inverse(sm_modulus, augmented_b_base[i])), augmented_b_base[i]))
 
@@ -195,21 +195,26 @@ def SmallMont(poly_rns, augmented_b_base, sm_modulus, q_base):
 			print(f'Error: sm_reduced poly does not match')
 			print(recovered_final_sm_reduced_poly[i])
 			print(sm_reduced_poly_rns_debug[i])
-			sys.exit()
+			sys.exit(1)
 	return final_sm_reduced_poly_rns
 
 def FastBConvEx(poly_rns, b_base, ex_modulus, q_base):
-	x_hat_poly_rns = ModDropRNS(poly_rns, b_base + [ex_modulus], b_base)
-	x_alpha_poly_rns = ModDropRNS(poly_rns, b_base + [ex_modulus], ex_modulus)
-	b = reduce(operator.mult, b_base)
-	gamma = centered_mod((FastBConv(x_hat_poly_rns, b_base, ex_modulus) - x_alpha_poly_rns) * mod_inverse(b, ex_modulus), ex_modulus)
-	converted_x_hat_poly_rns = FastBConv(x_hat_poly_rns, b_base, q_base)
-	
-	converted_exact_poly_rns = []
-	for i in range(0, len(q_base)):
-		b_converted = centered_mod(b, q_base[i])
-		converted_exact_poly_rns.append(centered_mod((converted_x_hat_poly_rns[i] - gamma * b_converted) , q_base[i]))
-	return converted_exact_poly_rns
+    """Correct FastBConv's integer carry using a redundant modulus.
+
+    Assumes a consistent input with |x| <= product(b_base)/2, pairwise
+    coprime bases, and ex_modulus > len(b_base)+1 so the carry is recoverable.
+    """
+    if ex_modulus <= len(b_base) + 1:
+        raise ValueError("redundant modulus is too small to recover the carry")
+    augmented = b_base + [ex_modulus]
+    x_base = ModDropRNS(poly_rns, augmented, b_base)
+    x_aux = ModDropRNS(poly_rns, augmented, [ex_modulus])[0]
+    b = math.prod(b_base)
+    approximate_aux = FastBConv(x_base, b_base, [ex_modulus])[0]
+    carry = centered_mod((approximate_aux - x_aux) * mod_inverse(b, ex_modulus), ex_modulus)
+    approximate = FastBConv(x_base, b_base, q_base)
+    return [centered_mod(ai - carry * b, qi) for ai, qi in zip(approximate, q_base)]
+
 
 all_moduli = []
 
@@ -245,7 +250,7 @@ while True:
 q = reduce(operator.mul, q_base, 1)
 b = reduce(operator.mul, b_base, 1)
 p = random_prime_sympy(PLAIN_BITS)
-scale = math.floor(q / p)
+scale = q // p
 
 
 print('- ciphertext modulus base: ' + str(q_base))
@@ -283,7 +288,8 @@ for i in range(0, MODULUS_COUNT):
 	B_rns.append(poly_reduce(scale * M_rns[i] + E_rns[i] - temp, q_base[i])) 
 
 ### Decrypt Big
-decrypted_M = centered_mod(poly_round(poly_reduce((poly_reduce(np.convolve(A, S), q) + B), q) / scale), p)
+phase = poly_reduce(poly_reduce(np.convolve(A, S), q) + B, q)
+decrypted_M = centered_mod(np.array([round_div(p * int(v), q) for v in phase], dtype=object), p)
 print("Decrypted M[0]: " + str(decrypted_M[0]))
 
 ### Decrypt RNS & Recover
@@ -291,7 +297,8 @@ decrypted_M_rns = []
 for i in range(0, MODULUS_COUNT):
 	temp = poly_reduce(np.convolve(A_rns[i], S_rns[i]), q_base[i])
 	decrypted_M_rns.append(temp + B_rns[i])
-decrypted_M_rns_recovered = centered_mod(poly_round(rns_recover(decrypted_M_rns, q_base) / scale), p)
+phase_rns = rns_recover(decrypted_M_rns, q_base)
+decrypted_M_rns_recovered = centered_mod(np.array([round_div(p * int(v), q) for v in phase_rns], dtype=object), p)
 print("Decrypted M_rns_recovered[0]: " + str(decrypted_M_rns_recovered[0]))
 
 
@@ -321,7 +328,7 @@ sm_q_overflow_list = centered_mod(centered_mod(rns_recover(A_rns, q_base) - rns_
 for i in sm_q_overflow_list:
 	if i > 1 or i < -1:
 		print("Error: SmallMontgomery reduction's q-overflow is larger than abs(1): " + str(i))
-		sys.exit()
+		sys.exit(1)
 print(sm_q_overflow_list)
 print("Small Montgomery reduction's all q-overflows are either {-1, 0, 1}")
 

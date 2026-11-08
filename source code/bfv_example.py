@@ -45,7 +45,6 @@ def build_parser():
 	 parser.add_argument('--mult-cipher-cipher', action='store_true', help='Cipher-cipher multiplication test')
 	 parser.add_argument('--keyswitch', action='store_true', help='Key switch test')
 	 parser.add_argument('--rotate', action='store_true', help='Rotation test')
-	 #parser.add_argument('--bootstrapping', action='store_true', help='Bootstrapping test')
 	 parser.add_argument('--random', action='store_true', help='A bulk of random tests')
 	 parser.add_argument('--all', action='store_true', help='All test')
 	 return parser
@@ -63,7 +62,7 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 	print("'" + run_choice + "'" + " Test")
 
 	P = init_P(N)
-	scale = math.floor(Q / P)
+	scale = Q // P
 	# print_cyclotomic_polynomial_info(N=N, P=P, is_complex=False)
 
 	if is_random_param:
@@ -76,7 +75,7 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 	else:
 		if len(bfv_vector1) != N or len(bfv_vector2) != N:
 		  print("[Error] The dimensions of the input vectors are not " + str(N) + ", but " + str(len(bfv_vector1)) + ", " + str(len(bfv_vector2)))
-		  sys.exit()
+		  sys.exit(1)
 
 
 	encoder = Encoder(N=N, P=P, scale=scale)
@@ -175,13 +174,6 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 		galois_rotation_key = fhe_keyswitch_keygen(rotate_ksk, s, N, Q, base=1 << 10)
 		a3, b3 = fhe_rotate(a1, b1, N, Q, rotation_offset, galois_rotation_key)
 
-	if run_choice == 'bootstrapping':
-		print("<<Bootstrapping Test>>")
-		print('z3: z1 encrypted in a bootstrapped ciphertext')
-		print()
-		z3 = z1.copy()
-		p3 = p1.copy()
-		a3, b3 = fhe_bootstrapping(a1, b1, N, P, Q)
 
 	# =========== Decryption Stage ===============
 	if args.encrypt:
@@ -232,11 +224,11 @@ def main(test_index, is_encrypt, run_choice, is_random_param):
 		print("[Error] decoded vectors mismatch")
 		print("- z1:", z1, decoded_z1)
 		print("- z2:", z2, decoded_z2)
-		sys.exit(0)
+		sys.exit(1)
 	if run_choice != 'encode' and run_choice != 'encrypt' and not np.array_equal(z3, decoded_z3):
 		print("[Error] decoded vectors mismatch")
 		print("- z3:", z3, decoded_z3)
-		sys.exit(0)
+		sys.exit(1)
 
 	print(f"[TEST {test_index + 1}] '{run_choice}': all values exactly match")
 	print()
@@ -259,7 +251,7 @@ if __name__ == "__main__":
 		args.keyswitch = True
 	if args.encrypt:
 		args.encode = True
-	if args.add_cipher_cipher or args.add_cipher_plain or args.mult_cipher_cipher or args.mult_cipher_plain or args.keyswitch or args.bootstrapping or args.rotate:
+	if args.add_cipher_cipher or args.add_cipher_plain or args.mult_cipher_cipher or args.mult_cipher_plain or args.keyswitch or args.rotate:
 		args.encrypt = True
 	run_slot = []
 	if args.add_cipher_cipher:
@@ -274,8 +266,6 @@ if __name__ == "__main__":
 		run_slot.append('rotate')
 	if args.keyswitch:
 		run_slot.append('keyswitch')
-	#if args.bootstrapping:
-	#	run_slot = ['bootstrapping']
 	test_index = 0
 	while True:
 		main(test_index, args.encrypt, random.choice(run_slot) if run_slot else '', is_random_param)

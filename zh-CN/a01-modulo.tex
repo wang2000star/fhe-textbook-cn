@@ -5,7 +5,9 @@
 
 
 \subsection{概述}
-\label{subsec:modulo-overview} 
+\label{subsec:modulo-overview}
+
+本章中所有模数均为整数 $q\ge 2$；除非另有说明，运算对象均为整数。
 
 \begin{tcolorbox}[title={\textbf{\tboxdef{\ref*{subsec:modulo-overview}} 整数取模}}]
 
@@ -160,7 +162,7 @@ $(a \cdot c) \equiv (b \cdot d) \equiv (a \cdot d) \equiv (b \cdot c) \bmod q$
 \subsection{中心化剩余表示}
 \label{subsec:modulo-centered}
 
-本节此前一直将余数视为正整数。例如，假设模 $q$ 的余数取自 $\{0, 1, \cdots, q-1\}$。这种表示称为标准（即无符号）剩余表示。与之对应，还可以采用有符号（即中心化）的剩余表示 $\left\{-\dfrac{q}{2}, -\dfrac{q}{2} + 1, \cdots, 0, \cdots, \dfrac{q}{2} - 2, \dfrac{q}{2} - 1\right\}$\footnote{这里假设 $q$ 为偶数。若 $q$ 为奇数，则剩余代表为 $\left\{ -\dfrac{q-1}{2}, -\dfrac{q-3}{2}, \cdots, 0, \cdots, \dfrac{q-3}{2}, \dfrac{q-1}{2}\right\}$。}，使剩余代表分布在 $0$ 两侧，而剩余代表的总数仍为 $q$。在这两种表示中，取模运算都将给定的值变换到相应的剩余代表范围内：(1) 如果给定值大于该范围的上界，就减去模数 $q$；(2) 如果该值小于范围的下界，就加上模数 $q$。这两种表示（标准表示与中心化表示）的区别仅在于上下界：标准剩余表示的下界和上界分别为 $0$ 与 $q-1$，而中心化剩余表示的下界和上界分别为 $-\dfrac{q}{2}$ 与 $\dfrac{q}{2} - 1$。标准剩余表示约定 $\mathbb{Z}_q = \{0, 1, \cdots, q-1\}$，中心化剩余表示则约定 $\mathbb{Z}_q = \left\{-\dfrac{q}{2}, -\dfrac{q}{2} + 1, \cdots, 0, \cdots, \dfrac{q}{2} - 2, \dfrac{q}{2} - 1\right\}$。
+本节此前一直将余数视为正整数。例如，假设模 $q$ 的余数取自 $\{0, 1, \cdots, q-1\}$。这种表示称为标准（即无符号）剩余表示。与之对应，还可以采用有符号（即中心化）的剩余表示 $\left\{-\dfrac{q}{2}, -\dfrac{q}{2} + 1, \cdots, 0, \cdots, \dfrac{q}{2} - 2, \dfrac{q}{2} - 1\right\}$\footnote{这里假设 $q$ 为偶数。若 $q$ 为奇数，则剩余代表为 $\left\{ -\dfrac{q-1}{2}, -\dfrac{q-3}{2}, \cdots, 0, \cdots, \dfrac{q-3}{2}, \dfrac{q-1}{2}\right\}$。}，使剩余代表分布在 $0$ 两侧，而剩余代表的总数仍为 $q$。在这两种表示中，取模运算都将给定的值变换到相应的剩余代表范围内：(1) 如果给定值大于该范围的上界，就减去适当的整数倍 $q$；(2) 如果该值小于范围的下界，就加上适当的整数倍 $q$。这两种表示（标准表示与中心化表示）的区别仅在于上下界：标准剩余表示的下界和上界分别为 $0$ 与 $q-1$，而中心化剩余表示的下界和上界分别为 $-\dfrac{q}{2}$ 与 $\dfrac{q}{2} - 1$。标准剩余表示约定 $\mathbb{Z}_q = \{0, 1, \cdots, q-1\}$，中心化剩余表示则约定 $\mathbb{Z}_q = \left\{-\dfrac{q}{2}, -\dfrac{q}{2} + 1, \cdots, 0, \cdots, \dfrac{q}{2} - 2, \dfrac{q}{2} - 1\right\}$。
 
 在两种表示中，加法、减法、乘法以及除数可逆时的除法都具有相同的性质。可以利用 \autoref{subsec:modulo-arithmetic} 中的推理证明这一点：在任一表示中，两个同余的剩余代表之差都是 $q$ 的整数倍。
 

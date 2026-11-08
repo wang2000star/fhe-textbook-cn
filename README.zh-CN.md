@@ -19,7 +19,9 @@
 
 ## 本地编译
 
-需要 Python 3、`latexmk` 和完整的 LaTeX 依赖。推荐安装完整 TeX Live，以覆盖原书使用的数学、算法、表格、绘图和字体宏包。确保 `python`（或 `python3`）、`latexmk`、`xelatex`、`pdflatex`、`bibtex` 可从终端调用。
+需要 Python 3、`latexmk` 和完整的 LaTeX 依赖。推荐安装 **TeX Live 2025 完整版**，以覆盖原书使用的数学、算法、表格、绘图和字体宏包，并与 CI 的固定工具链保持一致。本地也已用 TeX Live 2022 完成两版编译。确保 `python`（或 `python3`）、`latexmk`、`xelatex`、`pdflatex`、`bibtex` 可从终端调用。
+
+本次验证的 TeX Live 2026 `latest` 镜像在中文稿的粗体公式处报告 `Extended mathchar used as mathchar (65306)`；该宏包组合尚不属于本项目支持的构建环境。遇到此错误时，请使用 TeX Live 2025 或下文的固定容器，不必修改数学公式。排查记录见 [TRANSLATION.md](TRANSLATION.md#构建兼容性记录)。
 
 在仓库根目录执行：
 
@@ -82,17 +84,36 @@ sudo apt-get install \
 
 Windows 可安装 TeX Live 并运行同样的 Python 命令；macOS 可使用完整 MacTeX。这里的 Python 构建脚本不依赖 Bash 或 Make。
 
+### 固定版本的容器构建
+
+安装了 Docker 的 Linux/macOS 环境可在仓库根目录执行以下命令，使用与 CI 相同的 TeX Live 2025 快照编译两版 PDF：
+
+```bash
+python3 scripts/check_translation.py --math
+docker run --rm -v "$PWD:/work" -w /work \
+  ghcr.io/xu-cheng/texlive-historic-alpine:2025 \
+  /bin/bash -eo pipefail -c '
+    mkdir -p build/en build/zh
+    latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error -outdir=build/en 00-main.tex
+    latexmk -xelatex -interaction=nonstopmode -halt-on-error -file-line-error -outdir=build/zh 00-main-zh.tex
+  '
+```
+
+首次运行需要下载镜像。容器输出仍位于宿主机的 `build/en/` 和 `build/zh/`。发行版的 `texlive-full` 包版本由发行版决定；需要复现 CI 环境时，优先使用上述快照。
+
 ## Overleaf
 
 1. 将仓库源码完整上传为一个 Overleaf 项目，保留 `zh-CN/`、`figures/` 等目录。
 2. 在项目设置中，将 **Main document** 设为 `00-main-zh.tex`。
-3. 将 **Compiler** 设为 **XeLaTeX**，然后重新编译。
+3. 将 **Compiler** 设为 **XeLaTeX**，使用项目设置中可选的 **TeX Live 2025** 环境，然后重新编译。
 
 切回英文版时，将主文件设为 `00-main.tex`，编译器设为 pdfLaTeX。中文入口应从仓库根目录编译，不要直接编译单个章节文件。
 
 ## GitHub Actions
 
 工作流 [Textbook PDFs](.github/workflows/pdf.yml) 在 `main` 或 `chinese-edition` 分支推送、面向 `main` 的 Pull Request 时执行结构和公式一致性检查，再编译中英文 PDF。工作流进入默认分支后，也可通过 `workflow_dispatch` 手动运行。
+
+编译步骤使用 `xu-cheng/texlive-action@v3` 并指定 `texlive_version: '2025'`，对应官方 `texlive-historic-alpine:2025` 快照。
 
 构建成功后，可在对应 Actions 运行的 **Artifacts** 区域下载：
 

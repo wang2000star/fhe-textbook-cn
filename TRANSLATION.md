@@ -90,6 +90,14 @@
 
 修订这些问题时，应记录涉及的英文段落、公式、所依据的文献，以及中文稿采取的处理方式。不要仅替换一个结论而保留与之矛盾的后续推导。
 
+## 构建兼容性记录
+
+两版全文已在本地 TeX Live 2022 编译。首次远端构建使用的 `ghcr.io/xu-cheng/texlive-full:latest` 为 TeX Live 2026；中文稿在 A-4 的 `\bm{\textsf{ord}_{\mathbb{F}}(a)}` 处报告 `Extended mathchar used as mathchar (65306)`。章节结构和公式比对在该次 CI 中通过，英文 PDF 也已编译完成。
+
+隔离实验中，TeX Live 2026 所对应的 bm v1.2g 配合旧版 xeCJK 3.9.1 可以编译完整 A-4，因此不能将问题仅归因于 bm。新版 xeCJK 包装标准文本字体命令后的数学边界处理是待进一步确认的兼容性因素；本次没有在完整的新环境中证明其具体内部根因，也没有加入依赖宏包内部接口的补丁。
+
+PDF 工作流改用 [TeX Live Action v3](https://github.com/xu-cheng/texlive-action/tree/v3) 的 `texlive_version: '2025'`，固定到官方 TeX Live 2025 历史快照。正文公式保持原样。以后升级工具链时，应先完成两版全文编译和中文页面抽查，再更新这一版本约束。
+
 ## 更新与校验流程
 
 1. 记录新的英文基线提交，比较英文主文件、章节文件及文献库的变化。

@@ -22,8 +22,10 @@ jobs:
       - name: Check translation structure and formulas
         run: python3 scripts/check_translation.py --math
       - name: Compile both editions
-        uses: xu-cheng/texlive-action/full@v1
+        uses: xu-cheng/texlive-action@v3
         with:
+          # Keep the CTeX/xeCJK and bm combination reproducible.
+          texlive_version: '2025'
           run: |
             mkdir -p build/en build/zh
             latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error -outdir=build/en 00-main.tex

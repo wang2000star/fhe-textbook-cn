@@ -1163,15 +1163,84 @@ $ $
 
 $ $
 
-\para{Meta-BTS (\href{https://dl.acm.org/doi/10.1145/3548606.3560696}{CCS 2022}~\cite{cryptoeprint:2022/1167}):} Meta-BTS improves bootstrapping precision by iteratively correcting the error of a preceding bootstrap. A schematic correction is:
-\begin{enumerate}
-\item Compute $c_1=\mathsf{BTS}(c)$, representing $m+\eta$.
-\item Align moduli and scales, then form $d=\mathsf{ModDrop}(c_1)-c$, representing $\eta$. Use the bootstrapped ciphertext minus the original, so that the subsequent subtraction has the correct sign. A rescale cannot replace ModDrop without also adjusting scales.
-\item Normalize the small error into the base bootstrap's supported input range, bootstrap it, and undo the normalization, obtaining $\widehat d$ representing $\eta+\eta'$.
-\item Align parameters and compute $c_1-\widehat d$, representing $m-\eta'$.
-\end{enumerate}
-The normalization, precision, and remaining levels are essential to the quantitative Meta-BTS guarantee. This outline is not a claim that merely repeating an unscaled bootstrap always improves precision.
+\para{Meta-BTS (\href{https://dl.acm.org/doi/10.1145/3548606.3560696}{CCS 2022}~\cite{cryptoeprint:2022/1167}):} Meta-BTS improves precision by bootstrapping an amplified residual and subtracting it from the preceding result. The following conditional derivation makes the scale and input-range requirements explicit. It is a sufficient construction, not a parameter-independent claim about every implementation of the paper.
 
-\para{Limitation in Noise Handling:} Error correction can reduce the incremental bootstrapping error under the algorithm's normalization and accuracy assumptions. For a fixed parameter set and implementation, the remaining arithmetic and approximation errors limit the attainable precision. No input-independent exponential convergence or unlimited improvement follows from the preceding outline, and previously lost information in the original ciphertext is not recovered.
+Write $v_D(c)$ for the canonical embedding of the centered decryption phase of $c$, divided by its scale $D$. All norms below are slot infinity norms unless stated otherwise. Let the base bootstrap take modulus $q$ and scale $\Delta$ to the remaining output modulus $Q$ and the same scale $\Delta$. Suppose its contract, for every admissible input with $\|v_\Delta(c)\|_\infty\leq B$, is
+\[
+v_\Delta(\mathsf{BTS}(c))=v_\Delta(c)+b(c),
+\qquad \|b(c)\|_\infty\leq\varepsilon.
+\]
+Admissibility includes the internal lifting and approximation ranges, evaluation keys, and arithmetic bounds. Any output-scale adjustment is included in this contract and its error. Here $Q$ is the modulus remaining after the base bootstrap, not its temporary raised modulus. The error is measured relative to the actual decoded input, including any error that input already contains.
+
+Assume a componentwise rescale ending at scale $D$ has decoded error at most $T/D$, and put $\rho=T/\Delta$. For nearest-integer component rounding in the degree-$n$ ring, a conservative deterministic choice is
+\[
+T=\frac{n}{2}(1+\|S\|_1),
+\qquad
+\|\sigma(R_B+R_AS)\|_\infty\leq T,
+\]
+where the rounding polynomials have coefficient magnitudes at most $1/2$, $\|S\|_1$ is the coefficient one-norm, and $\sigma$ is the canonical embedding. A tighter established bound may replace this one. The phase must remain within the centered interval at the destination modulus.
+
+For two calls, take an actual integer rescale factor $a>1$, an input $c$ of modulus $aq$ and scale $a\Delta$, and $z_0=v_{a\Delta}(c)$. The following operations are componentwise ciphertext operations; brackets mean modulus reduction, without division or rounding:
+\begin{align*}
+u&=\mathsf{RS}_a(c), &v_\Delta(u)&=z_0+r,\\
+y&=\mathsf{BTS}(u), &v_\Delta(y)&=z_0+r+b_1,\\
+h&=ay, &v_{a\Delta}(h)&=z_0+r+b_1,\\
+d&=[h]_q-[c]_q, &v_\Delta(d)&=a(r+b_1),\\
+w&=\mathsf{BTS}(d), &v_\Delta(w)&=a(r+b_1)+b_2,\\
+c_{\mathrm{out}}&=h-w, &v_{a\Delta}(c_{\mathrm{out}})&=z_0-b_2/a.
+\end{align*}
+The moduli are $q$ for $u,d$ and $Q$ for $y,h,w,c_{\mathrm{out}}$. In the last subtraction, the components of $w$ are interpreted at scale $a\Delta$; this intentional scale interpretation divides its decoded value by $a$. The first rescale error $r$ cancels together with $b_1$. The residual is bootstrapped with the sign ``new ciphertext minus input.'' In particular, ModDrop must not be replaced by a rescale.
+
+Sufficient input-range conditions are
+\[
+\|z_0\|_\infty+\rho\leq B,
+\qquad a(\rho+\varepsilon)\leq B.
+\]
+For example, $aq\mid Q$ and $q>2\Delta(B+\varepsilon)$ are conservative external modulus conditions ensuring the required reductions and centered phase bounds. The individual reductions of $h$ and $c$ to $q$ may wrap; their difference still has the stated small centered phase because reduction is a ring homomorphism and the residual bound holds. Under these conditions the added output error is at most $\varepsilon/a$. The identity holds for each actual execution, even if $r,b_1,b_2$ are correlated.
+
+For $k$ calls, let $P_1=1$ and $P_{j+1}=a_jP_j$, where every $a_j>1$ is the actual available integer rescale factor. The $j$-call construction has input modulus $P_jq$ and input/output scale $P_j\Delta$. To construct the next one, rescale the new input by $a_j$, apply the $j$-call construction, multiply its components by $a_j$, and bootstrap the difference with the original input reduced to $q$, interpreting that difference at scale $\Delta$. If the first rescale error is $r_j$ and the preceding construction adds $e_j$, then the last base call receives
+\[
+P_{j+1}(r_j+e_j),\qquad
+\|r_j\|_\infty\leq\rho/P_j,\qquad
+\|e_j\|_\infty\leq\varepsilon/P_j.
+\]
+After subtracting its output, the resulting value is $z_0-b_{j+1}/P_{j+1}$. Induction therefore gives the sufficient conditions and bound
+\begin{gather*}
+a_j(\rho+\varepsilon)\leq B\quad(1\leq j<k),\qquad
+\|z_0\|_\infty+\rho\sum_{j=1}^{k-1}P_j^{-1}\leq B,\\
+P_kq\mid Q,\qquad q>2\Delta(B+\varepsilon),\qquad
+\|v_{P_k\Delta}(c_{\mathrm{out}})-z_0\|_\infty\leq\varepsilon/P_k.
+\end{gather*}
+This proof uses $k$ base bootstrap calls and requires their contract on all the derived inputs. Its divisibility conditions are convenient sufficient conditions, not asserted to be necessary for every variant.
+
+In the ideal notation $a_j=2^b$ and $\varepsilon=2^{-b}$, the error expression becomes $2^{-kb}$ and the scale is $2^{(k-1)b}\Delta$. However, with $B=1$ and any positive $\rho$, the bound $2^b(\rho+2^{-b})>1$ leaves no residual input margin. Thus a $b$-bit bound alone does not establish the advertised iteration: one needs a sharper error bound, a smaller gain, or a larger certified input range. In RNS, a factor close to $2^b$ must be tracked at its actual value in both $P_k$ and the scale. For instance, if the actual factor is $a+1$ but restoration uses $a$, the residual contains $-z_0+a(r+b_1)$ rather than only $a(r+b_1)$; even a small relative mismatch can violate the input range. Changing scale metadata alone does not recover precision.
+
+\para{Limitation in Noise Handling:} A quantitative guarantee must combine the approximation domains, arithmetic errors, and the preceding residual-input conditions. Here is one deterministic error budget for the arcsine approach; it also explains which additional bounds a concrete implementation must supply. Let the ideal normalized coefficient values $t$ lie in
+\[
+D_{K,h}=\bigcup_{j=-K}^{K}[j-h,j+h],\qquad 0<h<1/4.
+\]
+On these real intervals, $\arcsin(\sin(2\pi t))/(2\pi)=t-j$. Let $p_s$ be the complete inner polynomial, including any cosine/double-angle composition, with uniform real-domain approximation error $\epsilon_s$. Let the CoeffToSlot error be at most $E_C$, and let $H_s$ bound the total inner circuit evaluation error at its output. Define
+\[
+L_s=\sup_{\operatorname{dist}(z,D_{K,h})\leq E_C}|p_s'(z)|,
+\qquad E_s=L_sE_C+\epsilon_s+H_s,
+\qquad s_h=\sin(2\pi h),\qquad Y=s_h+E_s<1.
+\]
+The supremum is over a complex neighborhood: an error in a nominally real CKKS slot need not be real. Suppose the outer polynomial $p_a$ approximates $\arcsin$ on the real interval $[-s_h,s_h]$ with error $\epsilon_a$, and put
+\[
+L_a=\sup_{|z|\leq Y}|p_a'(z)|.
+\]
+If its homomorphic evaluation adds at most $H_a$ before division by $2\pi$, the normalized modular-reduction error is bounded by
+\[
+E_R\leq\frac{\epsilon_a+L_aE_s+H_a}{2\pi}.
+\]
+Indeed, first compare the evaluated inner polynomial with $\sin(2\pi t)$; then compare $p_a$ at those two arguments along the complex line segment. The real approximation bound is used only at the ideal real argument. Thus this argument does not silently extend a real minimax approximation guarantee to complex inputs. All circuit errors in $H_s,H_a$ must already be propagated to the relevant output, including rescaling and key switching.
+
+Let $L$ be the ideal final linear transform, including the modular-reduction normalizer and all scale conversions, and let $E_L$ bound its evaluation error. A sufficient base-bootstrap budget is
+\[
+\|b(c)\|_\infty\leq\varepsilon_{\mathrm{cert}}:=\|L\|_\infty E_R+E_L,
+\]
+where the right-hand side may be chosen as the certified $\varepsilon$ in the base contract. For example, with an unnormalized coefficient-to-slot evaluation matrix, its norm is at most $n$; a factor $q/\Delta$ in the reconstruction must also appear in $L$. Actual multiplication and rescaling scales obey $\Delta_{\mathrm{mul}}=\Delta_1\Delta_2$ and $\Delta_{\mathrm{rs}}=\Delta_{\mathrm{mul}}/w$ for the actual factor $w$. A scale discrepancy cannot be absorbed into a rounding bound without bounding its message-dependent bias.
+
+These are upper bounds on added error, not proofs of a positive error floor for every input. The error plateau observed for one fixed circuit or parameter set is not a universal lower bound. If $z_0=m+e_{\mathrm{old}}$, the corrected output for $k\geq2$ is $m+e_{\mathrm{old}}-b_k/P_k$; for $k=1$, the added term is $+b_1$ from the base contract. In both cases its total error is at most $\|e_{\mathrm{old}}\|_\infty+\varepsilon/P_k$, and the old error is not recovered. The finite modulus budget $P_kq\leq Q$ also limits this construction. No independence or zero-mean assumption is used. A probabilistic guarantee must control failure on the actual derived inputs, for example through a simultaneous good event or conditional failure bounds given the preceding history; average precision measured on fresh encryptions is insufficient. If the conditional bounds are $\delta_j$, the union bound gives total failure probability at most $\sum_j\delta_j$ without assuming independence. A particular secure parameter set still needs certified domain, arithmetic, and failure-probability bounds; small numerical examples do not supply them.
 
 

@@ -148,6 +148,8 @@ $\textsf{LWE}_{\vec{s}_{'},\sigma}(\Delta m + e') = (0, b) - \bm{\langle} \texts
 \subsection{Homomorphic Ciphertext-to-Ciphertext Multiplication}
 \label{subsec:tfhe-mult-cipher}
 
+A separate leveled multiplication of two LWE ciphertexts is constructed and conditionally proved in \autoref{subsubsec:bfv-mult-cipher-tfhe}. It uses tensor-product evaluation keys, an exact $\Delta=q/t$ scale and explicit rounding/noise bounds. It is not this section's GSW external product, and its evaluation keys do not replace the GGSW keys used by blind rotation.
+
 The exact decomposition identities in the following proof assume $q=\beta^l$. For a truncated decomposition write $c=\langle\textsf{Decomp}(c),\vec g\rangle+\rho_c\pmod q$. Its residual must be included in the output error, together with the errors in the GSW rows. The notation $\sigma$ in a homomorphic output does not assert that its noise distribution remains the fresh encryption distribution.
 
 \textbf{- Reference:} 

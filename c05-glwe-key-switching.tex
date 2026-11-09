@@ -1,11 +1,11 @@
-For the exact descending gadget below assume $q=\beta^l$, integer $\beta\ge2$, and use the unsigned coefficient digits of \autoref{subsec:poly-decomp}. Both keys use the same ring and modulus, while their numbers of components $k$ and $k'$ may differ. The key owner precomputes the encryptions of the old secret components under the new key. Assume $t\mid q$ for the decoded-message bound. Published evaluation keys also require the security argument of the encompassing scheme, especially when keys form cycles; the arithmetic proof below is not such a security proof.
+For the exact descending gadget below assume $q=\beta^l$, integer $\beta\ge2$, and use the unsigned coefficient digits of \autoref{subsec:poly-decomp}. Both keys use the same ring and modulus, while their numbers of components $k$ and $k'$ may differ. The key owner precomputes the encryptions of the old secret components under the new key. Assume $t\mid q$ for the decoded-message bound. The arithmetic proof and the security of the published evaluation material are separate. The conditional security arguments at the end of this section distinguish independent-key acyclic graphs, same-key raw affine messages, and other key-dependent cases.
 
 \textbf{- Reference:} 
 \href{https://www.zama.ai/post/tfhe-deep-dive-part-3}{TFHE Deep Dive - Part III - Key switching and leveled multiplications}~\cite{tfhe-3}
 
 $ $
 
-Key switching changes a GLWE ciphertext from secret key $S$ to $S'$ by public evaluation with a precomputed key-switching key, without revealing the plaintext. It preserves the phase's message term but replaces $E$ by a generally different error $E'$. Correct decoding is conditional on the new error bound; key switching is not a noise refresh.
+Under the security conditions stated below, key switching changes a GLWE ciphertext from secret key $S$ to $S'$ by public evaluation with a precomputed key-switching key, without revealing the plaintext. It preserves the phase's message term but replaces $E$ by a generally different error $E'$. Correct decoding is conditional on the new error bound; key switching is not a noise refresh.
 
 $ $
 
@@ -147,3 +147,24 @@ For a truncated descending gadget with integer weights, write $A_i\equiv\sum_jA_
 E'=E-\sum_{i,j}A_{i,j}E_{i,j}+\sum_i\rho_iS_i,
 \]
 so the bound must also include $\sum_i\|\rho_i\|_\infty\|S_i\|_1$. Omitting this residual would invalidate the proof. An exact integer gadget for general $q$ is possible, but its weights and decomposition must be defined consistently in both the ciphertext digits and the key-switching key.
+
+\noindent\textbf{Failure probability:} Assume $t\mid q$ and $\Delta=q/t$. Write $p_\chi(B)=\Pr_{e\leftarrow\chi}[|e|>B]$ and let $\mathcal B$ be the event that some input or key error exceeds its bound. For $Q$ fresh input ciphertexts and one set of $kl$ key-switching ciphertexts, the coefficientwise union bound gives
+\[
+\Pr[\mathcal B]
+\le nQp_{\chi_{\mathrm{in}}}(B_{\mathrm{in}})+nklp_{\chi_{\mathrm{ks}}}(B_{\mathrm{ks}}).
+\]
+If the preceding deterministic error bound, including every truncation residual, is below $\Delta/2$ on this event's complement, this is also a bound on failure of any of the $Q$ switched ciphertexts. It does not require independent output errors. The sampling law, its tail function, the number of samples and the target failure rate must still be specified; a discrete Gaussian and a rounded continuous Gaussian are different distributions.
+
+\noindent\textbf{Security of the published switching material:} Use the actual-distribution decisional GLWE advantage $\delta(T,Q)$ and guessing-bias convention of \autoref{subsec:lattice-scheme}. Here each auxiliary ciphertext has a raw ring phase; its message is not first reduced modulo a separate plaintext modulus. There are two directly provable cases.
+
+For the same key $S'=S$, let $L$ be a public vector of ring elements and $c$ a public ring constant. Given a challenge sample $(A',Z)$, a reduction simulates encryption of the raw affine function $\langle L,S\rangle+c$ by returning $(A'-L,Z+c)$, since
+\[
+Z+c=\langle A'-L,S\rangle+E+\langle L,S\rangle+c.
+\]
+For the KDM real-function-versus-zero game, choose a hidden bit $\vartheta$ internally and return $(A'-\vartheta L,Z+\vartheta c)$. Real samples give precisely the selected raw encryption; uniform samples remain an independent uniform pair after these translations. This holds conditional on every earlier transcript, so it covers adaptively selected public $L,c$ and polynomially many samples. Outputting whether the bit was guessed gives $\epsilon_{\mathrm{aff}}\le\delta(T',Q)$, or $2\delta(T',Q)$ for the output-probability-difference convention. The row message $(q/\beta^j)S_i$ is obtained by placing $q/\beta^j$ in component $i$ of $L$ and zeros elsewhere. Thus this same-key raw switching material does not require an additional circular-security assumption, provided its masks are independent uniform and its error law is covered by the sample assumption. See \href{https://www.cs.toronto.edu/~vinodv/BV-Crypto2011.pdf}{Brakerski--Vaikuntanathan, Section 1.1, KDM Security}.
+
+For independently generated keys in a fixed directed acyclic graph, define an edge $u\to v$ to mean raw encryption of a public efficient function $f_{uv}(S_u)$ under $S_v$. Process destination keys in reverse topological order, starting with sinks. When replacing all ciphertexts under $S_v$ by uniform pairs, the reduction knows every other key and can compute all incoming messages. Every outgoing ciphertext whose message depends on the unknown $S_v$ has already been replaced by a uniform pair. This gives an exact adjacent-hybrid simulation using the decisional oracle for $S_v$. If $Q_v$ counts all samples under that key, the resulting joint-view bound is $\epsilon_{\mathrm{DAG}}\le\sum_v\delta_v(T'_v,Q_v)$. This statement assumes no secret corruptions or decryption queries and fresh independent randomness for every auxiliary encryption. Same-key raw affine loops can be handled by the preceding mask shift; a general cycle does not admit the acyclic simulation order.
+
+The affine proof requires the \emph{actual phase message} to be affine over the ciphertext ring. Composing a function with reduction modulo $t$ and scaling by $\lfloor q/t\rfloor$ can add a secret-dependent wrap term; it vanishes automatically when $t\mid q$ and $\Delta=q/t$. Moreover, a coefficient-linear map need not be ring multiplication: a general secret automorphism $S(X^j)$, coefficient or bit extraction, and $S^2$ are not automatically of the form $LS+c$. Non-affine self-dependent material, general multi-key cycles, related-key distributions, and fixed seeded-mask formats need their own matching proof or explicitly stated KDM/seeded assumption. These restrictions do not negate the two conditional reductions above, and those reductions do not certify the hardness of an unspecified parameter family.
+
+Once the input ciphertexts and all published auxiliary material jointly hide their messages, public key switching and the other public homomorphic operations preserve this indistinguishability by efficient postprocessing. This says neither that the output has the fresh-encryption distribution nor that circuit privacy, chosen-ciphertext security, or correctness follows without their separate conditions.

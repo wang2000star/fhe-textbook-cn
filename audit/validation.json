@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "review_date": "2026-11-08",
   "repository": "wang2000star/fhe-textbook-cn",
   "branch": "chinese-edition",
@@ -14,21 +14,35 @@
     "python_files": 15,
     "figure_assets": 19,
     "active_figure_assets": 18,
-    "partially_verified_units": 6,
+    "partially_verified_units": 1,
     "unresolved_security_finding": "FND-035",
-    "note": "Finding IDs can share a root cause; these are not 143 independent vulnerabilities."
+    "note": "Finding IDs can share a root cause; these are not 143 independent vulnerabilities.",
+    "followup_original_partial_units": 6,
+    "followup_resolved_mathematical_gaps": 5,
+    "remaining_partial_scope": "d03-ckks-050: complete Meta-BTS paper and its full proofs have not been obtained; the new textbook conditional theorem is independently proved.",
+    "security_subclaims": {
+      "units": 11,
+      "records_including_repeated_claims": 43,
+      "distinct_claim_ids": 12,
+      "conditional_reduction_complete": 22,
+      "additional_explicit_assumption_required": 10,
+      "concrete_parameters_uncertified": 11
+    }
   },
   "checks": {
     "status": "passed",
     "command": "python3 audit/run_checks.py",
-    "scripts": 6,
-    "mathematical_and_code_groups": 78,
+    "scripts": 9,
+    "mathematical_and_code_groups": 103,
     "groups_by_scope": {
       "foundations": 17,
-      "tfhe_bfv": 21,
+      "tfhe_bfv": 22,
       "ckks_bgv_rns": 12,
       "summary": 13,
-      "python": 15
+      "python": 15,
+      "security_followup": 12,
+      "meta_bts_followup": 8,
+      "public_bfv_bootstrap_configurations": 4
     },
     "additional_coverage_gate": true,
     "python_example_operations": 31,
@@ -39,86 +53,23 @@
       "fastcore": "2.2.39"
     },
     "python_version": "3.12.14",
-    "log_sha256": "df40cd2dc524cd0c0799d2a8ef645296ab309ada3c5c69e0f8a897bdb750d0cf"
+    "log_sha256": "45e8195904cce58873d8f48f144495b1343c65573c55a653aa7dc999ee9c250a",
+    "counting_note": "The 103 finite groups include four end-to-end BFV configurations; counts are not independent theorems or security certificates."
   },
   "translation": {
     "status": "passed",
     "command": "python3 scripts/check_translation.py --math",
-    "normalized_math_snippets": 6883,
+    "normalized_math_snippets": 7210,
     "duplicate_labels": 0,
     "undefined_reference_keys": 0,
-    "structurally_matching_chapter_files": 34
-  },
-  "pdfs": {
-    "en": {
-      "path": "build/en/00-main.pdf",
-      "pages": 216,
-      "sha256": "24faee2585c72d30566005b5ddb97594a5c2a8f4dbce91804a16c6a963fd010d",
-      "overfull_hbox_warnings": 31,
-      "missing_glyph_warnings": 0,
-      "undefined_references_or_citations": 0,
-      "out_of_page_text_blocks": [],
-      "visually_sampled_pages_before_final_footer_and_report_paragraph_adjustments": [
-        60,
-        86,
-        143,
-        211
-      ]
-    },
-    "zh": {
-      "path": "build/zh/00-main-zh.pdf",
-      "pages": 167,
-      "sha256": "b749737faff74d5c32b46c1086bfa11cee9880242d468f5c254745aef59ac52c",
-      "overfull_hbox_warnings": 0,
-      "missing_glyph_warnings": 0,
-      "undefined_references_or_citations": 0,
-      "out_of_page_text_blocks": [],
-      "visually_sampled_pages_before_final_footer_and_report_paragraph_adjustments": [
-        2,
-        46,
-        66,
-        78,
-        93,
-        102,
-        110,
-        126,
-        136,
-        149,
-        155,
-        163
-      ]
-    },
-    "report": {
-      "path": "build/audit/fhe-textbook-academic-review.pdf",
-      "pages": 87,
-      "sha256": "b776a239eb7ee13893e76f6d72e3a366c2d1959277442a8dfd740055955e8afe",
-      "overfull_hbox_warnings": 0,
-      "missing_glyph_warnings": 0,
-      "undefined_references_or_citations": 0,
-      "out_of_page_text_blocks": [],
-      "visually_sampled_pages_before_final_footer_and_report_paragraph_adjustments": [
-        1,
-        7,
-        18,
-        28,
-        40,
-        57,
-        65,
-        82
-      ]
-    }
+    "structurally_matching_chapter_files": 34,
+    "log_sha256": "c8c1f10d5bafc282a7e28ce2837a662d29a3d25ffdc8c40b1f3dbd5054b3dd95"
   },
   "local_toolchain": {
     "tex_live": "2022",
     "pandoc": "3.1.3",
     "book_build_command": "python3 scripts/build.py all",
     "report_build_command": "python3 audit/build_report.py"
-  },
-  "visual_review": {
-    "method": "全书文本边界自动扫描；24个重点页人工视觉抽查；19个图形资源检查。中文页脚调整后复查第163页，报告最终集成段落另行复查。",
-    "english_overfull_note": "31处文本栏宽告警保留；全页边界扫描未见文字超出纸张。没有将抽样视觉检查称为逐页人工校对。",
-    "chinese_footer_fixed": "footskip=5mm",
-    "code_hyperlinks": "Reviewed fork, branch chinese-edition"
   },
   "ci": {
     "workflow": ".github/workflows/pdf.yml",
@@ -127,6 +78,192 @@
     "runs_url": "https://github.com/wang2000star/fhe-textbook-cn/actions/workflows/pdf.yml",
     "note": "The observed post-push result is reported with the GitHub Actions run URL; no prospective CI success is asserted here."
   },
+  "source_hash_policy": "Final integrated files except this validation manifest itself. Git commit records the complete manifest; baseline hashes and per-unit original locations remain in their ledgers.",
+  "followup_base_commit": "25d4cdb06d3dfd5ce4e741c54c590c14f0b9c226",
+  "review_date_timezone": "UTC",
+  "previous_review": {
+    "commit": "25d4cdb06d3dfd5ce4e741c54c590c14f0b9c226",
+    "ci_run": 42491741920,
+    "ci_conclusion": "success",
+    "partial_units": 6,
+    "normalized_math_snippets": 6883,
+    "pdf_pages": {
+      "en": 216,
+      "zh": 167,
+      "report": 87
+    }
+  },
+  "pdfs": {
+    "en": {
+      "path": "build/en/00-main.pdf",
+      "pages": 224,
+      "sha256": "2bc1253aab5b91e6553b567faf4b964a70f8a9f004b03eb6d205d6725e58a439",
+      "overfull_hbox_warnings": 31,
+      "missing_glyph_warnings": 0,
+      "undefined_references_or_citations": 0,
+      "out_of_page_text_blocks": [],
+      "visually_sampled_physical_pages": [
+        76,
+        87,
+        109,
+        148,
+        167,
+        192,
+        193
+      ]
+    },
+    "zh": {
+      "path": "build/zh/00-main-zh.pdf",
+      "pages": 171,
+      "sha256": "8cc134f65cfead6c0615b944164c4a68f4058e1ed19287f2ad6def5726a63cb1",
+      "overfull_hbox_warnings": 0,
+      "missing_glyph_warnings": 0,
+      "undefined_references_or_citations": 0,
+      "out_of_page_text_blocks": [],
+      "visually_sampled_physical_pages": [
+        65,
+        85,
+        126,
+        127,
+        128,
+        129,
+        147,
+        148,
+        165
+      ]
+    },
+    "report": {
+      "path": "build/audit/fhe-textbook-academic-review.pdf",
+      "pages": 126,
+      "sha256": "a187ce438187fc2dff2b96de21473c50a90eeb90b244066486ae480dfbcc7d5e",
+      "overfull_hbox_warnings": 0,
+      "missing_glyph_warnings": 0,
+      "undefined_references_or_citations": 0,
+      "out_of_page_text_blocks": [],
+      "visually_sampled_physical_pages": [
+        9,
+        30,
+        72,
+        73
+      ],
+      "bytes": 1163348,
+      "overfull_vbox_warnings": 0,
+      "latex_errors": 0,
+      "verification_date_utc": "2026-11-09",
+      "build_command": "env TEXMFHOME=/workspace/scratch/c7bb79388431/tex-packages/texroot/usr/share/texlive/texmf-dist TEXMFVAR=/workspace/scratch/c7bb79388431/tex-var TEXMFCONFIG=/workspace/scratch/c7bb79388431/tex-config python3 audit/build_report.py",
+      "verification_scope": "After lossless BFV result sharding, only the full audit report was rebuilt and rechecked. Final log and all 126 page text boundaries passed; four rendered pages were visually checked. Book PDFs and mathematical experiments were not rerun in this packaging review."
+    }
+  },
+  "visual_review": {
+    "method": "2026-11-09：BFV结果分片后仅重新构建并复查完整审校报告；扫描126页文字块边界，并渲染目视4个与分片说明相关的页面。两版书籍PDF未重建，本次未重新抽查其页面。",
+    "scope": "audit_report_after_lossless_bfv_result_sharding",
+    "sample_count": 4,
+    "visually_sampled_physical_pages": [
+      9,
+      30,
+      72,
+      73
+    ],
+    "outcome": "未发现缺字、裁切或重叠；日志无缺字、未定义引用、Overfull hbox/vbox或LaTeX错误；全报告页外文字块为零。",
+    "previous_full_followup_review": {
+      "method": "全书文本边界自动扫描；本次24个重点页实际渲染并目视检查（中英16页、报告8页）。首轮另检查的19个图形资源本次未改动。",
+      "sample_count": 24,
+      "english_overfull_note": "31处文本栏宽告警与首轮数量相同；全页边界扫描未见文字越出纸张。没有声称逐页人工校对。",
+      "chinese_footer_fixed": "footskip=5mm",
+      "code_hyperlinks": "Reviewed fork, branch chinese-edition",
+      "report_font_fix": "Map five unsupported inline-code mathematical Unicode symbols to LaTeX math; no glyph warnings remain."
+    }
+  },
+  "followup_evidence": {
+    "status_ledger": "audit/followup-status.json",
+    "security_proof": "audit/security-followup.md",
+    "public_bfv": {
+      "report": "audit/bootstrap-followup.md",
+      "result": "audit/bootstrap-results.json",
+      "configurations": 4,
+      "runs": 8,
+      "audited_ciphertext_nodes": 466,
+      "actual_secret_free_public_evaluation": true,
+      "secure_parameters": false,
+      "result_format": "bfv-bootstrap-audit-index-v1",
+      "result_index_bytes": 1517,
+      "result_parts": [
+        {
+          "name": "split_phi4_p5",
+          "path": "audit/bootstrap-results/split_phi4_p5.json",
+          "bytes": 40237,
+          "sha256": "1806c1413b02278d2f70862d4c80dd49e3901046a4427678cd3f83b49020a471",
+          "runs": 2,
+          "nodes": 46
+        },
+        {
+          "name": "extension_phi8_p3",
+          "path": "audit/bootstrap-results/extension_phi8_p3.json",
+          "bytes": 169974,
+          "sha256": "330873259e87006c3073f6f7d5def7764b7a32a62c03fa5abe7a1c1ad3df6695",
+          "runs": 2,
+          "nodes": 140
+        },
+        {
+          "name": "extension_phi8_p3_r2",
+          "path": "audit/bootstrap-results/extension_phi8_p3_r2.json",
+          "bytes": 207570,
+          "sha256": "3fee0abf31864181ccd950d61822fdf6b33c648fee01dab2b296d5c1db0a3f3b",
+          "runs": 2,
+          "nodes": 164
+        },
+        {
+          "name": "binary_coprime_phi3_p2",
+          "path": "audit/bootstrap-results/binary_coprime_phi3_p2.json",
+          "bytes": 98554,
+          "sha256": "08e3e91293208c3175140de585d85802371df8f836a5857ce96c3ce06e9647ae",
+          "runs": 2,
+          "nodes": 116
+        }
+      ],
+      "lossless_reassembly": {
+        "canonical_serialization": "UTF-8 json.dumps(ensure_ascii=False, indent=2) plus newline",
+        "canonical_bytes": 856268,
+        "canonical_sha256": "be942c8c0613afa6c78c6b4cd1c1b8a08e373bc3b273642463d6bf0e56e23dd4",
+        "matches_previous_full_result_sha256": true,
+        "verification": "Reassembled existing shards and verified their exact canonical bytes against the previous full result hash; no ciphertext evaluation was rerun during this manifest update.",
+        "legacy_json_output": "The BFV reviewer separately verified that the unchanged --json output has this same canonical hash.",
+        "loader": "audit/check_bootstrap.py::load_json_shards"
+      },
+      "sharded_output_command": "python3 -B audit/check_bootstrap.py --json-shards audit/bootstrap-results.json",
+      "legacy_full_output_command": "python3 -B audit/check_bootstrap.py --json /tmp/bootstrap-results-full.json"
+    },
+    "meta_bts_algebra": {
+      "report": "audit/ckks-followup.md",
+      "check_script": "audit/check_meta_bts.py",
+      "groups": 8,
+      "finite_cases": 13970,
+      "complete_primary_paper_obtained": false
+    },
+    "openfhe": {
+      "report": "audit/openfhe-review.md",
+      "result": "all recorded trials passed",
+      "version": "1.6.1",
+      "commit": "b59e1f291965f14fbee5172cd83a20f5b856204f",
+      "independent_keys": 3,
+      "held_out_cases": 9,
+      "measurement": "Differences between default REAL/EXEC_EVALUATION API decoded observations, including decoding perturbations and floating-point error; not raw complex canonical-phase error.",
+      "one_iteration_levels": "not separately recorded",
+      "two_iteration_levels": 10,
+      "secure_parameter_certification": false,
+      "source_hashes_verified": true,
+      "result_file": "audit/openfhe-results.json"
+    }
+  },
+  "limitations": [
+    "Conditional mathematical proofs have their explicit assumptions; finite tests are not formal proofs or computational-hardness certificates.",
+    "One Meta-BTS original-paper review unit remains partial because the complete paper and proofs were not obtained.",
+    "Concrete security parameters, fixed-XOF and uncovered same-key KDM/general-cycle assumptions, and instance-level failure probabilities remain as documented.",
+    "The public BFV prototype uses insecure tiny rings and implements general coefficient packing, not all GV optimizations.",
+    "The OpenFHE experiment reports default REAL decoding observations, not exact raw complex-phase errors.",
+    "The original Python demo bootstrap placeholders and production-engineering limitations remain explicit.",
+    "Some original figure labels remain English."
+  ],
   "source_sha256": {
     ".github/workflows/build.lua": "d3e5302df3cb81b2b8e09f7ef6946a0c4f0d4dda69c528885b3bf687b1bc36f6",
     ".github/workflows/config.cfg": "afa8658b4c5a392d6bbbdba9ed2a3422aded10c5ea3b7c1948edc9d7530e1bc0",
@@ -136,9 +273,9 @@
     "00-main-zh.tex": "9d41efb6a4b4996ff8e2e5e7525b6fff1af1de6dd5d129577caacae160a97a43",
     "00-main.tex": "702f5f322d1f04798d97e409c31ae221fc48fd5e0c4e8a47a45c663dfed58bdb",
     "Makefile": "e07ba1881e7efe8fff3547f5bcf4d5536bb9d732c38202738d09daddfcf8b7d8",
-    "README.md": "4740866bffbc44dd13e107ac41d8ff66bdbe3e78b252b181c6590e86942f094d",
+    "README.md": "d8d8b53445c7f6fb3c47b99b0d080a9db9f3d2b0908a64023c4d2eed36cc52df",
     "README.zh-CN.md": "b07f8645e8d38a59884e858b36c07dfd2c194669170b37867d2fe17c639d6baa",
-    "TRANSLATION.md": "a3ae465b1b3092c75ae23fc2c1af3828c5de5a9a098a9d369de53f984a0f5278",
+    "TRANSLATION.md": "89d873e8d2f98cc242add91f0a2bc00ebee7aef572acddc9fdeeef1a462cef3c",
     "a01-modulo.tex": "1abf1059438aa92a5f2b2496dbb4f2d914df8bf512b11571817bff33c0fe555a",
     "a02-group.tex": "0c809a2172b8f4dab7abbb05e1738434f26b176eae4861abebee920e7a9421e3",
     "a03-field.tex": "79c9d0cc8aaf338ed1a3a805e8c8940e4d39beda9526db4a536cd5d22ffd36b3",
@@ -155,54 +292,72 @@
     "a14-chinese-remainder.tex": "805090192ed4f88aee91915aa370a8d98d1788a84086670943c37318ffbc1161",
     "a15-taylor-series.tex": "c59b242f5497949d8d71a0a2be832e396f8757507b53853e48222a5926ff16e3",
     "a16-ntt.tex": "09cc3c31020befefcc2f98a5f239c70d8ad21c597ab44a771fd8e1ea3f3d0749",
-    "audit/ACADEMIC_REVIEW.md": "af724a0142b6dca8881f6be237add0173a668cb719dc85024055d4cba4bc4d57",
+    "audit/ACADEMIC_REVIEW.md": "941765ddf84c81994721eb3876ab1a439a9fc6adbe4e20b2ba6f3840fa06b133",
+    "audit/FOLLOWUP_REVIEW.md": "36c3dcd4f06a4804b5bd14b203da456ca7bb93baa3e90da2b6a3b1e9f391d78d",
     "audit/baseline-headings.json": "e567a9ad2b97ef929761510247351aea96be08cd712ac44cbb5d016bbe576858",
-    "audit/build_report.py": "fb292d3d10a93260e130faa3b60db6a92e7af6f6c2c70ebf764bb5c4f561dd6c",
+    "audit/bootstrap-followup.md": "386eaf03e6bb9ae946914ce7c3a35f7233e690efc84432a512d212e11b0266a4",
+    "audit/bootstrap-results.json": "f30e1a6194419485ed7c74acd458eea6e59934f38261b90addc9ec51e7d9c92d",
+    "audit/bootstrap-results/binary_coprime_phi3_p2.json": "08e3e91293208c3175140de585d85802371df8f836a5857ce96c3ce06e9647ae",
+    "audit/bootstrap-results/extension_phi8_p3.json": "330873259e87006c3073f6f7d5def7764b7a32a62c03fa5abe7a1c1ad3df6695",
+    "audit/bootstrap-results/extension_phi8_p3_r2.json": "3fee0abf31864181ccd950d61822fdf6b33c648fee01dab2b296d5c1db0a3f3b",
+    "audit/bootstrap-results/split_phi4_p5.json": "1806c1413b02278d2f70862d4c80dd49e3901046a4427678cd3f83b49020a471",
+    "audit/build_report.py": "11e157eb1fd4fab98073122cf3b332b0a8d1fbbca7cd2f47c31540be39bcf191",
+    "audit/check_bootstrap.py": "dac06a24f16ce2994604ae1fc889228f7410fe775d9f366094ad20ca1f985541",
     "audit/check_ckks_bgv_rns.py": "0842dd2426374dc15483d8ab66689502c19b2ced04123f4b3c63b8f21c8ac143",
-    "audit/check_coverage.py": "13874cae36d3ee91529bdef6cbf3de1ced45ef4d4c7ac7dacb4f42fdb048d78c",
+    "audit/check_coverage.py": "c02fcb5dc9ee8f664fe144c8e76056fe0dd90a07e4ec079c1d064038d021044f",
     "audit/check_foundations.py": "55e472b2e53f613a4a307e0bc9aaf2e9c50b66028cb8aec8d60643f069423061",
+    "audit/check_meta_bts.py": "ee20a04306a0249d1367a90dda9d08c9fb080fb807e06566c50ac093e8238c11",
     "audit/check_python.py": "951fa7e66899c4405b476eef8d519da407a201cf04d02729856e0eeca126f8de",
+    "audit/check_security.py": "19348966b6c2ecda8ba5ac6f1ef87c4ec16add4cb2b0c5eef02153cdf4859521",
     "audit/check_summary.py": "288705c30904732ea61c79d871076464f98cb809a74ff6e6e44b57ce3891f54c",
-    "audit/check_tfhe_bfv.py": "9bbb119554123058c5dd00ceacc519dd89a17e5875e70a3019f1d1cc82955c0d",
-    "audit/ckks-bgv-rns-coverage.json": "6f4b5f4ef81fcfaccbcb552b86da7b455a15b5878dcddf647939333ff5fceead",
-    "audit/ckks-bgv-rns-review.md": "ec2e56bf6447cce5d4d4474238a2ddf106b7e433af410a9a6d94821629f5128f",
-    "audit/coverage.json": "33efe95c2e60f6490f2e0f2144488469521aa3636fcaa3aae50bb6b66474dcc6",
-    "audit/coverage.md": "d6c26d70cb7e0be4848776fa73842f116e84a9e923aa8e85fd0be413af76a708",
+    "audit/check_tfhe_bfv.py": "c1c036cfbf3cc4f06b9c3afc31cbc0da7ae52c25704aa13bb25a7b716895cbd7",
+    "audit/ckks-bgv-rns-coverage.json": "caadda65c14374313d33c6d66bc5b368f0a160ae6f2f350e9f2f01c5516512d5",
+    "audit/ckks-bgv-rns-review.md": "1777b52031b9072cead91e13f8202090afb7db4ecc01a1808c6e3dc7ce70d3ff",
+    "audit/ckks-followup.md": "3633483510dbe5447deae1218c08d029fbf11c8c38306c8b99ea00f77536cf6d",
+    "audit/coverage.json": "ea3e2a44906c7ad7cd0892ad5045f9ee66a63939ae8a09454628158775a5bf3c",
+    "audit/coverage.md": "1530bd65c02f26d136d75001b930958a75b41d92f2bc1cf352ee2bcd5ce90937",
     "audit/figure-coverage.json": "a1ca30b77231af8693b87c9dabc6d686da17dcec5b333e454117e97c8e068fea",
-    "audit/findings-index.md": "586b8a1a8b61c1615e4b9ee53a29fcb851878f19c7316335ce0b55235722d94c",
-    "audit/findings.json": "35151051202478ed117e6156aaf7bf33dc93b3f2e11da3b4bdda65685a394547",
-    "audit/foundations-coverage.json": "9c6d2e203997bcb67e2a714628926ba556ea4a7b9fac1895957fde4605864344",
-    "audit/foundations-review.md": "dca52914c9dbbcb0cf4cf3778195a161783ab55c7c0fafb693c52bbb8c192a37",
-    "audit/pdf-format.lua": "81a0422f05c516d36eec3e0b799ceb2a631b1c13a36641857876588a39f8f312",
+    "audit/findings-index.md": "2604e19b9265b76d57f32ffda24477b618258910e8d2699af22194e4660abcab",
+    "audit/findings.json": "79c3a802fbc29154d64849fba52f1c8f2dcb277eefa1cbc041f5c8a718a1ce78",
+    "audit/followup-status.json": "5aa7aa300bde4f5d1641c8232736bba110bbcee9e4d9245f28b2c84905eb2a20",
+    "audit/foundations-coverage.json": "b95698375fbea9227673196dda1d16fcf4ecc05fe3099263cef1d8c66d64f3e9",
+    "audit/foundations-review.md": "248be07f7b2d634af921f986fc6063e3303329582bc945251ccbc9740adad868",
+    "audit/openfhe-CMakeLists.txt": "4f6d825dcc08cc4804e00f6d6ae1f726aed569ba47233c681a601c2cad5810c9",
+    "audit/openfhe-results.json": "731a00c2c77aaf06a6a3b503b3891d5729b9b112538e77ecf4850ae4071c82ce",
+    "audit/openfhe-review.md": "15bf2970e0223154ffb2fa3fb178e7638df6cfa6b9c7906d996e422005b0a106",
+    "audit/openfhe_meta_bts.cpp": "4e2f763330a17a3991a07de17e9b13d4ef491bf00eb26bf92fb7d56e5e638a27",
+    "audit/pdf-format.lua": "00236b8262ee6d783d1ef736fa831553cf986eb41f7be5ded0089110c523c79d",
     "audit/python-coverage.json": "f5e732d0ae10578d1fd1aa0ffb72bd95ff32894e296a077364aadceb0feadd4f",
     "audit/python-findings.json": "734dc5a18e137673c00e224a30fad27db58f9c7ea8c050d1d4cd77b28eb18b38",
     "audit/python-review.md": "73b2d4266b38c0088768669eaa4d9179a4bcc5ea1b74e1a7313dc2817de6b3f8",
     "audit/report-header.tex": "0d3a94f0b82e2d0bfccc861b346c883032d02cda89aa8eb6b98847407f4ce1b3",
     "audit/requirements.txt": "a73961a562783c21d18d32e4945f92f474dba8432d3aa61c38dd8492a5797cdd",
     "audit/run_checks.py": "5dc7337c2ccecb407b751a3968753aba313c7c8eac07d0d6ba9032eadb5000b3",
-    "audit/summary-coverage.json": "87cc626172616e25e5bf61690b4536fd76361a6eb2156ccc9416eb76289cd619",
+    "audit/run_openfhe_meta_bts.py": "24a19ba734e03a707b526be65cc251828bbb7f3345686d93370cab1ddfd34e65",
+    "audit/security-followup.md": "be731298a63ae8fa67eec482fbdb37e7076a52434d890728ecfa825b9cdbdd5a",
+    "audit/summary-coverage.json": "3c3eac99d6443b51253212c747c12cdf7fcdcd1957e37dbed2502047826abe3f",
     "audit/summary-findings.json": "d9fb408cd28d8c0be3f8ac90d8ecdcd3b85e76e18fba7d81ca46db86f48e6052",
-    "audit/summary-review.md": "bd0a80f0931b7d38963181f5485a69330c2b25d592ec45580173853c710abca8",
-    "audit/tfhe-bfv-coverage.json": "d1f0387e63f46c026ff3142a5bb2269fd754421bd3473a69a7f5f3a48dc254ef",
-    "audit/tfhe-bfv-review.md": "fd6dd067b108fb130d118da5576f5ce10b469d1442407f16c65517f182c29e04",
-    "audit/update_coverage.py": "462fef9e65a2623e7d8c212d776dca0305a500948b5a9a07e6b2429d797c96e6",
-    "b01-lattice.tex": "5f0675de35316e51b76e142cac44f80e9fb52c01482beba725c12a1265f5a55f",
+    "audit/summary-review.md": "a76917b30c04ee880b5e184982a0f3ed74e6ccf2b7da545fcffdf82c2c0d08db",
+    "audit/tfhe-bfv-coverage.json": "8b51a104e858b42fb5d6356afbf514c84849686f84a53940fe8c278b1c7b65b9",
+    "audit/tfhe-bfv-review.md": "5e620167a7109b7d24af4cf81a3d217f0b06cbb27305e4b69e08fa3070a40e8a",
+    "audit/update_coverage.py": "d2af5ff55c2e82d1f6b2c7ed6e144fa56da9715ccef62bfc3b406f1d88195642",
+    "b01-lattice.tex": "51aa730815dfc1e4bd7964db6107645f2e35572bdd6ab7813004126c1ab656a6",
     "b02-lwe.tex": "3ff8846ca10fd96e17d78718100b6bdb29a3f8d336761f185ea0b116bb056879",
     "b03-rlwe.tex": "8de78d4376755b0e17fa93b90513c9f52dcca396aae9421508255b826936ea79",
-    "b04-glwe.tex": "341860bc975e35c5e4fbc240eb713c518aa8af0ab70c10d365d3fdc383763d22",
+    "b04-glwe.tex": "5639e087f133d26bff070b52721aeaf387119f6ce4edaa6334b43abbf3fd53a2",
     "b05-glev.tex": "63fc9cdb83807e8772b301ffcbda73a41822eeff3347651729e584b43266a149",
     "b06-ggsw.tex": "2fabdd01e908695d1f89c0daa04b02c924d9b3f7f7f70c9d8b3767bddff91cad",
     "c01-glwe-add-cipher.tex": "6ad32e2533bae8943c533a6b15bf99fc70b350c07b08122106a9c993ed47850e",
     "c02-glwe-add-plain.tex": "47c8b52a139423741a9a06c64295df381cba6bf1a1982cad25d30dce56e5ba62",
     "c03-glwe-mult-plain.tex": "55628cdccc5b16c0c4d5a76ee2a78f2a948265c069e987ea06ecf0af8f05145e",
     "c04-glwe-modulus-switch.tex": "cc677e6e525caa6a8543cf3611b50de562aef27a1ec833cbe411d10fa90c11fc",
-    "c05-glwe-key-switching.tex": "c5230630d0bb7206f56e8ef05ff6727954c9662428b8f38c9bd34877fa24e7fe",
-    "d01-tfhe.tex": "ca1f93934cd13a916f3bc239fe20fd3a77bb262d79278376330b7a3379cdbf62",
-    "d02-bfv.tex": "11214ed0532f950161b496de5f3ad504c4007b222d972d5d6d089241123dfc8e",
-    "d03-ckks.tex": "8092bbad822c805dcdfeba96e0d1906618f69916fdba8d3614542ad92763a319",
+    "c05-glwe-key-switching.tex": "3d00b67b479bccb654759ec0dc5b0b7b974d4f979ae43aaf711f4f05dc84d746",
+    "d01-tfhe.tex": "7536672293c4fda182c45663c108069af068c85e69fb1071da550bb6288d2f83",
+    "d02-bfv.tex": "c2dbe0922b96b0d6380a807ae63866171b9105de3a34a7b969458867ab10b803",
+    "d03-ckks.tex": "f48049b5465f798749dd55e73ff2c3edb9b5e10f352bb97b35c4ae157d5b61ec",
     "d04-bgv.tex": "fa4100ff039ccb34a8356a2fa35c6747acc7f1c43a6547263b27b3e73608eb7c",
     "d05-rns.tex": "5ef84e4a80e54b4c04d0b99e22f0f87a7ab00db02997c1b86f913df81a2b4874",
-    "d06-scheme-summary.tex": "bbe2557d0d703c0414a1f2f2febffaaa04671143e7154f2219743a70c7b3ca5c",
+    "d06-scheme-summary.tex": "f15730b8d66b4a2c4f351948e1cf22bc0627ce85a7b5dcad71b8162d41eff743",
     "d07-python-demo-library.tex": "b30a0df3d92bd7a1ea3a68e6bb5d125897b76d6b4a77c7dd3b80d5b869b98429",
     "figures/TFHE-fig1.pdf": "ceda0ba004c750437b28acd70b0e377d4453cba0c652d07d4bc35b7088f68769",
     "figures/TFHE-fig2.pdf": "ec891e6b4f07c65cd8e940ba5040869aa10a9b48b7a8949c354d272eb3c09041",
@@ -257,29 +412,65 @@
     "zh-CN/a14-chinese-remainder.tex": "d2f3b3efb9d9f5f9bcc4911cbec26e6fc2b0c436d7ac609b436d614ad440791d",
     "zh-CN/a15-taylor-series.tex": "1ad0ec9a90bd7b53b64d47c30463ca0016848516a041a8a3ace8499085395e07",
     "zh-CN/a16-ntt.tex": "4b52d8c3e2109d60bd442e785832c08e993743953b992be264cbe2a2285507cc",
-    "zh-CN/b01-lattice.tex": "9279b8b229ef1e754ce42a1af9a55b4d43216d6fb12bd5ae920d63cd8d610d40",
+    "zh-CN/b01-lattice.tex": "8d552499df6ca0321f93c8fc4bd28223951a24b4fbbd086c6f62bc7efc313bae",
     "zh-CN/b02-lwe.tex": "8211da2883a525c9dd6412757b77b35d4e7113aaa4cd05e318e186b78be29e82",
     "zh-CN/b03-rlwe.tex": "ca53b263e79b60b1be8d689a95ae842015eb7fca74075c6b93f53b89e86abdec",
-    "zh-CN/b04-glwe.tex": "3f7fc76d4a86b8a4be0c9b11fcd6b3d9551f53c0361bab19fee13d10893916b4",
+    "zh-CN/b04-glwe.tex": "651a961bdd4904b69796c2a9318f103bb3b676243eeb2f96ed9ba04ca67be27b",
     "zh-CN/b05-glev.tex": "bd9b470aac2c3be0775d1e8680576210cda34dd11a7ab9b62ab1cb84fbe5756f",
     "zh-CN/b06-ggsw.tex": "320cb648de68a7e9e5d9fbfce0d07b215d9f442c19815d135e8f7db599a0309d",
     "zh-CN/c01-glwe-add-cipher.tex": "b2afd7038f05d81405c5190e7dd8192d07488b7eac1565aa04168ce0affa7422",
     "zh-CN/c02-glwe-add-plain.tex": "c63795f810f6d299424c2afbaa05b327cd3629f9f371a2812b0adf75a51feb8b",
     "zh-CN/c03-glwe-mult-plain.tex": "32ae550da14aa6374ee654cefba7c1725cf6562f1b8c80ca4f11498fb5ed9cc5",
     "zh-CN/c04-glwe-modulus-switch.tex": "63440114854e4830f467e8a6b4f51142065161724e57957367d587cfbd1fdf76",
-    "zh-CN/c05-glwe-key-switching.tex": "cc752e861bdcb9c7aa11a15a732a4dfcf2b8bb18185d061db4c3b3210a9d092d",
-    "zh-CN/d01-tfhe.tex": "216e805a28d756e083bccf2780bebce6014df584bb05f2cd72a3f83723aba093",
-    "zh-CN/d02-bfv.tex": "abeed5a05e3b788a6b0abde9a251735f1bcd5ea32f9971bc1405b21fe8e48656",
-    "zh-CN/d03-ckks.tex": "4b192d5c417b529e3cb95a9c2ba8408c9f2dd90db5eb041468b866610d5a9e03",
+    "zh-CN/c05-glwe-key-switching.tex": "85aefebbdb72121888702555ab6468b04dbb76d9fb4f66384d712fcb10ad06cc",
+    "zh-CN/d01-tfhe.tex": "210e033f293c68a5514910904a3b0b29f81a690c6282b881ec1739ab8d83ac5c",
+    "zh-CN/d02-bfv.tex": "66e03821841a5238d04c2d208786ae6fbdae3896efde60a25934cd317095e4c6",
+    "zh-CN/d03-ckks.tex": "109bb7d39650103779b2d908b3a292ee407bd4e1e854d7597a413c9205caecf9",
     "zh-CN/d04-bgv.tex": "518caab620d53f4dad8e9d78784884d491dc90df9ff1525e5968fc53db5dfd2a",
     "zh-CN/d05-rns.tex": "efe9278664b6f5077d6775cb05a466815cea31e0a3f8ee0fe3e255d3589ec8a2",
-    "zh-CN/d06-scheme-summary.tex": "36bccf9cbdfa87af37e40d79b0c0aa0aba4194250ef559168f80a7679c9dbaa2",
+    "zh-CN/d06-scheme-summary.tex": "9c7b11d998a79249e6758b5621b7756913bd039a25c77dc5b35621cb348e38b2",
     "zh-CN/d07-python-demo-library.tex": "2bf46f33091deb331cfa69905e7273a590a7f0e965e29c8aad0dc5f1f44a9106"
   },
-  "source_hash_policy": "Final integrated files except this validation manifest itself. Git commit records the complete manifest; baseline hashes and per-unit original locations remain in their ledgers.",
-  "limitations": [
-    "Finite algebraic and implementation checks are not formal proofs.",
-    "Security parameters, full bootstrap error budgets, and real bootstrap implementations remain subject to the boundaries in ACADEMIC_REVIEW.md.",
-    "Some original figure labels remain English."
-  ]
+  "manifest_updated_utc": "2026-11-09",
+  "packaging_update": {
+    "date_utc": "2026-11-09",
+    "scope": "Lossless BFV result sharding and audit-report regeneration; this is not a rerun of the full mathematical verification.",
+    "mathematical_test_suite_rerun": false,
+    "book_pdfs_rebuilt": false,
+    "audit_report_rebuilt": true,
+    "retained_prior_validation": [
+      "checks",
+      "translation",
+      "pdfs.en",
+      "pdfs.zh"
+    ],
+    "previous_report_pdf": {
+      "path": "build/audit/fhe-textbook-academic-review.pdf",
+      "pages": 125,
+      "sha256": "09359a9ea99ba990374d62fbb07f7287fb178e0cb43f517d3c63360e432b51f6",
+      "overfull_hbox_warnings": 0,
+      "missing_glyph_warnings": 0,
+      "undefined_references_or_citations": 0,
+      "out_of_page_text_blocks": [],
+      "visually_sampled_physical_pages": [
+        1,
+        8,
+        18,
+        27,
+        34,
+        38,
+        40,
+        41
+      ]
+    },
+    "manifest_checks": [
+      "existing BFV shard hashes, counts and lossless canonical reconstruction",
+      "new audit-report file hash, byte count and page count",
+      "unchanged English/Chinese PDF hashes",
+      "python3 audit/check_coverage.py",
+      "165 source SHA-256 values",
+      "git diff --check and git diff --cached --check"
+    ],
+    "source_file_count": 165
+  }
 }

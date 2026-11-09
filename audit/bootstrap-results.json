@@ -1,0 +1,47 @@
+{
+  "status": "pass",
+  "scope": "public BFV evaluation with independent secret-key auditing afterward",
+  "security_claim": false,
+  "optimized_GV_implementation": false,
+  "format": "bfv-bootstrap-audit-index-v1",
+  "canonical_serialization": "UTF-8 json.dumps(ensure_ascii=False, indent=2) plus newline",
+  "canonical_bytes": 856268,
+  "canonical_sha256": "be942c8c0613afa6c78c6b4cd1c1b8a08e373bc3b273642463d6bf0e56e23dd4",
+  "configurations": 4,
+  "runs": 8,
+  "audited_ciphertext_nodes": 466,
+  "parts": [
+    {
+      "name": "split_phi4_p5",
+      "path": "bootstrap-results/split_phi4_p5.json",
+      "bytes": 40237,
+      "sha256": "1806c1413b02278d2f70862d4c80dd49e3901046a4427678cd3f83b49020a471",
+      "runs": 2,
+      "nodes": 46
+    },
+    {
+      "name": "extension_phi8_p3",
+      "path": "bootstrap-results/extension_phi8_p3.json",
+      "bytes": 169974,
+      "sha256": "330873259e87006c3073f6f7d5def7764b7a32a62c03fa5abe7a1c1ad3df6695",
+      "runs": 2,
+      "nodes": 140
+    },
+    {
+      "name": "extension_phi8_p3_r2",
+      "path": "bootstrap-results/extension_phi8_p3_r2.json",
+      "bytes": 207570,
+      "sha256": "3fee0abf31864181ccd950d61822fdf6b33c648fee01dab2b296d5c1db0a3f3b",
+      "runs": 2,
+      "nodes": 164
+    },
+    {
+      "name": "binary_coprime_phi3_p2",
+      "path": "bootstrap-results/binary_coprime_phi3_p2.json",
+      "bytes": 98554,
+      "sha256": "08e3e91293208c3175140de585d85802371df8f836a5857ce96c3ce06e9647ae",
+      "runs": 2,
+      "nodes": 116
+    }
+  ]
+}

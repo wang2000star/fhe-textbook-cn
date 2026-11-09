@@ -2,7 +2,7 @@
   "schema_version": 1,
   "review_date": "2026-11-08",
   "baseline_commit": "2a901038078fe054371e53089c86caaaa1112209",
-  "policy": "Review status comes from authored ledgers, never from heading extraction or test success. Partial/pending items retain their original status.",
+  "policy": "Review status comes from authored ledgers, never from heading extraction or test success. Changes to original partial/pending states require the explicit evidence and remaining scope recorded in followup-status.json.",
   "counts": {
     "chapter_files": 34,
     "baseline_headings": 288,
@@ -22,15 +22,15 @@
       "figure": 19
     },
     "statuses": {
-      "corrected": 247,
+      "corrected": 248,
       "checked_under_stated_conditions": 43,
       "corrected_with_pending_security": 11,
       "reviewed_correct": 11,
-      "conditions_added": 14,
-      "partially_verified": 6,
+      "conditions_added": 18,
       "reviewed_scope_external": 1,
       "validated_under_conditions": 12,
       "reviewed_no_material_issue": 6,
+      "partially_verified": 1,
       "reviewed_corrected_or_clarified": 25,
       "reviewed_corrected": 2,
       "reviewed_clarified": 1,
@@ -3262,8 +3262,38 @@
         "FND-022",
         "FND-035"
       ],
-      "review": "独立审查LWE/RLWE假设、归约边界和解码；具体参数安全性不标已证。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "独立审查LWE/RLWE假设、归约边界和解码；具体参数安全性不标已证。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-001-CPA",
+          "status": "conditional_reduction_complete",
+          "statement": "实际分布的多样本判定 LWE/RLWE/GLWE 推出经典接口自适应 CPA；猜测偏差 ε≤δ(T′,Q)。",
+          "conditions_or_remaining_obligation": "每次独立均匀掩码和新误差；秘密分布、误差、环/秩、样本资源明确；不额外公开未模拟的秘密相关材料。",
+          "evidence": "audit/security-followup.md, SEC-001"
+        },
+        {
+          "id": "SEC-002-NORMALFORM",
+          "status": "conditional_reduction_complete",
+          "statement": "给出均匀秘密到与误差同分布秘密的精确正规形转换及均匀分支证明。",
+          "conditions_or_remaining_obligation": "标量素数幂模数选可逆矩阵；环版本选单位且单位采样可行；输出秘密为χ而非任意小分布。",
+          "evidence": "audit/security-followup.md, SEC-002"
+        },
+        {
+          "id": "SEC-002-TERNARY-BRIDGE",
+          "status": "additional_explicit_assumption_required",
+          "statement": "若要从文献的均匀秘密/高斯秘密定理推出当前三元秘密族，尚需适配的分布与参数归约。",
+          "conditions_or_remaining_obligation": "正文已明确实际三元分布的判定假设；正规形本身不完成高斯误差到均匀三元秘密的转换。",
+          "evidence": "audit/security-followup.md, SEC-002, SEC-009.1"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "B01-HEADING-001",
@@ -3278,8 +3308,31 @@
         "FND-021",
         "FND-035"
       ],
-      "review": "重查LWE输入/噪声、无噪声可逆性、r^k非下界、样本数作用及搜索/判定归约前提。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "重查LWE输入/噪声、无噪声可逆性、r^k非下界、样本数作用及搜索/判定归约前提。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-002-NORMALFORM",
+          "status": "conditional_reduction_complete",
+          "statement": "给出均匀秘密到与误差同分布秘密的精确正规形转换及均匀分支证明。",
+          "conditions_or_remaining_obligation": "标量素数幂模数选可逆矩阵；环版本选单位且单位采样可行；输出秘密为χ而非任意小分布。",
+          "evidence": "audit/security-followup.md, SEC-002"
+        },
+        {
+          "id": "SEC-002-TERNARY-BRIDGE",
+          "status": "additional_explicit_assumption_required",
+          "statement": "若要从文献的均匀秘密/高斯秘密定理推出当前三元秘密族，尚需适配的分布与参数归约。",
+          "conditions_or_remaining_obligation": "正文已明确实际三元分布的判定假设；正规形本身不完成高斯误差到均匀三元秘密的转换。",
+          "evidence": "audit/security-followup.md, SEC-002, SEC-009.1"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "B01-HEADING-002",
@@ -3295,8 +3348,24 @@
         "FND-022",
         "FND-035"
       ],
-      "review": "核查判定LWE混合论证的条件性、相位/解码区别、t|q与最近整数/最终模t。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "核查判定LWE混合论证的条件性、相位/解码区别、t|q与最近整数/最终模t。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-001-CPA",
+          "status": "conditional_reduction_complete",
+          "statement": "实际分布的多样本判定 LWE/RLWE/GLWE 推出经典接口自适应 CPA；猜测偏差 ε≤δ(T′,Q)。",
+          "conditions_or_remaining_obligation": "每次独立均匀掩码和新误差；秘密分布、误差、环/秩、样本资源明确；不额外公开未模拟的秘密相关材料。",
+          "evidence": "audit/security-followup.md, SEC-001"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "B01-HEADING-003",
@@ -3312,8 +3381,38 @@
         "FND-022",
         "FND-035"
       ],
-      "review": "核查RLWE独立假设、环乘法与系数解码；不从LWE直接推任意RLWE安全。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "核查RLWE独立假设、环乘法与系数解码；不从LWE直接推任意RLWE安全。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-001-CPA",
+          "status": "conditional_reduction_complete",
+          "statement": "实际分布的多样本判定 LWE/RLWE/GLWE 推出经典接口自适应 CPA；猜测偏差 ε≤δ(T′,Q)。",
+          "conditions_or_remaining_obligation": "每次独立均匀掩码和新误差；秘密分布、误差、环/秩、样本资源明确；不额外公开未模拟的秘密相关材料。",
+          "evidence": "audit/security-followup.md, SEC-001"
+        },
+        {
+          "id": "SEC-002-NORMALFORM",
+          "status": "conditional_reduction_complete",
+          "statement": "给出均匀秘密到与误差同分布秘密的精确正规形转换及均匀分支证明。",
+          "conditions_or_remaining_obligation": "标量素数幂模数选可逆矩阵；环版本选单位且单位采样可行；输出秘密为χ而非任意小分布。",
+          "evidence": "audit/security-followup.md, SEC-002"
+        },
+        {
+          "id": "SEC-002-TERNARY-BRIDGE",
+          "status": "additional_explicit_assumption_required",
+          "statement": "若要从文献的均匀秘密/高斯秘密定理推出当前三元秘密族，尚需适配的分布与参数归约。",
+          "conditions_or_remaining_obligation": "正文已明确实际三元分布的判定假设；正规形本身不完成高斯误差到均匀三元秘密的转换。",
+          "evidence": "audit/security-followup.md, SEC-002, SEC-009.1"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "B02-CHAPTER",
@@ -3466,8 +3565,52 @@
         "FND-025",
         "FND-035"
       ],
-      "review": "核查GLWE、替代符号、种子压缩、公钥构造及其反例；安全参数族待证。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "核查GLWE、替代符号、种子压缩、公钥构造及其反例；安全参数族待证。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-001-CPA",
+          "status": "conditional_reduction_complete",
+          "statement": "实际分布的多样本判定 LWE/RLWE/GLWE 推出经典接口自适应 CPA；猜测偏差 ε≤δ(T′,Q)。",
+          "conditions_or_remaining_obligation": "每次独立均匀掩码和新误差；秘密分布、误差、环/秩、样本资源明确；不额外公开未模拟的秘密相关材料。",
+          "evidence": "audit/security-followup.md, SEC-001"
+        },
+        {
+          "id": "SEC-003-PKE",
+          "status": "conditional_reduction_complete",
+          "statement": "k=1 公钥结构完成两混合证明，ε≤δ_S(T′1,1)+δ_U(T′2,2)。",
+          "conditions_or_remaining_obligation": "两个实际秘密/误差分布的相应 RLWE 假设；单挑战普通 CPA；S与U独立。当前相同三元分布和相同误差可由同一两样本假设涵盖。",
+          "evidence": "audit/security-followup.md, SEC-003"
+        },
+        {
+          "id": "SEC-004-FIXED-XOF",
+          "status": "additional_explicit_assumption_required",
+          "statement": "固定公开展开函数须有 (d,〈G(d),S〉+E) 与 (d,V) 的联合 seeded-GLWE 论证。",
+          "conditions_or_remaining_obligation": "普通隐藏种子 PRG 定义不能证明 (d,G(d))≈(d,A)；反例检验A=G(d)。指定G、域分离、采样法、种子长度及资源界后仍需匹配假设/归约。",
+          "evidence": "audit/security-followup.md, SEC-004, SEC-009.2"
+        },
+        {
+          "id": "SEC-005-CLASSICAL-ROM",
+          "status": "conditional_reduction_complete",
+          "statement": "经典可编程随机预言机下的新鲜公开种子 CPA 完成模拟，ε≤δ+(QQ_H+Q(Q−1)/2)/2^h（坏事件界可截至1）。",
+          "conditions_or_remaining_obligation": "独立均匀h位种子；预言机输出为均匀环向量；只允许经典查询；实现采样偏差须另计。",
+          "evidence": "audit/security-followup.md, SEC-005"
+        },
+        {
+          "id": "SEC-008-FAILURE-BOUND",
+          "status": "conditional_reduction_complete",
+          "statement": "用明确尾函数给出公钥及KSK输入/评估密钥的系数联合失败界；保留截断残差。",
+          "conditions_or_remaining_obligation": "t|q、Δ=q/t；确定性传播后的总误差严格小于Δ/2；指定采样法；不假设输出误差仍独立或服从原高斯分布。",
+          "evidence": "audit/security-followup.md, SEC-008"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "B04-HEADING-001",
@@ -3497,8 +3640,38 @@
         "FND-025",
         "FND-035"
       ],
-      "review": "逐项核查公开掩码、独立种子展开和索引；不采用公开H(S)作为安全压缩依据。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "逐项核查公开掩码、独立种子展开和索引；不采用公开H(S)作为安全压缩依据。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-001-CPA",
+          "status": "conditional_reduction_complete",
+          "statement": "实际分布的多样本判定 LWE/RLWE/GLWE 推出经典接口自适应 CPA；猜测偏差 ε≤δ(T′,Q)。",
+          "conditions_or_remaining_obligation": "每次独立均匀掩码和新误差；秘密分布、误差、环/秩、样本资源明确；不额外公开未模拟的秘密相关材料。",
+          "evidence": "audit/security-followup.md, SEC-001"
+        },
+        {
+          "id": "SEC-004-FIXED-XOF",
+          "status": "additional_explicit_assumption_required",
+          "statement": "固定公开展开函数须有 (d,〈G(d),S〉+E) 与 (d,V) 的联合 seeded-GLWE 论证。",
+          "conditions_or_remaining_obligation": "普通隐藏种子 PRG 定义不能证明 (d,G(d))≈(d,A)；反例检验A=G(d)。指定G、域分离、采样法、种子长度及资源界后仍需匹配假设/归约。",
+          "evidence": "audit/security-followup.md, SEC-004, SEC-009.2"
+        },
+        {
+          "id": "SEC-005-CLASSICAL-ROM",
+          "status": "conditional_reduction_complete",
+          "statement": "经典可编程随机预言机下的新鲜公开种子 CPA 完成模拟，ε≤δ+(QQ_H+Q(Q−1)/2)/2^h（坏事件界可截至1）。",
+          "conditions_or_remaining_obligation": "独立均匀h位种子；预言机输出为均匀环向量；只允许经典查询；实现采样偏差须另计。",
+          "evidence": "audit/security-followup.md, SEC-005"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "B04-HEADING-003",
@@ -3528,8 +3701,31 @@
         "FND-025",
         "FND-035"
       ],
-      "review": "k与n的直观关系不能代替安全估计；维数、模数、噪声、秘密和样本联合决定假设。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "k与n的直观关系不能代替安全估计；维数、模数、噪声、秘密和样本联合决定假设。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-004-FIXED-XOF",
+          "status": "additional_explicit_assumption_required",
+          "statement": "固定公开展开函数须有 (d,〈G(d),S〉+E) 与 (d,V) 的联合 seeded-GLWE 论证。",
+          "conditions_or_remaining_obligation": "普通隐藏种子 PRG 定义不能证明 (d,G(d))≈(d,A)；反例检验A=G(d)。指定G、域分离、采样法、种子长度及资源界后仍需匹配假设/归约。",
+          "evidence": "audit/security-followup.md, SEC-004, SEC-009.2"
+        },
+        {
+          "id": "SEC-005-CLASSICAL-ROM",
+          "status": "conditional_reduction_complete",
+          "statement": "经典可编程随机预言机下的新鲜公开种子 CPA 完成模拟，ε≤δ+(QQ_H+Q(Q−1)/2)/2^h（坏事件界可截至1）。",
+          "conditions_or_remaining_obligation": "独立均匀h位种子；预言机输出为均匀环向量；只允许经典查询；实现采样偏差须另计。",
+          "evidence": "audit/security-followup.md, SEC-005"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "B04-HEADING-005",
@@ -3559,8 +3755,31 @@
         "FND-024",
         "FND-035"
       ],
-      "review": "反驳n1任意k下三候选U的通用公钥安全断言，限制为有适当假设的k1 RLWE结构。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "反驳n1任意k下三候选U的通用公钥安全断言，限制为有适当假设的k1 RLWE结构。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-003-PKE",
+          "status": "conditional_reduction_complete",
+          "statement": "k=1 公钥结构完成两混合证明，ε≤δ_S(T′1,1)+δ_U(T′2,2)。",
+          "conditions_or_remaining_obligation": "两个实际秘密/误差分布的相应 RLWE 假设；单挑战普通 CPA；S与U独立。当前相同三元分布和相同误差可由同一两样本假设涵盖。",
+          "evidence": "audit/security-followup.md, SEC-003"
+        },
+        {
+          "id": "SEC-008-FAILURE-BOUND",
+          "status": "conditional_reduction_complete",
+          "statement": "用明确尾函数给出公钥及KSK输入/评估密钥的系数联合失败界；保留截断残差。",
+          "conditions_or_remaining_obligation": "t|q、Δ=q/t；确定性传播后的总误差严格小于Δ/2；指定采样法；不假设输出误差仍独立或服从原高斯分布。",
+          "evidence": "audit/security-followup.md, SEC-008"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "B04-HEADING-007",
@@ -3575,8 +3794,31 @@
         "FND-024",
         "FND-035"
       ],
-      "review": "区分代数抵消正确性与保密性；量化U0概率1/3及枚举攻击，三元分布具体归约待证。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "区分代数抵消正确性与保密性；量化U0概率1/3及枚举攻击，三元分布具体归约待证。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-003-PKE",
+          "status": "conditional_reduction_complete",
+          "statement": "k=1 公钥结构完成两混合证明，ε≤δ_S(T′1,1)+δ_U(T′2,2)。",
+          "conditions_or_remaining_obligation": "两个实际秘密/误差分布的相应 RLWE 假设；单挑战普通 CPA；S与U独立。当前相同三元分布和相同误差可由同一两样本假设涵盖。",
+          "evidence": "audit/security-followup.md, SEC-003"
+        },
+        {
+          "id": "SEC-009-PUBLIC-KEY-KDM",
+          "status": "additional_explicit_assumption_required",
+          "statement": "公开算法加密未知秘密函数的KDM查询未由普通PKE CPA两混合证明覆盖。",
+          "conditions_or_remaining_obligation": "第一混合的模拟器不知道S；密钥持有者产生的raw对称辅助样本应使用SEC-006/007，而非混同采样算法。",
+          "evidence": "audit/security-followup.md, SEC-003, SEC-009.3–4"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "B05-CHAPTER",
@@ -3983,8 +4225,52 @@
         "FND-034",
         "FND-035"
       ],
-      "review": "无标题KSK算法/证明逐式核查，修复密文类型、误差内积和截断残差；安全假设待证。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "无标题KSK算法/证明逐式核查，修复密文类型、误差内积和截断残差；安全假设待证。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-006-RAW-AFFINE-KDM",
+          "status": "conditional_reduction_complete",
+          "statement": "同密钥实际环相位〈L,S〉+c的自适应KDM用mask shift精确模拟；猜测偏差ε≤δ，无额外循环假设。",
+          "conditions_or_remaining_obligation": "L,c公开且先于新掩码确定；独立均匀显式掩码；实际误差分布被联合假设覆盖；C05 raw g_jS_i直接满足。明文编码复合须重新核查。",
+          "evidence": "audit/security-followup.md, SEC-006"
+        },
+        {
+          "id": "SEC-007-INDEPENDENT-DAG",
+          "status": "conditional_reduction_complete",
+          "statement": "独立密钥固定DAG按目标密钥逆拓扑替换，联合猜测偏差≤Σ_vδ_v(T′v,Q_v)；公开求值作为后处理保持不可区分性。",
+          "conditions_or_remaining_obligation": "u→v表示在S_v下加密f_uv(S_u)；独立密钥，无腐化/解密查询，每次辅助加密新鲜；同密钥raw环仿射自环可另由SEC-006处理。",
+          "evidence": "audit/security-followup.md, SEC-007"
+        },
+        {
+          "id": "SEC-009-NONLINEAR-CYCLIC-KDM",
+          "status": "additional_explicit_assumption_required",
+          "statement": "非环仿射同密钥材料、一般多密钥循环和相关密钥分布仍需匹配KDM证明或明确假设。",
+          "conditions_or_remaining_obligation": "应具体列出完整关系图及函数；S²、一般S(X^j)、系数/位提取和非整除编码回绕不自动被raw环仿射定理涵盖。",
+          "evidence": "audit/security-followup.md, SEC-006, SEC-009.3–4"
+        },
+        {
+          "id": "SEC-004-FIXED-XOF",
+          "status": "additional_explicit_assumption_required",
+          "statement": "固定公开展开函数须有 (d,〈G(d),S〉+E) 与 (d,V) 的联合 seeded-GLWE 论证。",
+          "conditions_or_remaining_obligation": "普通隐藏种子 PRG 定义不能证明 (d,G(d))≈(d,A)；反例检验A=G(d)。指定G、域分离、采样法、种子长度及资源界后仍需匹配假设/归约。",
+          "evidence": "audit/security-followup.md, SEC-004, SEC-009.2"
+        },
+        {
+          "id": "SEC-008-FAILURE-BOUND",
+          "status": "conditional_reduction_complete",
+          "statement": "用明确尾函数给出公钥及KSK输入/评估密钥的系数联合失败界；保留截断残差。",
+          "conditions_or_remaining_obligation": "t|q、Δ=q/t；确定性传播后的总误差严格小于Δ/2；指定采样法；不假设输出误差仍独立或服从原高斯分布。",
+          "evidence": "audit/security-followup.md, SEC-008"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "C05-HEADING-001",
@@ -3999,8 +4285,45 @@
         "FND-034",
         "FND-035"
       ],
-      "review": "逐项推导KSK噪声内积和截断rho_i S_i；给knl(β−1)Bks界，解密和安全假设分开。",
-      "source_ledger": "foundations-coverage.json"
+      "review": "逐项推导KSK噪声内积和截断rho_i S_i；给knl(β−1)Bks界，解密和安全假设分开。；FND-035续审已逐项重读，证明/反例/一手全文定位见security-followup.md；已完成条件性归约、额外假设和实例未认证分别列在security_subclaims。",
+      "source_ledger": "foundations-coverage.json",
+      "security_subclaims": [
+        {
+          "id": "SEC-008-FAILURE-BOUND",
+          "status": "conditional_reduction_complete",
+          "statement": "用明确尾函数给出公钥及KSK输入/评估密钥的系数联合失败界；保留截断残差。",
+          "conditions_or_remaining_obligation": "t|q、Δ=q/t；确定性传播后的总误差严格小于Δ/2；指定采样法；不假设输出误差仍独立或服从原高斯分布。",
+          "evidence": "audit/security-followup.md, SEC-008"
+        },
+        {
+          "id": "SEC-006-RAW-AFFINE-KDM",
+          "status": "conditional_reduction_complete",
+          "statement": "同密钥实际环相位〈L,S〉+c的自适应KDM用mask shift精确模拟；猜测偏差ε≤δ，无额外循环假设。",
+          "conditions_or_remaining_obligation": "L,c公开且先于新掩码确定；独立均匀显式掩码；实际误差分布被联合假设覆盖；C05 raw g_jS_i直接满足。明文编码复合须重新核查。",
+          "evidence": "audit/security-followup.md, SEC-006"
+        },
+        {
+          "id": "SEC-007-INDEPENDENT-DAG",
+          "status": "conditional_reduction_complete",
+          "statement": "独立密钥固定DAG按目标密钥逆拓扑替换，联合猜测偏差≤Σ_vδ_v(T′v,Q_v)；公开求值作为后处理保持不可区分性。",
+          "conditions_or_remaining_obligation": "u→v表示在S_v下加密f_uv(S_u)；独立密钥，无腐化/解密查询，每次辅助加密新鲜；同密钥raw环仿射自环可另由SEC-006处理。",
+          "evidence": "audit/security-followup.md, SEC-007"
+        },
+        {
+          "id": "SEC-009-NONLINEAR-CYCLIC-KDM",
+          "status": "additional_explicit_assumption_required",
+          "statement": "非环仿射同密钥材料、一般多密钥循环和相关密钥分布仍需匹配KDM证明或明确假设。",
+          "conditions_or_remaining_obligation": "应具体列出完整关系图及函数；S²、一般S(X^j)、系数/位提取和非整除编码回绕不自动被raw环仿射定理涵盖。",
+          "evidence": "audit/security-followup.md, SEC-006, SEC-009.3–4"
+        },
+        {
+          "id": "SEC-009-CONCRETE-PARAMETERS",
+          "status": "concrete_parameters_uncertified",
+          "statement": "具体参数族的判定优势、实际攻击成本和解密失败率没有被本书或本次符号归约认证。",
+          "conditions_or_remaining_obligation": "待给n(λ),k(λ),q(λ),t(λ)、秘密/误差采样实现、样本/查询上限、密钥图与目标资源/失败概率；不把已完成归约重新标成未证明。",
+          "evidence": "audit/security-followup.md, SEC-009.1, SEC-009.5"
+        }
+      ]
     },
     {
       "record_id": "tfhe-bfv-001",
@@ -4824,13 +5147,42 @@
       "original_line": 909,
       "label": "subsubsec:bfv-mult-cipher-tfhe",
       "added_during_audit": false,
-      "status": "partially_verified",
+      "status": "conditions_added",
       "findings": [
         "TB-018",
         "TB-022"
       ],
-      "review": "核对加号相位的标量秘密张量积，并明确 TFHE mask 取负转换；仅给概念推广，完整参数与新求值钥仍需指定。",
-      "source_ledger": "tfhe-bfv-coverage.json"
+      "review": "后续 FU-07 固定 t|q、Δ=q/t，构造 k² 个秘密乘积求值密钥，证明整数相位进位界、两种顺序的完整误差及充分解码界；公开求值128个样本全部通过。保留与原TFHE外积/PBS的区别及一般BFV余数反例。",
+      "source_ledger": "tfhe-bfv-coverage.json",
+      "followup": {
+        "previous_status": "partially_verified",
+        "report": "audit/bootstrap-followup.md",
+        "subclaims": [
+          {
+            "id": "FU-07a",
+            "claim": "t|q 下 Q=qΔ 重线性化后缩放的完整相位与噪声界",
+            "status": "proved_conditionally"
+          },
+          {
+            "id": "FU-07b",
+            "claim": "整数张量 t/q 缩放后重线性化，匹配不同模数求值钥",
+            "status": "proved_conditionally"
+          },
+          {
+            "id": "FU-07c",
+            "claim": "两种顺序128个带非零误差的公开密文计算",
+            "status": "implemented_and_checked"
+          }
+        ],
+        "evidence": [
+          "audit/check_tfhe_bfv.py"
+        ],
+        "not_claimed": [
+          "未证明安全参数或性能优势",
+          "张量求值密钥不能替代TFHE的GGSW自举钥",
+          "t不整除q时不得套用简化误差式"
+        ]
+      }
     },
     {
       "record_id": "tfhe-bfv-054",
@@ -5021,7 +5373,7 @@
         "TB-032",
         "TB-033"
       ],
-      "review": "核对引用的 GV/HS 构造范围并阅读全文；明确后文只是有条件解密分解而非完整可用自举参数集。GV §2.3 要求 p 与分圆指标互素，本书二次幂环的这条 CRT 路线因此要求 p 奇数。",
+      "review": "再次精读GV全文§1至§8；后续完成一般互素CRT变换、完整条件性噪声递推和端到端公开求值。p须与分圆指标互素，本书二次幂环要求p奇数；安全估计和优化薄自举仍未完成。",
       "source_ledger": "tfhe-bfv-coverage.json"
     },
     {
@@ -5032,7 +5384,7 @@
       "original_line": 1982,
       "label": "subsubsec:bfv-bootstrapping-high-level",
       "added_during_audit": false,
-      "status": "partially_verified",
+      "status": "conditions_added",
       "findings": [
         "TB-025",
         "TB-026",
@@ -5040,8 +5392,37 @@
         "TB-028",
         "TB-033"
       ],
-      "review": "核对五阶段语义和原论文式9，修低模相位/高模封装/数字舍入；明确 p2 偏移仅是标量恒等式，完整流程受 CRT 互素条件限制；全程噪声和安全参数证明仍不由原书提供。",
-      "source_ledger": "tfhe-bfv-coverage.json"
+      "review": "后续 FU-01/02/03/06 给出自然误差坐标、低模入口界、同态解密初始误差和逐门归纳的端到端充分条件；旧E_low作为整数Z的一部分与新评估噪声严格区分。4参数8流程466节点检查。",
+      "source_ledger": "tfhe-bfv-coverage.json",
+      "followup": {
+        "previous_status": "partially_verified",
+        "report": "audit/bootstrap-followup.md",
+        "subclaims": [
+          {
+            "id": "FU-01",
+            "claim": "Q/T自然误差与floor(Q/T)整数误差的等价",
+            "status": "proved"
+          },
+          {
+            "id": "FU-03",
+            "claim": "低模分量舍入条件及高模同态解密初始预算",
+            "status": "proved_conditionally"
+          },
+          {
+            "id": "FU-06",
+            "claim": "组合所有阶段的端到端正确性归纳",
+            "status": "proved_conditionally"
+          }
+        ],
+        "evidence": [
+          "audit/check_bootstrap.py",
+          "audit/bootstrap-results.json"
+        ],
+        "not_claimed": [
+          "未给安全等级或无界分布的总失败概率",
+          "一般流程使用标准FV T/Q缩放而非不加条件的1/Δ变体"
+        ]
+      }
     },
     {
       "record_id": "tfhe-bfv-067",
@@ -5081,13 +5462,42 @@
       "original_line": 2115,
       "label": "subsubsec:bfv-bootstrapping-coefftoslot",
       "added_during_audit": false,
-      "status": "partially_verified",
+      "status": "conditions_added",
       "findings": [
         "TB-024",
         "TB-027"
       ],
-      "review": "完全分裂条件下正逆线性变换经代数确认；一般扩域路线也要求 gcd(p,2n)=1，故本书二次幂环下 p 必须奇数。p2 时有重因子，须另选与2互素的分圆指标或另证构造，不能仅换矩阵。",
-      "source_ledger": "tfhe-bfv-coverage.json"
+      "review": "后续 FU-04 证明 p∤分圆指标 时迹配对可逆，用对偶基显式编译任意基环线性映射为Σκ_aτ_a；构造d个标量槽位打包密文及逆映射。已实现完全分裂、二次扩域、p|d和r=2；明确提升Frobenius不是任意元p次幂。",
+      "source_ledger": "tfhe-bfv-coverage.json",
+      "followup": {
+        "previous_status": "partially_verified",
+        "report": "audit/bootstrap-followup.md",
+        "subclaims": [
+          {
+            "id": "FU-04a",
+            "claim": "一般互素分圆代数的迹对偶基存在及线性映射编译公式",
+            "status": "proved"
+          },
+          {
+            "id": "FU-04b",
+            "claim": "d个标量槽位密文的CRT正逆映射与相容约减",
+            "status": "proved"
+          },
+          {
+            "id": "FU-04c",
+            "claim": "Φ4/p5、Φ8/p3、Φ3/p2 的公开变换实现与全流程",
+            "status": "implemented_and_checked"
+          }
+        ],
+        "evidence": [
+          "audit/check_bootstrap.py",
+          "audit/bootstrap-results.json"
+        ],
+        "not_claimed": [
+          "本书二次幂环p2仍有重因子，不适用该互素CRT构造",
+          "未实现GV优化薄自举及超立方体/BSGS性能优化"
+        ]
+      }
     },
     {
       "record_id": "tfhe-bfv-070",
@@ -5182,7 +5592,7 @@
         "TB-029",
         "TB-031"
       ],
-      "review": "重做 Δj p w 与 Δj−1w 的差值，纠正指数括号、漂移因子和加明文/乘明文尺度区别。",
+      "review": "保留floor尺度漂移−δ_jw；后续FU-01证明在Q/T自然尺度坐标下精确除p不加误差，解码容差扩大，不能重复计漂移。",
       "source_ledger": "tfhe-bfv-coverage.json"
     },
     {
@@ -5208,7 +5618,7 @@
       "original_line": 2408,
       "label": "subsubsec:bfv-bootstrapping-summary",
       "added_during_audit": false,
-      "status": "partially_verified",
+      "status": "conditions_added",
       "findings": [
         "TB-025",
         "TB-026",
@@ -5220,8 +5630,43 @@
         "TB-032",
         "TB-033"
       ],
-      "review": "逐阶段同步修正总结；明确完整 CRT 流程需分圆指标与p互素，本书二次幂环要求 p 奇数。局部代数成立，但通用扩域变换、完整参数预算、总失败概率仍需另外证明。",
-      "source_ledger": "tfhe-bfv-coverage.json"
+      "review": "后续 FU-01至FU-06 完成自然误差账本、标准FV乘法保留QK交叉项、求值钥及线性变换范数、精确除法不增自然误差的证明；逐门充分条件推出最终恢复M。4组参数8次公开求值466节点，含r=2及非整除尺度，全部经独立事后审计。",
+      "source_ledger": "tfhe-bfv-coverage.json",
+      "followup": {
+        "previous_status": "partially_verified",
+        "report": "audit/bootstrap-followup.md",
+        "subclaims": [
+          {
+            "id": "FU-02",
+            "claim": "全部原语的可计算确定性误差递推",
+            "status": "proved"
+          },
+          {
+            "id": "FU-05",
+            "claim": "标量数字提升、CRT整除性、精确除法与任意r推广",
+            "status": "proved"
+          },
+          {
+            "id": "FU-06",
+            "claim": "入口界加全部节点界推出最终正确解码",
+            "status": "proved_conditionally"
+          },
+          {
+            "id": "FU-08",
+            "claim": "4参数8完整公开密文流程466节点，保留精确预算和结果",
+            "status": "implemented_and_checked"
+          }
+        ],
+        "evidence": [
+          "audit/check_bootstrap.py",
+          "audit/bootstrap-results.json"
+        ],
+        "not_claimed": [
+          "安全参数估计及KDM/循环安全性未证明",
+          "无界采样误差的尾界和全电路总失败概率未完成",
+          "未实现优化薄自举和生产参数配置"
+        ]
+      }
     },
     {
       "record_id": "tfhe-bfv-078",
@@ -5236,7 +5681,7 @@
         "TB-031",
         "TB-032"
       ],
-      "review": "总结尺度序列终点为 floor(q/p^r)，每次重新解释计漂移；乘明文不再统一额外缩放。",
+      "review": "总结尺度终点floor(q/p^r)与自然尺度q/p^r一致；每次重解释的floor误差坐标发生漂移，但自然误差不变；乘明文使用未缩放乘数。",
       "source_ledger": "tfhe-bfv-coverage.json"
     },
     {
@@ -5253,7 +5698,7 @@
         "TB-031",
         "TB-033"
       ],
-      "review": "解释同态解密把低模相位重新封装为高模加密，尺度重释有预算代价，不声称仅调尺度就自动正确。",
+      "review": "同态解密把低模相位作为整数消息重新加密，高模评估噪声另立账本；精确除法仅改变明文模数和误差坐标，完整正确性由后续FU-01至FU-06证明。",
       "source_ledger": "tfhe-bfv-coverage.json"
     },
     {
@@ -6038,7 +6483,7 @@
       "findings": [
         "CBR-016"
       ],
-      "review": "独立代数及原论文§1.1、Theorem3.2/Corollary4.2正文缓存确认纠错符号、尺度和剩余模数条件；未取得并逐段核查全文，保留完整定量保证边界。",
+      "review": "原论文索引正文及完整作者讲稿核对纠错方向和放大残差结构；新增教材条件定理独立证明：实际因子乘积P_k决定输入/输出尺度P_k Delta，范围余量a_j(rho+epsilon)<=B与首次输入累积重缩放界、适当模数容量及全部派生输入的base contract内部允许条件下，新增误差<=epsilon/P_k。逐路径抵消r与前次误差，不假设独立性。精确分数脚本给出相关/自适应误差正例、无余量与RNS名义因子反例。仍保留partially_verified，仅因Meta-BTS完整论文未取得，尚缺连续全文证明/参数核验，不能以独立条件定理冒充全稿已读。",
       "source_ledger": "ckks-bgv-rns-coverage.json"
     },
     {
@@ -6049,12 +6494,12 @@
       "original_line": 1936,
       "label": null,
       "added_during_audit": false,
-      "status": "partially_verified",
+      "status": "corrected",
       "findings": [
         "CBR-016",
         "CBR-017"
       ],
-      "review": "不接受无输入/参数条件的指数收敛或无限精度提高；保留纠错可改善新增误差的条件式说明，精度floor和完整论文参数仍待具体实例。",
+      "review": "补读arcsin作者全文后，独立证明联合定量误差模型：实邻域D_K,h且h<1/4，内层复邻域导数界L_s控制CoeffToSlot复扰动，外层实近似界加复圆盘导数L_a控制复合误差，最终线性变换/尺度全部计入。证明epsilon_cert=||L||*(epsilon_a+L_a*(L_s*E_C+epsilon_s+H_s)+H_a)/(2pi)+E_L；给出Taylor尾界与确定性复扰动检查。误差上界不等于普遍正下限；旧误差保留，概率界须控制实际自适应输入且无需独立性。教材所写条件命题已证明，具体生产参数实例化与论文SEAL实验复现仍明确未认证。",
       "source_ledger": "ckks-bgv-rns-coverage.json"
     },
     {
@@ -6844,7 +7289,7 @@
         "SUM-020",
         "SUM-021"
       ],
-      "review": "阅读全文及24个比较主题；逐行核对定义域、相位符号、实际尺度、误差、类型、复杂度和条件。已与各方案章节交叉核对。",
+      "review": "阅读全文及24个比较主题；逐行核对定义域、相位符号、实际尺度、误差、类型、复杂度和条件。已与各方案章节交叉核对。 续审再次核对D6引言，区分raw环仿射KDM与独立密钥DAG的已完成条件性归约，以及其余秘密函数/种子格式的范围；相关新证明与实验见FOLLOWUP_REVIEW.md。",
       "source_ledger": "summary-coverage.json"
     },
     {

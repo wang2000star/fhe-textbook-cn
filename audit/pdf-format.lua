@@ -5,6 +5,9 @@ local escaped = {
   ["$"] = "\\$", ["%"] = "\\%", ["#"] = "\\#", ["&"] = "\\&",
   ["_"] = "\\_", ["^"] = "\\textasciicircum{}", ["~"] = "\\textasciitilde{}",
   [" "] = "\\space{}", ["≫"] = "\\ensuremath{\\gg}",
+  ["ℓ"] = "\\ensuremath{\\ell}", ["∤"] = "\\ensuremath{\\nmid}",
+  ["𝓔"] = "\\ensuremath{\\mathcal{E}}", ["𝒯"] = "\\ensuremath{\\mathcal{T}}",
+  ["𝒰"] = "\\ensuremath{\\mathcal{U}}",
 }
 
 function Code(element)

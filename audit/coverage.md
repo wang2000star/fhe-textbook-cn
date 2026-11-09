@@ -2,7 +2,7 @@
 
 基线 `2a901038078fe054371e53089c86caaaa1112209`；34 个章节、288 个原始标题单元均有对应的实际审查记录。共 414 条覆盖记录还包括章节整体、定理框、24 个比较主题、代码、图形、前言和参考文献。计数有包含关系，不应当作互不重叠的文本单元。
 
-原始 TeX 标题、标签、逐项核查理由及分组来源见 `coverage.json`。本表为可读索引；标题去掉了排版宏。‘按条件核查’不表示完整安全证明；部分核验和安全待证事项保留原状态。新增标题明确标记，不计入 288 个原始标题。
+原始 TeX 标题、标签、逐项核查理由及分组来源见 `coverage.json`。本表为可读索引；标题去掉了排版宏。‘按条件核查’不表示具体参数已获安全认证；续审状态变化须有 followup-status.json 中的逐项证明与边界记录。FND-035 的已完成条件性归约和未认证参数分别保存在 security_subclaims 中。新增标题明确标记，不计入 288 个原始标题。
 
 ## a01-modulo.tex
 
@@ -210,10 +210,10 @@
 
 | 原位置 / 类型 | 审查单元 | 状态及关联条目 |
 |---|---|---|
-| 1 / chapter | Lattice-based Cryptography | 修正；安全条件待证；FND-021, FND-022, FND-035 |
-| 14 / subsection | Overview | 修正；安全条件待证；FND-021, FND-035 |
-| 91 / subsection | LWE Cryptosystem | 修正；安全条件待证；FND-021, FND-022, FND-035 |
-| 134 / subsection | RLWE Cryptosystem | 修正；安全条件待证；FND-021, FND-022, FND-035 |
+| 1 / chapter | Lattice-based Cryptography | 已修正；具体安全范围未认证；FND-021, FND-022, FND-035 |
+| 14 / subsection | Overview | 已修正；具体安全范围未认证；FND-021, FND-035 |
+| 91 / subsection | LWE Cryptosystem | 已修正；具体安全范围未认证；FND-021, FND-022, FND-035 |
+| 134 / subsection | RLWE Cryptosystem | 已修正；具体安全范围未认证；FND-021, FND-022, FND-035 |
 
 ## b02-lwe.tex
 
@@ -238,14 +238,14 @@
 
 | 原位置 / 类型 | 审查单元 | 状态及关联条目 |
 |---|---|---|
-| 1 / chapter | GLWE Cryptosystem | 修正；安全条件待证；FND-022, FND-024, FND-025, FND-035 |
+| 1 / chapter | GLWE Cryptosystem | 已修正；具体安全范围未认证；FND-022, FND-024, FND-025, FND-035 |
 | 6 / subsection | Setup | 已修正；FND-022 |
-| 12 / subsection | Encryption | 修正；安全条件待证；FND-025, FND-035 |
+| 12 / subsection | Encryption | 已修正；具体安全范围未认证；FND-025, FND-035 |
 | 57 / subsection | Decryption | 已修正；FND-022 |
-| 88 / subsubsection | Discussion | 修正；安全条件待证；FND-025, FND-035 |
+| 88 / subsubsection | Discussion | 已修正；具体安全范围未认证；FND-025, FND-035 |
 | 99 / subsection | An Alternative Version of GLWE | 已修正；FND-022 |
-| 149 / subsection | Public Key Encryption | 修正；安全条件待证；FND-024, FND-035 |
-| 228 / para | Security: | 修正；安全条件待证；FND-024, FND-035 |
+| 149 / subsection | Public Key Encryption | 已修正；具体安全范围未认证；FND-024, FND-035 |
+| 228 / para | Security: | 已修正；具体安全范围未认证；FND-024, FND-035 |
 
 ## b05-glev.tex
 
@@ -307,8 +307,8 @@
 
 | 原位置 / 类型 | 审查单元 | 状态及关联条目 |
 |---|---|---|
-| 1 / chapter | GLWE Key Switching | 修正；安全条件待证；FND-034, FND-035 |
-| 本轮新增 / para | Noise and Truncation: | 修正；安全条件待证；FND-034, FND-035 |
+| 1 / chapter | GLWE Key Switching | 已修正；具体安全范围未认证；FND-034, FND-035 |
+| 本轮新增 / para | Noise and Truncation: | 已修正；具体安全范围未认证；FND-034, FND-035 |
 
 ## d01-tfhe.tex
 
@@ -371,7 +371,7 @@
 | 812 / subsubsection | Summary | 已修正；TB-017, TB-018, TB-020, TB-021 |
 | 901 / para | The Purpose of ModRaise: | 已修正；TB-017, TB-018 |
 | 905 / para | Swapping the Order of Relinearization and Rescaling: | 已补必要条件；TB-021 |
-| 909 / subsubsection | Application to TFHE's Ciphertext-to-Ciphertext Multiplication | 部分核验；保留边界；TB-018, TB-022 |
+| 909 / subsubsection | Application to TFHE's Ciphertext-to-Ciphertext Multiplication | 已补必要条件；TB-018, TB-022 |
 | 1027 / subsection | Homomorphic Key Switching | 已补必要条件；TB-020, TB-022 |
 | 1039 / subsection | Homomorphic Rotation of Input Vector Slots | 已补必要条件；TB-013, TB-023 |
 | 1055 / subsubsection | Rotating Input Vector Slots by Updating the Plaintext Polynomial | 已修正；TB-014, TB-023 |
@@ -384,10 +384,10 @@
 | 1904 / para | Source Code: | 代码审校另列 |
 | 1908 / subsection | Application: Matrix Multiplication | 已修正；TB-024 |
 | 1956 / subsection | Noise Bootstrapping | 已补必要条件；TB-025, TB-026, TB-027, TB-028, TB-029, TB-030, TB-031, TB-032, TB-033 |
-| 1982 / subsubsection | High-level Idea | 部分核验；保留边界；TB-025, TB-026, TB-027, TB-028, TB-033 |
+| 1982 / subsubsection | High-level Idea | 已补必要条件；TB-025, TB-026, TB-027, TB-028, TB-033 |
 | 2063 / subsubsection | Modulus Switch | 已修正；TB-025 |
 | 2068 / subsubsection | Homomorphic Decryption | 已修正；TB-026 |
-| 2115 / subsubsection | CoeffToSlot and SlotToCoeff | 部分核验；保留边界；TB-024, TB-027 |
+| 2115 / subsubsection | CoeffToSlot and SlotToCoeff | 已补必要条件；TB-024, TB-027 |
 | 2161 / subsubsection | Digit Extraction | 已修正；TB-027, TB-028, TB-029, TB-030, TB-032 |
 | 2193 / para | 1st Recursion: | 已核查原内容；TB-030 |
 | 2199 / para | 2nd Recursion: | 已修正；TB-030 |
@@ -395,7 +395,7 @@
 | 2211 / para | (varepsilon-1)-th Recursion: | 已核查原内容；TB-030, TB-032 |
 | 2240 / para | Scaling Factor Re-interpretation: | 已修正；TB-029, TB-031 |
 | 2280 / para | Designing boldmathF_varepsilon'(z_i): | 已修正；TB-030 |
-| 2408 / subsubsection | Summary | 部分核验；保留边界；TB-025, TB-026, TB-027, TB-028, TB-029, TB-030, TB-031, TB-032, TB-033 |
+| 2408 / subsubsection | Summary | 已补必要条件；TB-025, TB-026, TB-027, TB-028, TB-029, TB-030, TB-031, TB-032, TB-033 |
 | 2470 / para | Scaling Factor Re-interpretation: | 已修正；TB-031, TB-032 |
 | 2486 / para | The purpose of Homomorphic Decryption: | 已补必要条件；TB-026, TB-031, TB-033 |
 
@@ -454,7 +454,7 @@
 | 1894 / subsubsection | Reducing the Bootstrapping Noise | 条件下核验；CBR-013, CBR-017 |
 | 1921 / para | arcsin(sin(x)) Approximation (EUROCRYPT 2021~): | 已修正；CBR-017 |
 | 1925 / para | Meta-BTS (CCS 2022~): | 部分核验；保留边界；CBR-016 |
-| 1936 / para | Limitation in Noise Handling: | 部分核验；保留边界；CBR-016, CBR-017 |
+| 1936 / para | Limitation in Noise Handling: | 已修正；CBR-016, CBR-017 |
 
 ## d04-bgv.tex
 

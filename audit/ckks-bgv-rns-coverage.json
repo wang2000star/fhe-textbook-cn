@@ -51,7 +51,12 @@
     },
     "META": {
       "url": "https://eprint.iacr.org/2022/1167",
-      "access": "primary-paper cached body: sections 1.1, 3.2 Theorem 3.2, 4.1 Corollary 4.2; full PDF not obtained; complete quantitative guarantee not verified"
+      "access": "primary-paper indexed body read: sections 1.1, definitions 2.1/2.2, section 3.2.1 Algorithm 1 and adjacent input-range explanation, Theorems 3.1/3.2, section 4.1 Corollary 4.2; full paper PDF still unavailable; continuous full-paper proof/parameter audit not claimed",
+      "author_slides": "https://wony0404.github.io/files/META-BTS_Wonhee_Cho_CCS.pptx",
+      "author_slides_index": "https://wony0404.github.io/talks/",
+      "author_slides_sha256": "f66665442130d3b30a6fe9b250d1244dfd5b12eebcfb74927f98f643164d5325",
+      "author_slides_access": "complete 15-slide author deck downloaded; all slide text and formula objects read; not a substitute for full paper proofs",
+      "followup_proof": "audit/ckks-followup.md"
     },
     "ARCSIN": {
       "url": "https://eprint.iacr.org/2020/552",
@@ -64,7 +69,7 @@
   "limitations": [
     "No cryptographic security certification or parameter-specific failure-probability proof.",
     "No full bootstrap implementation or formal proof of every intermediate circuit.",
-    "Arcsin author full text and parameter-dependent cost checked; experiments not rerun. Meta-BTS full-paper quantitative guarantee remains partially verified.",
+    "Arcsin author full text, domain and parameter-dependent cost checked; original SEAL experiments not rerun. Meta-BTS full manuscript remains unavailable. The newly stated conditional recurrence and joint complex-perturbation error model are independently proved; concrete production parameters and security/failure probabilities are not certified.",
     "Linked educational Python implementations and figure labels are owned by the root audit, not silently certified here."
   ],
   "validation": {
@@ -72,15 +77,24 @@
     "groups": 12,
     "checked_cases": 16368,
     "status": "pass",
-    "translation_check": "python scripts/check_translation.py --math passed; complete build recorded by root audit"
+    "translation_check": "python scripts/check_translation.py --math passed; complete build recorded by root audit",
+    "followup": {
+      "script": "audit/check_meta_bts.py",
+      "groups": 8,
+      "checked_cases": 13970,
+      "status": "pass",
+      "exact_rational_groups": 6,
+      "floating_sanity_groups": 2,
+      "scope": "Conditional algebraic identities, failure counterexamples, complex polynomial derivative/tail bounds and explicitly artificial bounded-error examples; no production parameter certification."
+    }
   },
   "files": [
     {
       "file": "d03-ckks.tex",
       "baseline_sha256": "f030a044332c61bb31d3eba4513021fc78765c2d1d78aa5ebb95f4b1e07a8be4",
-      "revised_sha256": "8092bbad822c805dcdfeba96e0d1906618f69916fdba8d3614542ad92763a319",
+      "revised_sha256": "f48049b5465f798749dd55e73ff2c3edb9b5e10f352bb97b35c4ae157d5b61ec",
       "chinese_file": "zh-CN/d03-ckks.tex",
-      "chinese_revised_sha256": "4b192d5c417b529e3cb95a9c2ba8408c9f2dd90db5eb041468b866610d5a9e03",
+      "chinese_revised_sha256": "109bb7d39650103779b2d908b3a292ee407bd4e1e854d7597a413c9205caecf9",
       "heading_units": 51,
       "introduction_units": 1
     },
@@ -1075,10 +1089,19 @@
       "findings": [
         "CBR-016"
       ],
-      "reasoning": "独立代数及原论文§1.1、Theorem3.2/Corollary4.2正文缓存确认纠错符号、尺度和剩余模数条件；未取得并逐段核查全文，保留完整定量保证边界。",
+      "reasoning": "原论文索引正文及完整作者讲稿核对纠错方向和放大残差结构；新增教材条件定理独立证明：实际因子乘积P_k决定输入/输出尺度P_k Delta，范围余量a_j(rho+epsilon)<=B与首次输入累积重缩放界、适当模数容量及全部派生输入的base contract内部允许条件下，新增误差<=epsilon/P_k。逐路径抵消r与前次误差，不假设独立性。精确分数脚本给出相关/自适应误差正例、无余量与RNS名义因子反例。仍保留partially_verified，仅因Meta-BTS完整论文未取得，尚缺连续全文证明/参数核验，不能以独立条件定理冒充全稿已读。",
       "primary_sources": [
-        "https://eprint.iacr.org/2022/1167"
-      ]
+        "https://eprint.iacr.org/2022/1167",
+        "https://wony0404.github.io/talks/",
+        "https://wony0404.github.io/files/META-BTS_Wonhee_Cho_CCS.pptx"
+      ],
+      "verification_dimensions": {
+        "textbook_conditional_theorem": "proved_under_explicit_conditions",
+        "source_complete_manuscript": "not_obtained_partially_verified",
+        "concrete_production_parameters": "not_certified"
+      },
+      "followup_report": "audit/ckks-followup.md",
+      "followup_script": "audit/check_meta_bts.py"
     },
     {
       "file": "d03-ckks.tex",
@@ -1089,16 +1112,24 @@
       "line_start": 1936,
       "unit_id": "d03-ckks-051",
       "line_end": 1939,
-      "status": "partially_verified",
+      "status": "corrected",
       "findings": [
         "CBR-016",
         "CBR-017"
       ],
-      "reasoning": "不接受无输入/参数条件的指数收敛或无限精度提高；保留纠错可改善新增误差的条件式说明，精度floor和完整论文参数仍待具体实例。",
+      "reasoning": "补读arcsin作者全文后，独立证明联合定量误差模型：实邻域D_K,h且h<1/4，内层复邻域导数界L_s控制CoeffToSlot复扰动，外层实近似界加复圆盘导数L_a控制复合误差，最终线性变换/尺度全部计入。证明epsilon_cert=||L||*(epsilon_a+L_a*(L_s*E_C+epsilon_s+H_s)+H_a)/(2pi)+E_L；给出Taylor尾界与确定性复扰动检查。误差上界不等于普遍正下限；旧误差保留，概率界须控制实际自适应输入且无需独立性。教材所写条件命题已证明，具体生产参数实例化与论文SEAL实验复现仍明确未认证。",
       "primary_sources": [
         "https://eprint.iacr.org/2020/552",
-        "https://eprint.iacr.org/2022/1167"
-      ]
+        "https://eprint.iacr.org/2022/1167",
+        "https://drive.google.com/file/d/1Leyad-pmhT69ugUpdA3K04aetgoocIV5/view"
+      ],
+      "verification_dimensions": {
+        "textbook_joint_error_budget": "proved_under_explicit_conditions",
+        "arcsin_relevant_full_text": "read_and_checked",
+        "concrete_production_parameters": "not_certified"
+      },
+      "followup_report": "audit/ckks-followup.md",
+      "followup_script": "audit/check_meta_bts.py"
     },
     {
       "file": "d04-bgv.tex",

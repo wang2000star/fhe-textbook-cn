@@ -11,7 +11,9 @@ from urllib.parse import quote
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
-PARTS = ["ACADEMIC_REVIEW.md", "foundations-review.md", "tfhe-bfv-review.md",
+PARTS = ["ACADEMIC_REVIEW.md", "FOLLOWUP_REVIEW.md", "security-followup.md",
+         "bootstrap-followup.md", "ckks-followup.md", "openfhe-review.md",
+         "foundations-review.md", "tfhe-bfv-review.md",
          "ckks-bgv-rns-review.md", "summary-review.md", "python-review.md",
          "findings-index.md", "coverage.md"]
 
@@ -33,7 +35,7 @@ def main():
         else:
             content = "\\clearpage\n\n" + content
         # File links remain useful outside the checked-out repository.
-        content = re.sub(r"\]\(([^():]+\.(?:md|json|py)(?:#[^)]*)?)\)",
+        content = re.sub(r"\]\(([^():]+\.(?:md|json|py|cpp|txt)(?:#[^)]*)?)\)",
                          lambda m: "](https://github.com/wang2000star/fhe-textbook-cn/blob/chinese-edition/audit/" + quote(m[1], safe="/#") + ")", content)
         parts.append(content)
     markdown = destination / "complete-review.md"

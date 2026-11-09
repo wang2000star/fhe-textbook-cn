@@ -90,6 +90,13 @@ For the algebraic RLWE form, use $B=AS+E$ in $\mathbb Z_q[X]/(X^n+1)$, with poly
 
 
 
+\noindent\textbf{Small-secret scope:} A normal-form reduction can replace a uniform LWE secret by a secret drawn from the \emph{error distribution}. For a prime-power modulus, choose an invertible mask matrix $A_0$ using only its masks, with $\vec b_0=A_0\vec s+\vec e_0$. For a fresh row sample $(\vec a,b)$ set
+\[
+\vec a'=-\vec aA_0^{-1},\qquad b'=b-\vec aA_0^{-1}\vec b_0
+=\vec a'\vec e_0+e.
+\]
+The new mask is uniform and the new secret has distribution $\chi^k$; uniform input pairs also map to uniform pairs. The preprocessing data are internal to this reduction. In the ring version the same identity requires an invertible initial ring mask. See \href{https://web.cs.ucla.edu/~sahai/work/web/2009\%20Publications/ACPS09.pdf}{Applebaum--Cash--Peikert--Sahai, Section 3.1, Lemma 2}. This argument does not turn Gaussian errors into a uniformly ternary secret. The later ternary-secret constructions therefore use a decisional assumption for their actual distribution, unless a separate distribution-matching reduction is supplied. Neither a dimension count nor the adjective ``small'' supplies that reduction.
+
 \subsection{LWE Cryptosystem}
 \label{subsec:lattice-scheme}
 
@@ -125,7 +132,13 @@ $ $
 
 $ $
 
-\noindent \textbf{Security: } Semantic security is justified by the decisional-LWE assumption for the actual secret and error distributions, not merely by difficulty of recovering the secret. In a standard hybrid argument, replace fresh LWE pairs $(\vec a,\langle\vec a,\vec s\rangle+e)$ by uniform pairs. Adding a fixed message offset $\Delta m$ preserves uniformity, so the resulting ciphertext distribution hides the message. The argument covers a polynomial number of encryptions with fresh masks and errors, including repeated or chosen plaintexts. It does not assert unconditional hardness or that adding more samples increases attack cost.
+\noindent \textbf{Security: } Fix the actual secret distribution, error distribution, modulus, dimension, and sample bound $Q$. Let $\delta(T,Q)$ be the maximum difference in a time-$T$ distinguisher's acceptance probabilities between a real LWE sample oracle and an independent uniform-pair oracle. The same secret is reused, while every query has a fresh independent uniform mask and fresh error. This is a decisional assumption, not merely a claim that key recovery is difficult.
+
+In the adaptive left/right encryption game, a hidden bit $\vartheta$ selects one of each submitted pair $(m_0,m_1)$. Define the guessing bias $\epsilon=|\Pr[\widehat\vartheta=\vartheta]-1/2|$. A reduction chooses $\vartheta$ itself, takes $(\vec a,z)$ from its sample oracle for each query, and returns $(\vec a,z+\Delta m_\vartheta)$. With real samples this is exactly encryption. With uniform samples, the fresh $z$ remains uniform after any message offset, even conditional on the entire preceding transcript. Induction therefore makes the complete view independent of $\vartheta$. Outputting whether the adversary guessed correctly gives
+\[
+\epsilon\le\delta(T',Q),
+\]
+where $T'$ includes the simulation overhead. No extra factor $Q$ is needed because the assumed advantage already permits $Q$ samples. If IND advantage is instead defined as the output-probability difference between the two message experiments, the corresponding bound is $2\delta(T',Q)$. This covers repeated and adaptively chosen plaintexts through a classical encryption interface, without additional secret-dependent public material. For quantum attackers the underlying decisional assumption must cover quantum distinguishers; this statement does not grant superposition encryption queries.
 
 Decryption subtracts the secret-dependent term, rounds to remove a sufficiently small error, divides by $\Delta$, and reduces modulo $t$. The noise bound and the security assumption are distinct requirements: small enough for correct decoding does not by itself mean large enough for security.
 
@@ -151,3 +164,5 @@ In the RLWE cryptosystem, the formula in \tboxlabel{\ref*{subsec:lattice-scheme}
 
 
 \end{tcolorbox}
+
+The security reduction just given applies to ring pairs under the corresponding decisional RLWE assumption, and to $k$ ring masks under the actual GLWE assumption. Expanding a ring product into coefficient equations gives a structured negacyclic matrix, not independent uniform LWE rows. Thus the proof template transfers, but a scalar LWE hardness theorem does not automatically certify a ring or module parameter family.

@@ -1,0 +1,1244 @@
+{
+  "schema_version": 1,
+  "completed_at_utc": "2026-11-08T15:39:15.619831+00:00",
+  "upstream_repository": "https://github.com/openfheorg/openfhe-development",
+  "upstream_tag": "v1.6.1",
+  "upstream_commit": "b59e1f291965f14fbee5172cd83a20f5b856204f",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+  "omp_threads": 3,
+  "cmake_version": "cmake version 4.4.4",
+  "requested_trials": 3,
+  "completed_trials": 3,
+  "source_sha256": {
+    "openfhe_meta_bts.cpp": "4e2f763330a17a3991a07de17e9b13d4ef491bf00eb26bf92fb7d56e5e638a27",
+    "openfhe-CMakeLists.txt": "4f6d825dcc08cc4804e00f6d6ae1f726aed569ba47233c681a601c2cad5810c9",
+    "run_openfhe_meta_bts.py": "24a19ba734e03a707b526be65cc251828bbb7f3345686d93370cab1ddfd34e65"
+  },
+  "upstream_evaluator_sha256": "79f05cf473ecb3d93bb4775b70a69b2991026a9426f7e586070d5e193237aab7",
+  "randomness": "Fixed measurement inputs; fresh default library key/encryption randomness per process. Not bitwise deterministic.",
+  "scope": "Real encrypted evaluation via public bootstrap keys. HEStd_NotSet and N=4096 are an experimental configuration, not a security certification.",
+  "calibration": "A separate known calibration ciphertext chooses the precision argument with a five-bit empirical buffer; this is not a worst-case parameter proof.",
+  "represented_perturbation": "One case encrypts m+2^-10 as a model of pre-existing represented error. It does not claim to sample a particular encryption-noise distribution.",
+  "commands": [
+    [
+      "/workspace/scratch/c7bb79388431/openfhe-cmake/cmake/data/bin/cmake",
+      "--install",
+      "/workspace/scratch/c7bb79388431/openfhe-v1.6.1/build",
+      "--prefix",
+      "/workspace/scratch/c7bb79388431/fhe-textbook-cn/build/openfhe-review/install"
+    ],
+    [
+      "/workspace/scratch/c7bb79388431/openfhe-cmake/cmake/data/bin/cmake",
+      "-S",
+      "/workspace/scratch/c7bb79388431/fhe-textbook-cn/build/openfhe-review/driver-source",
+      "-B",
+      "/workspace/scratch/c7bb79388431/fhe-textbook-cn/build/openfhe-review/driver-build",
+      "-DCMAKE_BUILD_TYPE=Release",
+      "-DCMAKE_PREFIX_PATH=/workspace/scratch/c7bb79388431/fhe-textbook-cn/build/openfhe-review/install"
+    ],
+    [
+      "/workspace/scratch/c7bb79388431/openfhe-cmake/cmake/data/bin/cmake",
+      "--build",
+      "/workspace/scratch/c7bb79388431/fhe-textbook-cn/build/openfhe-review/driver-build",
+      "--parallel",
+      "3"
+    ]
+  ],
+  "trials": [
+    {
+      "trial": 1,
+      "returncode": 0,
+      "records": [
+        {
+          "type": "parameters",
+          "ring_dimension": 4096,
+          "slots": 8,
+          "security_level": "HEStd_NotSet",
+          "native_bits": 64,
+          "secret_distribution": "UNIFORM_TERNARY",
+          "scaling": "FLEXIBLEAUTO",
+          "scaling_modulus_bits": 59,
+          "first_modulus_bits": 60,
+          "level_budget": [
+            3,
+            3
+          ],
+          "depth": 31,
+          "calibration_max_error": 4.993125812813304e-08,
+          "precision_argument": 19
+        },
+        {
+          "type": "case",
+          "case_index": 0,
+          "represented_perturbation": 0,
+          "input_encoding_encryption_max_error": 2.6645352591003757e-15,
+          "input_error_to_unperturbed_target": 2.6645352591003757e-15,
+          "one_iteration_max_added_error": 8.510944160544653e-08,
+          "two_iterations_max_added_error": 1.6653345369377348e-13,
+          "one_iteration_mean_added_error": 3.5399305063632536e-08,
+          "two_iterations_mean_added_error": 7.985972994006829e-14,
+          "two_iterations_error_to_unperturbed_target": 1.6697754290362354e-13,
+          "one_iteration_max_error_bits": 23.48610557311262,
+          "two_iterations_max_error_bits": 42.44925321461675,
+          "input_towers": 2,
+          "output_towers": 12,
+          "input_scale": 5.764607522979676e+17,
+          "output_scale": 3.3230699894379223e+35,
+          "levels_remaining": 10,
+          "one_iteration_seconds": 1.542244003,
+          "two_iterations_seconds": 2.667536981,
+          "input_decoded": [
+            [
+              -0.8749999999999973,
+              0
+            ],
+            [
+              -0.5000000000000004,
+              0
+            ],
+            [
+              -0.12499999999999861,
+              0
+            ],
+            [
+              -1.5543122344752192e-15,
+              0
+            ],
+            [
+              0.12500000000000028,
+              0
+            ],
+            [
+              0.37499999999999883,
+              0
+            ],
+            [
+              0.75,
+              0
+            ],
+            [
+              0.9375000000000019,
+              0
+            ]
+          ],
+          "output_one_decoded": [
+            [
+              -0.8749999148905557,
+              0
+            ],
+            [
+              -0.5000000039224276,
+              0
+            ],
+            [
+              -0.12500002477993577,
+              0
+            ],
+            [
+              -3.3343765748483634e-08,
+              0
+            ],
+            [
+              0.12499997647477123,
+              0
+            ],
+            [
+              0.37499997296574794,
+              0
+            ],
+            [
+              0.7499999225135355,
+              0
+            ],
+            [
+              0.9374999920070759,
+              0
+            ]
+          ],
+          "output_two_decoded": [
+            [
+              -0.8750000000001188,
+              0
+            ],
+            [
+              -0.500000000000167,
+              0
+            ],
+            [
+              -0.1250000000000493,
+              0
+            ],
+            [
+              8.421041641781812e-14,
+              0
+            ],
+            [
+              0.12499999999995226,
+              0
+            ],
+            [
+              0.37499999999999795,
+              0
+            ],
+            [
+              0.7499999999999294,
+              0
+            ],
+            [
+              0.937499999999907,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "case",
+          "case_index": 1,
+          "represented_perturbation": 0.0009765625,
+          "input_encoding_encryption_max_error": 1.9984014443252818e-15,
+          "input_error_to_unperturbed_target": 0.0009765625000010547,
+          "one_iteration_max_added_error": 3.652570407242095e-08,
+          "two_iterations_max_added_error": 1.0957901253050295e-13,
+          "one_iteration_mean_added_error": 1.5670594634420443e-08,
+          "two_iterations_mean_added_error": 4.093253513914874e-14,
+          "two_iterations_error_to_unperturbed_target": 0.0009765625001082467,
+          "one_iteration_max_error_bits": 24.706512676295993,
+          "two_iterations_max_error_bits": 43.053093725543604,
+          "input_towers": 2,
+          "output_towers": 12,
+          "input_scale": 5.764607522979676e+17,
+          "output_scale": 3.3230699894379223e+35,
+          "levels_remaining": 10,
+          "one_iteration_seconds": 0.788201513,
+          "two_iterations_seconds": 3.216986392,
+          "input_decoded": [
+            [
+              -0.8740234375000013,
+              0
+            ],
+            [
+              -0.49902343750000155,
+              0
+            ],
+            [
+              -0.1240234375000015,
+              0
+            ],
+            [
+              0.0009765625000010547,
+              0
+            ],
+            [
+              0.12597656249999883,
+              0
+            ],
+            [
+              0.375976562499998,
+              0
+            ],
+            [
+              0.7509765625000002,
+              0
+            ],
+            [
+              0.9384765624999987,
+              0
+            ]
+          ],
+          "output_one_decoded": [
+            [
+              -0.8740234461076892,
+              0
+            ],
+            [
+              -0.49902341341376455,
+              0
+            ],
+            [
+              -0.12402342765141772,
+              0
+            ],
+            [
+              0.0009765668169157138,
+              0
+            ],
+            [
+              0.1259765990257029,
+              0
+            ],
+            [
+              0.37597655240567796,
+              0
+            ],
+            [
+              0.7509765447056428,
+              0
+            ],
+            [
+              0.9384765765909509,
+              0
+            ]
+          ],
+          "output_two_decoded": [
+            [
+              -0.8740234374999802,
+              0
+            ],
+            [
+              -0.49902343750003075,
+              0
+            ],
+            [
+              -0.12402343749994588,
+              0
+            ],
+            [
+              0.0009765625000240918,
+              0
+            ],
+            [
+              0.12597656249999595,
+              0
+            ],
+            [
+              0.37597656250002986,
+              0
+            ],
+            [
+              0.7509765625000544,
+              0
+            ],
+            [
+              0.9384765625001082,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "case",
+          "case_index": 2,
+          "represented_perturbation": 0,
+          "input_encoding_encryption_max_error": 2.831068712794149e-15,
+          "input_error_to_unperturbed_target": 2.831068712794149e-15,
+          "one_iteration_max_added_error": 5.2036667530508396e-08,
+          "two_iterations_max_added_error": 9.681144774731365e-14,
+          "one_iteration_mean_added_error": 2.2178458358029784e-08,
+          "two_iterations_mean_added_error": 4.339931192198776e-14,
+          "two_iterations_error_to_unperturbed_target": 9.836575998178887e-14,
+          "one_iteration_max_error_bits": 24.195896185420434,
+          "two_iterations_max_error_bits": 43.231815675223075,
+          "input_towers": 2,
+          "output_towers": 12,
+          "input_scale": 5.764607522979676e+17,
+          "output_scale": 3.3230699894379223e+35,
+          "levels_remaining": 10,
+          "one_iteration_seconds": 1.366769639,
+          "two_iterations_seconds": 4.445344837,
+          "input_decoded": [
+            [
+              -0.9100000000000013,
+              0
+            ],
+            [
+              0.8300000000000001,
+              0
+            ],
+            [
+              -0.1700000000000022,
+              0
+            ],
+            [
+              0.2900000000000004,
+              0
+            ],
+            [
+              0.3333333333333321,
+              0
+            ],
+            [
+              -0.28571428571428287,
+              0
+            ],
+            [
+              0.019999999999999504,
+              0
+            ],
+            [
+              0.9900000000000015,
+              0
+            ]
+          ],
+          "output_one_decoded": [
+            [
+              -0.9099999479633337,
+              0
+            ],
+            [
+              0.8299999598500892,
+              0
+            ],
+            [
+              -0.16999999762448254,
+              0
+            ],
+            [
+              0.2900000030268219,
+              0
+            ],
+            [
+              0.3333333593551927,
+              0
+            ],
+            [
+              -0.2857142849273394,
+              0
+            ],
+            [
+              0.020000033653657337,
+              0
+            ],
+            [
+              0.990000019376287,
+              0
+            ]
+          ],
+          "output_two_decoded": [
+            [
+              -0.910000000000057,
+              0
+            ],
+            [
+              0.8300000000000143,
+              0
+            ],
+            [
+              -0.1700000000000384,
+              0
+            ],
+            [
+              0.2899999999999808,
+              0
+            ],
+            [
+              0.33333333333329485,
+              0
+            ],
+            [
+              -0.2857142857142061,
+              0
+            ],
+            [
+              0.01999999999998893,
+              0
+            ],
+            [
+              0.9900000000000984,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "checks",
+          "configured_cases_pass": true,
+          "rejects_three_iterations": true
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "returncode": 0,
+      "records": [
+        {
+          "type": "parameters",
+          "ring_dimension": 4096,
+          "slots": 8,
+          "security_level": "HEStd_NotSet",
+          "native_bits": 64,
+          "secret_distribution": "UNIFORM_TERNARY",
+          "scaling": "FLEXIBLEAUTO",
+          "scaling_modulus_bits": 59,
+          "first_modulus_bits": 60,
+          "level_budget": [
+            3,
+            3
+          ],
+          "depth": 31,
+          "calibration_max_error": 3.458651676169211e-08,
+          "precision_argument": 19
+        },
+        {
+          "type": "case",
+          "case_index": 0,
+          "represented_perturbation": 0,
+          "input_encoding_encryption_max_error": 3.219646771412954e-15,
+          "input_error_to_unperturbed_target": 3.219646771412954e-15,
+          "one_iteration_max_added_error": 3.654244329354128e-08,
+          "two_iterations_max_added_error": 8.354428260304303e-14,
+          "one_iteration_mean_added_error": 1.799509635747043e-08,
+          "two_iterations_mean_added_error": 2.6770252681274087e-14,
+          "two_iterations_error_to_unperturbed_target": 8.215650382226158e-14,
+          "one_iteration_max_error_bits": 24.705851660721038,
+          "two_iterations_max_error_bits": 43.44445222835294,
+          "input_towers": 2,
+          "output_towers": 12,
+          "input_scale": 5.764607522979676e+17,
+          "output_scale": 3.3230699894379223e+35,
+          "levels_remaining": 10,
+          "one_iteration_seconds": 2.406233981,
+          "two_iterations_seconds": 1.677582259,
+          "input_decoded": [
+            [
+              -0.8749999999999998,
+              0
+            ],
+            [
+              -0.5000000000000007,
+              0
+            ],
+            [
+              -0.12500000000000322,
+              0
+            ],
+            [
+              -1.3877787807814457e-15,
+              0
+            ],
+            [
+              0.12499999999999883,
+              0
+            ],
+            [
+              0.3749999999999987,
+              0
+            ],
+            [
+              0.7500000000000027,
+              0
+            ],
+            [
+              0.9375000000000009,
+              0
+            ]
+          ],
+          "output_one_decoded": [
+            [
+              -0.8749999812908758,
+              0
+            ],
+            [
+              -0.5000000247907437,
+              0
+            ],
+            [
+              -0.12499997986447797,
+              0
+            ],
+            [
+              -9.0837554700407e-09,
+              0
+            ],
+            [
+              0.12499998217566977,
+              0
+            ],
+            [
+              0.37499999787179794,
+              0
+            ],
+            [
+              0.7499999852533513,
+              0
+            ],
+            [
+              0.9375000365424442,
+              0
+            ]
+          ],
+          "output_two_decoded": [
+            [
+              -0.8749999999999871,
+              0
+            ],
+            [
+              -0.500000000000001,
+              0
+            ],
+            [
+              -0.1250000000000015,
+              0
+            ],
+            [
+              8.215650382226158e-14,
+              0
+            ],
+            [
+              0.1250000000000112,
+              0
+            ],
+            [
+              0.37500000000003253,
+              0
+            ],
+            [
+              0.7500000000000455,
+              0
+            ],
+            [
+              0.937499999999974,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "case",
+          "case_index": 1,
+          "represented_perturbation": 0.0009765625,
+          "input_encoding_encryption_max_error": 3.83026943495679e-15,
+          "input_error_to_unperturbed_target": 0.0009765625000038303,
+          "one_iteration_max_added_error": 4.187452029569272e-08,
+          "two_iterations_max_added_error": 8.509859483751825e-14,
+          "one_iteration_mean_added_error": 1.9971927861517358e-08,
+          "two_iterations_mean_added_error": 4.205663595158171e-14,
+          "two_iterations_error_to_unperturbed_target": 0.0009765625000889289,
+          "one_iteration_max_error_bits": 24.509352095709527,
+          "two_iterations_max_error_bits": 43.41785801834122,
+          "input_towers": 2,
+          "output_towers": 12,
+          "input_scale": 5.764607522979676e+17,
+          "output_scale": 3.3230699894379223e+35,
+          "levels_remaining": 10,
+          "one_iteration_seconds": 0.756229944,
+          "two_iterations_seconds": 2.760906498,
+          "input_decoded": [
+            [
+              -0.8740234374999998,
+              0
+            ],
+            [
+              -0.49902343749999617,
+              0
+            ],
+            [
+              -0.12402343750000033,
+              0
+            ],
+            [
+              0.0009765625,
+              0
+            ],
+            [
+              0.1259765625000005,
+              0
+            ],
+            [
+              0.37597656249999994,
+              0
+            ],
+            [
+              0.7509765624999993,
+              0
+            ],
+            [
+              0.9384765625,
+              0
+            ]
+          ],
+          "output_one_decoded": [
+            [
+              -0.8740234560573158,
+              0
+            ],
+            [
+              -0.4990233979361516,
+              0
+            ],
+            [
+              -0.12402341792571953,
+              0
+            ],
+            [
+              0.0009765605077622919,
+              0
+            ],
+            [
+              0.1259765552626927,
+              0
+            ],
+            [
+              0.3759765908935493,
+              0
+            ],
+            [
+              0.7509765650823657,
+              0
+            ],
+            [
+              0.9384765206254797,
+              0
+            ]
+          ],
+          "output_two_decoded": [
+            [
+              -0.8740234375000132,
+              0
+            ],
+            [
+              -0.49902343749991107,
+              0
+            ],
+            [
+              -0.12402343749994432,
+              0
+            ],
+            [
+              0.000976562499997391,
+              0
+            ],
+            [
+              0.12597656249993128,
+              0
+            ],
+            [
+              0.37597656249995826,
+              0
+            ],
+            [
+              0.7509765625000622,
+              0
+            ],
+            [
+              0.9384765624999944,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "case",
+          "case_index": 2,
+          "represented_perturbation": 0,
+          "input_encoding_encryption_max_error": 3.191891195797325e-15,
+          "input_error_to_unperturbed_target": 3.191891195797325e-15,
+          "one_iteration_max_added_error": 2.501857586378886e-08,
+          "two_iterations_max_added_error": 1.368904989362818e-13,
+          "one_iteration_mean_added_error": 1.4730427757778108e-08,
+          "two_iterations_mean_added_error": 3.4122010772463796e-14,
+          "two_iterations_error_to_unperturbed_target": 1.3777867735598193e-13,
+          "one_iteration_max_error_bits": 25.252425090007847,
+          "two_iterations_max_error_bits": 42.73204291559716,
+          "input_towers": 2,
+          "output_towers": 12,
+          "input_scale": 5.764607522979676e+17,
+          "output_scale": 3.3230699894379223e+35,
+          "levels_remaining": 10,
+          "one_iteration_seconds": 1.39611234,
+          "two_iterations_seconds": 2.474750814,
+          "input_decoded": [
+            [
+              -0.9099999999999985,
+              0
+            ],
+            [
+              0.830000000000001,
+              0
+            ],
+            [
+              -0.16999999999999682,
+              0
+            ],
+            [
+              0.28999999999999715,
+              0
+            ],
+            [
+              0.3333333333333305,
+              0
+            ],
+            [
+              -0.2857142857142878,
+              0
+            ],
+            [
+              0.01999999999999734,
+              0
+            ],
+            [
+              0.9900000000000009,
+              0
+            ]
+          ],
+          "output_one_decoded": [
+            [
+              -0.9099999979673329,
+              0
+            ],
+            [
+              0.8299999802143884,
+              0
+            ],
+            [
+              -0.1699999872651876,
+              0
+            ],
+            [
+              0.28999999636325363,
+              0
+            ],
+            [
+              0.3333333479561932,
+              0
+            ],
+            [
+              -0.2857143065895825,
+              0
+            ],
+            [
+              0.020000025018573203,
+              0
+            ],
+            [
+              0.9900000191368588,
+              0
+            ]
+          ],
+          "output_two_decoded": [
+            [
+              -0.9100000000000081,
+              0
+            ],
+            [
+              0.829999999999991,
+              0
+            ],
+            [
+              -0.17000000000000165,
+              0
+            ],
+            [
+              0.28999999999998727,
+              0
+            ],
+            [
+              0.33333333333334353,
+              0
+            ],
+            [
+              -0.2857142857143328,
+              0
+            ],
+            [
+              0.01999999999995368,
+              0
+            ],
+            [
+              0.9900000000001378,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "checks",
+          "configured_cases_pass": true,
+          "rejects_three_iterations": true
+        }
+      ]
+    },
+    {
+      "trial": 3,
+      "returncode": 0,
+      "records": [
+        {
+          "type": "parameters",
+          "ring_dimension": 4096,
+          "slots": 8,
+          "security_level": "HEStd_NotSet",
+          "native_bits": 64,
+          "secret_distribution": "UNIFORM_TERNARY",
+          "scaling": "FLEXIBLEAUTO",
+          "scaling_modulus_bits": 59,
+          "first_modulus_bits": 60,
+          "level_budget": [
+            3,
+            3
+          ],
+          "depth": 31,
+          "calibration_max_error": 2.594641396180819e-08,
+          "precision_argument": 20
+        },
+        {
+          "type": "case",
+          "case_index": 0,
+          "represented_perturbation": 0,
+          "input_encoding_encryption_max_error": 2.220446049250313e-15,
+          "input_error_to_unperturbed_target": 2.220446049250313e-15,
+          "one_iteration_max_added_error": 2.8362430182227172e-08,
+          "two_iterations_max_added_error": 5.67323965583455e-14,
+          "one_iteration_mean_added_error": 1.526748118901855e-08,
+          "two_iterations_mean_added_error": 3.3438529722928934e-14,
+          "two_iterations_error_to_unperturbed_target": 5.540012892879531e-14,
+          "one_iteration_max_error_bits": 25.07144360657647,
+          "two_iterations_max_error_bits": 44.002820519062375,
+          "input_towers": 2,
+          "output_towers": 12,
+          "input_scale": 5.764607522979676e+17,
+          "output_scale": 3.3230699894379223e+35,
+          "levels_remaining": 10,
+          "one_iteration_seconds": 2.762170796,
+          "two_iterations_seconds": 2.956182856,
+          "input_decoded": [
+            [
+              -0.8749999999999978,
+              0
+            ],
+            [
+              -0.500000000000002,
+              0
+            ],
+            [
+              -0.12500000000000194,
+              0
+            ],
+            [
+              -1.6653345369377348e-16,
+              0
+            ],
+            [
+              0.12499999999999922,
+              0
+            ],
+            [
+              0.37500000000000117,
+              0
+            ],
+            [
+              0.7500000000000013,
+              0
+            ],
+            [
+              0.9374999999999987,
+              0
+            ]
+          ],
+          "output_one_decoded": [
+            [
+              -0.8749999716375676,
+              0
+            ],
+            [
+              -0.5000000105066587,
+              0
+            ],
+            [
+              -0.1250000174901415,
+              0
+            ],
+            [
+              -1.5791181640079088e-08,
+              0
+            ],
+            [
+              0.12499997626819309,
+              0
+            ],
+            [
+              0.37500001181226533,
+              0
+            ],
+            [
+              0.7500000047985225,
+              0
+            ],
+            [
+              0.9375000096468489,
+              0
+            ]
+          ],
+          "output_two_decoded": [
+            [
+              -0.8750000000000443,
+              0
+            ],
+            [
+              -0.5000000000000484,
+              0
+            ],
+            [
+              -0.12500000000002975,
+              0
+            ],
+            [
+              -2.6645352591003757e-15,
+              0
+            ],
+            [
+              0.12499999999999567,
+              0
+            ],
+            [
+              0.37500000000003275,
+              0
+            ],
+            [
+              0.7500000000000537,
+              0
+            ],
+            [
+              0.9375000000000554,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "case",
+          "case_index": 1,
+          "represented_perturbation": 0.0009765625,
+          "input_encoding_encryption_max_error": 2.220446049250313e-15,
+          "input_error_to_unperturbed_target": 0.0009765625000022204,
+          "one_iteration_max_added_error": 5.8275003267382885e-08,
+          "two_iterations_max_added_error": 6.672440377997191e-14,
+          "one_iteration_mean_added_error": 2.6435960143178505e-08,
+          "two_iterations_mean_added_error": 3.227279554707252e-14,
+          "two_iterations_error_to_unperturbed_target": 0.0009765625000637268,
+          "one_iteration_max_error_bits": 24.032547578855233,
+          "two_iterations_max_error_bits": 43.76877881928881,
+          "input_towers": 2,
+          "output_towers": 12,
+          "input_scale": 5.764607522979676e+17,
+          "output_scale": 3.3230699894379223e+35,
+          "levels_remaining": 10,
+          "one_iteration_seconds": 1.178343998,
+          "two_iterations_seconds": 4.296416579,
+          "input_decoded": [
+            [
+              -0.8740234375,
+              0
+            ],
+            [
+              -0.49902343749999956,
+              0
+            ],
+            [
+              -0.12402343749999845,
+              0
+            ],
+            [
+              0.0009765625000006661,
+              0
+            ],
+            [
+              0.1259765625000009,
+              0
+            ],
+            [
+              0.37597656250000133,
+              0
+            ],
+            [
+              0.7509765625000022,
+              0
+            ],
+            [
+              0.9384765624999989,
+              0
+            ]
+          ],
+          "output_one_decoded": [
+            [
+              -0.8740234095219394,
+              0
+            ],
+            [
+              -0.4990234034069968,
+              0
+            ],
+            [
+              -0.12402345333620257,
+              0
+            ],
+            [
+              0.000976524338534901,
+              0
+            ],
+            [
+              0.12597659812370543,
+              0
+            ],
+            [
+              0.375976561823573,
+              0
+            ],
+            [
+              0.7509766207750055,
+              0
+            ],
+            [
+              0.9384765616561872,
+              0
+            ]
+          ],
+          "output_two_decoded": [
+            [
+              -0.87402343750001,
+              0
+            ],
+            [
+              -0.4990234375000663,
+              0
+            ],
+            [
+              -0.124023437500004,
+              0
+            ],
+            [
+              0.0009765625000093814,
+              0
+            ],
+            [
+              0.12597656250003308,
+              0
+            ],
+            [
+              0.3759765625000475,
+              0
+            ],
+            [
+              0.7509765625000262,
+              0
+            ],
+            [
+              0.9384765625000637,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "case",
+          "case_index": 2,
+          "represented_perturbation": 0,
+          "input_encoding_encryption_max_error": 3.885780586188048e-15,
+          "input_error_to_unperturbed_target": 3.885780586188048e-15,
+          "one_iteration_max_added_error": 6.980466221717663e-08,
+          "two_iterations_max_added_error": 4.207745263329343e-14,
+          "one_iteration_mean_added_error": 2.983467904671411e-08,
+          "two_iterations_mean_added_error": 2.9101721032986916e-14,
+          "two_iterations_error_to_unperturbed_target": 4.596323321948148e-14,
+          "one_iteration_max_error_bits": 23.772101362592668,
+          "two_iterations_max_error_bits": 44.43394596182891,
+          "input_towers": 2,
+          "output_towers": 12,
+          "input_scale": 5.764607522979676e+17,
+          "output_scale": 3.3230699894379223e+35,
+          "levels_remaining": 10,
+          "one_iteration_seconds": 2.236438226,
+          "two_iterations_seconds": 2.646821527,
+          "input_decoded": [
+            [
+              -0.9100000000000018,
+              0
+            ],
+            [
+              0.8300000000000038,
+              0
+            ],
+            [
+              -0.17000000000000187,
+              0
+            ],
+            [
+              0.2900000000000007,
+              0
+            ],
+            [
+              0.3333333333333305,
+              0
+            ],
+            [
+              -0.2857142857142849,
+              0
+            ],
+            [
+              0.019999999999998533,
+              0
+            ],
+            [
+              0.9900000000000013,
+              0
+            ]
+          ],
+          "output_one_decoded": [
+            [
+              -0.9099999744182627,
+              0
+            ],
+            [
+              0.8299999581257701,
+              0
+            ],
+            [
+              -0.16999997032619035,
+              0
+            ],
+            [
+              0.2900000698046629,
+              0
+            ],
+            [
+              0.333333337625922,
+              0
+            ],
+            [
+              -0.2857142730631318,
+              0
+            ],
+            [
+              0.019999963716037752,
+              0
+            ],
+            [
+              0.9900000185152817,
+              0
+            ]
+          ],
+          "output_two_decoded": [
+            [
+              -0.9100000000000298,
+              0
+            ],
+            [
+              0.8300000000000459,
+              0
+            ],
+            [
+              -0.1700000000000415,
+              0
+            ],
+            [
+              0.29000000000003134,
+              0
+            ],
+            [
+              0.3333333333333576,
+              0
+            ],
+            [
+              -0.28571428571431656,
+              0
+            ],
+            [
+              0.01999999999999165,
+              0
+            ],
+            [
+              0.9900000000000282,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "checks",
+          "configured_cases_pass": true,
+          "rejects_three_iterations": true
+        }
+      ]
+    }
+  ],
+  "all_completed_trials_pass": true
+}

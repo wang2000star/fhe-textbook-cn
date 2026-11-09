@@ -3,6 +3,7 @@
 本仓库在保留英文源码的基础上，提供对应的 **34 个章节中文译本**和独立中文 PDF 编译入口。
 
 - [逐项学术审校报告](audit/ACADEMIC_REVIEW.md)：原英文基线、问题依据、反例、双语修订与验证边界
+- [续审报告](audit/FOLLOWUP_REVIEW.md)：安全归约、扩域槽与公开 BFV 自举、CKKS 定量误差及真实 OpenFHE 复现
 - [中文编译与阅读说明](README.zh-CN.md)
 - [翻译范围、术语及维护记录](TRANSLATION.md)
 - 中文入口：`00-main-zh.tex`；中文正文：`zh-CN/`
@@ -50,6 +51,8 @@ python3 audit/check_python.py
 ```
 
 The complete audit commands and scope are in [the review report](audit/ACADEMIC_REVIEW.md). Tests demonstrate the checked finite cases; they do not certify cryptographic security or unlimited circuit depth.
+
+The [follow-up review](audit/FOLLOWUP_REVIEW.md) adds explicit conditional security reductions, a public BFV bootstrap with a separate secret-key auditor, and a pinned OpenFHE iterative-CKKS experiment. These are separate audit artifacts: the demo library's bootstrapping capabilities remain as listed above. Run all standard-library and Python checks with `python3 audit/run_checks.py`; the optional C++ experiment has its own build instructions in [the OpenFHE report](audit/openfhe-review.md).
 
 ### Installation
 

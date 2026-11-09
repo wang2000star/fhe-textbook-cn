@@ -201,7 +201,7 @@
   },
   {
     "id": "FND-025",
-    "title": "密文种子不应定义成秘密的公开散列，维数不能单独代表安全级别",
+    "title": "公开种子不能直接套用隐藏种子 PRG 安全定义，维数不能单独代表安全级别",
     "report": "foundations-review.md",
     "files": [
       "b04-glwe.tex"
@@ -282,7 +282,7 @@
   },
   {
     "id": "FND-035",
-    "title": "尚不能据本书基础章节确认的安全性结论",
+    "title": "已补全的条件性安全归约与仍未认证的具体命题",
     "report": "foundations-review.md",
     "files": [
       "b01-lattice.tex",

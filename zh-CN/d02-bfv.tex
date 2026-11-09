@@ -747,7 +747,7 @@ $ $
 本小节有意采用另一种 LWE 相位 $b+\langle\vec a,\vec s\rangle$。若用于 \autoref{subsec:tfhe-enc-dec} 中相位为 $b-\langle\vec a,\vec s\rangle$ 的 TFHE 约定，须先将公开掩码取负，输出时再取负还原。张量乘积构造是一种分层 LWE 乘法替代方案，并非 TFHE 自举所使用的外积。它需要对乘积 $s_i s_j$ 的求值密钥、适当参数及完整重缩放误差界，并不能消除任意 LWE 乘法的噪声。
 
 
-在 \autoref{subsec:tfhe-mult-cipher} 中，我们了解了 TFHE 如何在 LWE 密文与 GSW 密文之间执行密文与密文相乘。然而，这一方法计算开销较大，因为它需要通过电路自举将 LWE 密文转换为 GSW 密文。如果将 BFV 的密文与密文相乘策略直接应用于 TFHE 的 LWE 密文，就可以避免这一开销。给定两个待相乘的 LWE 密文，它们满足以下关系：
+在 \autoref{subsec:tfhe-mult-cipher} 中，外积的输入是一个 LWE 密文和一个 GSW 密文。从任意 LWE 密文获得后者，可能需要电路自举。下述张量构造改为使用另一种二次规模的求值密钥，并要求相应的重缩放预算。这给出一种替代运算，并不宣称其性能优于 TFHE 外积或可编程自举。与本书 TFHE 的编码一样，要求 $t\mid q$ 且 $\Delta=q/t$。给定两个 LWE 密文，其整数提升满足：
 
 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle}) = (\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle }) \Rightarrow \,\,\, \vec{a}^{\langle 1 \rangle} \cdot \vec{s} + b^{\langle 1 \rangle} = \Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle} + k_1q$
 
@@ -758,7 +758,7 @@ $ $
 将这两个等式相乘，得到以下关系：
 
 
-$(\Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle} + k_1q) \cdot (\Delta m^{\langle 2 \rangle} + e^{\langle 2 \rangle} + k_2q)$ \textcolor{red}{ $\rhd \approx \Delta^2 m^{\langle 1 \rangle} m^{\langle 2 \rangle} \bmod q$ }
+$(\Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle} + k_1q) \cdot (\Delta m^{\langle 2 \rangle} + e^{\langle 2 \rangle} + k_2q)$
 
 $ = (\vec{a}^{\langle 1 \rangle} \cdot \vec{s} + b^{\langle 1 \rangle}) \cdot (\vec{a}^{\langle 2 \rangle} \cdot \vec{s} + b^{\langle 2 \rangle})$ 
 
@@ -776,7 +776,7 @@ $ $
 ，其中，$\otimes$ 表示两个向量的外积。例如，给定两个长度为 $n$ 的向量 $\vec{v}$ 和 $\vec{u}$，$\vec{v} \otimes \vec{u}$ 等价于将以下 $n$ 个不同的、长度为 $n$ 的向量连接而成的长度为 $n^2$ 的向量：$v_0\cdot\vec{u}, \,\, v_1\cdot\vec{u}, \,\, \cdots v_{n-1}\cdot\vec{u}$。注意，上述关系与 BFV 密文与密文相乘中推导出的关系类似。因此，类似于 BFV 的其余步骤，可以对这一 LWE 项按如下方式进行重线性化与重缩放：
 
 
-\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:bfv-mult-cipher-summary}} TFHE 的密文与密文相乘——方法 2}}]
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:bfv-mult-cipher-tfhe}} 分层 LWE 张量乘法}}]
 
 
 假设有以下两个 LWE 密文：
@@ -795,7 +795,7 @@ $ $
 
 \item \textbf{\underline{模数提升（\textsf{ModRaise}）}}
 
-按如下方式将密文 $(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle}) \bmod q$ 和 $(\vec{a}^{\langle 2 \rangle}, b^{\langle 2 \rangle}) \bmod q$ 的模数强制提升至 $Q$（其中 $Q = q \cdot \Delta$）：
+将 $(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle})$ 和 $(\vec{a}^{\langle 2 \rangle}, b^{\langle 2 \rangle})$ 各分量选定的整数提升视为模 $Q=q\Delta$ 的元素。其相位仍包含 $qk_1$ 和 $qk_2$，并不是在较大模数下对相同缩放明文的新鲜加密：
 
 $(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle}) \bmod Q$
 
@@ -860,6 +860,31 @@ $ $
 \end{tcolorbox}
 
 
+
+\textbf{求值密钥与条件性正确性。}设 LWE 维数为 $k$，选择整数分解权重 $g_j=\beta^j$，其中 $0\leq j<L$，并要求 $\beta^L\geq Q$。对每个有序下标对 $(u,v)$，公开相位为 $g_js_us_v+e_{u,v,j}^{\rm key}\pmod Q$ 的行密文。将 $\vec d_2$ 的每个分量在模 $Q$ 下精确分解为绝对值不超过 $D_g$ 的数字。若 $|e_{u,v,j}^{\rm key}|\leq B_{\rm key}$，则所得重线性化误差满足
+\[
+|e_{\rm rl}|\leq k^2LD_gB_{\rm key}.
+\]
+该密钥不同于 TFHE 的 GGSW 自举密钥。输入分量与明文均取中心代表，记 $h=\|\vec s\|_1$，并设 $|e_i|\leq B_i$，则整数相位中的进位满足
+\[
+|k_i|\leq\kappa_i:=\frac{h+2}{2}+\frac{B_i}{q}.
+\]
+若 $R_a,R_b$ 是最后除以 $\Delta$ 时各分量的舍入误差，直接展开可得
+\[
+\begin{aligned}
+\phi_+(\textsf{ct}_{\rm out})&\equiv\Delta m_1m_2+\eta\pmod q,\\
+\eta&=m_1e_2+m_2e_1+t(e_1k_2+e_2k_1)
+      +\frac{e_1e_2+e_{\rm rl}}\Delta
+      +\langle R_a,\vec s\rangle+R_b.
+\end{aligned}
+\]
+其中 $qk_1m_2$、$qk_2m_1$ 和 $qt k_1k_2$ 在模 $q$ 下消失。特别地，由于 $t\mid q$，一般 BFV 教学变体中危险的模数余数项在此消失。解码的一个充分条件是
+\[
+\frac t2(B_1+B_2)+t(B_1\kappa_2+B_2\kappa_1)
++\frac{B_1B_2+k^2LD_gB_{\rm key}}\Delta+\frac{h+1}{2}
+<\frac\Delta2.
+\]
+明文模 $t$ 约减只增加 $q$ 的倍数，不再增加误差。这给出了上述运算顺序的条件性证明。若改为先用 $1/\Delta=t/q$ 缩放整数张量，再在模 $q$ 下重线性化，则密钥模数为 $q$，求值密钥误差不再除以 $\Delta$，张量分量舍入的界为 $(1+h+h^2)/2$。这两种顺序各有独立论证，密钥不能互换。附带的精确检查使用非零输入误差和求值密钥误差验证了两种顺序，但不据此断言参数达到安全要求或性能更快。
 
 \subsection{同态密钥切换}
 \label{subsec:bfv-key-switching}
@@ -1825,7 +1850,14 @@ $ $
 \subsubsection{总体思路}
 \label{subsubsec:bfv-bootstrapping-high-level}
 
-先说明 $t=p$ 的情形，再给出 $t=p^r$ 的推广。令 $\varepsilon>r$，$P=p^\varepsilon$。下面分解的是解密函数，并不是完整的安全参数集，也不是任意 $q\gg P$ 都足够的证明。线性变换实现、乘法预算、求值密钥误差及尺度漂移都必须有界。使用秘密密钥在自身之下的加密，还需要所引自举构造采用的循环安全性假设。
+令 $t=p^r$、$\varepsilon>r$ 且 $P=p^\varepsilon$。下面分解解密函数，给出一般系数与槽位变换构造，并在 \autoref{subsubsec:bfv-bootstrapping-summary} 给出显式的逐门正确性充分条件。该条件中的同态多项式求值采用标准 FV：先计算整数张量乘积，再按当前明文模数 $T$ 以 $T/q$ 缩放；当 $T\nmid q$ 时，不能改用前述 $1/\Delta$ 教学变体。这是条件性正确性结论，并不是安全或优化参数的选择。使用秘密密钥在自身之下的加密，还需所引构造的求值密钥安全及循环安全性假设~\cite{cryptoeprint:2022/1363}。
+
+对于当前明文模数 $T$，按精确的有理尺度 $\mu_T=q/T$ 衡量误差会更方便。令 $r_T=q-T\lfloor q/T\rfloor$，同一个密文满足
+\[
+\phi_S(C)\equiv\mu_TM_T+\mathcal E_T\pmod q,
+\qquad \mathcal E_T=E_T-\frac{r_T}{T}M_T.
+\]
+这里 $M_T$ 的各系数取中心代表。若 $\|\mathcal E_T\|_\infty<q/(2T)$，解码就正确。改变误差坐标既不改变密文，也不把方案变成近似明文方案；这个条件正是 \autoref{subsec:bfv-enc-dec} 的解码条件。
 
 对于相位满足 $AS+B=\Delta M+E\pmod q$ 的密文 $(A,B)$，目标明文恒等式为
 \[
@@ -1878,7 +1910,30 @@ C=(A'A_s,\ A'B_s+\Delta'B'),
 \subsubsection{\textsf{CoeffToSlot} 与 \textsf{SlotToCoeff}}
 \label{subsubsec:bfv-bootstrapping-coefftoslot}
 
-所示 $n$ 个标量槽位的矩阵假设 $p\equiv1\pmod{2n}$，并将本原根 Hensel 提升到 $\mathbb Z_{p^\varepsilon}$（后续各明文模数也使用对应的根）。一般地，若 $\gcd(p,2n)=1$ 且 $d=\operatorname{ord}_{2n}(p)$，只有 $n/d$ 个扩环槽位；将系数提取为标量槽位需要不同变换，通常使用 $d$ 个密文。那些一般变换以及不能分裂为标量槽位的参数，不在这一简化矩阵表述的范围内。这里的矩阵乘法指使用旋转和明文乘法构造的同态线性电路，而不是把密文元组直接与矩阵作普通标量乘法。 这条 CRT 路线要求 $\gcd(p,2n)=1$，因此在本章的二次幂环中，$p$ 必须为奇数。当 $p=2$ 时，$X^n+1=(X+1)^n\pmod2$ 含有重因子；仅替换矩阵，不能得到所假设的互异 CRT 槽位。完整的二进制 CRT 自举必须使用与 $2$ 互素的分圆指标，或另行给出并论证其他构造。
+下列 $n$ 个标量槽位的矩阵假设 $p\equiv1\pmod{2n}$，并将一个本原单位根 Hensel 提升到 $\mathbb Z_{p^\varepsilon}$，随后在每个明文模数下相容地约减。一般地，当 $\gcd(p,2n)=1$ 且 $d=\operatorname{ord}_{2n}(p)$ 时，有 $n/d$ 个扩域环槽位。下述迹对偶基构造将全部系数打包进 $d$ 个密文的标量槽位，因此不必完全分裂为标量槽位。这里的矩阵乘法表示由自同构、密钥切换和明文乘法组成的同态线性电路。这条 CRT 路线在本书二次幂环中仍要求 $p$ 为奇数：当 $p=2$ 时，$X^n+1=(X+1)^n\pmod2$ 含重因子。二进制 CRT 自举必须改用与 $2$ 互素的分圆指标，或采用另有独立论证的构造。
+
+\textbf{一般可实现的线性变换。}为包含替代的二进制环，暂记 $R_j=(\mathbb Z/p^j\mathbb Z)[X]/\Phi_{m_c}(X)$，其中 $p\nmid m_c$、$n=\varphi(m_c)$、$d=\operatorname{ord}_{m_c}(p)$ 且 $\ell=n/d$。本章原来的环取 $m_c=2n$。选择模 $p^\varepsilon$ 下相容的 $\Phi_{m_c}$ 首一因子，再约减到模 $p^j$；CRT 给出 $\ell$ 个次数为 $d$ 的非分歧扩域环槽位。
+
+对 $a\in(\mathbb Z/m_c\mathbb Z)^\times$，令 $\tau_a(X)=X^a$。由于模 $p$ 的代数是有限域的直积，迹配对非退化，其 Gram 行列式在每个模 $p^j$ 下都是单位。因此存在迹对偶基 $b_0,\ldots,b_{n-1}$，满足
+\[
+\operatorname{Tr}(b_uX^v)=\delta_{uv},\qquad
+\operatorname{Tr}(W)=\sum_a\tau_a(W),\qquad
+z_u=\operatorname{Tr}(b_uZ).
+\]
+于是，每个基环线性映射 $\mathcal T:R_j\to R_j$ 都有显式实现
+\[
+\mathcal T(Z)=\sum_a\kappa_a\tau_a(Z),\qquad
+\kappa_a=\sum_{u=0}^{n-1}\mathcal T(X^u)\tau_a(b_u).
+\]
+代入迹的展开式，所得结果就是 $\sum_u\mathcal T(X^u)z_u$。每一项只需一个公开多项式乘数，以及自同构后的密钥切换，不涉及解密，也不除以扩域次数。特别地，当 $p\mid d$ 时，不能把槽位迹除以 $d$。提升的 Frobenius 是在生成元上按 $X\mapsto X^p$ 定义的自同构；当 $j>1$ 时，它不是对模 $p^j$ 下任意元素直接应用 $W\mapsto W^p$。
+
+对 $0\leq u<d$，通过 CRT 剩余定义 $\mathcal T_u$：槽位 $h$ 放入标量系数 $z_{u\ell+h}$，其余扩域坐标全为零。逆映射 $\mathcal U_u$ 读取各槽位的标量坐标，将其写入系数位置 $u\ell+h$，其他位置补零。CRT 矩阵求逆即可构造这些映射，迹对偶公式则将正逆映射都转化为同态操作。它们满足
+\[
+\sum_{u=0}^{d-1}\mathcal U_u\bigl(\mathcal T_u(Z)\bigr)=Z.
+\]
+打包映射在模 $p^\varepsilon$ 下使用，相容的解包映射在模 $p^r$ 下使用。数字多项式作用于标量项，而不是任意扩域元素。若其分子的每个槽位都能被 $p$ 整除，CRT 就推出整个多项式属于 $pR_j$，因此后续逐系数精确除法有良好定义。这给出了下述变换的一般但未经优化的构造~\cite{cryptoeprint:2022/1363}。
+
+熟悉的完全分裂矩阵是 $d=1$ 的特殊情形：
 
 \textsf{CoeffToSlot} 步骤的目标是以同态方式将多项式 $Z$ 的系数 $z_i$ 移入输入向量槽位。
 
@@ -1901,9 +1956,9 @@ $ $
 
 因此，对于输入密文 $\textsf{ct} = \textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm) \bmod q$，可以将其输入向量槽位理解为存储了某些值，对它们乘以 $n^{-1}\cdot\hathat{W} \cdot I_n^R$ 后就得到多项式 $Z$ 的系数 $z_i$。这意味着，如果对 $\textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm)$ 的输入向量槽位\textit{同态}乘以 $n^{-1}\cdot\hathat{W} \cdot I_n^R$，那么所得密文的 $n$ 个输入向量槽位将包含 $Z$ 的 $n$ 个系数，等价于将 $Z$ 的系数移入输入向量槽位。因此，\textsf{CoeffToSlot} 步骤等价于同态计算 $n^{-1}\cdot\hathat{W} \cdot I_n^R \cdot \textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm)$。可以使用 \autoref{subsec:bfv-matrix-multiplication} 中介绍的技术同态计算矩阵与向量相乘。
 
-在 \textsf{CoeffToSlot} 步骤之后，可以通过对去噪多项式进行同态求值，消除每个 $z_i$ 的低 $\varepsilon-1$ 个（$p$ 进制）数位中的噪声；下一小节将介绍这一多项式。
+在 \textsf{CoeffToSlot} 步骤之后，可以通过对去噪多项式进行同态求值，消除每个 $z_i$ 的低 $\varepsilon-r$ 个（$p$ 进制）数位中的噪声；下一小节将介绍这一多项式。
 
-得到 $Z$ 的无噪声系数后，需要将它们从输入向量槽位移回原来的系数位置。这一步称为 \textsf{SlotToCoeff}，它恰好是 \textsf{CoeffToSlot} 的逆过程。由小结~\ref*{subsubsec:bfv-rotation-summary}（位于 \autoref{subsubsec:bfv-rotation-summary}）还可知，$n^{-1}\cdot\hathat{W} \cdot I_n^R$ 的逆矩阵为 $\hathat{W}^*$，其中：
+在明文槽位中恢复 $M$ 的系数后，需要将它们移回原来的系数位置。密文仍含有有界的求值误差。这一步称为 \textsf{SlotToCoeff}，它恰好是 \textsf{CoeffToSlot} 的逆过程。由小结~\ref*{subsubsec:bfv-rotation-summary}（位于 \autoref{subsubsec:bfv-rotation-summary}）还可知，$n^{-1}\cdot\hathat{W} \cdot I_n^R$ 的逆矩阵为 $\hathat{W}^*$，其中：
 
 $\hathat{W}^* = \begin{bmatrix}
 1 & (\omega^{J(0)}) & (\omega^{J(0)})^2 & \cdots & (\omega^{J(0)})^{n-1}\\
@@ -1958,9 +2013,15 @@ G_{r+1}\circ\cdots\circ G_{\varepsilon-1}\circ G_\varepsilon(z)
 \Delta_jpw+E_j=\Delta_{j-1}w+(E_j-\delta_jw),\qquad
 \delta_j=\Delta_{j-1}-p\Delta_j\in\{0,\ldots,p-1\}.
 \]
-这样避免了用 $p^{-1}\bmod q$ 乘密文，但除非 $\delta_j=0$，仍会产生漂移 $-\delta_jw$。若 $|w|\leq p^{j-1}/2$，其每槽幅度至多为 $(p-1)p^{j-1}/2$。改变明文代表及后续线性变换还需要独立的余数界和范数界。不能仅凭记号就推出“漂移自动远小于 $\Delta_j$”。
+这避免了将密文分量乘以 $p^{-1}\bmod q$。其中 $-\delta_jw$ 是按地板尺度衡量误差时的坐标变化；若按精确尺度衡量，它恰好抵消：
 
-重新解释的尺度依次为 $\lfloor q/p^\varepsilon\rfloor,\lfloor q/p^{\varepsilon-1}\rfloor,\ldots,\lfloor q/p^r\rfloor$。与密文相加的明文必须使用当前尺度，而密文与明文乘法使用未缩放的明文乘数，见 \autoref{subsec:bfv-mult-plain}。每次多项式求值和重新解释都会消耗噪声预算；完整实现必须证明所有中间及最终解码条件。这里的恒等式描述目标变换，并不是通用的安全参数选择。
+\[
+\frac{q}{p^j}(pw)+\mathcal E_j
+=\frac{q}{p^{j-1}}w+\mathcal E_j.
+\]
+因此，精确除法不增加自然误差，而且扩大了解码容差。两种描述等价：若误差界已经采用自然误差坐标，就不能再次累加地板尺度的漂移。使用相容且能被整除的中心系数代表时，这个恒等式精确成立，包括 $p^j\nmid q$ 的情形。
+
+各地板尺度依次为 $\lfloor q/p^\varepsilon\rfloor,\lfloor q/p^{\varepsilon-1}\rfloor,\ldots,\lfloor q/p^r\rfloor$。与密文相加的明文必须采用当前尺度，而密文与明文相乘使用未缩放乘数，如 \autoref{subsec:bfv-mult-plain} 所述。多项式求值会改变自然误差；精确除法保持自然误差，同时改变明文模数。\autoref{subsubsec:bfv-bootstrapping-summary} 的显式递推可逐项检查所有中间解码条件。
 
 剩余的局部代数任务是构造提升多项式。
 
@@ -1983,19 +2044,67 @@ F_j(z)\equiv d^p-pH_j(d)\equiv d\pmod{p^{j+1}}.
 \subsubsection{小结}
 \label{subsubsec:bfv-bootstrapping-summary}
 
-下面总结推广后的明文变换。它假设模数切换后满足舍入条件、存在有效的系数与槽位变换，且每个同态步骤都有足够预算；这不是无条件成立的实现定理。
+下面总结推广后的明文变换。方框后的递推明确给出正确性条件，涵盖低模舍入、一般线性变换、全部同态门以及最终解码。安全性与优化仍是独立问题。
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:bfv-bootstrapping-summary}} BFV 自举}}]
 令 $t=p^r$、$\varepsilon>r$、$P=p^\varepsilon$、$\Delta=\lfloor q/p^r\rfloor$ 和 $\Delta'=\lfloor q/P\rfloor$。 完整 CRT 流程须满足 \autoref{subsubsec:bfv-bootstrapping-coefftoslot} 中的相容环条件；在本章的二次幂环中，$p$ 为奇数。
 \begin{enumerate}
 \item \textbf{模数切换：}计算 $A'=[\lceil(P/q)A\rfloor]_P$ 和 $B'=[\lceil(P/q)B\rfloor]_P$。其相位满足 $A'S+B'\equiv p^{\varepsilon-r}M+E'\pmod P$，完整 $E'$ 见 \autoref{subsubsec:bfv-bootstrapping-modulus-switch}。要求 $\|E'\|_\infty<p^{\varepsilon-r}/2$。
 \item \textbf{同态解密：}使用模数 $q$ 下 $\Delta'S$ 的加密，计算 $A'\cdot\textsf{RLWE}_{S,\sigma}(\Delta'S)+(0,\Delta'B')$。按 \autoref{subsubsec:bfv-bootstrapping-homomorphic-decryption} 同时跟踪密钥噪声项和明文约减余数项。
-\item \textbf{\textsf{CoeffToSlot}：}同态地将 $Z=[p^{\varepsilon-r}M+E']_P$ 的系数放入槽位。在标量分裂情形下，槽位变换为 $n^{-1}\hathat W I_n^R$（\autoref{subsubsec:bfv-rotation-summary}）；一般槽位结构需要不同变换。
+\item \textbf{\textsf{CoeffToSlot}：}同态地将 $Z=[p^{\varepsilon-r}M+E']_P$ 的系数放入槽位。在标量分裂情形下，槽位变换为 $n^{-1}\hathat W I_n^R$（\autoref{subsubsec:bfv-rotation-summary}）；对于扩域槽位，则使用 \autoref{subsubsec:bfv-bootstrapping-coefftoslot} 构造的 $d$ 个映射 $\mathcal T_u$。
 \item \textbf{数字提取：}对当前精度 $j=\varepsilon,\varepsilon-1,\ldots,r+1$，用 $L_j=F_{j-1}\circ\cdots\circ F_1$ 提取最低位，再实现精确商 $G_j(z)=(z-L_j(z))/p\pmod{p^{j-1}}$。当 $p$ 为奇数时使用平衡数字；当 $p=2$ 时使用上文规定的舍入偏移量。最终槽位为 $m_i\pmod{p^r}$，所以未约减代表可以相差 $k_i'p^r$；当 $r>1$ 时，不能写成 $k_i'p$。
 \para{\underline{尺度因子的重新解释}：}每次除法都把尺度从 $\lfloor q/p^j\rfloor$ 重新解释为 $\lfloor q/p^{j-1}\rfloor$，并计入上文推导的漂移 $-\delta_jw$。最终尺度为 $\lfloor q/p^r\rfloor=\Delta$。这里不假设 $p$ 存在模逆元。
-\item \textbf{\textsf{SlotToCoeff}：}在标量分裂情形下应用逆线性变换 $\hathat W^*$，恢复相位为 $\Delta M+E^{\langle b\rangle}\pmod q$ 的加密。完整输出误差包含全部求值误差、尺度漂移及明文约减项，并须满足 BFV 解码界。
+\item \textbf{\textsf{SlotToCoeff}：}在标量分裂情形下应用逆线性变换 $\hathat W^*$，扩域槽位情形则对 $\mathcal U_u$ 的输出求和，恢复相位为 $\Delta M+E^{\langle b\rangle}\pmod q$ 的加密。完整输出误差包含全部求值误差、尺度漂移及明文约减项，并须满足 BFV 解码界。
 \end{enumerate}
 \end{tcolorbox}
+
+\textbf{显式的条件性正确性证书。}采用 \autoref{subsubsec:bfv-bootstrapping-high-level} 定义的自然误差 $\mathcal E_T$。令 $C_R$ 满足 $\|UV\|_\infty\leq C_R\|U\|_\infty\|V\|_\infty$，并令 $h_S$ 是乘以秘密多项式这一线性算子的无穷范数上界。对于负循环环，可取 $C_R=n$ 和 $h_S=\|S\|_1$。对于公开多项式 $C$ 或自同构 $\tau_a$，分别以 $\lambda_C$、$\lambda_a$ 表示相应系数算子的无穷范数。这些都是可计算的矩阵范数，也适用于一般分圆环。
+
+使用具有 $L$ 个数字、数字绝对值不超过 $D_g$ 的精确整数分解，求值密钥各行在输出秘密下的原始相位为 $g_iS_{\rm old}+E_i^{\rm key}$，且 $\|E_i^{\rm key}\|_\infty\leq B_{\rm key}$。一次密钥切换至多给自然误差上界增加
+\[
+B_{\rm ks}=C_RLD_gB_{\rm key}
+\]
+这里不需要独立性假设。若输入界为 $B_1,B_2$，可递推下列有效误差界；必要时可以将界向上取整：
+\[
+\begin{aligned}
+B_{\rm add/sub}&=B_1+B_2,\qquad B_{\rm plain\,mult}=\lambda_CB_1,\\
+B_{\rm plain\,add}&=B_1+(r_T/T)\|C\|_\infty,\\
+B_{\rm auto}&=\lambda_aB_1+B_{\rm ks},\qquad B_{\rm exact\,div}=B_1,\\
+\kappa_i&=(h_S+2)/2+B_i/q.
+\end{aligned}
+\]
+明文加法使用 $\lfloor q/T\rfloor C$；精确除法要求明文能被 $p$ 整除，并将 $T$ 改为 $T/p$。标准 FV 乘法给出
+\[
+\begin{aligned}
+B_{\rm mult}={}&C_R\left[\frac T2(B_1+B_2)
++T(\kappa_1B_2+\kappa_2B_1)+\frac TqB_1B_2\right]\\
+&+\frac{1+h_S+h_S^2}{2}+B_{\rm ks}.
+\end{aligned}
+\]
+为核实此界，将中心分量提升写成 $AS+B=(q/T)M+\mathcal E+qK$，由范数可得 $\|K\|_\infty\leq\kappa$。展开整数张量乘积，再乘以 $T/q$，保留下列自然误差项：
+\[
+\begin{aligned}
+\mathcal E_{\rm mult}={}&M_1\mathcal E_2+M_2\mathcal E_1
++T(\mathcal E_1K_2+\mathcal E_2K_1)+\frac Tq\mathcal E_1\mathcal E_2\\
+&+\rho_0+\rho_1S+\rho_2S^2+E_{\rm ks}\pmod q.
+\end{aligned}
+\]
+省略的进位项都是 $q$ 的整数倍。各张量分量舍入误差 $\rho_i$ 的范数至多为 $1/2$，从而得到上述舍入界。明文模 $T$ 约减也只使精确缩放的明文改变 $q$ 的倍数。这就证明了递推式，而不是预先假定乘法正确。
+
+对于最初的模数切换，输入自然误差界 $B_{\rm in}$ 满足下式即可：
+\[
+\frac PqB_{\rm in}+\frac{1+h_{\rm in}}2
+<\frac{p^{\varepsilon-r}}2.
+\]
+这里 $h_{\rm in}$ 是乘以输入秘密这一算子的范数上界。旧误差此时成为整数明文 $Z$ 的一部分，并不是新求值密文的加密误差。若输入秘密的加密具有自然误差界 $B_s$，则同态解密后的求值误差账本从下式开始：
+\[
+B_Z\leq\lambda_{A'}B_s+(r_P/P)\|B'\|_\infty.
+\]
+若自举密钥使用地板尺度加密，且整数误差界为 $B_{\rm key}$，可取 $B_s=B_{\rm key}+(r_P/P)\|S_{\rm in}\|_\infty$。求值模数可以独立于输入模数选取；为简化记号，上式使用相同的 $q$。
+
+要求显式电路中每个密文节点的界均满足 $B_C<q/(2T_C)$。模数切换不等式保证选择正确的舍入明文；迹对偶映射将其系数放入标量槽位；提升多项式和精确除法恢复模 $p^r$ 的各系数；逆映射重构 $M$。结合上述递推归纳，即可证明最终密文解密为 $M$。在地板尺度记号下，其输出误差为 $E^{\langle b\rangle}=\mathcal E_{p^r}+(r_{p^r}/p^r)M$。新误差界不必小于每一种输入误差，但必须满足后续计算的预算。
+
+\texttt{audit/check\_bootstrap.py} 中的精确公开求值样例覆盖了完全标量分裂的 $\Phi_4,p=5$、在 $r=1$ 和 $r=2$ 下具有二次扩域槽位的 $\Phi_8,p=3$，以及互素二进制替代环 $\Phi_3,p=2$。各例的密文模数均不能被明文模数整除，输入误差和求值密钥误差也都非零。独立检查器在公开求值完成后审计每个中间密文；求值器不接收秘密或解密回调。这些小环样例验证了实现与代数，并不证明密码学安全性，也没有实现参考文献中优化的薄自举算法。
 
 \para{同态解密的目的：}它将低模数密文中依赖秘密密钥的相位，转换为新求值模数及适当尺度下的加密明文，使后续舍入电路能够在不泄露秘密密钥和明文的情况下求值。尺度重新解释只是数字删除实现的一个组成部分，本身并不构成自举的完整解释或正确性证明。
 

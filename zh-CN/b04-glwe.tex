@@ -93,12 +93,18 @@ $\Bigl\lceil \dfrac{ \Delta  M + E }{\Delta}\Bigr\rfloor \bmod t = M \text{ } \i
 \begin{enumerate}
 \item \textbf{LWE} 是多项式环次数参数为 $n = 1$ 时的 GLWE 特例。此时，$\{A_i\}_{i=0}^{k-1}, \{S_i\}_{i=0}^{k-1}, E$ 和 $M$ 中的所有多项式都是零次常数多项式，而 $A_i$ 和 $S_i$ 分别含有 $k$ 个这样的常数，因此各自构成一个向量。
 \item \textbf{RLWE} 是 $k = 1$ 时的 GLWE 特例。此时，秘密密钥 $S$ 是单个多项式 $S_0$，每次加密也只使用单个多项式 $A_0$ 作为公开量。
-\item \textbf{$\bm{n}$ 的大小：}增大多项式次数 $n$，会增加秘密密钥的系数项数，即 $S_i = s_{i,0} + s_{i,1}X + \cdots + s_{i, n-1}X^{n-1} $，从而使完整秘密密钥更难猜测。噪声多项式 $E$ 与公开多项式 $A_i$ 也同样增大，使搜索困难问题（\autoref{subsec:lattice-overview}）更难求解。此外，次数更高的多项式可以在同一个明文多项式 $M$ 中编码更多明文数值，提高密文处理的吞吐量。
+\item \textbf{$\bm{n}$ 的大小：}多项式 $S_i = s_{i,0} + s_{i,1}X + \cdots + s_{i, n-1}X^{n-1} $ 有 $n$ 个系数。若各系数独立均匀取三元值，则完整秘密有 $3^{nk}$ 种可能取值。这是穷举候选数量，并非最佳攻击的下界，也不是搜索假设（\autoref{subsec:lattice-overview}）的证明。更高次数的明文多项式可以表示更多系数，但实际吞吐量还取决于运算成本。
 %\item \textbf{Size of $\bm{q}$:} Increasing $q$ increases the ciphertext molulus space, making it hard to attack the cryptosystem. 
 %Also, a large modulo space creates an enough separation between the plaintext bits and the noise bits in the ciphertext, which reduces the growth rate of the noise bits across ciphertext multiplications (will be discussed in \autoref{subsubsec:glwe-mult-plain-discussion}) and thus we can do a more number of ciphertext multiplications before the noise bits overflow to the plaintext bit area. 
-\item \textbf{$\bm{k}$ 的大小：}较大的 $k$ 会增加秘密密钥多项式 $(S_0, S_1, \ldots, S_{k-1})$ 和一次性公开多项式 $(A_0, A_1,\ldots, A_{k-1})$ 的数量，使攻击者更难猜测完整秘密密钥。但是，无论 $k$ 大小如何，每个 GLWE 密文中都只有一个 $M$ 多项式和一个 $E$ 多项式。
-\item \textbf{减小密文大小：}种子压缩密文可以保存新鲜公开种子 $d$ 与 $B$。使用明确指定的密码学伪随机生成器或可扩展输出函数，配合域分离的索引，将 $d$ 展开为全部 $kn$ 个掩码系数。可以通过拒绝采样将输出无偏地映射到 $\mathbb Z_q$。展开使用公开种子，绝不使用秘密密钥。双方据此重建相同掩码；安全性额外依赖指定的伪随机展开，而不是声称短种子能提供真正均匀的全空间采样。
+\item \textbf{$\bm{k}$ 的大小：}增大 $k$ 会增加秘密多项式 $(S_0, S_1, \ldots, S_{k-1})$ 和公开掩码多项式 $(A_0, A_1,\ldots, A_{k-1})$。每个密文仍只有一个消息多项式 $M$ 和一个误差多项式 $E$。比较两个 $n,k$ 选择时，需要考察其实际环或模结构假设与分布，而不能只数秘密系数。
+\item \textbf{减小密文大小：}种子压缩密文可以保存新鲜独立的公开种子 $d$ 与 $B$。明确指定的公开展开函数 $G$ 生成全部 $kn$ 个掩码系数，并使用参数/索引域分离及无偏系数映射。其输入绝不是秘密。由于种子公开，普通隐藏种子的 PRG 安全性并不能说明 $(d,G(d))$ 可替换为带独立均匀 $A$ 的 $(d,A)$：检验 $A=G(d)$ 就能区分两者。对固定展开函数，所需联合假设比较的是 $(d,\langle G(d),S\rangle+E)$ 与均匀 $V$ 对应的 $(d,V)$，并须使用实际秘密/误差分布及样本数量。
 \end{enumerate}
+
+\noindent\textbf{明确的种子模型：}若展开是理想随机预言机 $H:\{0,1\}^h\to\mathcal R_{\langle n,q\rangle}^k$，经典攻击者作 $Q$ 次加密查询和 $Q_H$ 次预言机查询时，其猜测偏差满足
+\[
+\epsilon\le\delta(T',Q)+\min\left\{1,\frac{QQ_H+Q(Q-1)/2}{2^h}\right\}.
+\]
+这里 $\delta$ 是实际分布的判定 GLWE 优势，采用 \autoref{subsec:lattice-scheme} 的约定。模拟密文时独立选择种子，把挑战样本的均匀掩码编程到此前未赋值的 $H(d)$，再向身体加入选定消息。仅当种子此前已被查询，或重复了更早的加密种子时，模拟才失败。第 $j$ 次加密时至多有 $Q_H+j-1$ 个点已经占用，因此得到所列联合界。在该事件之外，真实样本产生真实加密，均匀样本身体则隐藏消息；失败时中止并作独立公平猜测。这证明了上述经典随机预言机结论，既没有不加假设地把具体 XOF 替换为理想预言机，也没有为量子预言机查询证明同一个界。关于公开 XOF 展开与秘密伪随机生成的区别，参见 \href{https://pq-crystals.org/kyber/data/kyber-specification-round3-20210804.pdf}{Kyber v3.02 说明第 4.3.1 与 5.4 节}。重复掩码还会暴露两个消息相位之差加上误差差值，因此种子的新鲜性至关重要。
 
 \subsection{GLWE 的另一种形式}
 \label{subsec:glwe-alternative}
@@ -231,7 +237,15 @@ $= \Delta M + E_{\mathit{all}}$ \textcolor{red}{ $\rhd$ 其中 $E_{\mathit{all}}
 
 $ $
 
-\para{安全性：}上面的抵消运算证明了代数正确性恒等式；它本身并不证明保密性，也不证明安全级别等价。当 $k=1$ 时，该构造具有通常的环 LWE 公钥结构：带噪公钥、独立随机化加密，以及误差 $E_{\mathit{all}}=EU+E_1-E_2S$。参见 \href{https://web.eecs.umich.edu/~cpeikert/pubs/ideal-lwe.pdf}{Lyubashevsky--Peikert--Regev, On Ideal Lattices and Learning with Errors over Rings}。这里采用的三元秘密及三元随机量变体，需要相应的判定 RLWE 假设；未核对前提时，不能直接援引原论文中关于高斯分布的定理。
+\para{安全性：}在 $k=1$ 时，将公钥写成 $(A,P)$，其中 $P=AS+E$；密文为 $(D,B)=(AU+E_2,PU+E_1+\Delta M)$。假设针对实际 $S$ 分布及误差 $E$ 的判定 RLWE 成立，也假设针对实际 $U$ 分布的两样本判定 RLWE 成立，其两个误差分别服从 $E_2,E_1$ 的分布。本小节中两个秘密均为三元分布，三种误差分布相同，因此同一个相应的两样本 RLWE 假设可覆盖两次使用。仅有针对高斯秘密的定理并不能推出这一点。
+
+单挑战 IND-CPA 证明使用两个混合。首先，将 $P=AS+E$ 替换为独立均匀环元素。归约将一条 RLWE 样本嵌入公钥，自行选择新鲜 $U,E_1,E_2$ 就能执行全部加密，不需要知道 $S$。随后，在均匀 $(A,P)$ 下，将挑战的 $(D,B-\Delta M)$ 替换为独立均匀环元素。归约取得共享同一个未知秘密 $U$ 的两条样本 $(A,Z_2),(P,Z_1)$，以其掩码作为公钥，等挑战消息选定后返回 $(Z_2,Z_1+\Delta M)$。真实样本给出 $Z_2=AU+E_2$ 和 $Z_1=PU+E_1$；均匀样本则完全隐藏选中的消息。其他加密都可用新鲜、已知的随机性公开执行。因此，采用 \autoref{subsec:lattice-scheme} 的猜测偏差约定，有
+\[
+\epsilon_{\mathrm{PKE}}\le\delta_S(T'_1,1)+\delta_U(T'_2,2).
+\]
+这两项使用所述实际分布，并计入归约开销。这是限定构造的完整条件性 CPA 归约，并非某个数值参数族的认证，也不涵盖依赖秘密的公钥加密查询。参见 \href{https://web.eecs.umich.edu/~cpeikert/pubs/ideal-lwe.pdf}{Lyubashevsky--Peikert--Regev，第 1.1 节 Applications}。对于未加限制的向量版本，第二个混合需要的是以 $U$ 为秘密、具有 $k+1$ 条样本的秩一 RLWE，而不仅是第一个混合所用的秩 $k$ GLWE 假设。
+
+抵消运算另外给出了正确性恒等式，其中 $E_{\mathit{all}}=EU+E_1-E_2S$。
 
 在负循环环中，对提升后的系数有
 \[

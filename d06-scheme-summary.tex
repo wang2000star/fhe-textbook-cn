@@ -2,6 +2,8 @@ The following tables summarize the ring versions discussed in this book, rather 
 
 We use the plus-phase convention $b+\langle\vec a,\vec s\rangle$ or $B+AS$ throughout these tables. The TFHE chapter uses the equivalent minus convention, obtained by negating the public mask; blind-rotation and key-switching signs must follow that choice. Evaluated ciphertext errors are not assumed to retain the distribution or standard deviation of fresh encryption. A summary formula is subject to its decoding bound, compatible parameters, and evaluation-key assumptions. In particular, publishing encryptions of a secret under a related secret may require a circular/KDM-security assumption or an appropriate key hierarchy.
 
+This requirement depends on the actual auxiliary-message function and ciphertext format. Same-key raw $R_q$-affine phases admit a mask-shift reduction; that result does not automatically cover secret squares or arbitrary coefficient maps. Independently generated keys in a directed acyclic graph admit a suitable hybrid argument even for such efficiently computable source-key functions, subject to the stated sampling and dependency conditions. Neither proof automatically establishes security for a fixed public-seed expansion. See Section~\ref{sec:glwe-key-switching} for the exact conditions.
+
 \captionsetup{justification=raggedright,singlelinecheck=false,labelfont=bf}
 
 

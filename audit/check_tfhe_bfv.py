@@ -438,11 +438,129 @@ def check_bootstrap_digits():
            unaccounted_drift=-8)
 
 
+def lwe_tensor_public(left, right, q, t, base, evaluation_key, order):
+    """Public vector-LWE evaluation; no secret or decryption callback."""
+    (a1,b1),(a2,b2) = left,right
+    delta=q//t
+    n=len(a1)
+    raw=(b1*b2,[b1*y+b2*x for x,y in zip(a1,a2)],
+         [x*y for x in a1 for y in a2])
+    modulus=q*delta if order == "relinearize_then_scale" else q
+    if order == "relinearize_then_scale":
+        d0=center(raw[0],modulus)
+        d1=[center(x,modulus) for x in raw[1]]
+        d2=[center(x,modulus) for x in raw[2]]
+    else:
+        assert order == "scale_then_relinearize"
+        d0=nearest(F(raw[0],delta))
+        d1=[nearest(F(x,delta)) for x in raw[1]]
+        d2=[nearest(F(x,delta)) for x in raw[2]]
+    a,b=list(d1),d0
+    used_digits=[]
+    for component,rows in zip(d2,evaluation_key):
+        component%=modulus
+        digits=[]
+        for ka,kb in rows:
+            component,digit=divmod(component,base)
+            digits.append(digit)
+            a=[x+digit*y for x,y in zip(a,ka)]
+            b+=digit*kb
+        assert component == 0
+        used_digits.append(digits)
+    a=[center(x,modulus) for x in a]
+    b=center(b,modulus)
+    intermediate=(tuple(a),b)
+    if order == "relinearize_then_scale":
+        a=[nearest(F(x,delta)) for x in a]
+        b=nearest(F(b,delta))
+    output=(tuple(center(x,q) for x in a),center(b,q))
+    return output,dict(raw=raw,scaled=(d0,d1,d2),digits=used_digits,
+                       intermediate=intermediate)
+
+
+def check_lwe_tensor_followup():
+    # Exact t|q is essential: 1/Delta=t/q, with no q mod t carry term.
+    secret=(1,0,1)
+    n,h=len(secret),sum(map(abs,secret))
+    t,q,base=8,8*(2**20),16
+    delta=q//t
+    tensor_secret=[x*y for x in secret for y in secret]
+    def dot(a,b):
+        return sum(x*y for x,y in zip(a,b))
+    keysets={}
+    for order,modulus in (("relinearize_then_scale",q*delta),
+                          ("scale_then_relinearize",q)):
+        length=0
+        while base**length < modulus:
+            length+=1
+        keys,keyerrors=[],[]
+        for target in tensor_secret:
+            rows,errors=[],[]
+            for i in range(length):
+                a=tuple(RNG.randrange(-modulus//2,modulus//2) for _ in secret)
+                e=RNG.choice((-1,1))
+                b=center(base**i*target+e-dot(a,secret),modulus)
+                rows.append((a,b))
+                errors.append(e)
+            keys.append(rows)
+            keyerrors.append(errors)
+        keysets[order]=(keys,keyerrors,length)
+    cases=0
+    for m1,m2 in product(range(-t//2,t//2),repeat=2):
+        errors=(1 if m1%2 else -1, -1 if m2%2 else 1)
+        inputs,carrys=[],[]
+        for m,e in zip((m1,m2),errors):
+            a=tuple(RNG.randrange(-q//2,q//2) for _ in secret)
+            b=center(delta*m+e-dot(a,secret),q)
+            assert (b+dot(a,secret)-delta*m-e)%q == 0
+            carrys.append((b+dot(a,secret)-delta*m-e)//q)
+            inputs.append((a,b))
+        e1,e2=errors
+        k1,k2=carrys
+        common=F(m1*e2+m2*e1+t*(e1*k2+e2*k1))+F(e1*e2,delta)
+        kappa=F(h+2,2)+F(1,q)
+        common_bound=t+2*t*kappa+F(1,delta)
+        for order,(keys,keyerrors,length) in keysets.items():
+            output,trace=lwe_tensor_public(*inputs,q,t,base,keys,order)
+            erl=sum(d*e for digits,errors_key in zip(trace["digits"],keyerrors)
+                    for d,e in zip(digits,errors_key))
+            erl_bound=n*n*length*(base-1)
+            assert abs(erl) <= erl_bound
+            if order == "relinearize_then_scale":
+                a,b=trace["intermediate"]
+                ra=[F(nearest(F(x,delta)))-F(x,delta) for x in a]
+                rb=F(nearest(F(b,delta)))-F(b,delta)
+                eta=common+F(erl,delta)+dot(ra,secret)+rb
+                bound=common_bound+F(erl_bound,delta)+F(1+h,2)
+            else:
+                raw,scaled=trace["raw"],trace["scaled"]
+                rho0=F(scaled[0])-F(raw[0],delta)
+                rho1=[F(x)-F(y,delta) for x,y in zip(scaled[1],raw[1])]
+                rho2=[F(x)-F(y,delta) for x,y in zip(scaled[2],raw[2])]
+                eta=common+rho0+dot(rho1,secret)+dot(rho2,tensor_secret)+erl
+                bound=common_bound+F(1+h+h*h,2)+erl_bound
+            phase=output[1]+dot(output[0],secret)
+            assert ((F(phase-delta*m1*m2)-eta)/q).denominator == 1
+            assert abs(eta) <= bound < F(delta,2)
+            decoded=center(nearest(F(center(phase,q),delta)),t)
+            assert decoded == center(m1*m2,t)
+            # Conversion back to the chapter's minus-phase convention.
+            minus_mask=tuple(-x for x in output[0])
+            assert output[1]-dot(minus_mask,secret) == phase
+            cases+=1
+    record("lwe_tensor_both_orders_exact_noise_and_public_evaluation",
+           ["TB-018","TB-022"],q=q,t=t,dimension=n,exact_cases=cases,
+           nonzero_input_and_evaluation_noise=True,
+           teaching_order_key_modulus=q*delta,standard_order_key_modulus=q,
+           secret_free_evaluator="lwe_tensor_public")
+
+
 def main():
     check_noise_and_tfhe()
     check_bfv_arithmetic()
     check_encoding_rotation()
     check_bootstrap_digits()
+    check_lwe_tensor_followup()
     print(json.dumps({"status": "pass", "groups": len(RESULTS),
                       "arithmetic": "exact integers and fractions",
                       "seed": 20261108, "checks": RESULTS}, ensure_ascii=False, indent=2))

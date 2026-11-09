@@ -747,7 +747,7 @@ $ $
 This subsection deliberately uses the alternative LWE phase $b+\langle\vec a,\vec s\rangle$. To apply it to the TFHE convention $b-\langle\vec a,\vec s\rangle$ of \autoref{subsec:tfhe-enc-dec}, first negate the public mask and negate it back on output. The tensor-product construction is a leveled LWE multiplication alternative, not the external product used by TFHE bootstrapping. It needs evaluation keys for the products $s_i s_j$, appropriate parameters and the full rescaling error bounds; it does not make arbitrary LWE multiplication noise-free.
 
 
-In \autoref{subsec:tfhe-mult-cipher}, we learned how TFHE performs ciphertext-to-ciphertext multiplication between LWE and GSW ciphertexts. However, this method is computationally expensive because it requires circuit bootstrapping to convert an LWE ciphertext into a GSW ciphertext. Such an overhead can be avoided if we directly apply BFV's ciphertext-to-ciphertext multiplication strategy to TFHE's LWE ciphertexts. Given two LWE ciphertexts to multiply, they hold the following relations:
+In \autoref{subsec:tfhe-mult-cipher}, the external product takes an LWE ciphertext and a GSW ciphertext. Obtaining the latter from an arbitrary LWE ciphertext may require circuit bootstrapping. The tensor construction below instead requires a different, quadratic-size evaluation key and a rescaling budget. This establishes an alternative operation, without asserting a performance advantage over TFHE's external product or programmable bootstrapping. We impose $t\mid q$ and $\Delta=q/t$, as in the TFHE encoding of this book. Given two LWE ciphertexts, their integer lifts satisfy:
 
 $\textsf{LWE}_{\vec{s}, \sigma}(\Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle}) = (\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle }) \Rightarrow \,\,\, \vec{a}^{\langle 1 \rangle} \cdot \vec{s} + b^{\langle 1 \rangle} = \Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle} + k_1q$
 
@@ -758,7 +758,7 @@ $ $
 Multiplying these two equations yields the following relation: 
 
 
-$(\Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle} + k_1q) \cdot (\Delta m^{\langle 2 \rangle} + e^{\langle 2 \rangle} + k_2q)$ \textcolor{red}{ $\rhd \approx \Delta^2 m^{\langle 1 \rangle} m^{\langle 2 \rangle} \bmod q$ }
+$(\Delta m^{\langle 1 \rangle} + e^{\langle 1 \rangle} + k_1q) \cdot (\Delta m^{\langle 2 \rangle} + e^{\langle 2 \rangle} + k_2q)$
 
 $ = (\vec{a}^{\langle 1 \rangle} \cdot \vec{s} + b^{\langle 1 \rangle}) \cdot (\vec{a}^{\langle 2 \rangle} \cdot \vec{s} + b^{\langle 2 \rangle})$ 
 
@@ -776,7 +776,7 @@ $ $
 , where $\otimes$ denotes an outer product of two vectors. For example, given two $n$-length vectors $\vec{v}$ and $\vec{u}$, $\vec{v} \otimes \vec{u}$ is equivalent to an $n^2$-length vector that concatenates the following $n$ distinct $n$-length vectors: $v_0\cdot\vec{u}, \,\, v_1\cdot\vec{u}, \,\, \cdots v_{n-1}\cdot\vec{u}$. Notice that the above relation is similar to that we derived in BFV's ciphertext-to-ciphertext multiplication. Therefore, similar to the remaining steps in BFV, we can relinearize and rescale this LWE term as follows:
 
 
-\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:bfv-mult-cipher-summary}} TFHE's Ciphertext-to-Ciphertext Multiplication - Method 2}}]
+\begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:bfv-mult-cipher-tfhe}} Leveled LWE Tensor Multiplication}}]
 
 
 Suppose we have the following two LWE ciphertexts:
@@ -795,7 +795,7 @@ $ $
 
 \item \textbf{\underline{\textsf{ModRaise}}}
 
-Forcibly raise the modulus of the ciphertexts $(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle}) \bmod q$ and $(\vec{a}^{\langle 2 \rangle}, b^{\langle 2 \rangle}) \bmod q$ to $Q$ (where $Q = q \cdot \Delta$) as follows:
+Interpret the chosen integer component lifts of $(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle})$ and $(\vec{a}^{\langle 2 \rangle}, b^{\langle 2 \rangle})$ modulo $Q=q\Delta$. Their phases still include the terms $qk_1$ and $qk_2$; this is not fresh encryption of the same scaled messages at the larger modulus:
 
 $(\vec{a}^{\langle 1 \rangle}, b^{\langle 1 \rangle}) \bmod Q$
 
@@ -860,6 +860,31 @@ Note that after the ciphertext-to-ciphertext multiplication, the plaintext scali
 \end{tcolorbox}
 
 
+
+\textbf{Evaluation key and conditional correctness.} Let the LWE dimension be $k$, choose integer gadget weights $g_j=\beta^j$ for $0\leq j<L$, and require $\beta^L\geq Q$. For every ordered pair $(u,v)$, publish rows with phase $g_js_us_v+e_{u,v,j}^{\rm key}\pmod Q$. Decompose each component of $\vec d_2$ exactly modulo $Q$ into digits bounded by $D_g$. If $|e_{u,v,j}^{\rm key}|\leq B_{\rm key}$, the resulting relinearization error satisfies
+\[
+|e_{\rm rl}|\leq k^2LD_gB_{\rm key}.
+\]
+This key is distinct from TFHE's GGSW bootstrapping key. Use centered input components and messages, put $h=\|\vec s\|_1$, and suppose $|e_i|\leq B_i$. Then the integer phase carries obey
+\[
+|k_i|\leq\kappa_i:=\frac{h+2}{2}+\frac{B_i}{q}.
+\]
+If $R_a,R_b$ are the component rounding errors in the final division by $\Delta$, direct expansion gives
+\[
+\begin{aligned}
+\phi_+(\textsf{ct}_{\rm out})&\equiv\Delta m_1m_2+\eta\pmod q,\\
+\eta&=m_1e_2+m_2e_1+t(e_1k_2+e_2k_1)
+      +\frac{e_1e_2+e_{\rm rl}}\Delta
+      +\langle R_a,\vec s\rangle+R_b.
+\end{aligned}
+\]
+The terms $qk_1m_2$, $qk_2m_1$ and $qt k_1k_2$ vanish modulo $q$. In particular, the dangerous modulus-remainder term of the general BFV teaching variant vanishes because $t\mid q$. A sufficient decoder condition is
+\[
+\frac t2(B_1+B_2)+t(B_1\kappa_2+B_2\kappa_1)
++\frac{B_1B_2+k^2LD_gB_{\rm key}}\Delta+\frac{h+1}{2}
+<\frac\Delta2.
+\]
+Message reduction modulo $t$ adds a multiple of $q$ and no further error. This proves the displayed order conditionally. If one instead scales the integer tensor first by $1/\Delta=t/q$ and then relinearizes modulo $q$, the key modulus is $q$, the key-error term is no longer divided by $\Delta$, and tensor rounding is bounded by $(1+h+h^2)/2$. These are two separately justified orders, not interchangeable keys. The accompanying exact checks cover both orders with nonzero input and evaluation-key errors; they do not establish secure parameter sizes or a speed improvement.
 
 \subsection{Homomorphic Key Switching}
 \label{subsec:bfv-key-switching}
@@ -1825,7 +1850,14 @@ In BFV, continuous ciphertext-to-ciphertext multiplication increases the noise i
 \subsubsection{High-level Idea}
 \label{subsubsec:bfv-bootstrapping-high-level}
 
-We first explain the case $t=p$, then state the $t=p^r$ generalization. Let $\varepsilon>r$ and $P=p^\varepsilon$. The following is a decomposition of the decryption function, not a complete secure parameter set or a proof that any $q\gg P$ suffices. The linear-transform implementation, multiplication budget, evaluation-key noise and scale drift must all be bounded. An encrypted secret under itself additionally requires the circular-security assumption used by the cited bootstrapping construction.
+Let $t=p^r$, $\varepsilon>r$ and $P=p^\varepsilon$. We decompose the decryption function, give a general coefficient/slot construction, and state an explicit gate-by-gate sufficient correctness test in \autoref{subsubsec:bfv-bootstrapping-summary}. The homomorphic polynomial evaluations in that test use standard FV integer tensor multiplication followed by $T/q$ scaling at the current plaintext modulus $T$, not the $1/\Delta$ teaching variant when $T\nmid q$. This is a conditional correctness result, not a secure or optimized parameter selection. Encrypting a secret under itself additionally needs the evaluation-key and circular-security assumptions of the cited construction~\cite{cryptoeprint:2022/1363}.
+
+For a current plaintext modulus $T$, it is useful to measure error against the exact rational scale $\mu_T=q/T$. With $r_T=q-T\lfloor q/T\rfloor$, the same ciphertext satisfies
+\[
+\phi_S(C)\equiv\mu_TM_T+\mathcal E_T\pmod q,
+\qquad \mathcal E_T=E_T-\frac{r_T}{T}M_T.
+\]
+Here $M_T$ is the centered coefficient representative. The decoder is correct if $\|\mathcal E_T\|_\infty<q/(2T)$. This change of error coordinates neither changes the ciphertext nor introduces an approximate plaintext scheme; it is exactly the decoder condition from \autoref{subsec:bfv-enc-dec}.
 
 For a ciphertext $(A,B)$ with phase $AS+B=\Delta M+E\pmod q$, the target plaintext identity is
 \[
@@ -1878,7 +1910,30 @@ The desired coefficient operation is $[\lceil z_i/p^{\varepsilon-r}\rfloor]_{p^r
 \subsubsection{\textsf{CoeffToSlot} and \textsf{SlotToCoeff}}
 \label{subsubsec:bfv-bootstrapping-coefftoslot}
 
-The displayed $n$-scalar-slot matrices assume $p\equiv1\pmod{2n}$, with a primitive root Hensel-lifted to $\mathbb Z_{p^\varepsilon}$ (and a corresponding root at each later plaintext modulus). In general, for $\gcd(p,2n)=1$ and $d=\operatorname{ord}_{2n}(p)$, there are $n/d$ extension-ring slots, and coefficient extraction into scalar slots uses a different transformation, typically with $d$ ciphertexts. Those general transforms, including parameters that do not split into scalar slots, are outside this simplified matrix presentation. Matrix multiplication here means a homomorphic linear circuit using rotations and plaintext multiplications, not ordinary scalar multiplication of a ciphertext tuple by a matrix. This CRT route requires $\gcd(p,2n)=1$, so $p$ must be odd in this chapter's power-of-two ring. At $p=2$, $X^n+1=(X+1)^n\pmod2$ has repeated factors; changing only the matrix cannot provide the assumed distinct CRT slots. A complete binary CRT bootstrap must use a cyclotomic index coprime to $2$, or a separately justified construction.
+The displayed $n$-scalar-slot matrices assume $p\equiv1\pmod{2n}$, with a primitive root Hensel-lifted to $\mathbb Z_{p^\varepsilon}$ and compatibly reduced at each later plaintext modulus. In general, when $\gcd(p,2n)=1$ and $d=\operatorname{ord}_{2n}(p)$, there are $n/d$ extension-ring slots. The trace-dual construction below packs all coefficients into scalar entries of $d$ ciphertexts, so complete scalar splitting is not necessary. Matrix multiplication denotes a homomorphic linear circuit using automorphisms, key switching and plaintext multiplications. This CRT route still requires $p$ odd in this chapter's power-of-two ring: at $p=2$, $X^n+1=(X+1)^n\pmod2$ has repeated factors. A binary CRT bootstrap must instead use a cyclotomic index coprime to $2$, or a separately justified construction.
+
+\textbf{A general realizable linear transform.} To include the alternative binary ring, temporarily write $R_j=(\mathbb Z/p^j\mathbb Z)[X]/\Phi_{m_c}(X)$ with $p\nmid m_c$, $n=\varphi(m_c)$, $d=\operatorname{ord}_{m_c}(p)$ and $\ell=n/d$. This chapter's ring has $m_c=2n$. Choose compatible monic factors of $\Phi_{m_c}$ modulo $p^\varepsilon$ and reduce them modulo $p^j$; the CRT gives $\ell$ unramified degree-$d$ extension-ring slots.
+
+Let $\tau_a(X)=X^a$ for $a\in(\mathbb Z/m_c\mathbb Z)^\times$. The trace pairing is nondegenerate modulo $p$, since the algebra is a product of finite fields; its Gram determinant is consequently a unit modulo every $p^j$. There is a trace-dual basis $b_0,\ldots,b_{n-1}$ such that
+\[
+\operatorname{Tr}(b_uX^v)=\delta_{uv},\qquad
+\operatorname{Tr}(W)=\sum_a\tau_a(W),\qquad
+z_u=\operatorname{Tr}(b_uZ).
+\]
+Every base-ring-linear map $\mathcal T:R_j\to R_j$ therefore has the explicit realization
+\[
+\mathcal T(Z)=\sum_a\kappa_a\tau_a(Z),\qquad
+\kappa_a=\sum_{u=0}^{n-1}\mathcal T(X^u)\tau_a(b_u).
+\]
+Indeed, substituting the trace expansion gives $\sum_u\mathcal T(X^u)z_u$. Each term uses a public polynomial multiplier and an automorphism followed by key switching. No decryption or division by the extension degree is involved. In particular, when $p\mid d$, dividing the slot trace by $d$ is invalid. The lifted Frobenius is the automorphism $X\mapsto X^p$ acting on generators; it is not the map $W\mapsto W^p$ on arbitrary elements modulo $p^j$ when $j>1$.
+
+For $0\leq u<d$, define $\mathcal T_u$ by giving its CRT residues: slot $h$ contains the scalar coefficient $z_{u\ell+h}$ and no nonconstant extension coordinates. An inverse map $\mathcal U_u$ reads each slot's scalar coordinate and writes it to coefficient position $u\ell+h$, filling other positions with zero. CRT matrix inversion constructs these maps, and the trace-dual formula compiles both into homomorphic operations. They satisfy
+\[
+\sum_{u=0}^{d-1}\mathcal U_u\bigl(\mathcal T_u(Z)\bigr)=Z.
+\]
+Use the packing maps modulo $p^\varepsilon$ and the compatible unpacking maps modulo $p^r$. Digit polynomials act on the scalar entries, not on arbitrary extension elements. If every slot of their numerator is divisible by $p$, the CRT implies that the entire polynomial lies in $pR_j$; thus the subsequent coefficientwise exact division is well defined. This supplies a general, unoptimized construction for the transforms used below~\cite{cryptoeprint:2022/1363}.
+
+The familiar completely split matrices are the special case $d=1$:
 
 The goal of the \textsf{CoeffToSlot} step is to homomorphically move polynomial $Z$'s coefficients $z_i$ to input vector slots. 
 
@@ -1901,9 +1956,9 @@ $ $
 
 Therefore, given the input ciphertext $\textsf{ct} = \textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm) \bmod q$, we can understand its input vector slots as storing some values such that multiplying $n^{-1}\cdot\hathat{W} \cdot I_n^R$ to each of them turns them into a coefficient $z_i$ of polynomial $Z$. This implies that if we \textit{homomorphically} multiply $n^{-1}\cdot\hathat{W} \cdot I_n^R$ to the input vector slots of $\textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm)$, then the resulting ciphertext's $n$-slot input vector slots will contain the $n$ coefficients of $Z$, which is equivalent to moving the coefficients of $Z$ to the input vector slots. Therefore, the \textsf{CoeffToSlot} step is equivalent to homomorphically computing $n^{-1}\cdot\hathat{W} \cdot I_n^R \cdot \textsf{RLWE}_{S, \sigma}\bm(\Delta' Z\bm)$. We can homomorphically compute matrix-vector multiplication by using the technique explained in \autoref{subsec:bfv-matrix-multiplication}.
 
-After the \textsf{CoeffToSlot} step, we can homomorphically eliminate the noise in the lower (base-$p$) $\varepsilon-1$ digits of each $z_i$ by homomorphically evaluating the noise-removing polynomial (to be explained in the next subsection).  
+After the \textsf{CoeffToSlot} step, we can homomorphically eliminate the noise in the lower (base-$p$) $\varepsilon-r$ digits of each $z_i$ by homomorphically evaluating the noise-removing polynomial (to be explained in the next subsection).
 
-After we get noise-free coefficients of $Z$, we need to move them back from the input vector slots to their original coefficient positions. This step is called \textsf{SlotToCoeff}, which is an exact inverse procedure of \textsf{CoeffToSlot}. We also learned in Summary~\ref*{subsubsec:bfv-rotation-summary} (in \autoref{subsubsec:bfv-rotation-summary}) that the inverse matrix of $n^{-1}\cdot\hathat{W} \cdot I_n^R$ is $\hathat{W}^*$, where: 
+After recovering the coefficients of $M$ in the plaintext slots, we need to move them back to their original coefficient positions. The ciphertext still contains bounded evaluation error. This step is called \textsf{SlotToCoeff}, which is an exact inverse procedure of \textsf{CoeffToSlot}. We also learned in Summary~\ref*{subsubsec:bfv-rotation-summary} (in \autoref{subsubsec:bfv-rotation-summary}) that the inverse matrix of $n^{-1}\cdot\hathat{W} \cdot I_n^R$ is $\hathat{W}^*$, where:
 
 $\hathat{W}^* = \begin{bmatrix}
 1 & (\omega^{J(0)}) & (\omega^{J(0)})^2 & \cdots & (\omega^{J(0)})^{n-1}\\
@@ -1958,9 +2013,15 @@ deletes $\varepsilon-r$ digits. Each invocation of $G_j$ computes its own lowest
 \Delta_jpw+E_j=\Delta_{j-1}w+(E_j-\delta_jw),\qquad
 \delta_j=\Delta_{j-1}-p\Delta_j\in\{0,\ldots,p-1\}.
 \]
-This avoids a ciphertext multiplication by $p^{-1}\bmod q$, but it creates the drift $-\delta_jw$ unless $\delta_j=0$. If $|w|\leq p^{j-1}/2$, its magnitude is at most $(p-1)p^{j-1}/2$ per slot. Plaintext representative changes and subsequent linear transformations require their own remainder and norm bounds. No inequality of the form ``drift is automatically much smaller than $\Delta_j$'' follows from the notation.
+This avoids multiplying ciphertext components by $p^{-1}\bmod q$. The term $-\delta_jw$ is a change in the error measured against the floored scale. Against the exact scale it cancels:
 
-The interpreted scales are $\lfloor q/p^\varepsilon\rfloor,\lfloor q/p^{\varepsilon-1}\rfloor,\ldots,\lfloor q/p^r\rfloor$. A plaintext added to a ciphertext must use the current scale, while ciphertext-to-plaintext multiplication uses an unscaled plaintext multiplier as in \autoref{subsec:bfv-mult-plain}. Every polynomial evaluation and every reinterpretation consumes noise budget; a complete implementation must prove all intermediate and final decoder conditions. The identities here describe the intended transformation, not a universal secure parameter choice.
+\[
+\frac{q}{p^j}(pw)+\mathcal E_j
+=\frac{q}{p^{j-1}}w+\mathcal E_j.
+\]
+Thus exact division adds no natural error and increases the decoder tolerance. Both descriptions are equivalent: one must not add the floor-scale drift again to a bound already expressed in natural-error coordinates. Consistent divisible centered coefficient representatives make the identity exact, including when $p^j\nmid q$.
+
+The floored scales are $\lfloor q/p^\varepsilon\rfloor,\lfloor q/p^{\varepsilon-1}\rfloor,\ldots,\lfloor q/p^r\rfloor$. A plaintext added to a ciphertext must use the current scale, while ciphertext-to-plaintext multiplication uses an unscaled multiplier as in \autoref{subsec:bfv-mult-plain}. Polynomial evaluation changes the natural error; exact division preserves it while changing the plaintext modulus. The explicit recurrence in \autoref{subsubsec:bfv-bootstrapping-summary} checks every intermediate decoder condition.
 
 The remaining local algebraic task is to construct the lifting polynomials.
 
@@ -1983,19 +2044,67 @@ This proves the lifting property used in each recursion. The degree is at most $
 \subsubsection{Summary}
 \label{subsubsec:bfv-bootstrapping-summary}
 
-The following summarizes the generalized plaintext transformation. It assumes the rounding condition after modulus switching, a valid coefficient/slot transform, and sufficient budget for every homomorphic step; it is not an unconditional implementation theorem.
+The following summarizes the generalized plaintext transformation. The recurrence after the box makes its correctness conditions explicit: it accounts for the low-modulus rounding, the general linear transforms, all homomorphic gates and the final decoder. Security and optimization are separate questions.
 
 \begin{tcolorbox}[title={\textbf{\tboxlabel{\ref*{subsubsec:bfv-bootstrapping-summary}} BFV Bootstrapping}}]
 Let $t=p^r$, $\varepsilon>r$, $P=p^\varepsilon$, $\Delta=\lfloor q/p^r\rfloor$ and $\Delta'=\lfloor q/P\rfloor$. The complete CRT procedure assumes the compatible ring conditions in \autoref{subsubsec:bfv-bootstrapping-coefftoslot}; in this chapter's power-of-two ring, $p$ is odd.
 \begin{enumerate}
 \item \textbf{Modulus Switch:} Compute $A'=[\lceil(P/q)A\rfloor]_P$ and $B'=[\lceil(P/q)B\rfloor]_P$. Their phase satisfies $A'S+B'\equiv p^{\varepsilon-r}M+E'\pmod P$, with the complete $E'$ from \autoref{subsubsec:bfv-bootstrapping-modulus-switch}. Require $\|E'\|_\infty<p^{\varepsilon-r}/2$.
 \item \textbf{Homomorphic Decryption:} With an encryption of $\Delta'S$ at modulus $q$, compute $A'\cdot\textsf{RLWE}_{S,\sigma}(\Delta'S)+(0,\Delta'B')$. Track both the key-noise term and the plaintext-reduction remainder as in \autoref{subsubsec:bfv-bootstrapping-homomorphic-decryption}.
-\item \textbf{\textsf{CoeffToSlot}:} Homomorphically place the coefficients of $Z=[p^{\varepsilon-r}M+E']_P$ into slots. In the scalar-split case the slot transformation is $n^{-1}\hathat W I_n^R$ (\autoref{subsubsec:bfv-rotation-summary}); general slot structures require different transforms.
+\item \textbf{\textsf{CoeffToSlot}:} Homomorphically place the coefficients of $Z=[p^{\varepsilon-r}M+E']_P$ into slots. In the scalar-split case the slot transformation is $n^{-1}\hathat W I_n^R$ (\autoref{subsubsec:bfv-rotation-summary}); for extension slots, use the $d$ maps $\mathcal T_u$ constructed in \autoref{subsubsec:bfv-bootstrapping-coefftoslot}.
 \item \textbf{Digit Extraction:} For each current precision $j=\varepsilon,\varepsilon-1,\ldots,r+1$, extract its lowest digit with $L_j=F_{j-1}\circ\cdots\circ F_1$ and implement the exact quotient $G_j(z)=(z-L_j(z))/p\pmod{p^{j-1}}$. Use balanced digits for odd $p$, or the stated rounding offset for $p=2$. The final slot is $m_i\pmod{p^r}$, so any unreduced representative differs by $k_i'p^r$, not by $k_i'p$ when $r>1$.
 \para{\underline{Scaling Factor Re-interpretation}:} At each division, reinterpret the scale from $\lfloor q/p^j\rfloor$ to $\lfloor q/p^{j-1}\rfloor$ and include the drift $-\delta_jw$ derived above. The final scale is $\lfloor q/p^r\rfloor=\Delta$. No modular inverse of $p$ is assumed.
-\item \textbf{\textsf{SlotToCoeff}:} Apply the inverse linear transform $\hathat W^*$ in the scalar-split case, recovering an encryption with phase $\Delta M+E^{\langle b\rangle}\pmod q$. The complete output error includes all evaluation, scale-drift and plaintext-reduction terms and must satisfy the BFV decoder bound.
+\item \textbf{\textsf{SlotToCoeff}:} Apply the inverse linear transform $\hathat W^*$ in the scalar-split case, or sum the $\mathcal U_u$ outputs in the extension-slot case, recovering an encryption with phase $\Delta M+E^{\langle b\rangle}\pmod q$. The complete output error includes all evaluation, scale-drift and plaintext-reduction terms and must satisfy the BFV decoder bound.
 \end{enumerate}
 \end{tcolorbox}
+
+\textbf{An explicit conditional correctness certificate.} Use the natural error $\mathcal E_T$ defined in \autoref{subsubsec:bfv-bootstrapping-high-level}. Let $C_R$ satisfy $\|UV\|_\infty\leq C_R\|U\|_\infty\|V\|_\infty$, and let $h_S$ bound the infinity operator norm of multiplication by the secret. In the negacyclic ring, one may take $C_R=n$ and $h_S=\|S\|_1$. For a public polynomial $C$ or automorphism $\tau_a$, let $\lambda_C$ or $\lambda_a$ be its coefficient infinity operator norm. These are computable matrix norms, also for general cyclotomic rings.
+
+Use exact integer gadgets with $L$ digits bounded by $D_g$, and raw evaluation-key row phases $g_iS_{\rm old}+E_i^{\rm key}$ under the output secret, with $\|E_i^{\rm key}\|_\infty\leq B_{\rm key}$. A key switch adds at most
+\[
+B_{\rm ks}=C_RLD_gB_{\rm key}
+\]
+to the natural-error bound. No independence assumption is needed. If input bounds are $B_1,B_2$, the following valid bounds can be propagated, rounding them upward if desired:
+\[
+\begin{aligned}
+B_{\rm add/sub}&=B_1+B_2,\qquad B_{\rm plain\,mult}=\lambda_CB_1,\\
+B_{\rm plain\,add}&=B_1+(r_T/T)\|C\|_\infty,\\
+B_{\rm auto}&=\lambda_aB_1+B_{\rm ks},\qquad B_{\rm exact\,div}=B_1,\\
+\kappa_i&=(h_S+2)/2+B_i/q.
+\end{aligned}
+\]
+The plaintext addition uses $\lfloor q/T\rfloor C$; exact division requires a plaintext divisible by $p$ and changes $T$ to $T/p$. Standard FV multiplication gives
+\[
+\begin{aligned}
+B_{\rm mult}={}&C_R\left[\frac T2(B_1+B_2)
++T(\kappa_1B_2+\kappa_2B_1)+\frac TqB_1B_2\right]\\
+&+\frac{1+h_S+h_S^2}{2}+B_{\rm ks}.
+\end{aligned}
+\]
+To verify this bound, write centered component lifts as $AS+B=(q/T)M+\mathcal E+qK$. Their norms give $\|K\|_\infty\leq\kappa$. Expanding the integer tensor product and multiplying by $T/q$ leaves the natural-error terms
+\[
+\begin{aligned}
+\mathcal E_{\rm mult}={}&M_1\mathcal E_2+M_2\mathcal E_1
++T(\mathcal E_1K_2+\mathcal E_2K_1)+\frac Tq\mathcal E_1\mathcal E_2\\
+&+\rho_0+\rho_1S+\rho_2S^2+E_{\rm ks}\pmod q.
+\end{aligned}
+\]
+All omitted carry terms are integer multiples of $q$. Each tensor-component rounding error $\rho_i$ has norm at most $1/2$, giving the displayed rounding bound. Reducing the message modulo $T$ also changes the exact scaled message only by multiples of $q$. This proves the recurrence, rather than assuming that multiplication is correct.
+
+For the first modulus switch, an input natural-error bound $B_{\rm in}$ is sufficient if
+\[
+\frac PqB_{\rm in}+\frac{1+h_{\rm in}}2
+<\frac{p^{\varepsilon-r}}2.
+\]
+Here $h_{\rm in}$ bounds multiplication by the input secret. The old error is now part of the integer plaintext $Z$; it is not the error of the new evaluation ciphertext. If the encryption of the input secret has natural-error bound $B_s$, the homomorphic decryption starts the evaluation ledger with
+\[
+B_Z\leq\lambda_{A'}B_s+(r_P/P)\|B'\|_\infty.
+\]
+For a floor-scaled bootstrapping-key encryption with integer error bounded by $B_{\rm key}$, one may use $B_s=B_{\rm key}+(r_P/P)\|S_{\rm in}\|_\infty$. The evaluation modulus may be chosen independently of the input modulus; the displayed formulas use the same $q$ for simplicity.
+
+Require the bound $B_C<q/(2T_C)$ at every ciphertext node of the explicit circuit. The modulus-switch inequality selects the correct rounded message; the trace-dual maps place its coefficients in scalar slots; the lifting polynomials and exact divisions recover those coefficients modulo $p^r$; the inverse maps reconstruct $M$. Induction with the above recurrence proves that the final ciphertext decrypts to $M$. In floor-scale notation its output error is $E^{\langle b\rangle}=\mathcal E_{p^r}+(r_{p^r}/p^r)M$. The new bound need not be smaller than every possible input error; it must fit the intended subsequent computation.
+
+The exact public-evaluation fixtures in \texttt{audit/check\_bootstrap.py} cover $\Phi_4,p=5$ with scalar splitting, $\Phi_8,p=3$ with degree-two extension slots at $r=1$ and $r=2$, and the coprime binary alternative $\Phi_3,p=2$. Their ciphertext moduli are not divisible by the plaintext moduli, and their input and evaluation-key errors are nonzero. A separate checker audits every intermediate ciphertext after public evaluation; no secret or decryption callback enters the evaluator. These tiny-ring fixtures verify the implementation and algebra, not cryptographic security or the optimized thin-bootstrapping algorithms of the reference.
 
 \para{The purpose of Homomorphic Decryption:} It converts a low-modulus ciphertext's secret-dependent phase into an encrypted plaintext at a fresh evaluation modulus and suitable scale. This makes the remaining rounding circuit evaluable without revealing the secret or message. Scale reinterpretation is one component of the digit-removal implementation, not by itself a complete explanation or correctness proof of bootstrapping.
 

@@ -27,6 +27,8 @@
 
 **修订。** 分别列出标量接口和环内部结构，说明维数、模数、分布与评估密钥相关假设。
 
+**续审核对。** D6 引言进一步区分已完成归约的 raw 环仿射同密钥材料、独立密钥 DAG，以及同密钥仿射证明不覆盖的秘密平方、任意系数映射和固定公开种子格式。DAG 证明可以覆盖可高效计算的源密钥函数，但要求独立密钥、无环依赖及相应采样条件。不能笼统把所有同密钥材料都列为需要额外循环安全假设；完整条件与模拟见 [security-followup.md](security-followup.md) 的 SEC-006/007。
+
 **来源或复现。** Chillotti 博士论文第 3—5 章；Geelen–Vercauteren §3。
 
 ## SUM-003　明文素数条件与 CKKS 定义域混淆
@@ -233,6 +235,8 @@
 
 **来源或复现。** Geelen–Vercauteren §3.2 Eq.(9)、§3.3–3.4、§6；正文 D2 同步修正。
 
+**续审核对。** [bootstrap-followup.md](bootstrap-followup.md) 补齐一般互素分圆环上的迹对偶槽变换及逐节点误差预算，并以公开 BFV 密文完成分裂、扩域与二进制相容环的有限复现。精确除以 p 的自然尺度误差不变；floor 尺度下的坐标漂移不能重复算作新增物理噪声。这里的概览服从 D2 给出的参数和求值密钥条件。
+
 ## SUM-020　CKKS 正弦近似被写成精确模约减
 
 **级别：高；状态：已修正。** 位置：D6：Bootstrapping Details，CKKS 行。
@@ -244,6 +248,8 @@
 **修订。** 改为 EvalMod 的有界域近似，区分线性槽变换与非线性模约减，保留残差 ε。
 
 **来源或复现。** check_summary.py；Cheon 等，Bootstrapping for Approximate HE，§3.1。
+
+**续审核对。** [ckks-followup.md](ckks-followup.md) 将实输入的多项式逼近界与复邻域导数界、实际算术误差分别计入总预算，并补出 Meta-BTS 的输入域与尺度条件。[OpenFHE 实验](openfhe-review.md) 单独测量相对自举输入的新增误差，不把它误称为消除原有计算误差。
 
 ## SUM-021　BGV 自举精确除法与明文模数变化被省略
 

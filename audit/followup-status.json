@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "review_date_utc": "2026-11-08",
+  "followup_base_commit": "25d4cdb06d3dfd5ce4e741c54c590c14f0b9c226",
+  "policy": "Authored mathematical review decisions, not statuses inferred from passing tests. Evidence files contain the proof and its conditions. Reopen claims when those conditions or evidence change.",
+  "targets": [
+    {
+      "record_id": "tfhe-bfv-053",
+      "source_ledger": "tfhe-bfv-coverage.json",
+      "file": "d02-bfv.tex",
+      "original_line": 909,
+      "previous_status": "partially_verified",
+      "current_status": "conditions_added",
+      "verified_claims": [
+        "FU-07: both LWE tensor orders with exact scale t dividing q",
+        "128 public ciphertext multiplications with nonzero input and evaluation-key errors"
+      ],
+      "remaining_scope": [
+        "Production TFHE integration and efficiency",
+        "Security of quadratic evaluation keys and concrete parameters"
+      ],
+      "evidence": [
+        "bootstrap-followup.md",
+        "check_tfhe_bfv.py"
+      ]
+    },
+    {
+      "record_id": "tfhe-bfv-066",
+      "source_ledger": "tfhe-bfv-coverage.json",
+      "file": "d02-bfv.tex",
+      "original_line": 1982,
+      "previous_status": "partially_verified",
+      "current_status": "conditions_added",
+      "verified_claims": [
+        "FU-01/02/03: natural-error coordinates, low-modulus entry and every evaluation gate",
+        "FU-06/08: conditional end-to-end theorem and public ciphertext execution"
+      ],
+      "remaining_scope": [
+        "Unbounded-noise tails and whole-circuit failure probabilities for a concrete distribution",
+        "Concrete secure parameters"
+      ],
+      "evidence": [
+        "bootstrap-followup.md",
+        "check_bootstrap.py",
+        "bootstrap-results.json"
+      ]
+    },
+    {
+      "record_id": "tfhe-bfv-069",
+      "source_ledger": "tfhe-bfv-coverage.json",
+      "file": "d02-bfv.tex",
+      "original_line": 2115,
+      "previous_status": "partially_verified",
+      "current_status": "conditions_added",
+      "verified_claims": [
+        "FU-04: trace-dual compilation of arbitrary base-ring linear maps",
+        "Compatible coefficient packing/unpacking into d ciphertexts with n/d scalar slots",
+        "Lifted Frobenius and p dividing extension-degree counterexamples"
+      ],
+      "remaining_scope": [
+        "Optimized GV thin bootstrapping and performance",
+        "Coprimality restriction remains; the binary example uses Phi_3"
+      ],
+      "evidence": [
+        "bootstrap-followup.md",
+        "check_bootstrap.py",
+        "bootstrap-results.json"
+      ]
+    },
+    {
+      "record_id": "tfhe-bfv-077",
+      "source_ledger": "tfhe-bfv-coverage.json",
+      "file": "d02-bfv.tex",
+      "original_line": 2408,
+      "previous_status": "partially_verified",
+      "current_status": "conditions_added",
+      "verified_claims": [
+        "FU-01 through FU-06: phase and error induction for the complete public algorithm",
+        "FU-08: 4 configurations, 8 runs, 466 independently audited nodes"
+      ],
+      "remaining_scope": [
+        "Secure parameter selection and statistical failure bound",
+        "No claim to implement all GV optimizations"
+      ],
+      "evidence": [
+        "bootstrap-followup.md",
+        "check_bootstrap.py",
+        "bootstrap-results.json"
+      ]
+    },
+    {
+      "record_id": "d03-ckks-050",
+      "source_ledger": "ckks-bgv-rns-coverage.json",
+      "file": "d03-ckks.tex",
+      "original_line": 1925,
+      "previous_status": "partially_verified",
+      "current_status": "partially_verified",
+      "verified_claims": [
+        "Independent conditional Meta-BTS recursion with actual scales and first-rescale error",
+        "Complex-perturbation-aware joint error model",
+        "Pinned real OpenFHE execution: 3 independent keys and 9 held-out inputs"
+      ],
+      "remaining_scope": [
+        "full_paper_review: continuous Meta-BTS paper and complete proofs were not obtained",
+        "Concrete implementation must establish its base-bootstrap contract"
+      ],
+      "evidence": [
+        "ckks-followup.md",
+        "check_meta_bts.py",
+        "openfhe-review.md",
+        "openfhe-results.json"
+      ]
+    },
+    {
+      "record_id": "d03-ckks-051",
+      "source_ledger": "ckks-bgv-rns-coverage.json",
+      "file": "d03-ckks.tex",
+      "original_line": 1936,
+      "previous_status": "partially_verified",
+      "current_status": "corrected",
+      "verified_claims": [
+        "Upper error budgets distinguished from universal positive lower bounds",
+        "Real polynomial approximation, complex perturbation and evaluation errors accounted separately",
+        "Previous represented-value error and conditional union failure bound retained"
+      ],
+      "remaining_scope": [
+        "No universal secure-parameter or precision-floor certification",
+        "Original arcsin SEAL experiments not rerun"
+      ],
+      "evidence": [
+        "ckks-followup.md",
+        "check_meta_bts.py",
+        "openfhe-review.md"
+      ]
+    }
+  ],
+  "security": {
+    "finding": "FND-035",
+    "record_ids": [
+      "B01-CHAPTER",
+      "B01-HEADING-001",
+      "B01-HEADING-002",
+      "B01-HEADING-003",
+      "B04-CHAPTER",
+      "B04-HEADING-002",
+      "B04-HEADING-004",
+      "B04-HEADING-006",
+      "B04-HEADING-007",
+      "C05-CHAPTER",
+      "C05-HEADING-001"
+    ],
+    "current_status": "corrected_with_pending_security",
+    "subclaim_statuses": [
+      "conditional_reduction_complete",
+      "additional_explicit_assumption_required",
+      "concrete_parameters_uncertified"
+    ],
+    "evidence": [
+      "security-followup.md",
+      "check_security.py",
+      "foundations-coverage.json"
+    ],
+    "remaining_scope": [
+      "Concrete parameter families, actual sampling and attack costs",
+      "Fixed public-XOF seeded assumptions and quantum-oracle analyses",
+      "Non-ring-affine same-key KDM and other dependencies outside the proven DAG cases",
+      "Instance-level failure probabilities"
+    ]
+  }
+}

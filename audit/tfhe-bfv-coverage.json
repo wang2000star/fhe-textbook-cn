@@ -817,13 +817,42 @@
     "original_end_line": 1026,
     "label": "subsubsec:bfv-mult-cipher-tfhe",
     "own_label": "subsubsec:bfv-mult-cipher-tfhe",
-    "status": "partially_verified",
+    "status": "conditions_added",
     "findings": [
       "TB-018",
       "TB-022"
     ],
-    "review": "核对加号相位的标量秘密张量积，并明确 TFHE mask 取负转换；仅给概念推广，完整参数与新求值钥仍需指定。",
-    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+    "review": "后续 FU-07 固定 t|q、Δ=q/t，构造 k² 个秘密乘积求值密钥，证明整数相位进位界、两种顺序的完整误差及充分解码界；公开求值128个样本全部通过。保留与原TFHE外积/PBS的区别及一般BFV余数反例。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb",
+    "followup": {
+      "previous_status": "partially_verified",
+      "report": "audit/bootstrap-followup.md",
+      "subclaims": [
+        {
+          "id": "FU-07a",
+          "claim": "t|q 下 Q=qΔ 重线性化后缩放的完整相位与噪声界",
+          "status": "proved_conditionally"
+        },
+        {
+          "id": "FU-07b",
+          "claim": "整数张量 t/q 缩放后重线性化，匹配不同模数求值钥",
+          "status": "proved_conditionally"
+        },
+        {
+          "id": "FU-07c",
+          "claim": "两种顺序128个带非零误差的公开密文计算",
+          "status": "implemented_and_checked"
+        }
+      ],
+      "evidence": [
+        "audit/check_tfhe_bfv.py"
+      ],
+      "not_claimed": [
+        "未证明安全参数或性能优势",
+        "张量求值密钥不能替代TFHE的GGSW自举钥",
+        "t不整除q时不得套用简化误差式"
+      ]
+    }
   },
   {
     "file": "d02-bfv.tex",
@@ -1014,7 +1043,7 @@
       "TB-032",
       "TB-033"
     ],
-    "review": "核对引用的 GV/HS 构造范围并阅读全文；明确后文只是有条件解密分解而非完整可用自举参数集。GV §2.3 要求 p 与分圆指标互素，本书二次幂环的这条 CRT 路线因此要求 p 奇数。",
+    "review": "再次精读GV全文§1至§8；后续完成一般互素CRT变换、完整条件性噪声递推和端到端公开求值。p须与分圆指标互素，本书二次幂环要求p奇数；安全估计和优化薄自举仍未完成。",
     "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
   },
   {
@@ -1025,7 +1054,7 @@
     "original_end_line": 2062,
     "label": "subsubsec:bfv-bootstrapping-high-level",
     "own_label": "subsubsec:bfv-bootstrapping-high-level",
-    "status": "partially_verified",
+    "status": "conditions_added",
     "findings": [
       "TB-025",
       "TB-026",
@@ -1033,8 +1062,37 @@
       "TB-028",
       "TB-033"
     ],
-    "review": "核对五阶段语义和原论文式9，修低模相位/高模封装/数字舍入；明确 p2 偏移仅是标量恒等式，完整流程受 CRT 互素条件限制；全程噪声和安全参数证明仍不由原书提供。",
-    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+    "review": "后续 FU-01/02/03/06 给出自然误差坐标、低模入口界、同态解密初始误差和逐门归纳的端到端充分条件；旧E_low作为整数Z的一部分与新评估噪声严格区分。4参数8流程466节点检查。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb",
+    "followup": {
+      "previous_status": "partially_verified",
+      "report": "audit/bootstrap-followup.md",
+      "subclaims": [
+        {
+          "id": "FU-01",
+          "claim": "Q/T自然误差与floor(Q/T)整数误差的等价",
+          "status": "proved"
+        },
+        {
+          "id": "FU-03",
+          "claim": "低模分量舍入条件及高模同态解密初始预算",
+          "status": "proved_conditionally"
+        },
+        {
+          "id": "FU-06",
+          "claim": "组合所有阶段的端到端正确性归纳",
+          "status": "proved_conditionally"
+        }
+      ],
+      "evidence": [
+        "audit/check_bootstrap.py",
+        "audit/bootstrap-results.json"
+      ],
+      "not_claimed": [
+        "未给安全等级或无界分布的总失败概率",
+        "一般流程使用标准FV T/Q缩放而非不加条件的1/Δ变体"
+      ]
+    }
   },
   {
     "file": "d02-bfv.tex",
@@ -1074,13 +1132,42 @@
     "original_end_line": 2160,
     "label": "subsubsec:bfv-bootstrapping-coefftoslot",
     "own_label": "subsubsec:bfv-bootstrapping-coefftoslot",
-    "status": "partially_verified",
+    "status": "conditions_added",
     "findings": [
       "TB-024",
       "TB-027"
     ],
-    "review": "完全分裂条件下正逆线性变换经代数确认；一般扩域路线也要求 gcd(p,2n)=1，故本书二次幂环下 p 必须奇数。p2 时有重因子，须另选与2互素的分圆指标或另证构造，不能仅换矩阵。",
-    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+    "review": "后续 FU-04 证明 p∤分圆指标 时迹配对可逆，用对偶基显式编译任意基环线性映射为Σκ_aτ_a；构造d个标量槽位打包密文及逆映射。已实现完全分裂、二次扩域、p|d和r=2；明确提升Frobenius不是任意元p次幂。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb",
+    "followup": {
+      "previous_status": "partially_verified",
+      "report": "audit/bootstrap-followup.md",
+      "subclaims": [
+        {
+          "id": "FU-04a",
+          "claim": "一般互素分圆代数的迹对偶基存在及线性映射编译公式",
+          "status": "proved"
+        },
+        {
+          "id": "FU-04b",
+          "claim": "d个标量槽位密文的CRT正逆映射与相容约减",
+          "status": "proved"
+        },
+        {
+          "id": "FU-04c",
+          "claim": "Φ4/p5、Φ8/p3、Φ3/p2 的公开变换实现与全流程",
+          "status": "implemented_and_checked"
+        }
+      ],
+      "evidence": [
+        "audit/check_bootstrap.py",
+        "audit/bootstrap-results.json"
+      ],
+      "not_claimed": [
+        "本书二次幂环p2仍有重因子，不适用该互素CRT构造",
+        "未实现GV优化薄自举及超立方体/BSGS性能优化"
+      ]
+    }
   },
   {
     "file": "d02-bfv.tex",
@@ -1175,7 +1262,7 @@
       "TB-029",
       "TB-031"
     ],
-    "review": "重做 Δj p w 与 Δj−1w 的差值，纠正指数括号、漂移因子和加明文/乘明文尺度区别。",
+    "review": "保留floor尺度漂移−δ_jw；后续FU-01证明在Q/T自然尺度坐标下精确除p不加误差，解码容差扩大，不能重复计漂移。",
     "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
   },
   {
@@ -1201,7 +1288,7 @@
     "original_end_line": 2469,
     "label": "subsubsec:bfv-bootstrapping-summary",
     "own_label": "subsubsec:bfv-bootstrapping-summary",
-    "status": "partially_verified",
+    "status": "conditions_added",
     "findings": [
       "TB-025",
       "TB-026",
@@ -1213,8 +1300,43 @@
       "TB-032",
       "TB-033"
     ],
-    "review": "逐阶段同步修正总结；明确完整 CRT 流程需分圆指标与p互素，本书二次幂环要求 p 奇数。局部代数成立，但通用扩域变换、完整参数预算、总失败概率仍需另外证明。",
-    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
+    "review": "后续 FU-01至FU-06 完成自然误差账本、标准FV乘法保留QK交叉项、求值钥及线性变换范数、精确除法不增自然误差的证明；逐门充分条件推出最终恢复M。4组参数8次公开求值466节点，含r=2及非整除尺度，全部经独立事后审计。",
+    "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb",
+    "followup": {
+      "previous_status": "partially_verified",
+      "report": "audit/bootstrap-followup.md",
+      "subclaims": [
+        {
+          "id": "FU-02",
+          "claim": "全部原语的可计算确定性误差递推",
+          "status": "proved"
+        },
+        {
+          "id": "FU-05",
+          "claim": "标量数字提升、CRT整除性、精确除法与任意r推广",
+          "status": "proved"
+        },
+        {
+          "id": "FU-06",
+          "claim": "入口界加全部节点界推出最终正确解码",
+          "status": "proved_conditionally"
+        },
+        {
+          "id": "FU-08",
+          "claim": "4参数8完整公开密文流程466节点，保留精确预算和结果",
+          "status": "implemented_and_checked"
+        }
+      ],
+      "evidence": [
+        "audit/check_bootstrap.py",
+        "audit/bootstrap-results.json"
+      ],
+      "not_claimed": [
+        "安全参数估计及KDM/循环安全性未证明",
+        "无界采样误差的尾界和全电路总失败概率未完成",
+        "未实现优化薄自举和生产参数配置"
+      ]
+    }
   },
   {
     "file": "d02-bfv.tex",
@@ -1229,7 +1351,7 @@
       "TB-031",
       "TB-032"
     ],
-    "review": "总结尺度序列终点为 floor(q/p^r)，每次重新解释计漂移；乘明文不再统一额外缩放。",
+    "review": "总结尺度终点floor(q/p^r)与自然尺度q/p^r一致；每次重解释的floor误差坐标发生漂移，但自然误差不变；乘明文使用未缩放乘数。",
     "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
   },
   {
@@ -1246,7 +1368,7 @@
       "TB-031",
       "TB-033"
     ],
-    "review": "解释同态解密把低模相位重新封装为高模加密，尺度重释有预算代价，不声称仅调尺度就自动正确。",
+    "review": "同态解密把低模相位作为整数消息重新加密，高模评估噪声另立账本；精确除法仅改变明文模数和误差坐标，完整正确性由后续FU-01至FU-06证明。",
     "original_sha256": "a822d16bc1912666e58d543e8383c7aa6b407aefcee9166dd8dfea78f5ba43bb"
   }
 ]

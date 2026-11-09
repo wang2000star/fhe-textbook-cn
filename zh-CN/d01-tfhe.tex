@@ -148,6 +148,8 @@ $\textsf{LWE}_{\vec{s}_{'},\sigma}(\Delta m + e') = (0, b) - \bm{\langle} \texts
 \subsection{密文与密文的同态乘法}
 \label{subsec:tfhe-mult-cipher}
 
+\autoref{subsubsec:bfv-mult-cipher-tfhe} 另行构造并有条件地证明了两个 LWE 密文的分层乘法。它使用张量乘积求值密钥、精确尺度 $\Delta=q/t$，以及显式的舍入与噪声界。它并非本小节的 GSW 外积，其求值密钥也不能替代盲旋转使用的 GGSW 密钥。
+
 下述证明中的精确分解恒等式假设 $q=\beta^l$。若采用截断分解，应写成 $c=\langle\textsf{Decomp}(c),\vec g\rangle+\rho_c\pmod q$，并将残差和 GSW 各行的误差一并计入输出误差。同态运算输出中的记号 $\sigma$ 不表示其噪声分布仍与新鲜加密时相同。
 
 \textbf{- 参考资料：}

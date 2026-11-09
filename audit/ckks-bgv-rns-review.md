@@ -24,7 +24,7 @@
 |P6|Bajard–Eynard–Hasan–Zucca, *A Full RNS Variant of FV-like Somewhat Homomorphic Encryption Schemes*, SAC 2016，ePrint 2016/510；[作者全文](https://webusers.imj-prg.fr/~jean-claude.bajard/MesPublis/SAC2016.pdf)|全文可读。核查 §3 的冗余模数解密、Theorem 1/Algorithm 1，§4.2 Small Montgomery、Algorithm 2/Lemma 4，§4.3 approximate flooring、Lemma 5，§4.4 精确基转换、Lemma 6，以及 §4.5 的 RNS gadget。|
 |P7|Halevi–Polyakov–Shoup, *An Improved RNS Variant of the BFV Homomorphic Encryption Scheme*, ePrint 2018/117；[作者全文](https://www.shoup.net/papers/rns-bfv.pdf)|网页工具可读取完整 PDF。核查 §2.2–2.4 的基转换及简单/复杂缩放、§4.5 的乘法；注意浮点商近似与舍入边界，不把 HPS 与 BEHZ 当成同一个算法。|
 
-补充核验已取得 arcsin 改进的完整作者稿（[ePrint 2020/552](https://eprint.iacr.org/2020/552)；[SNU 作者实验室目录第140项](https://ccl.snu.ac.kr/publication/intl-journal) → [作者提供的全文](https://drive.google.com/file/d/1Leyad-pmhT69ugUpdA3K04aetgoocIV5/view)）。已读 §4、§5.1–5.2，核对定义域、式(4)、Table 7 的近似次数和误差预算，未重跑其 SEAL 数值实验。Meta-BTS（[ePrint 2022/1167](https://eprint.iacr.org/2022/1167.pdf)）仍未取得完整 PDF；已定向核对 §1.1、§3.2 Theorem 3.2、§4.1 Corollary 4.2 的原论文正文缓存，证据强于仅摘要，但不声称逐段核对了完整算法和定量保证。BASALISC、HElib 资料的原引用保留，但本次对应数学结论主要由 P3–P6 全文及独立推导支持。
+补充核验已取得 arcsin 改进的完整作者稿（[ePrint 2020/552](https://eprint.iacr.org/2020/552)；[SNU 作者实验室目录第140项](https://ccl.snu.ac.kr/publication/intl-journal) → [作者提供的全文](https://drive.google.com/file/d/1Leyad-pmhT69ugUpdA3K04aetgoocIV5/view)）。已读 §4、§5.1–5.2，核对定义域、式(4)、Table 7 的近似次数和误差预算，未重跑其 SEAL 数值实验。Meta-BTS（[ePrint 2022/1167](https://eprint.iacr.org/2022/1167.pdf)）仍未取得完整 PDF；已定向核对 §1.1、定义 2.1/2.2、§3.2.1 Algorithm 1 与相邻说明、Theorem 3.1/3.2、§4.1 Corollary 4.2 的原论文正文缓存，并取得完整的[作者 CCS 2022 讲稿](https://wony0404.github.io/files/META-BTS_Wonhee_Cho_CCS.pptx)。独立条件定理已证明，但不声称逐段核对了原论文全稿；来源 SHA、访问边界和完整推导见 [CKKS 补核](ckks-followup.md)。BASALISC、HElib 资料的原引用保留，但本次对应数学结论主要由 P3–P6 全文及独立推导支持。
 
 ## 发现清单：CKKS
 
@@ -163,17 +163,18 @@
 - **位置**：`subsubsec:ckks-bootstrapping-noise-reduction` 的 Meta-BTS para。
 - **原陈述**：令误差密文为原密文减自举结果，之后又从自举结果减去该误差；用一次 rescale 代替层级对齐；未经归一化便声称误差总会指数减小，并给出无条件“最好”评价。
 - **判断**：若 $c_1$ 表示 $m+\eta$，错误方向的差为 $-\eta$，再相减得到 $m+2\eta$。正确的示意纠错是提取 $c_1-c$，适当归一化并自举该小误差，再从 $c_1$ 相减。ModDrop 与 rescale 的尺度效果不同。
-- **修正**：更正差的符号和对齐逻辑，明确这是示意流程；归一化、精度和剩余层级需要完整算法分析；撤销没有比较范围的最优性断言。
-- **依据**：独立代数反例；[原论文](https://eprint.iacr.org/2022/1167.pdf) §1.1、Theorem 3.2 和 Corollary 4.2 的正文缓存确认纠错方向，以及剩余模数和输入尺度的条件。未取得完整 PDF。**状态：符号错误已修正；完整定量 Meta-BTS 保证仍未独立核验。**
+- **修正**：撤销没有比较范围的最优性断言，并把示意流程补为条件定理。取实际因子 $a_j$、$P_1=1$、$P_{j+1}=a_jP_j$，基础尺度 $\Delta$、误差界 $\varepsilon$、重缩放归一化界 $\rho$。输入/输出尺度为 $P_k\Delta$，所有派生输入满足基础自举的内部允许条件，且 $a_j(\rho+\varepsilon)\le B$、$\|z_0\|_\infty+\rho\sum_{j<k}P_j^{-1}\le B$ 时，可在适当模数容量下得到新增误差界 $\varepsilon/P_k$。第一次重缩放与前次自举误差逐路径抵消，不假设独立性。
+- **新增反例**：$a=256,\varepsilon=1/256,\rho=1/65536$ 时，放大残差界为 $257/256>1$，故“8 位基础精度”本身不保证下一调用有效。实际 RNS 因子 65537 错用名义 65536 时，一个合法参数例的残差由约 $-0.75$ 变成 $-1.25$；真实因子必须进入尺度和输入预算。
+- **依据与状态**：独立证明和精确分数检查见 [CKKS 补核 §§3–6](ckks-followup.md)。[原论文](https://eprint.iacr.org/2022/1167.pdf)正文缓存及[完整作者讲稿](https://wony0404.github.io/files/META-BTS_Wonhee_Cho_CCS.pptx)支持方法结构。**教材所写条件定理已经证明；原论文完整定量主张与证明的逐段核验仍保留部分核验**，不把完整 PDF 尚不可得的问题与条件性代数推导混为一项。
 
 ### CBR-017　arcsin 的主值区间与固定“三层”论断
 
 - **位置**：同上，arcsin para 和 Limitation in Noise Handling para。
 - **原陈述**：$\arcsin(\sin x)$ 可直接作为直线消除全部类型三误差，代价固定为三层；反复纠错带来无条件指数收敛。
 - **判断**：精确复合只在主区间 $[-\pi/2,\pi/2]$ 上等于 $x$；例如 $x=\pi$ 时返回 0。周期延拓在不同区间交替斜率。实际电路还要近似各函数，深度取决于近似次数、分解和尺度安排，不能从函数恒等式得出固定三层的普遍结论。
-- **修正**：补充定义域和局部余数解释，撤销无条件深度/指数改善保证，保留方法出处并指出需要联合误差分析。
+- **修正**：补充定义域和局部余数解释，撤销无条件深度/指数改善保证。进一步给出完整联合误差预算：在复邻域中取内层导数界 $L_s$，令 $E_s=L_sE_C+\epsilon_s+H_s$；外层使用实区间近似界 $\epsilon_a$ 与复圆盘导数界 $L_a$，得到 $E_R\le(\epsilon_a+L_aE_s+H_a)/(2\pi)$。最终尺度恢复与线性变换必须计入 $\|L\|_\infty E_R+E_L$。因此没有把实数 Remez 近似界直接扩展到复噪声。
 - **一手全文核验**：作者提供的 EUROCRYPT 2021 版本 pp.643–644 §5.1 式(4) 要求 $0<\epsilon<1/4$，在 $\bigcup_k[k-\epsilon,k+\epsilon]$ 上使用 $\operatorname{normod}(t)=\arcsin(\sin(2\pi t))/(2\pi)$。p.645 Table 7 的反正弦多项式次数随参数为 15、9、7、5、5，正文仅称额外深度消耗。§4 与 §5.2 的误差平台讨论针对固定参数和实现，不能泛化成所有方法的不可突破下界。
-- **依据与状态**：主值定义、独立反例及[作者全文](https://drive.google.com/file/d/1Leyad-pmhT69ugUpdA3K04aetgoocIV5/view)相互核对；**已修正并完成本条条件与成本论断核查**。未重新实现论文的 SEAL 数值实验。
+- **依据与状态**：主值定义、独立反例及[作者全文](https://drive.google.com/file/d/1Leyad-pmhT69ugUpdA3K04aetgoocIV5/view)相互核对；联合误差模型的证明、Taylor 尾界、复扰动正反例和失败概率边界见 [CKKS 补核 §§7–8](ckks-followup.md)。明确上界不等于普遍正误差下限，旧误差不会被该纠错恢复。**已修正并完成教材所写条件、成本和联合误差论断核查**，对应原部分核验单元 `d03-ckks-051` 改为 corrected。未重新实现论文的 SEAL 数值实验，也未认证具体生产参数。
 
 ## 发现清单：BGV
 
@@ -393,10 +394,13 @@
 ```bash
 python audit/check_ckks_bgv_rns.py
 python audit/check_ckks_bgv_rns.py --json
+python audit/check_meta_bts.py --json
 python scripts/check_translation.py --math
 ```
 
 反例脚本仅使用 Python 标准库，包含 12 组、合计 16,368 个案例。它检验有限域/整数等式、CRT 提升和界、中心化舍入、BGV 同余保持、四维复数编码、槽位旋转和稀疏迹。测试不是随机跑到“未失败”，而是在固定小范围上穷举，或针对明确错误给出稳定的反例；每组对应本报告的发现 ID。
+
+后续 `check_meta_bts.py` 增加 8 组、13,970 个检查实例，涵盖实际尺度、递归残差、完全相关/自适应误差、输入余量、模数条件、复多项式导数及联合误差预算。6 组为精确有理数检查，2 组为明确标注的浮点一致性检查；它们不是完整 CKKS 实现或安全参数证明。完整推导和证据访问边界另存于 `ckks-followup.md`。
 
 翻译校验用于确认英文与中文的标签、引用、环境、图路径、标题数量和归一化数学片段一致，不证明数学正确。额外词法检查也确认本次六个文件没有孤立 `\item`、错配环境或数学环境之外的裸下标/上标。完整双语编译由主审校流程统一运行，编译和版式结果记录在总报告中，避免在此记录其他章节仍变化时的过时页数。
 
@@ -404,7 +408,7 @@ python scripts/check_translation.py --math
 
 1. **具体安全参数和失败概率**：没有为书中未实例化的 $n,q,Q,t,\Delta$、秘密分布和误差分布提供安全等级认证。新给出的确定性界通常是保守充分条件，不能代替原论文的更紧分析或具体库的参数选择。
 2. **复杂自举的完整实现**：核查了 P2、P5 的算法结构与关键正确性等式，并修正了原文错误；没有实现或形式化验证完整 CKKS/BGV/BFV 自举。线性变换分解、数位提取多项式的实际电路、每层噪声与尺度安排仍需具体实现来实例化。
-3. **改进自举的定量保证**：arcsin 已补读作者全文并核查定义域与参数相关成本，但没有重做数值实验。Meta-BTS 的指定定理正文缓存已核对，完整论文尚未逐段审阅；其算法与联合精度限制两项 coverage 继续保留部分核验。固定设置的精度限制不能写成所有方法普遍不可突破的下界。
+3. **改进自举的定量保证**：arcsin 已补读作者全文并核查定义域与参数相关成本，但没有重做其 SEAL 实验。Meta-BTS 的指定定理正文缓存及完整作者讲稿已读，完整论文仍未取得并逐段审阅，故仅其原论文全稿核验部分继续保留 `d03-ckks-050` 的 partially_verified 状态。教材新增的条件递推和联合误差模型均已独立证明；`d03-ckks-051` 已改为 corrected。具体生产参数下的内部允许条件与失败概率仍需实例化，不能将固定配置的实验平台视为所有方法普遍不可突破的下界。
 4. **HPS 浮点实现**：已阅读其基转换/缩放定义和精度讨论，没有认证任意浮点格式、编译器或硬件实现。靠近舍入边界的量不能无条件声称精确；本报告没有拿摘要替代全文，也没有把 BEHZ 的误差界移植成 HPS 的性能结论。
 5. **例子脚本与图像**：章节中链接的 `source code/` 程序由总审校任务另行审查；本报告的覆盖标记只确认本章节如何引用它们及其数学语义，不声称它们是生产可用密码库。原图像的标注和排版由总审校检查，本次没有悄悄修改图像来掩盖公式差异。
 6. **未证明的其他变体**：本书原 RNS BFV/BGV 自举替代链没有足够证据支持，本次已改为有来源的通用流程。结论是原文不能按现有说明证明，而不是声称任何经过补全的类似变体都不可能正确。

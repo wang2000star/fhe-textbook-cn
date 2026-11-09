@@ -16,7 +16,7 @@ ROOT = HERE.parent
 GROUPS = ["foundations", "tfhe-bfv", "ckks-bgv-rns", "summary", "python"]
 STATUS = {
     "corrected": "已修正",
-    "corrected_with_pending_security": "修正；安全条件待证",
+    "corrected_with_pending_security": "已修正；具体安全范围未认证",
     "checked_under_stated_conditions": "按所列条件核查",
     "verified_with_conditions": "条件性核验",
     "checked_with_conditions": "条件性核验",
@@ -93,6 +93,12 @@ def records_from(group):
             "review": notes,
             "source_ledger": name,
         })
+        # Preserve authored subclaim distinctions: a completed conditional
+        # reduction and uncertified concrete parameters are different claims.
+        if "security_subclaims" in row:
+            result[-1]["security_subclaims"] = row["security_subclaims"]
+        if "followup" in row:
+            result[-1]["followup"] = row["followup"]
     return result
 
 
@@ -141,7 +147,7 @@ def main():
     output = {
         "schema_version": 1, "review_date": "2026-11-08",
         "baseline_commit": baseline["baseline_commit"],
-        "policy": "Review status comes from authored ledgers, never from heading extraction or test success. Partial/pending items retain their original status.",
+        "policy": "Review status comes from authored ledgers, never from heading extraction or test success. Changes to original partial/pending states require the explicit evidence and remaining scope recorded in followup-status.json.",
         "counts": {"chapter_files": len(baseline["chapter_files"]), "baseline_headings": len(mapping),
                    "records": len(records), "findings": len(findings), "record_kinds": dict(counts),
                    "statuses": dict(Counter(r["status"] for r in records))},
@@ -159,7 +165,7 @@ def main():
                 lines.append(f"| {finding['id']} | {plain_heading(finding['title'])} |")
         lines.append("")
     (HERE / "findings-index.md").write_text("\n".join(lines).rstrip() + "\n")
-    lines = ["# 逐项覆盖清单", "", f"基线 `{baseline['baseline_commit']}`；{len(baseline['chapter_files'])} 个章节、{len(mapping)} 个原始标题单元均有对应的实际审查记录。共 {len(records)} 条覆盖记录还包括章节整体、定理框、24 个比较主题、代码、图形、前言和参考文献。计数有包含关系，不应当作互不重叠的文本单元。", "", "原始 TeX 标题、标签、逐项核查理由及分组来源见 `coverage.json`。本表为可读索引；标题去掉了排版宏。‘按条件核查’不表示完整安全证明；部分核验和安全待证事项保留原状态。新增标题明确标记，不计入 288 个原始标题。", ""]
+    lines = ["# 逐项覆盖清单", "", f"基线 `{baseline['baseline_commit']}`；{len(baseline['chapter_files'])} 个章节、{len(mapping)} 个原始标题单元均有对应的实际审查记录。共 {len(records)} 条覆盖记录还包括章节整体、定理框、24 个比较主题、代码、图形、前言和参考文献。计数有包含关系，不应当作互不重叠的文本单元。", "", "原始 TeX 标题、标签、逐项核查理由及分组来源见 `coverage.json`。本表为可读索引；标题去掉了排版宏。‘按条件核查’不表示具体参数已获安全认证；续审状态变化须有 followup-status.json 中的逐项证明与边界记录。FND-035 的已完成条件性归约和未认证参数分别保存在 security_subclaims 中。新增标题明确标记，不计入 288 个原始标题。", ""]
     files = baseline["chapter_files"] + ["00-main.tex", "z-bibfile.bib"]
     files += sorted({r["file"] for r in records if r["kind"] in {"python-file", "figure"}})
     for file in files:

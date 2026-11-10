@@ -1,0 +1,63 @@
+{
+  "source_commit": "92900a4923efd2a1c984f0365eef5650d2010ac2",
+  "textbook_run_id": 42675134457,
+  "textbook_artifact_ids": {
+    "en": 13700880661,
+    "zh": 13700266478
+  },
+  "report": {
+    "bytes": 1163348,
+    "pages": 126,
+    "sha256": "a187ce438187fc2dff2b96de21473c50a90eeb90b244066486ae480dfbcc7d5e",
+    "parts": [
+      {
+        "path": ".github/pdf-upload/review.part-000",
+        "bytes": 150000,
+        "sha256": "99216d72233cdb02a260f60a8cbffaa1f705f4f141ba0878fb086384daad6cd1",
+        "blob_sha": "55f9b93c1d967aa149fb7254b696728cd9dac7e0"
+      },
+      {
+        "path": ".github/pdf-upload/review.part-001",
+        "bytes": 150000,
+        "sha256": "4c24b433492a59111a5d81e942910850e79b75582ce27a6e981544d63514c25a",
+        "blob_sha": "f8d55a2a459f88e7472c2e38b44c55f5208c7445"
+      },
+      {
+        "path": ".github/pdf-upload/review.part-002",
+        "bytes": 150000,
+        "sha256": "e61554af4a41dc377bdb3530eefe34c0fe0845ed1e4292effb5b63655f6c55e4",
+        "blob_sha": "fd68a1bb94d97aabcba32a4ac00dd768acc52a83"
+      },
+      {
+        "path": ".github/pdf-upload/review.part-003",
+        "bytes": 150000,
+        "sha256": "a76192b44c3e55c938aac3b7c240ad8e7407523de32ca6ea143036ce15c4fc52",
+        "blob_sha": "e94352655d237c8a2ed1a756211a01e4738bdeb9"
+      },
+      {
+        "path": ".github/pdf-upload/review.part-004",
+        "bytes": 150000,
+        "sha256": "0ba0b15314c8efe880730bda5129f73d912445bdf44312f2edc48ee1f9e0ca12",
+        "blob_sha": "3bbde4ae9b00890b77b72cc8d6a7ec6e491ceaa2"
+      },
+      {
+        "path": ".github/pdf-upload/review.part-005",
+        "bytes": 150000,
+        "sha256": "71b9769904bfcd48fa06741a283bc16179616bc2427ece1fc51a6b837ad24d1f",
+        "blob_sha": "4dc3667d5788dc9e3370b201ebde323f73c3ed95"
+      },
+      {
+        "path": ".github/pdf-upload/review.part-006",
+        "bytes": 150000,
+        "sha256": "a1e02004dd4a36e308513447eb8f16148684fd648241f58bb873788754ce5714",
+        "blob_sha": "6ee9064b82678ca6d33e2df032367e87264f3b7e"
+      },
+      {
+        "path": ".github/pdf-upload/review.part-007",
+        "bytes": 113348,
+        "sha256": "ec6bf69de14e9c6e89afb6caba86851cfcf6aca3a7626e363fe55aabdef1f2da",
+        "blob_sha": "7604694ed336f97e25fa4b6906d63f3a03aa7b80"
+      }
+    ]
+  }
+}

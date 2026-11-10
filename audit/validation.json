@@ -78,7 +78,7 @@
     "runs_url": "https://github.com/wang2000star/fhe-textbook-cn/actions/workflows/pdf.yml",
     "note": "The observed post-push result is reported with the GitHub Actions run URL; no prospective CI success is asserted here."
   },
-  "source_hash_policy": "Final integrated files except this validation manifest itself. Git commit records the complete manifest; baseline hashes and per-unit original locations remain in their ledgers.",
+  "source_hash_policy": "The source_sha256 mapping records the explicitly listed academic-review source paths, excluding this validation file. Published PDFs and their byte hashes are separately recorded in pdf/manifest.json. The README.md digest reflects the publication links; earlier academic checks and local PDF build records are unchanged.",
   "followup_base_commit": "25d4cdb06d3dfd5ce4e741c54c590c14f0b9c226",
   "review_date_timezone": "UTC",
   "previous_review": {
@@ -273,7 +273,7 @@
     "00-main-zh.tex": "9d41efb6a4b4996ff8e2e5e7525b6fff1af1de6dd5d129577caacae160a97a43",
     "00-main.tex": "702f5f322d1f04798d97e409c31ae221fc48fd5e0c4e8a47a45c663dfed58bdb",
     "Makefile": "e07ba1881e7efe8fff3547f5bcf4d5536bb9d732c38202738d09daddfcf8b7d8",
-    "README.md": "d8d8b53445c7f6fb3c47b99b0d080a9db9f3d2b0908a64023c4d2eed36cc52df",
+    "README.md": "4c698051dc463182180891dcf63c02f77e3fcb0c3e718897919d3908cfb2b9b3",
     "README.zh-CN.md": "b07f8645e8d38a59884e858b36c07dfd2c194669170b37867d2fe17c639d6baa",
     "TRANSLATION.md": "89d873e8d2f98cc242add91f0a2bc00ebee7aef572acddc9fdeeef1a462cef3c",
     "a01-modulo.tex": "1abf1059438aa92a5f2b2496dbb4f2d914df8bf512b11571817bff33c0fe555a",

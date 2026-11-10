@@ -2,6 +2,12 @@
 
 本仓库在保留英文源码的基础上，提供对应的 **34 个章节中文译本**和独立中文 PDF 编译入口。
 
+<!-- published-pdf-links:start -->
+- [中文教材 PDF](pdf/fhe-textbook-zh.pdf)
+- [英文教材 PDF](pdf/fhe-textbook-en.pdf)
+- [逐项学术审校报告 PDF](pdf/fhe-textbook-academic-review.pdf)
+<!-- published-pdf-links:end -->
+
 - [逐项学术审校报告](audit/ACADEMIC_REVIEW.md)：原英文基线、问题依据、反例、双语修订与验证边界
 - [续审报告](audit/FOLLOWUP_REVIEW.md)：安全归约、扩域槽与公开 BFV 自举、CKKS 定量误差及真实 OpenFHE 复现
 - [中文编译与阅读说明](README.zh-CN.md)
